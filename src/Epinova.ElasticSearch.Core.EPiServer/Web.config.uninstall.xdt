@@ -18,11 +18,4 @@
       </add>
     </protectedModules>
   </episerver.shell>
-  <epinova.resourceprovider>
-    <providers>
-      <add assembly="Epinova.ElasticSearch.Core.EPiServer"
-           xdt:Locator="Match(assembly)"
-           xdt:Transform="Remove" />
-    </providers>
-  </epinova.resourceprovider>
 </configuration>
