@@ -23,6 +23,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Docs", "Docs", "{2A760EEC-F
 	ProjectSection(SolutionItems) = preProject
 		.editorconfig = .editorconfig
 		.gitignore = .gitignore
+		appveyor.yml = appveyor.yml
 		changelog.md = changelog.md
 		readme.md = readme.md
 		setup.md = setup.md
