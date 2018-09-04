@@ -208,7 +208,7 @@
     <None Include="Json\PostFilterShouldDate.json" />
     <None Include="Json\PostFilterShouldDateTime.json" />
     <None Include="Json\PostFilterShouldDouble_-123456.json" />
-    <None Include="Json\PostFilterShouldDouble_123456,7.json" />
+    <None Include="Json\PostFilterShouldDouble_123456-7.json" />
     <None Include="Json\PostFilterShouldDouble_123456.json" />
     <None Include="Json\PostFilterShouldFloat_-123456.json" />
     <None Include="Json\PostFilterShouldFloat_0.json" />
