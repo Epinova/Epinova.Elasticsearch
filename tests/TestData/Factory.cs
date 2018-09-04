@@ -295,7 +295,10 @@ namespace TestData
         private static string GetFilePath(string folder, string filename)
         {
             var appDir = new DirectoryInfo(AppDomain.CurrentDomain.BaseDirectory);
+            Console.WriteLine($"appDir: {appDir}");
+
             var jsonDir = Path.Combine(appDir.Parent?.Parent?.Parent?.FullName ?? String.Empty, "Tests", "TestData", folder);
+            Console.WriteLine($"jsonDir: {jsonDir}");
 
             return Path.Combine(jsonDir, filename);
         }
