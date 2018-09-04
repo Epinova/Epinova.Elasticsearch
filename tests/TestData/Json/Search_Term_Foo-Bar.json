@@ -1,0 +1,26 @@
+﻿"must": [
+  {
+    "multi_match": {
+      "query": "foo bar",
+      "lenient": true,
+      "operator": "or",
+      "fields": [
+        "bar"
+      ]
+    }
+  }
+], 
+"should": [
+  {
+    "multi_match": {
+      "query": "foo bar",
+      "lenient": true,
+      "operator": "or",
+      "type": "phrase",
+      "boost": 2,
+      "fields": [
+        "_all"
+      ]
+    }
+  }
+]

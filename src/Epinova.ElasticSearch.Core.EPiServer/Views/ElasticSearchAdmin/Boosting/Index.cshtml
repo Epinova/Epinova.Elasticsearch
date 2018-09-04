@@ -1,0 +1,125 @@
+﻿@* DisableLinePragmas: true *@
+@using System
+@using System.Web.Mvc.Html
+@using Epinova.ElasticSearch.Core.EPiServer.Extensions
+@using Epinova.ElasticSearch.Core.Utilities
+@using EPiServer.Framework.Localization;
+
+@model Epinova.ElasticSearch.Core.EPiServer.Models.BoostingViewModel
+
+@{
+    Layout = "~/Views/ElasticSearchAdmin/_ElasticSearch.cshtml";
+}
+
+@if (Model == null)
+{
+    return;
+}
+
+@{
+    string localizationPath = "/epinovaelasticsearch/boosting/";
+}
+
+@helper PageName(string typeKey)
+{
+    string key = typeKey.Split('_').Last();
+    @LocalizationService.Current.GetString("/contenttypes/" + key + "/name")
+}
+
+@helper TabName(string key)
+{
+    @LocalizationService.Current.GetString("/groups/" + key)
+}
+
+
+<div class="epi-parentContainer">
+
+    <h1 class="EP-prefix" id="top">@Html.TranslateWithPath("heading", localizationPath)</h1>
+    <p>@Html.TranslateWithPath("description", localizationPath)</p>
+
+    <div class="epi-contentContainer">
+        @Html.TranslateWithPath("totype", localizationPath):
+        <select id="gototype">
+            @foreach (var type in Model.BoostingByType)
+            {
+                <option value="@type.Key"><a href="#@type.Key">@PageName(type.Key)</a></option>
+            }
+        </select>
+    </div>
+
+    @foreach (var type in Model.BoostingByType)
+    {
+        <div class="epi-contentContainer">
+            <div class="epi-formArea epi-marginVertical">
+                @using (Html.BeginForm("Save", "ElasticBoosting"))
+                {
+                    string group = null;
+
+                    <div class="epi-contentContainer">
+                        <input type="hidden" name="TypeName" value="@type.Key" />
+
+                        <h2 id="@type.Key">@PageName(type.Key)</h2>
+
+                        <table class="epi-default">
+                            <thead>
+                                <tr>
+                                    <th>@Html.TranslateWithPath("property", localizationPath)</th>
+                                    <th>@Html.TranslateWithPath("boost", localizationPath)</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @for (int i = 0; i < type.Value.Count; i++)
+                                {
+                                    if (type.Value[i].GroupName != group)
+                                    {
+                                        group = type.Value[i].GroupName;
+                                        <tr>
+                                            <th colspan="2"><em>@TabName(group)</em></th>
+                                        </tr>
+                                    }
+
+                                    <tr>
+                                        <td>
+                                            <input name="Boosting[@i].Key" type="hidden" value="@type.Value[i].TypeName" />
+                                            @type.Value[i].DisplayName
+                                        </td>
+                                        <td>
+                                            <select name="Boosting[@i].Value" class="episize240">
+                                                @foreach (int w in Enumerable.Range(1, 20))
+                                                {
+                                                    <option @(w == type.Value[i].Weight ? "selected" : null) value="@w">@w</option>
+                                                }
+                                            </select>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="epi-buttonContainer">
+                        <span class="epi-cmsButton">
+                            <input class="epi-cmsButton-text epi-cmsButton-tools epi-cmsButton-Save" type="submit" value="@Html.TranslateWithPath("save", localizationPath)" title="@Html.TranslateWithPath("save", localizationPath)" />
+                        </span>
+                        <span class="epi-cmsButton">
+                            <input type="button" class="gototop epi-cmsButton-text epi-cmsButton-tools epi-cmsButton-ArrowLeft" value="@Html.TranslateWithPath("back", localizationPath)" />
+                        </span>
+                    </div>
+                }
+            </div>
+        </div>
+    }
+</div>
+
+@section Scripts {
+    <script>
+        $(".gototop").click(function () {
+            document.location.hash = '#top';
+            return false;
+        });
+
+        $("#gototype").change(function () {
+            document.location.hash = '#' + $(this).val();
+            return false;
+        });
+    </script>
+}

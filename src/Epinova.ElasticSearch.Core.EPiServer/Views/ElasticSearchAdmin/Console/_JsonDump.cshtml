@@ -1,0 +1,32 @@
+﻿@* DisableLinePragmas: true *@
+@using System.Web.Mvc.Html
+@using Epinova.ElasticSearch.Core.EPiServer.Extensions
+@using EPiServer.Shell.Web.Mvc.Html
+
+@{
+    Layout = "~/Views/ElasticSearchAdmin/_ElasticSearch.cshtml";
+    string endpoint = ViewBag.Endpoint ?? "";
+    string localizationPath = "/epinovaelasticsearch/console/";
+}
+
+@using (Html.BeginForm(endpoint, "ElasticConsole"))
+{
+    <h2>@Html.TranslateWithPathRaw(endpoint, localizationPath)</h2>
+    <p>
+        <label>
+            @Html.TranslateWithPathRaw("index", localizationPath)
+            <select data-dojo-type="dijit/form/Select" name="index">
+                @foreach (string index in ViewBag.Indices)
+                {
+                    <option value="@index" selected="@(ViewBag.SelectedIndex == index ? "selected" : null)">@index</option>
+                }
+            </select>
+        </label>
+        <button data-dojo-type="dijit/form/Button" type="submit" class="epi-primary">@Html.TranslateWithPathRaw("show", localizationPath)</button>
+    </p>
+}
+
+@if (ViewBag.Result != null)
+{
+    <pre>@ViewBag.Result</pre>
+}

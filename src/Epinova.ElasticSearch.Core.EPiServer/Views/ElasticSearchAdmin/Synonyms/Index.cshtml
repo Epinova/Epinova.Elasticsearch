@@ -1,0 +1,155 @@
+﻿@* DisableLinePragmas: true *@
+@using System.Web.Mvc.Html
+@using Epinova.ElasticSearch.Core.EPiServer.Extensions
+@using Epinova.ElasticSearch.Core.EPiServer.Models.ViewModels
+
+@model SynonymsViewModel
+
+@{
+    ViewBag.ContainerClass = String.Empty;
+    Layout = "~/Views/ElasticSearchAdmin/_ElasticSearch.cshtml";
+}
+
+@if (Model == null)
+{
+    return;
+}
+
+@{
+    string localizationPath = "/epinovaelasticsearch/synonyms/";
+}
+
+@section Styles
+{
+    <style>
+        #tabContainer .field-actions,
+        #tabContainer .field-twoway {
+            width: 120px;
+            text-align: center;
+        }
+
+            #tabContainer .field-twoway .dijitCheckBoxDisabled {
+                background-position: -15px;
+            }
+
+            #tabContainer .field-twoway .dijitCheckBoxCheckedDisabled {
+                background-position: 0;
+            }
+
+            #tabContainer .field-twoway .dijitDisabled input {
+                color: inherit;
+            }
+    </style>
+}
+
+<div id="tabContainer">
+    <div data-dojo-type="dijit/layout/TabContainer" doLayout="false">
+        @foreach (LanguageSynonyms lang in Model.SynonymsByLanguage)
+        {
+            <div data-dojo-type="dijit/layout/ContentPane" title="@lang.LanguageName" data-dojo-props="@(lang.LanguageId == Model.CurrentLanguage ? "selected:true" : null)">
+                <div class="epi-padding-small">
+                    @if (ViewBag.Indices != null)
+                    {
+                        using (Html.BeginForm("Index", "ElasticSynonyms"))
+                        {
+                            <input type="hidden" name="LanguageId" value="@lang.LanguageId" />
+                            <h2>@Html.TranslateWithPathRaw("index", localizationPath)</h2>
+                            <p>
+                                <label>
+                                    <select data-dojo-type="dijit/form/Select" name="index">
+                                        @foreach (string index in ViewBag.Indices)
+                                        {
+                                            <option value="@index" selected="@(ViewBag.SelectedIndex == index ? "selected" : null)">@index</option>
+                                        }
+                                    </select>
+                                </label>
+                                <button data-dojo-type="dijit/form/Button" type="submit" class="epi-primary">@Html.TranslateWithPathRaw("show", localizationPath)</button>
+                            </p>
+                        }
+                    }
+
+                    @using (Html.BeginForm("Add", "ElasticSynonyms"))
+                    {
+                        <input type="hidden" name="Index" value="@ViewBag.SelectedIndex" />
+                        <input type="hidden" name="Analyzer" value="@lang.Analyzer" />
+                        <input type="hidden" name="LanguageId" value="@lang.LanguageId" />
+
+                        <h2>@Html.TranslateWithPath("newsynonym", localizationPath)</h2>
+                        <p>
+                            <input data-dojo-type="dijit/form/ValidationTextBox" name="from" data-dojo-props="placeholder:'@Html.TranslateWithPathRaw("from", localizationPath)',required:true" />
+                            <input data-dojo-type="dijit/form/ValidationTextBox" name="to" data-dojo-props="placeholder:'@Html.TranslateWithPathRaw("to", localizationPath)',required:true" />
+                            <input type="radio" name="twoway" value="true" data-dojo-type="dijit/form/CheckBox" /> @Html.TranslateWithPath("twoway", localizationPath)
+                            <button data-dojo-type="dijit/form/Button" type="submit" class="epi-primary">@Html.TranslateWithPath("addnew", localizationPath)</button>
+                        </p>
+
+                        <h2>@Html.TranslateWithPath("existingsynonyms", localizationPath)</h2>
+                        <div id="@(lang.LanguageId)-synonymsGrid"></div>
+                    }
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+<script>
+    require(
+        ["dojo/_base/declare", "dgrid/Grid", "dijit/form/Button", "dijit/form/CheckBox", "dojo/domReady!"],
+        function (declare, Grid, Button, CheckBox) {
+            @foreach (LanguageSynonyms lang in Model.SynonymsByLanguage)
+            {
+                <text>
+                new Grid({
+                        "class": "epi-grid-height--300 epi-grid--with-border",
+                        columns: {
+                            from: "@Html.TranslateWithPath("from", localizationPath)",
+                            to: "@Html.TranslateWithPath("to", localizationPath)",
+                            twoway: {
+                                label: "@Html.TranslateWithPath("twoway", localizationPath)",
+                                renderCell: function (object, value, node) {
+                                    new CheckBox({
+                                        name: "twoway",
+                                        checked: object.twoway,
+                                        disabled: true
+                                    })
+                                    .placeAt(node)
+                                    .startup();
+                                }
+                            },
+                            actions: {
+                                label: "",
+                                renderCell: function (object, value, node) {
+                                    new Button({
+                                            label: "@Html.TranslateWithPath("delete", localizationPath)",
+                                            iconClass: "dijitIcon epi-iconTrash",
+                                            onClick: function() {
+                                                if (confirm("@Html.TranslateWithPath("confirmDelete", localizationPath)")) {
+                                                    window.location = "@Url.Action("Delete", "ElasticSynonyms")?index=@(ViewBag.SelectedIndex)&languageId=" + object.lang + "&analyzer=@(lang.Analyzer)&from=" + object.from + "&to=" + object.to + "&twoway=" + object.twoway;
+                                                }
+                                            }
+                                        })
+                                        .placeAt(node)
+                                        .startup();
+                                }
+                            }
+                        }
+                    }, "@(lang.LanguageId)-synonymsGrid")
+                    .renderArray([
+                        @foreach (var synonym in lang.Synonyms)
+                        {
+                            <text>
+                                {
+                                    from: "@Html.Raw(synonym.From)",
+                                    to: "@Html.Raw(synonym.To)",
+                                    twoway: @synonym.TwoWay.ToString().ToLower(),
+                                    lang: "@lang.LanguageId",
+                                    actions: ""
+                                }
+                            </text>
+                            @(synonym != lang.Synonyms.Last() ? "," : null)
+                        }
+                    ]);
+                </text>
+            }
+        }
+    );
+</script>

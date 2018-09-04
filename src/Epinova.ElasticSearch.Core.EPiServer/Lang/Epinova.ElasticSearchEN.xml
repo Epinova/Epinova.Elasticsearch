@@ -1,0 +1,177 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<languages>
+  <language name="English" id="en">
+    <contenttypes>
+      <synonymbackupfile>
+        <name>Synonym Backup File</name>
+        <description />
+      </synonymbackupfile>
+      <synonymbackupfilefolder>
+        <name>Synonym Backup File Folder</name>
+        <description />
+      </synonymbackupfilefolder>
+      <boostingfolder>
+        <name>Boosting Folder</name>
+        <description />
+      </boostingfolder>
+      <boostingdata>
+        <name>Boosting Data</name>
+        <description />
+      </boostingdata>
+    </contenttypes>
+    <epinovaelasticsearch>
+      <widget>
+        <button>
+          <label>Update searchindex</label>
+          <tooltip>Update searchindex</tooltip>
+        </button>
+        <status>
+          <updateOk>Index was updated</updateOk>
+          <updateFailed>Could not update index</updateFailed>
+        </status>
+      </widget>
+      <admin>
+        <heading>Administration and status</heading>
+      </admin>
+      <console>
+        <heading>Console</heading>
+        <execute>Execute</execute>
+        <show>Show</show>
+        <index>Index</index>
+        <all>All</all>
+        <query>Query</query>
+        <result>Result</result>
+        <mapping>Mapping</mapping>
+        <settings>Settings</settings>
+      </console>
+      <indexinspector>
+        <all>Show all</all>
+        <count>Number of hits</count>
+        <placeholder>Search text</placeholder>
+        <execute>Search</execute>
+        <heading>Search index</heading>
+        <languages>Language</languages>
+        <nocategory>Uten kategori</nocategory>
+        <nohits>No hits</nohits>
+        <unfiltered>Limit number of hits by searching or filtering on type. Wildcards are supported in search-query.</unfiltered>
+        <types>Type</types>
+      </indexinspector>
+      <bestbets>
+        <heading>Best Bets</heading>
+        <newbestbet>New Best Bet</newbestbet>
+        <addnew>Add</addnew>
+        <phrase>Phrase</phrase>
+        <contentid>Page</contentid>
+        <url>Url</url>
+        <delete>Delete</delete>
+        <confirmDelete>Delete Best Bet?</confirmDelete>
+        <existingbestbets>Existing Best Bets</existingbestbets>
+        <show>Show</show>
+        <index>Index</index>
+      </bestbets>
+      <boosting>
+        <heading>Boosting</heading>
+        <description>Editorial property boosting</description>
+        <property>Property</property>
+        <boost>Boost</boost>
+        <save>Save</save>
+        <back>Back</back>
+        <totype>Go to page type</totype>
+      </boosting>
+      <synonyms>
+        <heading>Synonyms</heading>
+        <description>Synonym handling</description>
+        <show>Show</show>
+        <index>Index</index>
+        <from>From</from>
+        <to>To</to>
+        <save>Save</save>
+        <twoway>Two-way</twoway>
+        <delete>Delete</delete>
+        <addnew>Add</addnew>
+        <confirmDelete>Delete synonym?</confirmDelete>
+        <newsynonym>New synonym</newsynonym>
+        <existingsynonyms>Existing synonyms</existingsynonyms>
+      </synonyms>
+      <autosuggest>
+        <heading>Autosuggest</heading>
+        <description></description>
+        <word>Word</word>
+        <save>Save</save>
+        <delete>Delete</delete>
+        <addnew>Add</addnew>
+        <confirmDelete>Delete word?</confirmDelete>
+        <newword>New word</newword>
+        <existingwords>Existing words</existingwords>
+      </autosuggest>
+      <node>
+        <heading>Nodes</heading>
+        <name>Name</name>
+        <master>Master</master>
+        <masterTrue>Oh, yes</masterTrue>
+        <masterFalse></masterFalse>
+        <version>Version</version>
+        <ip>IP</ip>
+        <cpu>CPU %</cpu>
+        <hdd>HDD</hdd>
+        <mem>Memory</mem>
+        <uptime>Up time</uptime>
+      </node>
+      <clusterhealth>
+        <cluster>Name</cluster>
+        <heading>Cluster</heading>
+        <init>Init</init>
+        <nodedata>Node Data</nodedata>
+        <nodetotal>Node Total</nodetotal>
+        <pri>Priority</pri>
+        <relo>Relo</relo>
+        <shards>Shards</shards>
+        <status>Status</status>
+        <timestamp>Timestamp</timestamp>
+        <unassign>Unassign</unassign>
+      </clusterhealth>
+      <heading>Search Engine</heading>
+      <indexes>
+        <create>Create</create>
+        <addnewindex>Add new Index</addnewindex>
+        <addorupdateindexes>Setup</addorupdateindexes>
+        <addorupdateindexesbutton>Create indices</addorupdateindexesbutton>
+        <addnewindexinfo>Uses name from configuration.</addnewindexinfo>
+        <confirmDelete>Are you sure you want to delete this index?</confirmDelete>
+        <delete>Delete</delete>
+        <docscount>Documents</docscount>
+        <docsdeleted>Deleted</docsdeleted>
+        <heading>Indices</heading>
+        <health>Health</health>
+        <index>Index</index>
+        <pri>Priority</pri>
+        <pristoresize>Data Size (priority)</pristoresize>
+        <tokenizer>Tokenizer</tokenizer>
+        <tokenizerstandard>Standard</tokenizerstandard>
+        <tokenizerngram>N-gram</tokenizerngram>
+        <rep>Rep</rep>
+        <status>Status</status>
+        <type>Type</type>
+        <storesize>Size</storesize>
+        <init>Create index</init>
+      </indexes>
+      <indexinspector>Inspect Index</indexinspector>
+      <tracking>
+        <heading>Stats</heading>
+        <searchword>Search text</searchword>
+        <count>Count</count>
+        <searches>All performed searches</searches>
+        <searchesnohits>Searches without hits</searchesnohits>
+        <clear>Clear history</clear>
+        <clearconfirm>Are you sure?</clearconfirm>
+      </tracking>
+      <providers>
+        <page>Epinova page search</page>
+        <file>Epinova file search</file>
+        <block>Epinova block search</block>
+        <product>Epinova products</product>
+        <campaigns>Epinova campaigns</campaigns>
+      </providers>
+    </epinovaelasticsearch>
+  </language>
+</languages>

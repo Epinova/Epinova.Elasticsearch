@@ -1,0 +1,28 @@
+﻿<configuration xmlns:xdt="http://schemas.microsoft.com/XML-Document-Transform">
+  <configSections>
+    <section name="epinova.elasticSearch" 
+             type="Epinova.ElasticSearch.Core.Settings.ElasticSearchConfigurationHandler, Epinova.ElasticSearch.Core" 
+             xdt:Locator="Match(name)" 
+             xdt:Transform="Remove" />
+  </configSections>
+  <!--
+  Screws up nuget updates
+  <epinova.elasticSearch xdt:Transform="Remove" />
+  -->
+  <episerver.shell>
+    <protectedModules rootPath="~/EPiServer/">
+      <add name="ElasticSearch" xdt:Locator="Match(name)" xdt:Transform="Remove">
+        <assemblies>
+          <add assembly="Epinova.ElasticSearch.Core.EPiServer" xdt:Locator="Match(assembly)" xdt:Transform="Remove" />
+        </assemblies>
+      </add>
+    </protectedModules>
+  </episerver.shell>
+  <epinova.resourceprovider>
+    <providers>
+      <add assembly="Epinova.ElasticSearch.Core.EPiServer"
+           xdt:Locator="Match(assembly)"
+           xdt:Transform="Remove" />
+    </providers>
+  </epinova.resourceprovider>
+</configuration>

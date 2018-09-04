@@ -1,0 +1,277 @@
+﻿{
+    "took": 2,
+    "timed_out": false,
+    "_shards": {
+        "total": 5,
+        "successful": 5,
+        "failed": 0
+    },
+    "hits": {
+        "total": 10,
+        "max_score": 1.1784737,
+        "hits": [
+            {
+                "_index": "nitodemo",
+                "_type": "Epinova.ElasticSearch.Core.EPiServer.IndexItem",
+                "_id": "46",
+                "_score": 1.1784737,
+                "_source": {
+                    "Id": 46,
+                    "Title": "Nyhet test bacon",
+                    "Updated": "2015-03-31T23:01:04.2493062+02:00",
+                    "Type": "EPiServer_Core_ContentAssetFolder",
+                    "Types": [
+                        "EPiServer_Core_ContentAssetFolder",
+                        "EPiServer_Core_ContentFolder",
+                        "EPiServer_Core_BasicContent",
+                        "EPiServer_Core_ContentData",
+                        "System_Object"
+                    ],
+                    "Properties": {
+                        "Name": "Nyhet test bacon"
+                    }
+                }
+            },
+            {
+                "_index": "nitodemo",
+                "_type": "Epinova_ElasticSearch_Core_EPiServer_IndexItemStuffer",
+                "_id": "46",
+                "_score": 1.1784737,
+                "_source": {
+                    "Id": 46,
+                    "Title": "Nyhet test bacon",
+                    "Updated": "2015-04-05T01:03:02.680044+02:00",
+                    "Type": "EPiServer_Core_ContentAssetFolder",
+                    "Types": [
+                        "EPiServer_Core_ContentAssetFolder",
+                        "EPiServer_Core_ContentFolder",
+                        "EPiServer_Core_BasicContent",
+                        "EPiServer_Core_ContentData",
+                        "System_Object"
+                    ],
+                    "Properties": {
+                        "Name": "Nyhet test bacon"
+                    }
+                }
+            },
+            {
+                "_index": "nitodemo",
+                "_type": "Epinova.ElasticSearch.Core.EPiServer.IndexItem",
+                "_id": "68",
+                "_score": 0.9724207,
+                "_source": {
+                    "Id": 68,
+                    "Lang": "nb",
+                    "Title": "Sitat av Bacon Ipsum",
+                    "Updated": "2015-03-31T23:01:03.8721332+02:00",
+                    "Type": "NITO_Models_Blocks_QuoteBlock",
+                    "Types": [
+                        "NITO_Models_Blocks_QuoteBlock",
+                        "EPiServer_Core_BlockData",
+                        "EPiServer_Core_ContentData",
+                        "System_Object"
+                    ],
+                    "Properties": {
+                        "Quote": "Sitat",
+                        "Quotee": "Bacon Ipsum"
+                    }
+                }
+            },
+            {
+                "_index": "nitodemo",
+                "_type": "Epinova_ElasticSearch_Core_EPiServer_IndexItemStuffer",
+                "_id": "68",
+                "_score": 0.9724207,
+                "_source": {
+                    "Id": 68,
+                    "Lang": "nb",
+                    "Title": "Sitat av Bacon Ipsum",
+                    "Updated": "2015-04-05T01:03:02.294646+02:00",
+                    "Type": "NITO_Models_Blocks_QuoteBlock",
+                    "Types": [
+                        "NITO_Models_Blocks_QuoteBlock",
+                        "EPiServer_Core_BlockData",
+                        "EPiServer_Core_ContentData",
+                        "System_Object"
+                    ],
+                    "Properties": {
+                        "Quote": "Sitat",
+                        "Quotee": "Bacon Ipsum"
+                    }
+                }
+            },
+            {
+                "_index": "nitodemo",
+                "_type": "Epinova.ElasticSearch.Core.EPiServer.IndexItem",
+                "_id": "37",
+                "_score": 0.56724536,
+                "_source": {
+                    "Id": 37,
+                    "Lang": "nb",
+                    "Title": "Bacon sitat",
+                    "Updated": "2015-03-31T23:01:04.1432954+02:00",
+                    "Type": "NITO_Models_Blocks_QuoteBlock",
+                    "Types": [
+                        "NITO_Models_Blocks_QuoteBlock",
+                        "EPiServer_Core_BlockData",
+                        "EPiServer_Core_ContentData",
+                        "System_Object"
+                    ],
+                    "Properties": {
+                        "Quote": "Quis tail picanha, elit cupidatat in qui aute pariatur. Ipsum strip steak doner, flank reprehenderit turkey landjaeger consectetur exercitation hamburger. Doner picanha fatback, tongue brisket kielbasa nisi turkey filet mignon pork loin minim rump ham hock. Ullamco ground round laboris spare ribs in swine landjaeger fatback est picanha",
+                        "Quotee": "Bacon Ipsum"
+                    }
+                }
+            },
+            {
+                "_index": "nitodemo",
+                "_type": "Epinova_ElasticSearch_Core_EPiServer_IndexItemStuffer",
+                "_id": "37",
+                "_score": 0.56724536,
+                "_source": {
+                    "Id": 37,
+                    "Lang": "nb",
+                    "Title": "Bacon sitat",
+                    "Updated": "2015-04-05T01:03:02.5810002+02:00",
+                    "Type": "NITO_Models_Blocks_QuoteBlock",
+                    "Types": [
+                        "NITO_Models_Blocks_QuoteBlock",
+                        "EPiServer_Core_BlockData",
+                        "EPiServer_Core_ContentData",
+                        "System_Object"
+                    ],
+                    "Properties": {
+                        "Quote": "Quis tail picanha, elit cupidatat in qui aute pariatur. Ipsum strip steak doner, flank reprehenderit turkey landjaeger consectetur exercitation hamburger. Doner picanha fatback, tongue brisket kielbasa nisi turkey filet mignon pork loin minim rump ham hock. Ullamco ground round laboris spare ribs in swine landjaeger fatback est picanha",
+                        "Quotee": "Bacon Ipsum"
+                    }
+                }
+            },
+            {
+                "_index": "nitodemo",
+                "_type": "Epinova.ElasticSearch.Core.EPiServer.IndexItem",
+                "_id": "16",
+                "_score": 0.27295598,
+                "_source": {
+                    "Id": 16,
+                    "Lang": "nb",
+                    "Title": "NITO støtter forslag om finansiering av universiteter og høyskoler",
+                    "Updated": "2015-03-31T23:01:03.4591239+02:00",
+                    "Type": "NITO_Models_Pages_NewsPage",
+                    "Types": [
+                        "NITO_Models_Pages_NewsPage",
+                        "NITO_Models_Pages_ArticlePage",
+                        "NITO_Models_Pages_Abstractions_EditorialPage",
+                        "NITO_Models_Pages_Abstractions_ContentPage",
+                        "NITO_Models_Pages_Abstractions_SimpleContentPage",
+                        "NITO_Models_Pages_Abstractions_BasePageData",
+                        "EPiServer_Core_PageData",
+                        "EPiServer_Core_ContentData",
+                        "System_Object"
+                    ],
+                    "Properties": {
+                        "MainIntro": "Ham pork loin turducken beef turkey, biltong pig jowl spare ribs hamburger pastrami doner kielbasa alcatra. Strip steak sirloin prosciutto pancetta. Fatback chicken ball tip cupim ham pancetta pork belly pork chop, tongue filet mignon shankle venison.",
+                        "MainBody": "Ribeye corned beef sausage, biltong hamburger frankfurter tail beef ball tip short loin. Corned beef short loin hamburger t-bone, venison turducken pig sirloin shoulder ham hock beef meatball flank pork. Strip steak biltong porchetta short loin. Cupim bacon chuck short ribs pastrami andouille. Shankle sirloin biltong, leberkas strip steak cow boudin pastrami. Pork belly frankfurter cupim, flank chuck spare ribs shank alcatra cow filet mignon boudin. Alcatra jerky cow rump short loin. Landjaeger biltong short loin, pork chop bresaola venison swine tri-tip ham drumstick flank pork. ",
+                        "Heading": "Nito støtter forslag om finansiering av universiteter og høyskoler",
+                        "MetaDescription": "Ham pork loin turducken beef turkey, biltong pig jowl spare ribs hamburger pastrami doner kielbasa alcatra. Strip steak sirloin prosciutto pancetta. Fatback chicken ball tip cupim ham pancetta pork belly pork chop, tongue filet mignon sha …",
+                        "Title": "Nito støtter forslag om finansiering av universiteter og høyskoler",
+                        "Name": "NITO støtter forslag om finansiering av universiteter og høyskoler"
+                    }
+                }
+            },
+            {
+                "_index": "nitodemo",
+                "_type": "Epinova_ElasticSearch_Core_EPiServer_IndexItemStuffer",
+                "_id": "16",
+                "_score": 0.27295598,
+                "_source": {
+                    "Id": 16,
+                    "Lang": "nb",
+                    "Title": "NITO støtter forslag om finansiering av universiteter og høyskoler",
+                    "Updated": "2015-04-05T01:03:01.9720524+02:00",
+                    "Type": "NITO_Models_Pages_NewsPage",
+                    "Types": [
+                        "NITO_Models_Pages_NewsPage",
+                        "NITO_Models_Pages_ArticlePage",
+                        "NITO_Models_Pages_Abstractions_EditorialPage",
+                        "NITO_Models_Pages_Abstractions_ContentPage",
+                        "NITO_Models_Pages_Abstractions_SimpleContentPage",
+                        "NITO_Models_Pages_Abstractions_BasePageData",
+                        "EPiServer_Core_PageData",
+                        "EPiServer_Core_ContentData",
+                        "System_Object"
+                    ],
+                    "Properties": {
+                        "MainIntro": "Ham pork loin turducken beef turkey, biltong pig jowl spare ribs hamburger pastrami doner kielbasa alcatra. Strip steak sirloin prosciutto pancetta. Fatback chicken ball tip cupim ham pancetta pork belly pork chop, tongue filet mignon shankle venison.",
+                        "MainBody": "Ribeye corned beef sausage, biltong hamburger frankfurter tail beef ball tip short loin. Corned beef short loin hamburger t-bone, venison turducken pig sirloin shoulder ham hock beef meatball flank pork. Strip steak biltong porchetta short loin. Cupim bacon chuck short ribs pastrami andouille. Shankle sirloin biltong, leberkas strip steak cow boudin pastrami. Pork belly frankfurter cupim, flank chuck spare ribs shank alcatra cow filet mignon boudin. Alcatra jerky cow rump short loin. Landjaeger biltong short loin, pork chop bresaola venison swine tri-tip ham drumstick flank pork. ",
+                        "Heading": "Nito støtter forslag om finansiering av universiteter og høyskoler",
+                        "MetaDescription": "Ham pork loin turducken beef turkey, biltong pig jowl spare ribs hamburger pastrami doner kielbasa alcatra. Strip steak sirloin prosciutto pancetta. Fatback chicken ball tip cupim ham pancetta pork belly pork chop, tongue filet mignon sha …",
+                        "Title": "Nito støtter forslag om finansiering av universiteter og høyskoler",
+                        "Name": "NITO støtter forslag om finansiering av universiteter og høyskoler"
+                    }
+                }
+            },
+            {
+                "_index": "nitodemo",
+                "_type": "Epinova.ElasticSearch.Core.EPiServer.IndexItem",
+                "_id": "8",
+                "_score": 0.21044174,
+                "_source": {
+                    "Id": 8,
+                    "Lang": "nb",
+                    "Title": "Artikkel",
+                    "Updated": "2015-03-31T23:01:04.2963138+02:00",
+                    "Type": "NITO_Models_Pages_ArticlePage",
+                    "Types": [
+                        "NITO_Models_Pages_ArticlePage",
+                        "NITO_Models_Pages_Abstractions_EditorialPage",
+                        "NITO_Models_Pages_Abstractions_ContentPage",
+                        "NITO_Models_Pages_Abstractions_SimpleContentPage",
+                        "NITO_Models_Pages_Abstractions_BasePageData",
+                        "EPiServer_Core_PageData",
+                        "EPiServer_Core_ContentData",
+                        "System_Object"
+                    ],
+                    "Properties": {
+                        "MainIntro": "NITO har sent innspill til regjeringens varslede stortingsmelding om struktur i høyere utdanning. NITO mener det  er viktig å sikre gode rammevilkår for institusjonene som skal gi høyere utdanning. Samtidig er det behov for strukturelle endringer for å styrke samordning og dimensjonering og kvalitet i utdanningene.",
+                        "MainBody": "NITO har sent innspill til regjeringens varslede stortingsmelding om struktur i høyere utdanning. NITO mener det &nbsp;er viktig å sikre gode rammevilkår for institusjonene som skal gi ekstern link høyere utdanning. Samtidig er det behov for strukturelle endringer for å styrke samordning og dimensjonering og kvalitet i utdanningene. Test test 2 test kjbkjb test kjbkjb Innspill til stortingsmeldinga NITO har sent innspill til regjeringens varslede stortingsmelding om struktur i høyere utdanning. NITO mener det &nbsp;er viktig å sikre gode rammevilkår for institusjonene som skal gi høyere utdanning. Samtidig er det behov for strukturelle endringer for å styrke samordning og dimensjonering og kvalitet i utdanningene. Innspill til stortingsmeldinga Picanha ribeye rump beef corned beef tenderloin tail biltong tongue spare ribs pastrami chuck sirloin pig. Sausage tail kevin, ham porchetta doner capicola prosciutto turkey short loin spare ribs strip steak beef picanha short ribs Turkey t-bone cow tail ball tip ham pork loin short ribs pastrami leberkas. Turducken meatloaf short ribs beef ribs tri-tip salami alcatra kielbasa drumstick t-bone. Drumstick jowl brisket short ribs andouille pig rump chicken pork strip steak. Pork loin drumstick tenderloin shankle brisket. Kevin brisket alcatra frankfurter, spare ribs bresaola jerky sausage turducken corned beef pork chop kielbasa ham hock. Rump tenderloin ribeye chuck shankle spare ribs. Pig tenderloin sausage biltong, brisket capicola pork loin fatback t-bone spare ribs tongue cupim salami doner pork belly. &nbsp; Shoulder jerky sirloin ground round. Brisket strip steak alcatra chuck ham pork prosciutto tenderloin t-bone capicola flank pancetta pork belly. Pastrami prosciutto tri-tip turkey strip steak short loin. - NITOs lille hjelper Ball tip strip steak pig cow pork belly andouille tri-tip salami picanha short loin frankfurter jerky shankle corned beef short ribs. Corned beef cupim chicken, venison capicola short loin jerky porchetta ground round. Picanha flank spare ribs kevin tongue jerky meatloaf, tenderloin boudin doner. Pig spare ribs bacon ground round. Pork tri-tip rump venison shankle swine biltong shank t-bone alcatra tenderloin pig sirloin andouille frankfurter. Pork loin spare ribs bacon biltong meatloaf cupim. Turducken turkey meatloaf drumstick swine pork belly boudin ham pork ribeye t-bone jowl filet mignon tongue strip steak. ",
+                        "Heading": "En helt vanlig artikkeltittel",
+                        "MetaDescription": "NITO har sent innspill til regjeringens varslede stortingsmelding om struktur i høyere utdanning. NITO mener det  er viktig å sikre gode rammevilkår for institusjonene som skal gi høyere utdanning. Samtidig er det behov for strukturelle e …",
+                        "Title": "Overstyrt tittel-tagg",
+                        "Name": "Artikkel"
+                    }
+                }
+            },
+            {
+                "_index": "nitodemo",
+                "_type": "Epinova_ElasticSearch_Core_EPiServer_IndexItemStuffer",
+                "_id": "8",
+                "_score": 0.21044174,
+                "_source": {
+                    "Id": 8,
+                    "Lang": "nb",
+                    "Title": "Artikkel",
+                    "Updated": "2015-04-05T01:03:02.7114617+02:00",
+                    "Type": "NITO_Models_Pages_ArticlePage",
+                    "Types": [
+                        "NITO_Models_Pages_ArticlePage",
+                        "NITO_Models_Pages_Abstractions_EditorialPage",
+                        "NITO_Models_Pages_Abstractions_ContentPage",
+                        "NITO_Models_Pages_Abstractions_SimpleContentPage",
+                        "NITO_Models_Pages_Abstractions_BasePageData",
+                        "EPiServer_Core_PageData",
+                        "EPiServer_Core_ContentData",
+                        "System_Object"
+                    ],
+                    "Properties": {
+                        "MainIntro": "NITO har sent innspill til regjeringens varslede stortingsmelding om struktur i høyere utdanning. NITO mener det  er viktig å sikre gode rammevilkår for institusjonene som skal gi høyere utdanning. Samtidig er det behov for strukturelle endringer for å styrke samordning og dimensjonering og kvalitet i utdanningene.",
+                        "MainBody": "NITO har sent innspill til regjeringens varslede stortingsmelding om struktur i høyere utdanning. NITO mener det &nbsp;er viktig å sikre gode rammevilkår for institusjonene som skal gi ekstern link høyere utdanning. Samtidig er det behov for strukturelle endringer for å styrke samordning og dimensjonering og kvalitet i utdanningene. Test test 2 test kjbkjb test kjbkjb Innspill til stortingsmeldinga NITO har sent innspill til regjeringens varslede stortingsmelding om struktur i høyere utdanning. NITO mener det &nbsp;er viktig å sikre gode rammevilkår for institusjonene som skal gi høyere utdanning. Samtidig er det behov for strukturelle endringer for å styrke samordning og dimensjonering og kvalitet i utdanningene. Innspill til stortingsmeldinga Picanha ribeye rump beef corned beef tenderloin tail biltong tongue spare ribs pastrami chuck sirloin pig. Sausage tail kevin, ham porchetta doner capicola prosciutto turkey short loin spare ribs strip steak beef picanha short ribs Turkey t-bone cow tail ball tip ham pork loin short ribs pastrami leberkas. Turducken meatloaf short ribs beef ribs tri-tip salami alcatra kielbasa drumstick t-bone. Drumstick jowl brisket short ribs andouille pig rump chicken pork strip steak. Pork loin drumstick tenderloin shankle brisket. Kevin brisket alcatra frankfurter, spare ribs bresaola jerky sausage turducken corned beef pork chop kielbasa ham hock. Rump tenderloin ribeye chuck shankle spare ribs. Pig tenderloin sausage biltong, brisket capicola pork loin fatback t-bone spare ribs tongue cupim salami doner pork belly. &nbsp; Shoulder jerky sirloin ground round. Brisket strip steak alcatra chuck ham pork prosciutto tenderloin t-bone capicola flank pancetta pork belly. Pastrami prosciutto tri-tip turkey strip steak short loin. - NITOs lille hjelper Ball tip strip steak pig cow pork belly andouille tri-tip salami picanha short loin frankfurter jerky shankle corned beef short ribs. Corned beef cupim chicken, venison capicola short loin jerky porchetta ground round. Picanha flank spare ribs kevin tongue jerky meatloaf, tenderloin boudin doner. Pig spare ribs bacon ground round. Pork tri-tip rump venison shankle swine biltong shank t-bone alcatra tenderloin pig sirloin andouille frankfurter. Pork loin spare ribs bacon biltong meatloaf cupim. Turducken turkey meatloaf drumstick swine pork belly boudin ham pork ribeye t-bone jowl filet mignon tongue strip steak. ",
+                        "Heading": "En helt vanlig artikkeltittel",
+                        "MetaDescription": "NITO har sent innspill til regjeringens varslede stortingsmelding om struktur i høyere utdanning. NITO mener det  er viktig å sikre gode rammevilkår for institusjonene som skal gi høyere utdanning. Samtidig er det behov for strukturelle e …",
+                        "Title": "Overstyrt tittel-tagg",
+                        "Name": "Artikkel"
+                    }
+                }
+            }
+        ]
+    }
+}

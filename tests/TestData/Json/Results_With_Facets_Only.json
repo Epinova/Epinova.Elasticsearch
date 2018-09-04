@@ -1,0 +1,62 @@
+﻿{
+    "took": 1,
+    "timed_out": false,
+    "_shards": {
+        "total": 5,
+        "successful": 5,
+        "failed": 0
+    },
+    "hits": {
+        "total": 390,
+        "max_score": 0,
+        "hits": []
+    },
+    "aggregations": {
+        "aggregation": {
+            "doc_count_error_upper_bound": 0,
+            "sum_other_doc_count": 70,
+            "buckets": [
+                {
+                    "key": "nito_models_pages_coursepage",
+                    "doc_count": 206
+                },
+                {
+                    "key": "nito_models_media_imagefile",
+                    "doc_count": 36
+                },
+                {
+                    "key": "episerver_core_contentassetfolder",
+                    "doc_count": 17
+                },
+                {
+                    "key": "episerver_core_contentfolder",
+                    "doc_count": 13
+                },
+                {
+                    "key": "nito_models_pages_themepage",
+                    "doc_count": 12
+                },
+                {
+                    "key": "nito_models_pages_employeepage",
+                    "doc_count": 8
+                },
+                {
+                    "key": "nito_models_pages_newspage",
+                    "doc_count": 8
+                },
+                {
+                    "key": "nito_models_blocks_linklistblock",
+                    "doc_count": 7
+                },
+                {
+                    "key": "nito_models_blocks_newsitemblock",
+                    "doc_count": 6
+                },
+                {
+                    "key": "nito_models_pages_employeelistpage",
+                    "doc_count": 6
+                }
+            ]
+        }
+    }
+}

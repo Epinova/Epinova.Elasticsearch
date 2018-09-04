@@ -1,0 +1,10 @@
+﻿{
+  "size": 0,
+  "aggregations": {
+    "aggregation": {
+      "terms": {
+        "field": "Type"
+      }
+    }
+  }
+}

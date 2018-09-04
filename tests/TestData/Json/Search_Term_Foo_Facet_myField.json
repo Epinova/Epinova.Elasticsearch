@@ -1,0 +1,25 @@
+﻿{
+  "from": 0,
+  "size": 0,
+  "query": {
+    "bool": {
+      "must": [
+        {
+          "match": {
+            "_all": {
+              "query": "Foo",
+              "operator": "or"
+            }
+          }
+        }
+      ]
+    }
+  },
+  "aggregations": {
+    "aggregation": {
+      "terms": {
+        "field": "myField"
+      }
+    }
+  }
+}

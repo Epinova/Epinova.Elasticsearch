@@ -1,0 +1,12 @@
+﻿"must": [
+  {
+    "multi_match": {
+      "query": "foo",
+      "lenient": true,
+      "operator": "or",
+      "fields": [
+        "bar"
+      ]
+    }
+  }
+]

@@ -1,0 +1,116 @@
+﻿@* DisableLinePragmas: true *@
+@using System.Web.Mvc.Html
+@using Epinova.ElasticSearch.Core.EPiServer.Extensions
+@using Epinova.ElasticSearch.Core.EPiServer.Models.ViewModels
+@using EPiServer.Framework.Localization;
+@model TrackingViewModel
+
+@{
+    ViewBag.ContainerClass = String.Empty;
+    Layout = "~/Views/ElasticSearchAdmin/_ElasticSearch.cshtml";
+}
+
+@if (Model == null)
+{
+    return;
+}
+
+@section Styles
+{
+    <style>
+        #tabContainer .field-actions {
+            width: 120px;
+            text-align: center;
+        }
+
+        .dgrid {
+            max-width: 600px;
+        }
+    </style>
+}
+
+@{
+    string localizationPath = "/epinovaelasticsearch/tracking/";
+}
+
+<div id="tabContainer">
+    <div data-dojo-type="dijit/layout/TabContainer" doLayout="false">
+        @foreach (TrackingByLanguage lang in Model.SearchesByLanguage)
+        {
+            <div data-dojo-type="dijit/layout/ContentPane" title="@lang.LanguageName" data-dojo-props="@(lang.LanguageId == Model.CurrentLanguage ? "selected:true" : null)">
+                <div class="epi-padding-small">
+                    <h2>@Html.TranslateWithPath("searches", localizationPath)</h2>
+                    <div id="@(lang.LanguageId)-wordsGrid"></div>
+                    <h2>@Html.TranslateWithPath("searchesnohits", localizationPath)</h2>
+                    <div id="@(lang.LanguageId)-nohitsGrid"></div>
+
+                    @using (Html.BeginForm("Clear", "ElasticTracking"))
+                    {
+                        <input type="hidden" name="LanguageID" value="@lang.LanguageId" />
+                        <p>&nbsp;</p>
+                        <p>
+                            <button data-dojo-type="dijit/form/Button"
+                                    onClick="return confirm('@Html.TranslateWithPath("clearconfirm", localizationPath)');"
+                                    type="submit"
+                                    class="epi-primary @(lang.Searches.Count == 0 ? "is-disabled" : null)">
+                                @Html.TranslateWithPath("clear", localizationPath)
+                                </button>
+                            </p>
+                        }
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+
+<script>
+    function htmlDecode(input) {
+        var doc = new DOMParser().parseFromString(input, "text/html");
+        return doc.documentElement.textContent;
+    }
+
+    require(
+        ["dojo/_base/declare", "dgrid/Grid", "dijit/form/Button", "dojo/domReady!"],
+        function (declare, Grid) {
+            @foreach (TrackingByLanguage lang in Model.SearchesByLanguage)
+            {
+                <text>
+                new Grid({
+                        "class": "epi-grid-height--300 epi-grid--with-border",
+                        columns: {
+                            word: "@Html.Raw(Html.TranslateWithPath("searchword", localizationPath))",
+                            count: "@Html.Raw(Html.TranslateWithPath("count", localizationPath))"
+                        }
+                    }, "@(lang.LanguageId)-wordsGrid")
+                    .renderArray([
+                        @foreach (KeyValuePair<string, long> search in lang.Searches)
+                        {
+                            <text>{ word: htmlDecode("@search.Key"), count: "@search.Value" }</text>
+                            @(search.Key != lang.Searches.Last().Key ? "," : null)
+                        }
+                    ]);
+                </text>
+            }
+
+            @foreach (TrackingByLanguage lang in Model.SearchesWithoutHitsByLanguage)
+            {
+                <text>
+                new Grid({
+                        "class": "epi-grid-height--300 epi-grid--with-border",
+                        columns: {
+                            word: "@Html.Raw(Html.TranslateWithPath("searchword", localizationPath))",
+                            count: "@Html.Raw(Html.TranslateWithPath("count", localizationPath))"
+                        }
+                    }, "@(lang.LanguageId)-nohitsGrid")
+                    .renderArray([
+                        @foreach (KeyValuePair<string, long> search in lang.Searches)
+                        {
+                            <text>{ word: htmlDecode("@search.Key"), count: "@search.Value" }</text>
+                            @(search.Key != lang.Searches.Last().Key ? "," : null)
+                        }
+                    ]);
+                </text>
+            }
+        });
+</script>

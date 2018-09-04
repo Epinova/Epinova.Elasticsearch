@@ -1,0 +1,105 @@
+﻿@* DisableLinePragmas: true *@
+@using System.Web.Mvc.Html
+@using Epinova.ElasticSearch.Core.EPiServer.Extensions
+@using Epinova.ElasticSearch.Core.EPiServer.Models.ViewModels
+@using EPiServer.Framework.Localization;
+@model AutoSuggestViewModel
+
+@{
+    ViewBag.ContainerClass = String.Empty;
+    Layout = "~/Views/ElasticSearchAdmin/_ElasticSearch.cshtml";
+}
+
+@if (Model == null)
+{
+    return;
+}
+
+@section Styles
+{
+    <style>
+        #tabContainer .field-actions {
+            width: 120px;
+            text-align: center;
+        }
+    </style>
+}
+
+@{
+    string localizationPath = "/epinovaelasticsearch/autosuggest/";
+}
+
+<div id="tabContainer">
+    <div data-dojo-type="dijit/layout/TabContainer" doLayout="false">
+        @foreach (LanguageAutoSuggestWords lang in Model.WordsByLanguage)
+        {
+            <div data-dojo-type="dijit/layout/ContentPane" title="@lang.LanguageName" data-dojo-props="@(lang.LanguageId == Model.CurrentLanguage ? "selected:true" : null)">
+                <div class="epi-padding-small">
+                    @using (Html.BeginForm("AddWord", "ElasticAutoSuggest"))
+                    {
+                        <input type="hidden" name="LanguageId" value="@lang.LanguageId" />
+
+                        <h2>@Html.TranslateWithPath("newword", localizationPath)</h2>
+                        <p>
+                            <input data-dojo-type="dijit/form/ValidationTextBox" name="word" data-dojo-props="placeholder:'@Html.TranslateWithPathRaw("word", localizationPath)',required:true" />
+                            <button data-dojo-type="dijit/form/Button" type="submit" class="epi-primary">@Html.TranslateWithPathRaw("addnew", localizationPath)</button>
+                        </p>
+
+                        <h2>@Html.TranslateWithPath("existingwords", localizationPath)</h2>
+                        <div id="@(lang.LanguageId)-wordsGrid"></div>
+                    }
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+
+<script>
+    require(
+        ["dojo/_base/declare", "dgrid/Grid", "dijit/form/Button", "dojo/domReady!"],
+        function (declare, Grid, Button) {
+            @foreach (LanguageAutoSuggestWords lang in Model.WordsByLanguage)
+            {
+                <text>
+                new Grid({
+                        "class": "epi-grid-height--300 epi-grid--with-border",
+                        columns: {
+                            word: "Word",
+                            actions: {
+                                label: "",
+                                renderCell: function (object, value, node) {
+                                    new Button({
+                                            label: "@Html.TranslateWithPathRaw("delete", localizationPath)",
+                                            iconClass: "dijitIcon epi-iconTrash",
+                                            onClick: function() {
+                                                if (confirm("@Html.TranslateWithPath("confirmDelete", localizationPath)")) {
+                                                    window.location = "@Url.Action("DeleteWord", "ElasticAutoSuggest")?languageId=" + object.lang + "&word=" + object.word;
+                                                }
+                                            }
+                                        })
+                                        .placeAt(node)
+                                        .startup();
+                                }
+
+                            }
+                        }
+                    }, "@(lang.LanguageId)-wordsGrid")
+                    .renderArray([
+                        @foreach (string word in lang.Words)
+                        {
+                            <text>
+                                {
+                                    word: "@Html.Raw(word)",
+                                    lang: "@lang.LanguageId",
+                                    actions: ""
+                                }
+                            </text>
+                            @(word != lang.Words.Last() ? "," : null)
+                        }
+                    ]);
+                </text>
+            }
+        }
+    );
+</script>

@@ -1,0 +1,36 @@
+﻿<configuration xmlns:xdt="http://schemas.microsoft.com/XML-Document-Transform">
+  <configSections>
+    <!-- Remove legacy -->
+    <section name="epinova.elasticSearch" 
+             type="Epinova.ElasticSearch.Core.Settings.ElasticSearchConfigurationHandler, Epinova.ElasticSearch.Core"
+             xdt:Locator="Match(name)" 
+             xdt:Transform="Remove"/>
+
+    <section name="epinova.elasticSearch" 
+             type="Epinova.ElasticSearch.Core.Settings.Configuration.ElasticSearchSection, Epinova.ElasticSearch.Core"
+             xdt:Locator="Match(name)" 
+             xdt:Transform="InsertIfMissing"/>
+  </configSections>
+
+  <epinova.elasticSearch host="http://localhost:9200" xdt:Transform="InsertIfMissing">
+    <indices xdt:Transform="InsertIfMissing">
+      <add name="*index-name-here*" />
+    </indices>
+    <files maxsize="10MB" enabled="false" xdt:Transform="InsertIfMissing">
+      <add extension="doc" />
+      <add extension="txt" />
+    </files>
+  </epinova.elasticSearch>
+
+  <episerver.shell>
+    <protectedModules rootPath="~/EPiServer/" >
+      <add name="ElasticSearch" xdt:Locator="Match(name)" xdt:Transform="InsertIfMissing">
+        <assemblies>
+          <add assembly="Epinova.ElasticSearch.Core.EPiServer" 
+               xdt:Locator="Match(assembly)" 
+               xdt:Transform="InsertIfMissing" />
+        </assemblies>
+      </add>
+    </protectedModules>
+  </episerver.shell>
+</configuration>

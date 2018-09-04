@@ -1,0 +1,274 @@
+﻿@* DisableLinePragmas: true *@
+@using System.Web.Mvc.Html
+@using Epinova.ElasticSearch.Core.EPiServer.Extensions
+@using Epinova.ElasticSearch.Core.Models.Admin
+@using EPiServer.Framework.Localization
+@model Epinova.ElasticSearch.Core.EPiServer.Models.ViewModels.AdminViewModel
+
+@{
+    Layout = "~/Views/ElasticSearchAdmin/_ElasticSearch.cshtml";
+}
+
+@section Styles
+{
+    <style>
+        #clusterGrid .field-status,
+        #indexGrid .field-health {
+            width: 52px;
+            text-align: center;
+        }
+
+            #clusterGrid .field-status span,
+            #indexGrid .field-health span {
+                font-size: 32px;
+                line-height: 10px;
+            }
+
+        #indexGrid .field-status {
+            text-transform: capitalize;
+        }
+
+        #indexGrid .field-status,
+        #indexGrid .field-pri,
+        #indexGrid .field-rep {
+            width: 70px;
+        }
+
+        #indexGrid .field-tokenizer {
+            width: 120px;
+        }
+
+        #indexGrid .field-actions {
+            text-align: center;
+            width: 90px;
+        }
+
+        #indexGrid .field-storesize {
+            width: 100px;
+        }
+
+        #indexGrid .field-docscount {
+            width: 170px;
+        }
+    </style>
+}
+
+@helper ClusterString(string key)
+{
+    @Html.Raw(LocalizationService.Current.GetString("/epinovaelasticsearch/clusterhealth/" + key))
+}
+
+@helper NodeString(string key)
+{
+    @Html.Raw(LocalizationService.Current.GetString("/epinovaelasticsearch/node/" + key))
+}
+
+@helper IndexString(string key)
+{
+    @Html.Raw(LocalizationService.Current.GetString("/epinovaelasticsearch/indexes/" + key))
+}
+
+@{
+    if (Model == null)
+    {
+        return;
+    }
+
+    string localizationPath = "/epinovaelasticsearch/indexes/";
+}
+
+@using (Html.BeginForm("AddNewIndex", "ElasticAdmin"))
+{
+    <h1>@Html.TranslateWithPath("addorupdateindexes", localizationPath)</h1>
+    <p>
+        <button data-dojo-type="dijit/form/Button" type="submit" class="epi-primary">@IndexString("addorupdateindexesbutton")</button>
+        @IndexString("addnewindexinfo")
+    </p>
+}
+
+@if (Model.ClusterHealth != null)
+{
+    <h1>@ClusterString("heading")</h1>
+    <div id="clusterGrid"></div>
+    <br /><br />
+}
+
+@if (Model.NodeInfo != null)
+{
+    <h1>@NodeString("heading")</h1>
+    <div id="nodeGrid"></div>
+    <br /><br />
+}
+
+<h1>@IndexString("heading")</h1>
+<div id="indexGrid"></div>
+<br /><br />
+
+
+<script>
+    require([
+        "dojo/_base/declare",
+        "dgrid/Grid",
+        "dijit/form/Button",
+        "dijit/form/Select",
+        "dojo/domReady!"
+    ], function (
+        declare,
+        Grid,
+        Button,
+        Select
+    ) {
+
+        // Cluster
+        var clusterData = [
+            {
+                cluster: '@Model.ClusterHealth.Cluster',
+                status: '@Model.ClusterHealth.StatusColor',
+                timestamp: '@Model.ClusterHealth.Timestamp',
+                nodetotal: '@Model.ClusterHealth.NodeTotal',
+                nodedata: '@Model.ClusterHealth.NodeData',
+                shards: '@Model.ClusterHealth.Shards',
+                pri: '@Model.ClusterHealth.Pri',
+                relo: '@Model.ClusterHealth.Relo',
+                ini: '@Model.ClusterHealth.Init',
+                unassign: '@Model.ClusterHealth.Unassign'
+            }
+        ];
+
+        var clusterCols = {
+            cluster: "@ClusterString("cluster")",
+            status: {
+                label: "@IndexString("status")",
+                renderCell: function (object, value, node) {
+                    node.innerHTML = "<span style='color: " + value + "'>&bull;</span>";
+                }
+            },
+            timestamp: "@ClusterString("timestamp")",
+            nodetotal: "@ClusterString("nodetotal")",
+            nodedata: "@ClusterString("nodedata")",
+            shards: "@ClusterString("shards")",
+            pri: "@ClusterString("pri")",
+            relo: "@ClusterString("relo")",
+            ini: "@ClusterString("init")",
+            unassign: "@ClusterString("unassign")"
+        };
+
+        var clusterGrid = new Grid({
+            "class": "epi-grid-height--auto epi-grid--with-border",
+            columns: clusterCols
+        }, "clusterGrid");
+        clusterGrid.renderArray(clusterData);
+
+
+        // Nodes
+        var nodeData = [
+
+            @foreach (Node node in Model.NodeInfo)
+            {
+                <text>
+                {
+                    name: "@node.Name",
+                    master: "@NodeString("master" + node.Master)",
+                    version: "@node.Version",
+                    ip: "@node.Ip",
+                    hdd: "@node.HddAvailable",
+                    mem: "@node.MemoryCurrent / @node.MemoryTotal",
+                    uptime: "@node.Uptime"
+                }
+                </text>
+                @(node == Model.NodeInfo.Last() ? "" : ",")
+            }
+        ];
+
+        var nodeCols = {
+            name: "@NodeString("name")",
+            master: "@NodeString("master")",
+            version: "@NodeString("version")",
+            ip: "@NodeString("ip")",
+            hdd: "@NodeString("hdd")",
+            mem: "@NodeString("mem")",
+            uptime: "@NodeString("uptime")"
+        };
+
+        var nodeGrid = new Grid({
+            "class": "epi-grid-height--auto epi-grid--with-border",
+            columns: nodeCols
+        }, "nodeGrid");
+        nodeGrid.renderArray(nodeData);
+
+
+        // Indices
+        var indexData = [
+            @foreach (IndexInformation index in Model.AllIndexes)
+            {
+                <text>
+                {
+                    index:     "@index.Index",
+                    health:    "@index.HealthColor",
+                    status:    "@index.Status",
+                    type:      "@index.Type",
+                    docscount: "@index.DocsCount / @index.DocsDeleted",
+                    storesize: "@index.StoreSize",
+                    tokenizer: "@index.Tokenizer"
+                }
+                </text>
+                @(index == Model.AllIndexes.Last() ? "" : ",")
+            }
+        ];
+
+        var indexCols = {
+            index: "@IndexString("Index")",
+            health: {
+                label: "@IndexString("Health")",
+                renderCell: function (object, value, node) {
+                    node.innerHTML = "<span style='color: " + value + "'>&bull;</span>";
+                }
+            },
+            status: "@IndexString("status")",
+            type: "@IndexString("type")",
+            docscount: "@IndexString("docscount") / @IndexString("docsdeleted")",
+            storesize: "@IndexString("storesize")",
+            tokenizer: {
+                label: "@IndexString("tokenizer")",
+                renderCell: function (object, value, node) {
+                    var select = new Select({
+                        name: "tokenizer",
+                        style: { width: '100px' },
+                        options: [
+                            { label: "@IndexString("tokenizerstandard")", value: "standard", selected: object.tokenizer == "standard" },
+                            { label: "@IndexString("tokenizerngram")", value: "trigram_tokenizer", selected: object.tokenizer == "trigram_tokenizer" }
+                        ]
+                    });
+                    select.placeAt(node);
+                    select.startup();
+                    select.on('change', function (value) {
+                        window.location = "@Url.Action("ChangeTokenizer", "ElasticAdmin")?indexName=" + object.index + "&tokenizer=" + value;
+                    });
+                }
+            },
+            actions: {
+                label: "",
+                renderCell: function (object, value, node) {
+                    new Button({
+                        label: "@IndexString("delete")",
+                        iconClass: "dijitIcon epi-iconTrash",
+                        onClick: function() {
+                            if (confirm("@IndexString("confirmDelete")")) {
+                                window.location = "@Url.Action("DeleteIndex", "ElasticAdmin")?indexName=" + object.index;
+                            }
+                        }
+                    })
+                    .placeAt(node)
+                    .startup();
+                }
+            }
+        };
+
+
+        var indexGrid = new Grid({
+            "class": "epi-grid-height--auto epi-grid--with-border",
+            columns: indexCols
+        }, "indexGrid");
+        indexGrid.renderArray(indexData);
+    });
+</script>

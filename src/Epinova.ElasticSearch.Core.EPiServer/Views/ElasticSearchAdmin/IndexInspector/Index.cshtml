@@ -1,0 +1,162 @@
+﻿@* DisableLinePragmas: true *@
+@using Epinova.ElasticSearch.Core.EPiServer.Extensions
+@using Epinova.ElasticSearch.Core.Models
+@model Epinova.ElasticSearch.Core.EPiServer.Models.ViewModels.InspectViewModel
+
+@{
+    Layout = "~/Views/ElasticSearchAdmin/_ElasticSearch.cshtml";
+}
+
+@if (Model == null)
+{
+    return;
+}
+
+@{
+    string localizationPath = "/epinovaelasticsearch/indexinspector/";
+}
+
+@section Scripts
+{
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            var accordions = document.getElementsByClassName("_jsAccordion");
+
+            for (var i = 0; i < accordions.length; i++) {
+                accordions[i].onclick = function (e) {
+                    e.preventDefault();
+
+                    if (this.getAttribute('aria-expanded') === 'false') {
+                        this.setAttribute("aria-expanded", "true");
+                    } else {
+                        this.setAttribute("aria-expanded", "false");
+                    }
+
+                    var controls = this.getAttribute('aria-controls'),
+                        content = document.getElementById(controls);
+
+                    if (content.style.display === "block") {
+                        content.style.display = "none";
+                    } else {
+                        content.style.display = "block";
+                    }
+                }
+            }
+        }, false);
+    </script>
+}
+
+
+<div class="epi-formArea">
+    <h1 class="EP-prefix">@Html.TranslateWithPath("heading", localizationPath)</h1>
+
+    @using (Html.BeginForm("Index", "ElasticIndexInspector"))
+    {
+        <div class="indexInspector">
+            <div class="mainContent">
+                <p>
+                    <input data-dojo-type="dijit/form/ValidationTextBox" data-dojo-props="placeholder:'@Html.TranslateWithPathRaw("placeholder", localizationPath)'" name="searchText" value="@Model.SearchText" />
+                    <button data-dojo-type="dijit/form/Button" type="submit" class="epi-primary">@Html.TranslateWithPath("execute", localizationPath)</button>
+                </p>
+
+                @if (String.IsNullOrWhiteSpace(Model.SearchText) && String.IsNullOrWhiteSpace(Model.SelectedType))
+                {
+                    <h2>@Html.TranslateWithPath("unfiltered", localizationPath)</h2>
+                }
+                else if (Model.SearchHits == null || !Model.SearchHits.Any())
+                {
+                    <h2>@Html.TranslateWithPath("nohits", localizationPath)</h2>
+                }
+                else
+                {
+                    <ol class="indexes">
+                        @for (var index = 0; index < Model.SearchHits.Count; index++)
+                        {
+                            InspectItem item = Model.SearchHits[index];
+                            <li class="accordion">
+                                <h3>
+                                    <button type="button" aria-controls="item-@index" aria-expanded="false" class="_jsAccordion">@item.Title - <i>@item.ShortTypeName</i></button>
+                                </h3>
+                                <div class="accordion-panel" style="display: none;" id="item-@index">
+                                    <pre><code>@item.Content</code></pre>
+                                </div>
+                            </li>
+                        }
+                    </ol>
+                }
+            </div>
+            <div class="sidebar">
+                @if (Model.Indices != null && Model.Indices.Count > 1)
+                {
+                    <h2>@Html.TranslateWithPath("indexes", localizationPath)</h2>
+                    <ul>
+                        @foreach (string index in Model.Indices)
+                        {
+                            <li>
+                                <label>
+                                    <input type="radio" data-dojo-type="dijit/form/RadioButton" name="@Html.NameFor(m => m.SelectedIndex)" value="@index" checked="@(Model.SelectedIndex == index ? "" : null)" /> @index
+                                </label>
+                            </li>
+                        }
+                    </ul>
+                    <p>
+                        <button data-dojo-type="dijit/form/Button" type="submit" class="epi-primary _jsAccordion">@Html.TranslateWithPath("execute", localizationPath)</button>
+                    </p>
+                }
+
+                <h2>@Html.TranslateWithPath("count", localizationPath)</h2>
+                <ul>
+                    @foreach (int numberOfItems in Model.NumberOfItems)
+                    {
+                        <li>
+                            <label>
+                                <input type="radio" data-dojo-type="dijit/form/RadioButton" name="@Html.NameFor(m => m.SelectedNumberOfItems)" value="@numberOfItems" checked="@(numberOfItems == Model.SelectedNumberOfItems ? "" : null)" /> @numberOfItems
+                            </label>
+                        </li>
+                    }
+                </ul>
+                <p>
+                    <button data-dojo-type="dijit/form/Button" type="submit" class="epi-primary _jsAccordion">@Html.TranslateWithPath("execute", localizationPath)</button>
+                </p>
+
+                @if (Model.Languages != null && Model.Languages.Count > 1)
+                {
+                    <h2>@Html.TranslateWithPath("languages", localizationPath)</h2>
+                    <ul>
+                        @foreach (var language in Model.Languages)
+                        {
+                            <li>
+                                <label>
+                                    <input type="radio" data-dojo-type="dijit/form/RadioButton" name="@Html.NameFor(m => m.SelectedLanguage)" value="@language.LanguageID" checked="@(Model.SelectedLanguage == language.LanguageID ? "" : null)" /> @language.Name
+                                </label>
+                            </li>
+                        }
+                    </ul>
+                    <p>
+                        <button data-dojo-type="dijit/form/Button" type="submit" class="epi-primary _jsAccordion">@Html.TranslateWithPath("execute", localizationPath)</button>
+                    </p>
+                }
+
+                <h2>@Html.TranslateWithPath("types", localizationPath)</h2>
+
+                @foreach (var group in Model.TypeCounts)
+                {
+                    <h3>@group.Key</h3>
+                    <ul>
+                        @foreach (var type in group.Value)
+                        {
+                            <li>
+                                <label>
+                                    <input type="radio" data-dojo-type="dijit/form/RadioButton" name="@Html.NameFor(m => m.SelectedType)" value="@type.Type" checked="@(Model.SelectedType == type.Type ? "" : null)" /> @type.Name (@type.Count)
+                                </label>
+                            </li>
+                        }
+                    </ul>
+                }
+                <p>
+                    <button data-dojo-type="dijit/form/Button" type="submit" class="epi-primary _jsAccordion">@Html.TranslateWithPath("execute", localizationPath)</button>
+                </p>
+            </div>
+        </div>
+    }
+</div>  

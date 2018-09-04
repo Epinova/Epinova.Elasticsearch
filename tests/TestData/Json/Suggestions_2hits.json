@@ -1,0 +1,24 @@
+﻿{
+   "_shards": {
+      "total": 1,
+      "successful": 1,
+      "failed": 0
+   },
+   "suggestions": [
+      {
+         "text": "word",
+         "offset": 0,
+         "length": 4,
+         "options": [
+            {
+               "text": "wordland",
+               "score": 1
+            },
+            {
+               "text": "wordpress",
+               "score": 1
+            }
+         ]
+      }
+   ]
+}

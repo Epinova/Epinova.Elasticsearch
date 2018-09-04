@@ -1,0 +1,127 @@
+﻿@* DisableLinePragmas: true *@
+@using EPiServer.Shell.Navigation
+@using EPiServer.Framework.Web.Resources
+@using EPiServer.Shell.UI
+@using EPiServer.Shell.Web.Mvc.Html
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+    <!-- Shell -->
+    @Html.Raw(ClientResources.RenderResources("ShellCore"))
+    @Html.Raw(ClientResources.RenderResources("ShellWidgets"))
+
+    <!-- LightTheme -->
+    @Html.Raw(ClientResources.RenderResources("ShellCoreLightTheme"))
+
+    <!-- Navigation -->
+    @Html.Raw(ClientResources.RenderResources("Navigation"))
+
+    <!-- Dojo Dashboard -->
+    @Html.Raw(ClientResources.RenderResources("DojoDashboardCompatibility", new[] { ClientResourceType.Style }))
+
+    <!-- Sleek theme -->
+    <link href="@EPiServer.Shell.Paths.ToShellClientResource("ClientResources/epi/themes/sleek/sleek.css")" rel="stylesheet" />
+    <link href="@EPiServer.Shell.Paths.ToShellClientResource("ClientResources/epi/themes/sleek/document.css")" rel="stylesheet" />
+
+    @Html.Raw(DojoConfigurationHelper.ConfigureDojo(null,
+        new DojoConfig
+        {
+            ParseOnLoad = ViewBag.DojoParseOnLoad ?? true,
+            Async = true,
+            IoPublish = true
+        }, true))
+
+    <script src="@EPiServer.Shell.Paths.ToShellClientResource("ClientResources/dojo/dojo.js")"></script>
+
+    <script>
+        require(["dojo/parser"]);
+    </script>
+
+    <script src="@EPiServer.Shell.Paths.ToShellClientResource("ClientResources/dojox/grid/_Grid.js")"></script>
+
+    <style>
+        /* Override document.css */
+        html, body {
+            position: relative;
+        }
+
+        .indexInspector {
+            display: flex;
+            flex-wrap: nowrap;
+        }
+
+            .indexInspector .mainContent {
+                box-sizing: border-box;
+                width: 70%;
+                padding-right: 5%;
+            }
+
+            .indexInspector .sidebar {
+                width: 30%;
+            }
+
+                .indexInspector .sidebar ul {
+                    margin-left: .3em;
+                    margin-bottom: .5em;
+                }
+
+            .indexInspector label {
+                text-transform: capitalize;
+            }
+
+        pre {
+            white-space: pre-wrap; /* Since CSS 2.1 */
+            white-space: -moz-pre-wrap; /* Mozilla, since 1999 */
+            white-space: -pre-wrap; /* Opera 4-6 */
+            white-space: -o-pre-wrap; /* Opera 7 */
+            word-wrap: break-word; /* Internet Explorer 5.5+ */
+            border: none;
+        }
+
+        .accordion {
+            margin-bottom: 15px;
+            background-color: #F0F0F0;
+            border: 1px solid #CCC;
+            padding: 20px;
+        }
+
+            .accordion > h3 > button {
+                border: none;
+                background: none;
+                width: 100%;
+                padding: 0;
+                text-align: left;
+            }
+
+                .accordion > h3 > button[aria-expanded="true"] {
+                    font-weight: bold;
+                }
+
+        .accordion-panel {
+            border-top: 1px solid #CCC;
+            margin-top: 10px;
+        }
+
+            .accordion-panel code {
+                display: block;
+                border: none;
+                font-size: 70%;
+            }
+
+        .indexes {
+            padding: 0;
+        }
+    </style>
+
+    @RenderSection("Styles", false)
+</head>
+<body class="Sleek">
+    <div id="epi-globalDocument">
+        @Html.Raw(Html.GlobalMenu())
+        <div class="@(ViewBag.ContainerClass ?? "epi-paddingHorizontal-small")">
+            @RenderBody()
+        </div>
+    </div>
+    @RenderSection("Scripts", false)
+</body>
+</html>

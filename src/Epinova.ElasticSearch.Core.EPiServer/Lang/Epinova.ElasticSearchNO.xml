@@ -1,0 +1,178 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<languages>
+  <language name="Norsk" id="no">
+    <contenttypes>
+      <synonymbackupfile>
+        <name>Fil: Sikkerhetskopi av synonymer</name>
+        <description />
+      </synonymbackupfile>
+      <synonymbackupfilefolder>
+        <name>Katalog: Sikkerthetskopi av synonymer</name>
+        <description />
+      </synonymbackupfilefolder>
+      <boostingfolder>
+        <name>Katalog: Boosting</name>
+        <description />
+      </boostingfolder>
+      <boostingdata>
+        <name>Data: Boosting</name>
+        <description />
+      </boostingdata>
+    </contenttypes>
+    <epinovaelasticsearch>
+      <widget>
+        <button>
+          <label>Oppdater søkeindeks</label>
+          <tooltip>Oppdater søkeindeks</tooltip>
+        </button>
+        <status>
+          <updateOk>Indeks ble oppdatert</updateOk>
+          <updateFailed>Kunne ikke oppdatere indeks</updateFailed>
+        </status>
+      </widget>
+      <admin>
+        <heading>Administrasjon og status</heading>
+      </admin>
+      <console>
+        <heading>Konsoll</heading>
+        <execute>Kjør</execute>
+        <show>Vis</show>
+        <index>Indeks</index>
+        <all>Alle</all>
+        <query>Spørring</query>
+        <result>Resultat</result>
+        <mapping>Mapping</mapping>
+        <settings>Settings</settings>
+      </console>
+      <indexinspector>
+        <all>Vis alle</all>
+        <count>Antall treff</count>
+        <placeholder>Søketekst</placeholder>
+        <execute>Søk</execute>
+        <heading>Søk i indeks</heading>
+        <indexes>Indeks</indexes>
+        <languages>Språk</languages>
+        <nocategory>No category</nocategory>
+        <nohits>Ingen treff</nohits>
+        <unfiltered>Avgrens antall treff ved å søke eller filtrere på type. Wildcards i søkestreng er støttet.</unfiltered>
+        <types>Type</types>
+      </indexinspector>
+      <bestbets>
+        <heading>Best Bets</heading>
+        <newbestbet>Ny Best Bet</newbestbet>
+        <addnew>Legg til</addnew>
+        <phrase>Frase</phrase>
+        <contentid>Side</contentid>
+        <url>Url</url>
+        <delete>Slett</delete>
+        <confirmDelete>Slette Best Bet?</confirmDelete>
+        <existingbestbets>Eksisterende Best Bets</existingbestbets>
+        <show>Velg</show>
+        <index>Indeks</index>
+      </bestbets>
+      <boosting>
+        <heading>Boosting</heading>
+        <description>Redaktørstyrt boosting av egenskaper</description>
+        <property>Egenskap</property>
+        <boost>Boost</boost>
+        <save>Lagre</save>
+        <back>Tilbake</back>
+        <totype>Gå til sidetype</totype>
+      </boosting>
+      <synonyms>
+        <heading>Synonymer</heading>
+        <description>Håndtering av synonymer</description>
+        <show>Velg</show>
+        <index>Indeks</index>
+        <from>Fra</from>
+        <to>Til</to>
+        <save>Lagre</save>
+        <twoway>Toveis</twoway>
+        <delete>Slett</delete>
+        <addnew>Legg til</addnew>
+        <confirmDelete>Slette synonym?</confirmDelete>
+        <newsynonym>Nytt synonym</newsynonym>
+        <existingsynonyms>Eksisterende synonymer</existingsynonyms>
+      </synonyms>
+      <autosuggest>
+        <heading>Autosuggest</heading>
+        <description>Redaktørstyrte ord som skal vises i auto-suggest</description>
+        <word>Ord</word>
+        <save>Lagre</save>
+        <delete>Slett</delete>
+        <addnew>Legg til</addnew>
+        <confirmDelete>Slette ord?</confirmDelete>
+        <newword>Nytt ord</newword>
+        <existingwords>Eksisterende ord</existingwords>
+      </autosuggest>
+      <node>
+        <heading>Noder</heading>
+        <name>Navn</name>
+        <master>Master</master>
+        <masterTrue>Ja</masterTrue>
+        <masterFalse></masterFalse>
+        <version>Versjon</version>
+        <ip>IP</ip>
+        <cpu>CPU %</cpu>
+        <hdd>HDD</hdd>
+        <mem>Minne</mem>
+        <uptime>Oppetid</uptime>
+      </node>
+      <clusterhealth>
+        <cluster>Navn</cluster>
+        <heading>Cluster</heading>
+        <init>Init</init>
+        <nodedata>Node Data</nodedata>
+        <nodetotal>Node Total</nodetotal>
+        <pri>Prioritet</pri>
+        <relo>Relo</relo>
+        <shards>Skår</shards>
+        <status>Status</status>
+        <timestamp>Tidsstempel</timestamp>
+        <unassign>Unassign</unassign>
+      </clusterhealth>
+      <heading>Søkemotor</heading>
+      <indexes>
+        <create>Opprett</create>
+        <addnewindex>Opprett/oppdater indeks</addnewindex>
+        <addorupdateindexes>Installasjon</addorupdateindexes>
+        <addorupdateindexesbutton>Opprett/oppdater</addorupdateindexesbutton>
+        <addnewindexinfo>Bruker navn fra konfigurasjon.</addnewindexinfo>
+        <confirmDelete>Er du sikker på at du vil slette denne indeksen?</confirmDelete>
+        <delete>Slett</delete>
+        <docscount>Dokumenter</docscount>
+        <docsdeleted>Slettet</docsdeleted>
+        <heading>Indekser</heading>
+        <health>Helse</health>
+        <index>Indeks</index>
+        <pri>Prioritet</pri>
+        <pristoresize>Prioritet datastørrelse</pristoresize>
+        <tokenizer>Tokenizer</tokenizer>
+        <tokenizerstandard>Standard</tokenizerstandard>
+        <tokenizerngram>N-gram</tokenizerngram>
+        <rep>Rep</rep>
+        <status>Status</status>
+        <type>Type</type>
+        <storesize>Størrelse</storesize>
+        <init>Opprett indeks</init>
+      </indexes>
+      <indexinspector>Inspiser indeks</indexinspector>
+      <tracking>
+        <heading>Statistikk</heading>
+        <searchword>Søketekst</searchword>
+        <count>Antall</count>
+        <searches>Alle utførte søk</searches>
+        <searchesnohits>Søk uten treff</searchesnohits>
+        <clear>Slett historikk</clear>
+        <clearconfirm>Sikker?</clearconfirm>
+      </tracking>
+      <providers>
+        <page>Epinova sidesøk</page>
+        <file>Epinova filsøk</file>
+        <block>Epinova blokksøk</block>
+        <product>Epinova produkter</product>
+        <campaigns>Epinova kampanjer</campaigns>
+      </providers>
+    </epinovaelasticsearch>
+  </language>
+</languages>

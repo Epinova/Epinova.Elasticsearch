@@ -1,0 +1,8 @@
+﻿<episerver.framework xmlns:xdt="http://schemas.microsoft.com/XML-Document-Transform">
+  <virtualRoles>
+    <providers>
+      <add name="ElasticsearchAdmins" roles="WebAdmins,Administrators,Epinova developers" mode="Any" type="EPiServer.Security.MappedRole, EPiServer" 
+          xdt:Locator="Match(name)" xdt:Transform="InsertIfMissing"/>
+    </providers>
+  </virtualRoles>
+</episerver.framework>

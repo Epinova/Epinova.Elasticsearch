@@ -1,0 +1,273 @@
+﻿@* DisableLinePragmas: true *@
+@using System.Web.Mvc.Html
+@using Epinova.ElasticSearch.Core.EPiServer.Extensions
+@using Epinova.ElasticSearch.Core.EPiServer.Models.ViewModels
+@using EPiServer.Shell.Web.Mvc.Html
+
+@model BestBetsViewModel
+
+@{
+    ViewBag.ContainerClass = String.Empty;
+    ViewBag.DojoParseOnLoad = false;
+    Layout = "~/Views/ElasticSearchAdmin/_ElasticSearch.cshtml";
+    string localizationPath = "/epinovaelasticsearch/bestbets/";
+}
+
+@if (Model == null)
+{
+    return;
+}
+
+@section Styles
+{
+    <style>
+        #loader {
+            display: block;
+            margin: 25% auto;
+        }
+
+        #tabContainer .field-phrase {
+            width: 180px;
+        }
+
+        #tabContainer .field-contentId {
+            width: 180px;
+        }
+
+        #tabContainer .field-actions {
+            width: 120px;
+            text-align: center;
+        }
+
+        #tabContainer .dgrid-cell a {
+            color: #187dcf !important;
+            cursor: pointer !important;
+            text-decoration: underline !important;
+        }
+
+        .pageSelector .dijitInputField {
+            min-height: 16px;
+        }
+
+        .Sleek .epi-form-container__section__row {
+            padding-left: 0 !important;
+        }
+
+            .Sleek .epi-form-container__section__row > label {
+                width: 70px !important;
+            }
+    </style>
+}
+
+<img id="loader" alt="Loading..." src="@EPiServer.Shell.Paths.ToShellClientResource("ClientResources/epi/themes/sleek/epi/images/icons/ajaxProgress-salt.gif")" />
+
+<div id="tabContainer" style="visibility: hidden;">
+    <div data-dojo-type="dijit/layout/TabContainer" doLayout="false">
+        @foreach (BestBetsByLanguage bb in Model.BestBetsByLanguage)
+        {
+            <div data-dojo-type="dijit/layout/ContentPane" title="@bb.LanguageName" data-dojo-props="@(bb.LanguageId == Model.CurrentLanguage ? "selected:true" : null)">
+                <div class="epi-padding-small">
+                    @if (ViewBag.Indices != null)
+                    {
+                        using (Html.BeginForm("Index", "ElasticBestBets"))
+                        {
+                            <input type="hidden" name="LanguageId" value="@bb.LanguageId" />
+                            <h2>@Html.TranslateWithPathRaw("index", localizationPath)</h2>
+                            <p>
+                                <label>
+                                    <select data-dojo-type="dijit/form/Select" name="index">
+                                        @foreach (string index in ViewBag.Indices)
+                                        {
+                                            <option value="@index" selected="@(ViewBag.SelectedIndex == index ? "selected" : null)">@index</option>
+                                        }
+                                    </select>
+                                </label>
+                                <button data-dojo-type="dijit/form/Button" type="submit" class="epi-primary">@Html.TranslateWithPathRaw("show", localizationPath)</button>
+                            </p>
+                        }
+                    }
+
+                    @using (Html.BeginForm("Add", "ElasticBestBets"))
+                    {
+                        <input type="hidden" name="LanguageId" value="@bb.LanguageId" />
+                        <input type="hidden" name="Index" value="@ViewBag.SelectedIndex" />
+                        <input type="hidden" name="TypeName" value="@ViewBag.TypeName" />
+
+                        <h2>@Html.TranslateWithPath("newbestbet", localizationPath)</h2>
+
+                        <div class="epi-form-container__section__row epi-form-container__section__row--field">
+                            <label for="phrase_@bb.LanguageId">@Html.TranslateWithPathRaw("phrase", localizationPath)</label>
+                            <input id="phrase_@bb.LanguageId" data-dojo-type="dijit/form/ValidationTextBox" name="phrase" data-dojo-props="required:true" />
+                        </div>
+                        <div class="epi-form-container__section__row epi-form-container__section__row--field">
+                            <label for="pageSelector_@bb.LanguageId">@Html.TranslateWithPathRaw("contentid", localizationPath)</label>
+                            <div id="pageSelector_@bb.LanguageId"
+                                 class="pageSelector"
+                                 data-dojo-type="epi-cms/widget/ContentSelector"
+                                 data-dojo-props="roots: ['@String.Join("','", Model.SelectorRoots)'], repositoryKey: 'pages', allowedTypes: ['@String.Join("','", Model.SelectorTypes)'], allowedDndTypes: [], value: null, required:true"></div>
+                            <input type="hidden" name="contentId" id="contentId_@bb.LanguageId" />
+                        </div>
+                        <div class="epi-form-container__section__row epi-form-container__section__row--field">
+                            <button data-dojo-type="dijit/form/Button" type="submit" class="epi-primary">@Html.TranslateWithPath("addnew", localizationPath)</button>
+                        </div>
+
+                        <h2>@Html.TranslateWithPath("existingbestbets", localizationPath)</h2>
+
+                        <div id="@(bb.LanguageId)-bestbetsGrid"></div>
+                    }
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+<script>
+    function loadScript() {
+        require([
+            "dojo/_base/declare",
+            "dojo/_base/connect",
+            "dojo/query",
+            "dojo/when",
+            "dijit/registry",
+            "dgrid/Grid",
+            "dijit/form/Button",
+            "dijit/_Widget",
+            "dijit/_TemplatedMixin",
+            "epi/epi",
+            "epi/dependency",
+            "epi/shell/widget/dialog/Confirmation",
+            "epi-cms/core/PermanentLinkHelper",
+            "dojo/domReady!"
+        ], function (
+            declare,
+            connect,
+            query,
+            when,
+            registry,
+            Grid,
+            Button,
+            _Widget,
+            _TemplatedMixin,
+            epi,
+            dependency,
+            Confirmation,
+            PermanentLinkHelper
+        ) {
+            @foreach (BestBetsByLanguage bestBetByLanguage in Model.BestBetsByLanguage)
+            {
+                string lang = bestBetByLanguage.LanguageId;
+                <text>
+                    connect.connect(registry.byId("pageSelector_@(lang)"), "onChange", function (link) {
+                        if (!link) {
+                            return;
+                        }
+                        when(PermanentLinkHelper.getContent(link), function (content) {
+                            query("#contentId_@(lang)")
+                                .attr("value", content.contentLink);
+                        });
+                    });
+
+                    new Grid({
+                        "class": "epi-grid-height--300 epi-grid--with-border",
+                        columns: {
+                            phrase: "@Html.TranslateWithPath("phrase", localizationPath)",
+                            contentName: {
+                                label: "@Html.TranslateWithPath("contentId", localizationPath)",
+                                formatter: function (url, object) {
+                                    return '<a class="epi-visibleLink" target="_blank" href="@(Model.GetEditUrlPrefix(lang))' + object.contentId + object.contentProvider + '">' + object.contentName + '</a> (' + object.contentId + ')';
+                                }
+                            },
+                            url: {
+                                label: "@Html.TranslateWithPath("url", localizationPath)",
+                                formatter: function (url) {
+                                    return ('<a class="epi-visibleLink" target="_blank" href=' + url + '>' + url + '</a>');
+                                }
+                            },
+                            actions: {
+                                label: "",
+                                renderCell: function (object, value, node) {
+                                    new Button({
+                                            label: "@Html.TranslateWithPath("delete", localizationPath)",
+                                            iconClass: "dijitIcon epi-iconTrash",
+                                            onClick: function () {
+                                                new Confirmation({
+                                                        description: "@Html.TranslateWithPath("confirmDelete", localizationPath)",
+                                                        title: "@Html.TranslateWithPath("confirmDelete", localizationPath)",
+                                                        onAction: function (confirmed) {
+                                                            if (confirmed) {
+                                                                window.location = "@Url.Action("Delete", "ElasticBestBets")?index=@(ViewBag.SelectedIndex)&typeName=@(ViewBag.TypeName)&languageId=" + object.lang + "&phrase=" + object.phrase + "&contentId=" + object.contentId;
+                                                            }
+                                                        }
+                                                    })
+                                                    .show();
+                                            }
+                                        })
+                                        .placeAt(node)
+                                        .startup();
+                                }
+                            }
+                        }
+                    }, "@lang-bestbetsGrid")
+                    .renderArray([
+                        @foreach (var bb in bestBetByLanguage.BestBets)
+                        {
+                            <text>
+                            {
+                                phrase: "@Html.Raw(bb.Phrase)",
+                                contentId: "@Html.Raw(bb.Id)",
+                                contentProvider: "@(String.IsNullOrWhiteSpace(bb.Provider) ? null : "__" + Html.Raw(bb.Provider))",
+                                contentName: "@Html.Raw(bb.Name)",
+                                url: "@Html.Raw(bb.Url)",
+                                lang: "@lang",
+                                actions: ""
+                            }
+                            </text>
+                            @(bb != bestBetByLanguage.BestBets.Last() ? "," : null)
+                        }
+                    ]);
+                </text>
+
+            }
+        }
+        );
+    }
+</script>
+
+<script>
+    // At this point it's not safe to require() arbitrary things yet or everything will blow up spectacularly. The
+    // "Bootstrapper" has to be run first, so only require that.
+    require(["epi/shell/Bootstrapper"], function (Bootstrapper) {
+        var bs = new Bootstrapper(@Html.Raw(Html.SerializeObject(Model.GetModuleSettings(), "application/json")));
+
+        // Loads the specified module ("CMS") and all the script bundles ClientResources that come with it. If this isn't done
+        // correctly all require() calls will load modules with separate requests which can reduce the amount of total code
+        // loaded but generates a *lot* of requests in the process
+        bs.initializeApplication(null, "CMS").then(function () {
+            // It's now safe to require() anything including your own modules.
+            require([
+                "dojo/_base/connect",
+                "dojo/parser",
+                "epi-cms/ApplicationSettings"
+            ], function (
+                connect,
+                parser,
+                ApplicationSettings
+            ) {
+                    // This sets the "current context" which is required by some controls such as the WYSIWYG.
+                    // It's used to show the current page media list as well as the "Current page" button in page selectors. This
+                    // just sets it to the root page so everything doesn't break.
+                    connect.publish("/epi/shell/context/updateRequest", [{ uri: "epi.cms.contentdata:///" + ApplicationSettings.rootPage }]);
+                    // All done! Everything should be set up now. Run your own code here.
+                    // Should probably run this at some point as it's not done automatically - this initializes all the declarative
+                    // widgets (elements with data-dojo-type). Use .then() if you want to run code after this to ensure everything has
+                    // finished executing.
+                    parser.parse()
+                        .then(loadScript)
+                        .then(function () {
+                            dojo.attr(dojo.byId("loader"), "style", "display:none;");
+                            dojo.attr(dojo.byId("tabContainer"), "style", "");
+                        });
+                });
+        });
+    });
+</script>

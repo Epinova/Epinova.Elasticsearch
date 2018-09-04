@@ -1,0 +1,32 @@
+﻿{
+  "hits": {
+    "total": 1,
+    "max_score": 1.1784737,
+    "hits": [
+      {
+        "_index": "nitodemo",
+        "_type": "Epinova.ElasticSearch.Core.EPiServer.IndexItem",
+        "_id": "46",
+        "_score": 1.1784737,
+        "_source": {
+          "Id": 46,
+          "Title": "Nyhet test bacon",
+          "Updated": "2015-03-31T23:01:04.2493062+02:00",
+          "Type": "TestData_TestPage",
+          "Types": [
+            "TestData_TestPage",
+            "EPiServer_Core_ContentData",
+            "System_Object"
+          ],
+          "Name": "Nyhet test bacon",
+          "Date": "2015-03-31T23:01:04.2493062+02:00",
+          "Text": "Lorem text",
+          "Int": 42,
+          "Dec": 42.1,
+          "Array1": [ 1, 2, 3 ],
+          "Array2": [ "Foo", "Bar" ]
+        }
+      }
+    ]
+  }
+}
