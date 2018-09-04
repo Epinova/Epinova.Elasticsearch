@@ -32,3 +32,9 @@ before_package:
     cd $env:APPVEYOR_BUILD_FOLDER\src\Epinova.ElasticSearch.Core.EPiServer.Commerce;
 
     (Get-Content Epinova.ElasticSearch.Core.EPiServer.Commerce.nuspec) -replace '\[11\.2.*12\)', $env:APPVEYOR_BUILD_VERSION | Out-File Epinova.ElasticSearch.Core.EPiServer.Commerce.nuspec
+deploy:
+  provider: NuGet
+  api_key:
+    secure: +/RwlVL3MPuW2Ghfz8vHvaWcVPtD3xwW7AMYYqP1FKK4JefksO7cWWiUSJ30ZNF6
+  skip_symbols: false
+  artifact: /.*\.nupkg/
