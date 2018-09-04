@@ -20,7 +20,3 @@ pull_requests:
 build:
   publish_nuget: true
   verbosity: minimal
-test:
-  categories:
-    except:
-    - Integration
