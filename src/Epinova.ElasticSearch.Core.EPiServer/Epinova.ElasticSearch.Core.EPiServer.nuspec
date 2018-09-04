@@ -7,7 +7,7 @@
     <authors>Espen Lønnkvist and Øyvind Tanum</authors>
     <owners>Epinova AS</owners>
     <iconUrl>http://www.epinova.no/favicon.ico</iconUrl>
-    <projectUrl>https://stash.epinova.no/projects/EM/repos/epinova.elasticsearch/browse/</projectUrl>
+    <projectUrl>https://github.com/Epinova/Epinova.Elasticsearch</projectUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>Epinova ElasticSearch Core functionality</description>
     <releaseNotes></releaseNotes>
