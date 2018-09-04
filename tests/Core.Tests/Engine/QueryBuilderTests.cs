@@ -490,7 +490,6 @@ namespace Core.Tests.Engine
 
         [Theory]
         [InlineData(123456)]
-        [InlineData(123456.7)]
         [InlineData(-123456)]
         public void Filter_ReturnsExpectedJsonForDouble(double value)
         {
