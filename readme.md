@@ -1,3 +1,6 @@
+[![Build status](https://ci.appveyor.com/api/projects/status/vhaehgrviq4u92ha/branch/master?svg=true)](https://ci.appveyor.com/project/Epinova_AppVeyor_Team/epinova-elasticsearch/branch/master)
+
+
 # Introduction
 
 A search-plugin for Episerver CMS and Commerce
