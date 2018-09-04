@@ -15,7 +15,7 @@ using System.Threading;
 
 namespace Integration.Tests
 {
-    [TestFixture]
+    [TestFixture, Category("Integration")]
     public class CustomIndexTests
     {
         private readonly string _customIndexPrefix = Guid.NewGuid().ToString();

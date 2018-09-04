@@ -17,7 +17,7 @@ using Indexing = Epinova.ElasticSearch.Core.Conventions.Indexing;
 
 namespace Integration.Tests
 {
-    [TestFixture]
+    [TestFixture, Category("Integration")]
     public class IndexContentTests
     {
         private IElasticSearchService _service;

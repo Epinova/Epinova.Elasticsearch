@@ -21,6 +21,6 @@ build:
   publish_nuget: true
   verbosity: minimal
 test:
-  assemblies:
+  categories:
     except:
-    - epinova-elasticsearch\tests\Integration\bin\Integration.Tests.dll
+    - Integration

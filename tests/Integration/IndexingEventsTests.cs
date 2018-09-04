@@ -11,7 +11,7 @@ using NUnit.Framework;
 
 namespace Integration.Tests
 {
-    [TestFixture]
+    [TestFixture, Category("Integration")]
     public class IndexingEventsTests
     {
         private readonly IElasticSearchService _service;

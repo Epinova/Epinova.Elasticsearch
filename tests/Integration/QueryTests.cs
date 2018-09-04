@@ -15,7 +15,7 @@ using Epinova.ElasticSearch.Core.Settings;
 
 namespace Integration.Tests
 {
-    [TestFixture]
+    [TestFixture, Category("Integration")]
     public class QueryTests
     {
         private IElasticSearchService _service;

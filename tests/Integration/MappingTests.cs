@@ -7,7 +7,7 @@ using NUnit.Framework;
 
 namespace Integration.Tests
 {
-    [TestFixture]
+    [TestFixture, Category("Integration")]
     public class MappingTests
     {
         [Test]

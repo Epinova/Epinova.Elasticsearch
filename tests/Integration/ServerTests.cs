@@ -10,7 +10,7 @@ using Epinova.ElasticSearch.Core.Models.Admin;
 
 namespace Integration.Tests
 {
-    [TestFixture]
+    [TestFixture, Category("Integration")]
     public class ServerTests
     {
         [SetUp]

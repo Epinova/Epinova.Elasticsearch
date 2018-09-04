@@ -21,7 +21,7 @@ using NUnit.Framework;
 
 namespace Integration.Tests
 {
-    [TestFixture]
+    [TestFixture, Category("Integration")]
     public class SearchTests
     {
         private IElasticSearchService _service;

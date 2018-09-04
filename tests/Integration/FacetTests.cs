@@ -10,7 +10,7 @@ using NUnit.Framework;
 
 namespace Integration.Tests
 {
-    [TestFixture]
+    [TestFixture, Category("Integration")]
     public class FacetTests
     {
         private IElasticSearchService _service;

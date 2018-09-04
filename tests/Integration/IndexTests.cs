@@ -10,7 +10,7 @@ using Epinova.ElasticSearch.Core.Settings;
 
 namespace Integration.Tests
 {
-    [TestFixture]
+    [TestFixture, Category("Integration")]
     public class IndexTests
     {
         private IElasticSearchSettings _settings;

@@ -12,7 +12,7 @@ using NUnit.Framework;
 
 namespace Integration.Tests
 {
-    [TestFixture]
+    [TestFixture, Category("Integration")]
     public class CustomObjectsTests
     {
         private IElasticSearchService _service;

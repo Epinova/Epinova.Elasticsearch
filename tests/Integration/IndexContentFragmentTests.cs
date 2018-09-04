@@ -16,7 +16,7 @@ using Epinova.ElasticSearch.Core.EPiServer.Extensions;
 
 namespace Integration.Tests
 {
-    [TestFixture]
+    [TestFixture, Category("Integration")]
     public class IndexContentFragmentTests
     {
         private IElasticSearchService _service;
