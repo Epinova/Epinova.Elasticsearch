@@ -43,7 +43,7 @@ A search-plugin for Episerver CMS and Commerce
 * Episerver CMS 11+
 * Episerver Commerce 11.5+
 * Elasticsearch >5.1.1 && <6
-* Ingest Attachment Processor Plugin
+* Mapper Attachment Plugin
 
 # Usage
 
