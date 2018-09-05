@@ -603,7 +603,11 @@ Content will be automatically be re-indexed when performing common operations su
 
 &nbsp;
 
-Re-indexing can also be triggered manually via the Tools-menu:
+To do an initial indexing of all contents, run the scheduled task &laquo;Elasticsearch: Index EPiServer contents&raquo;
+
+&nbsp;
+
+Re-indexing can also be triggered manually on individual content via the Tools-menu:
 
 ![Tools](assets/tools-button.png?raw)
 
@@ -613,10 +617,7 @@ Re-indexing can also be triggered manually via the Tools-menu:
 
 ![Tools](assets/tree-button.png?raw)
 
-
 &nbsp;
-
-
 
 # N-gram / Tri-gram tokenizer
 
