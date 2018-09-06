@@ -304,6 +304,7 @@
     <Compile Include="Models\Serialization\SuggestionsRootObject.cs" />
     <Compile Include="Models\Tracking.cs" />
     <Compile Include="Models\TypeCount.cs" />
+    <Compile Include="Pipelines\Attachment.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Server.cs" />
     <Compile Include="Services\TrackingRepository.cs" />

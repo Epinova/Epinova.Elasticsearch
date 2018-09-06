@@ -337,8 +337,11 @@ namespace Epinova.ElasticSearch.Core.Contracts
         /// Materializes the search query and returns the results, 
         /// with the source fields in <paramref name="fields"/>
         /// </summary>
+        /// <param name="fields">Return these source fields</param>
+        /// <param name="enableDidYouMean">Include DidYouMean in query</param>
+        /// <param name="enableHighlighting">Enable highlighting</param>
         /// <returns>An instance of <see cref="SearchResult"/></returns>
-        SearchResult GetResults(params string[] fields);
+        SearchResult GetResults(bool enableHighlighting = true, bool enableDidYouMean = true, params string[] fields);
 
         /// <summary>
         /// Materializes the search query and returns the results, 
@@ -363,10 +366,12 @@ namespace Epinova.ElasticSearch.Core.Contracts
         /// All source fields are returned unless <paramref name="fields"/> is specified
         /// </summary>
         /// <param name="from">Skips this number of hits</param>
-        /// <param name="size">How many hits to return</param>
+        /// <param name="size">How many hits to return</param>        
         /// <param name="fields">Return these source fields</param>
+        /// <param name="enableDidYouMean">Include DidYouMean in query</param>
+        /// <param name="enableHighlighting">Enable highlighting</param>
         /// <returns>An instance of <see cref="SearchResult"/></returns>
-        SearchResult GetResults(int from, int size, params string[] fields);
+        SearchResult GetResults(int from, int size, bool enableHighlighting = true, bool enableDidYouMean = true, params string[] fields);
 
         /// <summary>
         /// Materializes the search query and returns the results.

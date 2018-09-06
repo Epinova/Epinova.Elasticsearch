@@ -405,6 +405,11 @@ namespace Epinova.ElasticSearch.Core
 
             var endpointUri = $"{_settings.Host}/{indexName}/{objectType.GetTypeName()}/{id}";
 
+            if (HasAttachmentData(objectToUpdate))
+            {
+                endpointUri += $"?pipeline={Pipelines.Attachment.Name}";
+            }
+
             if (BeforeUpdateItem != null)
             {
                 Logger.Debug("Firing subscribed event BeforeUpdateItem");
@@ -417,6 +422,12 @@ namespace Epinova.ElasticSearch.Core
             HttpClientHelper.Put(new Uri(endpointUri), data);
 
             RefreshIndex(indexName);
+        }
+
+        private static bool HasAttachmentData(object objectToUpdate)
+        {
+            return objectToUpdate is IDictionary<string, object> dict
+                   && dict.TryGetValue(DefaultFields.AttachmentData, out _);
         }
     }
 }

@@ -120,6 +120,42 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Extensions
             return new ContentSearchResult<T>(results, hits);
         }
 
+        public static ContentSearchResult<T> GetContentResults<T>(
+            this IElasticSearchService<T> service,
+            bool requirePageTemplate = false) where T : IContentData
+        {
+            return service.GetContentResults(requirePageTemplate, null);
+        }
+
+        internal static ContentSearchResult<T> GetContentResults<T>(
+            this IElasticSearchService<T> service,
+            bool requirePageTemplate,
+            string[] providerNames,
+            bool enableHighlighting = true,
+            bool enableDidYouMean = true) where T : IContentData
+        {
+            SearchResult results = service.GetResults(enableHighlighting, enableDidYouMean);
+            var hits = new List<ContentSearchHit<T>>();
+
+            foreach (SearchHit hit in results.Hits)
+            {
+                if (ShouldAdd(hit, requirePageTemplate, out T content, providerNames))
+                    hits.Add(new ContentSearchHit<T>(content, hit.CustomProperties, hit.QueryScore, hit.Highlight));
+                else
+                    results.TotalHits--;
+            }
+
+            if (service.TrackSearch)
+            {
+                TrackingRepository.AddSearch(
+                    Language.GetLanguageCode(service.SearchLanguage),
+                    service.SearchText,
+                    results.TotalHits == 0);
+            }
+
+            return new ContentSearchResult<T>(results, hits);
+        }
+
         private static async Task<ContentSearchHit<T>> FilterAsync<T>(SearchHit hit, bool requirePageTemplate, string[] providerNames) where T : IContentData
         {
             return await Task.Run(() =>

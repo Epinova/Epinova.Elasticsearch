@@ -32,6 +32,7 @@ namespace Epinova.ElasticSearch.Core
         public static readonly string[] IgnoreDidYouMean =
         {
             DefaultFields.Attachment,
+            DefaultFields.AttachmentData,
             DefaultFields.Changed,
             DefaultFields.Created,
             DefaultFields.DidYouMean,

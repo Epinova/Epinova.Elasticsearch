@@ -62,6 +62,7 @@ namespace Epinova.ElasticSearch.Core.Models
         public ScriptScore ScriptScore { get; set; }
         public bool UsePostfilters { get; set; }
         public bool EnableDidYouMean { get; set; } = true;
+        public bool EnableHighlighting { get; set; } = true;
         public bool UseBestBets { get; set; }
         public bool UseHighlight { get; set; }
         public string Analyzer { get; internal set; }

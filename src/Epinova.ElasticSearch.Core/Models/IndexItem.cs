@@ -28,6 +28,8 @@ namespace Epinova.ElasticSearch.Core.Models
         public string Attachment { get; set; }
         public SuggestionItem Suggest { get; set; }
 
+        [JsonProperty(DefaultFields.AttachmentData), JsonIgnore]
+        public string AttachmentData { get; set; }
 
         public class SuggestionItem
         {

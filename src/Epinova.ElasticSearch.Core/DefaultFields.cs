@@ -11,6 +11,7 @@
         public const string Type = "Type";
         public const string Types = "Types";
         public const string Path = "Path";
+        public const string AttachmentData = "_attachmentdata";
         public const string Attachment = "Attachment";
         public const string AttachmentContent = "Attachment.content";
         public const string AttachmentAuthor = "Attachment.author";
