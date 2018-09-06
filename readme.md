@@ -3,7 +3,7 @@
 
 # Introduction
 
-A search-plugin for Episerver CMS and Commerce
+A search plugin for Episerver CMS and Commerce
 
 ## Features
 
@@ -20,7 +20,7 @@ A search-plugin for Episerver CMS and Commerce
 * Synonyms
 * Pagination
 * Related hits (did you mean?)
-* Auto-suggest
+* Autosuggest
 * Commerce support
 * Highlighting (excerpts)
 * Date decay
@@ -33,8 +33,8 @@ A search-plugin for Episerver CMS and Commerce
 
 * Elasticsearch 6+ support
 * Caching
-* Compound Word Token Filter
-* Utilize aliases for better downtime-managment
+* Compound work token filter
+* Utilize aliases for better downtime management
 
 
 # Requirements
@@ -47,7 +47,7 @@ A search-plugin for Episerver CMS and Commerce
 
 # Usage
 
-First of all you need to create your index. Go to the administration page via the embedded menu Search Engine -> Administration and status, then hit the `Create indices` button.
+First of all you need to create your index. Go to the administration page via the embedded menu Search Engine -> Administration and status, then click the `Create indices` button.
 
 ![Tools](assets/index-admin.png?raw)
 
@@ -58,7 +58,7 @@ A separate index will be created for each active language on your site. If you a
 
 # Configuration
 
-You can configure your setup programmatically with the singleton `Epinova.ElasticSearch.Core.Conventions.Indexing`. Only do this once per app-domain, typically in a initializable module, Application_Start(), etc.
+You can configure your setup programmatically with the singleton `Epinova.ElasticSearch.Core.Conventions.Indexing`. Only do this once per app domain, typically in an initializable module, e.g. Application_Start().
 
 A sample configuration class:
 
@@ -86,17 +86,17 @@ public static class SearchConfig
 
 Explanation of the different options:
 
-`ExcludeType`: This type will not be indexed. Base-classes and interfaces is also supported. The same can be achieved by decorating your type with `ExcludeFromSearchAttribute`
+`ExcludeType`: This type will not be indexed. Base classes and interfaces are also supported. The same can be achieved by decorating your type with `ExcludeFromSearchAttribute`
 
 `ExcludeRoot`: This node and its children will not be indexed. Typically a node-id in the Episerver page-tree.
 
-`IncludeFileType`: Defines the extension for file-types which should be indexed. See also the `<files>`-node in the [configuration](setup.md).
+`IncludeFileType`: Defines the extension for file types that should be indexed. See also the `<files>` node in the [configuration](setup.md).
 
-`ForType`: Starting point for indexing-rules on a particular type. Does nothing in itself, but provides access to the following options:
+`ForType`: Starting point for indexing rules of a particular type. Does nothing in itself, but provides access to the following options:
 
-`IncludeField`: Defines custom properties to be indexed. For example an extension-method that fetches external data or performs complex aggregations.
+`IncludeField`: Defines custom properties to be indexed. For example an extension method that fetches external data or performs complex aggregations.
 
-`EnableSuggestions`: Offer auto-suggest data from this type, either from all properties or selected ones via a lambda-expression.
+`EnableSuggestions`: Offer autosuggest data from this type, either from all properties or selected ones via a lambda expression.
 
 `IncludeProperty`: Same effect as decorating a property with [Searchable]. Can be used if you don't control the source of the model.
 
@@ -144,8 +144,8 @@ SearchResult result = service
 ```
 
 
-### Auto-suggest
-Searches for indexed words starting with phrase
+### Autosuggest
+Searches for indexed words starting with phrase:
 
 ```csharp
 string[] suggestions = service.GetSuggestions("baco");
@@ -154,7 +154,7 @@ string[] suggestions = service.GetSuggestions("baco");
 
 ### Fuzzy search
 
-With default length AUTO (recommended)
+With default length AUTO (recommended):
 
 ```csharp
 SearchResult result = service
@@ -163,7 +163,7 @@ SearchResult result = service
    .GetResults();
 ```
 
-With spesific length
+With specific length:
 
 ```csharp
 SearchResult result = service
@@ -197,7 +197,7 @@ SearchResult result = service
 
 ## Excluding type per query
 
-If you don't want to exclude a type globally, you can do it only in the context of a query
+If you don't want to exclude a type globally, you can do it only in the context of a query:
 
 ```csharp
 SearchResult result = service
@@ -209,7 +209,7 @@ SearchResult result = service
 
 ## Excluding entire sections/nodes per query
 
-Exclude a node at query-time
+Exclude a node at query-time:
 
 ```csharp
 SearchResult result = service
@@ -238,7 +238,7 @@ SearchResult result = service
 
 # Pagination
 
-Use the methods `From()` and `Size()` for pagination, or the aliases `Skip()` and `Take()`
+Use the methods `From()` and `Size()` for pagination, or the aliases `Skip()` and `Take()`:
 
 
 ```csharp
@@ -276,25 +276,25 @@ var query = service
 
 ## Apply chosen filters, ie. from a Querystring
 
-One value
+One value:
 ```csharp
 string selectedFilter = Request.Querstring["filter"];
 query = query.Filter(p => p.DepartmentID, selectedFilter);
 ```
 
-One value, by extension-method
+One value, by extension method:
 ```csharp
 string selectedFilter = Request.Querstring["filter"];
 query = query.Filter(p => p.GetDepartmentID(), selectedFilter);
 ```
 
-Multiple values
+Multiple values:
 ```csharp
 string[] selectedFilters = Request.Querstring["filters"];
 query = query.Filter(p => p.DepartmentID, selectedFilters);
 ```
 
-Use AND operator to filter on all filters
+Use AND operator to filter on all filters:
 ```csharp
 string[] selectedFilters = Request.Querstring["filters"];
 query = query.Filter(p => p.DepartmentID, selectedFilters, Operator.And);
@@ -376,7 +376,7 @@ SearchResult result = service
    .GetResults();
 ```
 
-The less-than argument is optional
+The less-than argument is optional.
 
 ```csharp
 SearchResult result = service
@@ -414,13 +414,13 @@ public class ArticlePage : StandardPage
 
 # Boosting
 
-Properties can be give be boosted by decorating them with the `Boost`-attribute:
+Properties can be boosted by decorating them with the `Boost` attribute:
 ```csharp
 [Boost(13)]
 public string Title { get; set; }
 ```
 
-..or at query-time:
+… or at query time:
 ```csharp
 SearchResult result = service
    .Search("bacon")
@@ -449,7 +449,7 @@ SearchResult result = service
    .GetResults();
 ```
 
-You can also boost hits depending on their location in the page-tree:
+You can also boost hits depending on their location in the page tree:
 
 ```csharp
 SearchResult result = service
@@ -458,7 +458,7 @@ SearchResult result = service
    .GetResults();
 ```
 
-Date-properties can be scored lower depending on their value, by using the `Decay` function. This way you can promote newer articles over older ones.
+Date properties can be scored lower depending on their value, by using the `Decay` function. This way you can promote newer articles over older ones.
 
 ```csharp
 SearchResult result = service
@@ -467,8 +467,8 @@ SearchResult result = service
    .GetResults();
 ```
 
-Every time the date-interval (2nd argument) occurs, 0.5 points will be subtracted from the score.
-In the example above 0.5 points will be subtracted after 7 days, 1 points after 14 days, and so on.
+Every time the date interval (2nd argument) occurs, 0.5 points will be subtracted from the score.
+In the example above, 0.5 points will be subtracted after 7 days, 1 points after 14 days, and so on.
 
 &nbsp;
 
@@ -486,7 +486,7 @@ SearchResult result = service
 
 &nbsp;
 
-Best bets can be adminstered via the embedded menu Search Engine -> Best Bets.
+Best bets can be administered via the embedded menu Search Engine -> Best Bets.
 &nbsp;
 
 ![Tools](assets/bestbets.png?raw)
@@ -497,7 +497,7 @@ Best bets can be adminstered via the embedded menu Search Engine -> Best Bets.
 
 # Tracking
 
-Simple statistics can be collected using the `.Track()` function. This will track the number of times a term is queried and wether it returned any hits or not.
+Simple statistics can be collected using the `.Track()` function. This will track the number of times a term is queried and whether it returned any hits.
 
 ```csharp
 SearchResult result = service
@@ -518,7 +518,7 @@ SearchResult result = service
 # Stemming
 
 Stemming is by default applied to all properties of type `XhtmlString`, or those named `MainIntro` or `MainBody`.  
-The language is based on the language of the content. Other properties of type `string` can be stemmed by decorating them with the `Stem`-attribute:
+The language is based on the content language. Other properties of type `string` can be stemmed by decorating them with the `Stem`-attribute:
 
 ```csharp
 [Stem]
@@ -541,7 +541,7 @@ SearchResult result = service
 
 
 # Sorting
-Sorting is normally performed by Elasticsearch based on the score of each match. Manual sorting should only be used in scenarios where scoring is not relevant. E.g. when using the previously mentioned `Get` function. 
+Sorting is normally performed by Elasticsearch based on the score of each match. Manual sorting should only be used in scenarios where scoring is not relevant, e.g. when using the previously mentioned `Get` function. 
 
 ```csharp
 SearchResult result = service
@@ -557,7 +557,7 @@ SearchResult result = service
 
 # &laquo;Did You Mean&raquo;
 
-A shingle-filter is included which can suggest similar words found in the index when searching for misspelled words.  
+A shingle filter is included that can suggest similar words found in the index when searching for misspelled words.  
 Any suggestions found will be included in the `DidYouMean` property of the search result:
 
 ```csharp
@@ -575,7 +575,7 @@ string[] didYouMean = result.DidYouMean; // [ "alloy", "all" ]
 
 
 ## GetContentResults
-The results returned by `GetResults()` does not have any knowledge of Episerver. Use the function `GetContentResults()` when you're in the context of Episerver.  
+The results returned by `GetResults()` does not have any knowledge of Episerver. Use the function `GetContentResults()` in an Episerver context.  
 This will automatically apply the filters `FilterAccess`, `FilterPublished` and `FilterTemplate`.
 
 ```csharp
@@ -589,7 +589,7 @@ IEnumerable<IContent> content = service
 
 ## Search in edit-mode
 
-If you want to use any of the included providers when searching in edit-mode, go to CMS -> Admin -> Config -> Tool settings -> Search Configuration.  
+If you want to use any of the included providers when searching in edit mode, go to CMS -> Admin -> Config -> Tool settings -> Search Configuration.  
 Tick the providers and drag them to the top of the list. 
 
 ## Synonyms
@@ -599,7 +599,7 @@ Synonyms can be administered from the menu Search Engine -> Synonyms.
 
 ## Re-indexing content
 
-Content will be automatically be re-indexed when performing common operations such as publishing, moving and deletion.
+Content will be automatically re-indexed when performing common operations such as publishing, moving and deletion.
 
 &nbsp;
 
@@ -613,7 +613,7 @@ Re-indexing can also be triggered manually on individual content via the Tools-m
 
 &nbsp;
 
-..or via the context menu in the page-tree:
+… or via the context menu in the page tree:
 
 ![Tools](assets/tree-button.png?raw)
 
@@ -629,7 +629,7 @@ You can switch between normal and tri-gram tokenizer (harcoded to min=3, max=3, 
 
 # Highlighting / Excerpt
 
-Use the `Highlight()` function to get an excerpt of 150 characters from where the match occured in the text. 
+Use the `Highlight()` function to get an excerpt of 150 characters from where the match occurred in the text. 
 
 ```csharp
 SearchResult result = service
@@ -680,7 +680,7 @@ var results = _service
 
 ## Custom index
 
-If you prefer a custom index to avoid collisions etc., this must be supplied when indexing and searching
+If you prefer a custom index to avoid e.g. collisions, this must be supplied when indexing and searching:
 
 ```csharp
 var obj1 = new ComplexType { StringProperty = "this is myobj 1" };
@@ -713,16 +713,16 @@ var results = _service
 
 
 ## Important
-`GetCustomResults` returnerer sterkt typede objekter, i motsetning til
-`GetContentResults` som kun returnerer id'er
+`GetCustomResults` returns strongly typed objects as opposed to
+`GetContentResults`, which only returns IDs.
 
-Custom objects does not require an `Id` property (or corresponding argument in the `BulkOperation` ctor), but this is recommended if you want control over versioning and updates/deletions.
+Custom objects do not require an `Id` property (or corresponding argument in the `BulkOperation` ctor), but this is recommended if you want control over versioning and updates/deletions.
 
 &nbsp;
 
 # Known issues
-* Content which is not indexed will not be retured by the providers in edit-mode
-* Admin GUI and manual indexing is not working properly with Windows-authentication
+* Content that is not indexed will not be returned by the providers in edit mode
+* Admin GUI and manual indexing is not working properly with Windows authentication
 
 
 # See also
