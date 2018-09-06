@@ -1,28 +1,28 @@
 # Installation
 
 ## Java
-Java must be installed and the environment variable [JAVA_HOME](https://confluence.atlassian.com/display/DOC/Setting+the+JAVA_HOME+Variable+in+Windows) must be set and point to the bin folder of the Java-installation. 
-Elasticsearch recommends Oracle JDK 1.8 or higher, but your milage and environment may vary. 
+Java must be installed and the environment variable [JAVA_HOME](https://confluence.atlassian.com/display/DOC/Setting+the+JAVA_HOME+Variable+in+Windows) must point to the bin folder of the Java installation. 
+Elasticsearch recommends Oracle JDK 1.8 or higher, but your environment may require something else. 
 Read more [here](https://www.elastic.co/guide/en/elasticsearch/reference/current/_installation.html)
 
 ## Service
-Download and install Elasticsearch version >5.1.1 && <6.0. How you prefer to setup thing is out of scope for this document, 
+Download and install Elasticsearch version >5.1.1 && <6.0. Setup preferences are outside the scope of this document, 
 but you need to at least address running as a service, roles and [heap size](https://www.elastic.co/guide/en/elasticsearch/reference/current/heap-size.html).
 
 ## Plugins
 The only required plugin is the [Ingest Attachment Processor Plugin](https://www.elastic.co/guide/en/elasticsearch/plugins/master/ingest-attachment.html). 
-This enables indexing of files by using the Apache text extraction library Tika
+This enables indexing of files by using the Apache text extraction library Tika.
 
 Please install it per the instructions mentioned in the link above.
 
 ## Configure your project
-Install the following Nuget packages in your project from Nuget.org
+Install the following Nuget packages in your project from Nuget.org:
 
 * Epinova.ElasticSearch.Core
 * Epinova.ElasticSearch.Core.EPiServer
 * Epinova.ElasticSearch.Core.EPiServer.Commerce (optional, for Commerce support)
 
-Check that the config-transformation succeeded and added the below configurations. If not add them manually.
+Check that the config transformation succeeded by adding the following configurations:
 
   ```xml
   <configuration>
@@ -33,6 +33,8 @@ Check that the config-transformation succeeded and added the below configuration
       </configSections>
   </configuration>  
   ```
+  
+  If not, add them manually.
 
   ```xml
   <configuration>
@@ -87,13 +89,13 @@ Check that the config-transformation succeeded and added the below configuration
   </configuration>
   ```
 
-The last 8 attributes in `<epinova.elasticSearch>` is optional and shows default values. 
+The last 8 attributes in `<epinova.elasticSearch>` are optional and show default values. 
 
 Explanation:
 
 * `bulksize` defines how many documents should be sent simultaneously when performing bulk updates.
 * `providerMaxResults` how many hits to return in the UI search.
-* `closeIndexDelay` the delay in milliseconds between open/close operations. This might be necessary to increas on slower servers.
+* `closeIndexDelay` the delay in milliseconds between open/close operations. An increase might be necessary on slower servers.
 * `ignoreXhtmlStringContentFragments` should content fragments in XhtmlStrings be ignored?
 * `clientTimeoutSeconds` the timeout in seconds used by the underlying HttpClient.
 * `username` username for basic authentication.
@@ -105,4 +107,4 @@ Register your indices in the `<indices>` node, usually just one. If you have mor
 
 The `<files>` node defines which file-types should be indexed.
   * `enabled` turns indexing on/off.
-  * `maxsize` sets an upper limit on file-sizes. Can be defined as a number (bytes) or with a corresponding suffix `MB`, `MB` or `GB`
+  * `maxsize` sets an upper limit on file sizes. Can be defined as a number (bytes) or with a corresponding suffix `MB`, `MB` or `GB`
