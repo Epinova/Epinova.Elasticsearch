@@ -1,11 +1,5 @@
 ﻿<configuration xmlns:xdt="http://schemas.microsoft.com/XML-Document-Transform">
   <configSections>
-    <!-- Remove legacy -->
-    <section name="epinova.elasticSearch" 
-             type="Epinova.ElasticSearch.Core.Settings.ElasticSearchConfigurationHandler, Epinova.ElasticSearch.Core"
-             xdt:Locator="Match(name)" 
-             xdt:Transform="Remove"/>
-
     <section name="epinova.elasticSearch" 
              type="Epinova.ElasticSearch.Core.Settings.Configuration.ElasticSearchSection, Epinova.ElasticSearch.Core"
              xdt:Locator="Match(name)" 
@@ -33,4 +27,12 @@
       </add>
     </protectedModules>
   </episerver.shell>
+
+  <episerver.framework>
+    <virtualRoles>
+      <providers>
+        <add name="ElasticsearchAdmins" roles="WebAdmins,Administrators" mode="Any" type="EPiServer.Security.MappedRole, EPiServer" xdt:Locator="Match(name)" xdt:Transform="InsertIfMissing" />
+      </providers>
+    </virtualRoles>
+  </episerver.framework>
 </configuration>
