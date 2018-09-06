@@ -264,7 +264,6 @@
     <Content Include="modules\_protected\ElasticSearch\ElasticSearch.zip" />
     <EmbeddedResource Include="Lang\Epinova.ElasticSearchEN.xml" />
     <EmbeddedResource Include="Lang\Epinova.ElasticSearchNO.xml" />
-    <None Include="Configs\episerver.framework.config.install.xdt" />
     <None Include="Epinova.ElasticSearch.Core.EPiServer.nuspec">
       <SubType>Designer</SubType>
     </None>

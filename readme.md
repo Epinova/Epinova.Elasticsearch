@@ -43,7 +43,7 @@ A search plugin for Episerver CMS and Commerce
 * Episerver CMS 11+
 * Episerver Commerce 11.5+
 * Elasticsearch >5.1.1 && <6
-* Ingest Attachment Processor Plugin
+* Mapper Attachment Plugin
 
 # Usage
 
@@ -603,7 +603,11 @@ Content will be automatically re-indexed when performing common operations such 
 
 &nbsp;
 
-Re-indexing can also be triggered manually via the Tools menu:
+To do an initial indexing of all contents, run the scheduled task &laquo;Elasticsearch: Index EPiServer contents&raquo;
+
+&nbsp;
+
+Re-indexing can also be triggered manually on individual content via the Tools-menu:
 
 ![Tools](assets/tools-button.png?raw)
 
@@ -613,10 +617,7 @@ Re-indexing can also be triggered manually via the Tools menu:
 
 ![Tools](assets/tree-button.png?raw)
 
-
 &nbsp;
-
-
 
 # N-gram / Tri-gram tokenizer
 

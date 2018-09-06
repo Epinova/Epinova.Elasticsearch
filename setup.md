@@ -10,8 +10,8 @@ Download and install Elasticsearch version >5.1.1 && <6.0. Setup preferences are
 but you need to at least address running as a service, roles and [heap size](https://www.elastic.co/guide/en/elasticsearch/reference/current/heap-size.html).
 
 ## Plugins
-The only required plugin is the [Ingest Attachment Processor Plugin](https://www.elastic.co/guide/en/elasticsearch/plugins/master/ingest-attachment.html). 
-This enables indexing of files by using the Apache text extraction library Tika.
+The only required plugin is the [Mapper Attachments Plugin](https://www.elastic.co/guide/en/elasticsearch/plugins/5.0/mapper-attachments.html). 
+This enables indexing of files by using the Apache text extraction library Tika 
 
 Please install it per the instructions mentioned in the link above.
 
