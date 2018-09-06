@@ -32,17 +32,12 @@ before_package:
 
     (Get-Content Epinova.ElasticSearch.Core.EPiServer.Commerce.nuspec) -replace '\[11\.2.*12\)', $env:APPVEYOR_BUILD_VERSION | Out-File Epinova.ElasticSearch.Core.EPiServer.Commerce.nuspec
 
-for:
-
-# override settings for `master` branch
--
-  branches:
-    only:
-      - master
-
-  deploy:
-    provider: NuGet
-    api_key:
-        secure: /L7BuZN2mNqeHYM5tnD8Lyh5j+k/nd3vuurOt4zYwmCGTKcGvEo3afO0MWOTj5Yn
-    skip_symbols: false
-    artifact: /.*\.nupkg/
+deploy:
+  provider: NuGet
+  api_key:
+    secure: /L7BuZN2mNqeHYM5tnD8Lyh5j+k/nd3vuurOt4zYwmCGTKcGvEo3afO0MWOTj5Yn
+  skip_symbols: false
+  artifact: /.*\.nupkg/
+  on:
+    branch: master
+    APPVEYOR_REPO_BRANCH: master
