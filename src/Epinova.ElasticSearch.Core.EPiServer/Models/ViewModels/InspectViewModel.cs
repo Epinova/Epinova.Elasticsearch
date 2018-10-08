@@ -7,7 +7,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Models.ViewModels
     public class InspectViewModel
     {
         public string SearchText { get; set; }
-        
+
         public List<string> Indices { get; set; }
         public string SelectedIndex { get; set; }
 
@@ -19,7 +19,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Models.ViewModels
 
         public int SelectedNumberOfItems { get; set; }
         public List<int> NumberOfItems { get; set; }
-        
+
         public List<InspectItem> SearchHits { get; set; }
     }
 }

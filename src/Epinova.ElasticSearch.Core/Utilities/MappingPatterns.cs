@@ -49,7 +49,7 @@ namespace Epinova.ElasticSearch.Core.Utilities
                     Type = "completion",
                     Analyzer = "suggest"
                 };
-                
+
                 // Payloads deprecated in v5
                 if (Server.Info.Version.Major < 5)
                     suggestMapping.Payloads = false;

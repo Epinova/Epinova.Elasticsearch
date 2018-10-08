@@ -15,7 +15,7 @@ namespace Epinova.ElasticSearch.Core.Extensions
     internal static class TypeExtensions
     {
         private static readonly ILogger Logger = LogManager.GetLogger(typeof(TypeExtensions));
-        
+
         public static string[] GetInheritancHierarchyArray(this Type type)
         {
             if (type == null)
@@ -127,8 +127,8 @@ namespace Epinova.ElasticSearch.Core.Extensions
             var searchable = p.GetCustomAttribute<SearchableAttribute>();
             if (searchable != null)
             {
-                Logger.Debug(searchable.IsSearchable 
-                    ? "Yes: Attribute" 
+                Logger.Debug(searchable.IsSearchable
+                    ? "Yes: Attribute"
                     : "No: Attribute");
 
                 return searchable.IsSearchable;

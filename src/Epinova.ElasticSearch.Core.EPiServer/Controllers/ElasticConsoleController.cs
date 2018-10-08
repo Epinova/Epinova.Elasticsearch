@@ -17,7 +17,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Controllers
         private readonly IElasticSearchSettings _settings;
 
         public ElasticConsoleController(
-            IElasticSearchSettings settings, 
+            IElasticSearchSettings settings,
             ILanguageBranchRepository languageBranchRepository)
         {
             _settings = settings;

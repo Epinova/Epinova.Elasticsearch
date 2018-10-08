@@ -88,7 +88,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Controllers
             }
 
             var config = ElasticSearchSection.GetConfiguration();
-            
+
             foreach (ContentSelectorConfiguration entry in config.ContentSelector)
             {
                 model.SelectorTypes.Add(entry.Type.ToLower());

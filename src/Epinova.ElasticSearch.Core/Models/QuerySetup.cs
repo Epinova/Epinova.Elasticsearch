@@ -59,5 +59,6 @@ namespace Epinova.ElasticSearch.Core.Models
         public bool EnableDidYouMean { get; set; } = true;
         public bool UseBestBets { get; set; }
         public bool UseHighlight { get; set; }
+        public string Analyzer { get; internal set; }
     }
 }

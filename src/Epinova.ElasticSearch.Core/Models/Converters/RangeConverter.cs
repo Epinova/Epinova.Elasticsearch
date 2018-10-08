@@ -49,7 +49,7 @@ namespace Epinova.ElasticSearch.Core.Models.Converters
             writer.WriteStartObject();
             foreach (var property in properties)
             {
-                var type = property.Type.IsGenericType 
+                var type = property.Type.IsGenericType
                     ? property.Type.GenericTypeArguments[0]
                     : property.Type;
 

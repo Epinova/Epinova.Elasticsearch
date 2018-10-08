@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using Epinova.ElasticSearch.Core.Enums;
 using Newtonsoft.Json;
 
@@ -6,7 +6,7 @@ namespace Epinova.ElasticSearch.Core.Models.Query
 {
     internal sealed class MatchMulti : MatchBase
     {
-        public MatchMulti(string query, List<string> fields, Operator @operator, string type = null, int? boost = null, string fuzziness = null)
+        public MatchMulti(string query, List<string> fields, Operator @operator, string type = null, int? boost = null, string fuzziness = null, string analyzer = null)
         {
             MultiMatchQuery = new MultiMatchInternal
             {
@@ -15,7 +15,8 @@ namespace Epinova.ElasticSearch.Core.Models.Query
                 Type = type,
                 Boost = boost,
                 Fields = fields,
-                Fuzziness = fuzziness
+                Fuzziness = fuzziness,
+                Analyzer = analyzer
             };
         }
 
@@ -32,6 +33,9 @@ namespace Epinova.ElasticSearch.Core.Models.Query
 
             [JsonProperty(JsonNames.Operator)]
             public string Operator { get; internal set; }
+
+            [JsonProperty(JsonNames.Analyzer)]
+            public string Analyzer { get; internal set; }
 
             [JsonProperty(JsonNames.Type)]
             public string Type { get; internal set; }

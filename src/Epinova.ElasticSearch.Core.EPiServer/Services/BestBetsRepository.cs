@@ -32,10 +32,10 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Services
         private readonly UrlResolver _urlResolver;
 
         public BestBetsRepository(
-            IElasticSearchSettings settings, 
-            IContentRepository contentRepository, 
+            IElasticSearchSettings settings,
+            IContentRepository contentRepository,
             UrlResolver urlResolver,
-            IBlobFactory blobFactory, 
+            IBlobFactory blobFactory,
             ICoreIndexer coreIndexer)
         {
             _settings = settings;
@@ -60,7 +60,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Services
 
             if(target == null)
                 return;
-            
+
             bestBets.Remove(target);
             var result = bestBets.Where(b => !String.IsNullOrWhiteSpace(b.Phrase));
             SetBestBets(languageId, result.ToArray(), index, type);
@@ -101,7 +101,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Services
 
         private static bool IsValidRow(string row)
         {
-            return !String.IsNullOrWhiteSpace(row) 
+            return !String.IsNullOrWhiteSpace(row)
                    && row.Contains(PhraseDelim);
         }
 
@@ -138,7 +138,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Services
                 return;
 
             Logger.Information($"Saving BestBest for language:{languageId}");
-            
+
             using (Stream stream = contentFile.BinaryData?.OpenRead() ?? Stream.Null)
             {
                 byte[] data = new byte[stream.Length];
@@ -147,7 +147,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Services
                 Logger.Information($"Old content:\n{filecontents}");
             }
 
-            string content = String.Join(RowDelim, 
+            string content = String.Join(RowDelim,
                 bestBetsToAdd.Select(PhraseToRow));
 
             Logger.Information($"New content:\n{content}");

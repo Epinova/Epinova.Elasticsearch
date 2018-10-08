@@ -11,7 +11,7 @@ namespace Epinova.ElasticSearch.Core.Utilities
             ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
             NullValueHandling = NullValueHandling.Ignore
         };
-        
+
         internal static string Serialize(object body)
         {
             StringBuilder sb = new StringBuilder();

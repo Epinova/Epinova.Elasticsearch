@@ -16,7 +16,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Controllers
         private readonly IContentTypeRepository _pageTypeRepository;
 
         public ElasticBoostingController(
-            IContentLoader contentLoader, 
+            IContentLoader contentLoader,
             IBoostingRepository boostingRepository,
             IContentTypeRepository pageTypeRepository,
             IElasticSearchSettings elasticSearchSettings)

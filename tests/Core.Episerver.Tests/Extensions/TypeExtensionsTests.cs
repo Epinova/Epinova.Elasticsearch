@@ -12,7 +12,7 @@ namespace Core.Episerver.Tests.Extensions
         public void GetUnproxiedType_TypeIsNotProxyTargetAccessor_ReturnsType()
         {
             const int instance = 1;
-            
+
             Type instanceType = instance.GetType();
 
             Type result = instance.GetUnproxiedType();
@@ -78,7 +78,7 @@ namespace Core.Episerver.Tests.Extensions
         {
             Type instance = null;
             string result = instance.GetTypeName();
-            
+
             Assert.Equal(String.Empty, result);
         }
 
@@ -89,7 +89,7 @@ namespace Core.Episerver.Tests.Extensions
         public void GetTypeName_ValidType_ReturnsExpectedName(Type type, string expected)
         {
             string result = type.GetTypeName();
-            
+
             Assert.Equal(expected, result);
         }
 
@@ -98,7 +98,7 @@ namespace Core.Episerver.Tests.Extensions
         {
             var instance = new {Foo = 1, Bar = "2"};
             bool result = instance.GetType().IsAnonymousType();
-            
+
             Assert.True(result);
         }
 
