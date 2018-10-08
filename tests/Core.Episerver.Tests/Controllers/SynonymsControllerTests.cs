@@ -51,8 +51,8 @@ namespace Core.Episerver.Tests.Controllers
                 });
 
             _controller = new ElasticSynonymsController(
-                contentLoaderMock.Object, 
-                _synonymRepositoryMock.Object, 
+                contentLoaderMock.Object,
+                _synonymRepositoryMock.Object,
                 languageBranchRepositoryMock.Object,
                 indexMock.Object);
         }

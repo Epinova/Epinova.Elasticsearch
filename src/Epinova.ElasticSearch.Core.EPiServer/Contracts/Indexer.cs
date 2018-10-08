@@ -152,11 +152,11 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Contracts
 
             return Indexing.ExcludedRoots.Intersect(ancestors).Any();
         }
-        
+
 
         internal static bool IsExludedType(IContent content)
         {
-            return IsExludedType(content.GetUnproxiedType()) 
+            return IsExludedType(content.GetUnproxiedType())
                 || IsExludedType(content?.GetType());
         }
 

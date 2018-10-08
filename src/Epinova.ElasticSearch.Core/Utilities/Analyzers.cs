@@ -161,7 +161,7 @@ namespace Epinova.ElasticSearch.Core.Utilities
                 },
                 filter = new {
                     german_stop = new { type = "stop", stopwords = "_german_" },
-                    german_stemmer = new { type = "stemmer", language = "light_german" }, 
+                    german_stemmer = new { type = "stemmer", language = "light_german" },
                     german_synonym_filter = synonymFilter
                 },
                 analyzer = new {

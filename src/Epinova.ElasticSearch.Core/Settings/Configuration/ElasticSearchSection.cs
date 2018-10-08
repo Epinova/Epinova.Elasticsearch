@@ -34,7 +34,7 @@ namespace Epinova.ElasticSearch.Core.Settings.Configuration
 
             return section;
         }
-        
+
         [ConfigurationProperty("host", IsRequired = true)]
         [StringValidator(InvalidCharacters = "~!#$%^&* ()[]{};'\"|\\")]
         public string Host
@@ -120,7 +120,7 @@ namespace Epinova.ElasticSearch.Core.Settings.Configuration
             get => (FilesCollection)base["files"];
             set => base["files"] = value;
         }
-        
+
         [ConfigurationProperty("contentSelector", IsDefaultCollection = false)]
         [ConfigurationCollection(typeof(ContentSelectorCollection))]
         public virtual ContentSelectorCollection ContentSelector

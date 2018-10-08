@@ -17,7 +17,7 @@ namespace Epinova.ElasticSearch.Core.Utilities
         {
             if(input == null)
                 return String.Empty;
-            
+
             return Pattern.Replace(TextIndexer.StripHtml(input, Int32.MaxValue) ?? String.Empty, " ");
         }
     }

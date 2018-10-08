@@ -66,7 +66,7 @@ namespace Core.Episerver.Tests
 
             _indexer.Update(hiddenType);
 
-            _coreIndexerMock.Verify(m => m.Delete(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<Type>(), null), 
+            _coreIndexerMock.Verify(m => m.Delete(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<Type>(), null),
                 Times.Once);
         }
 

@@ -226,7 +226,7 @@ namespace Epinova.ElasticSearch.Core
 
         public void UpdateMapping(Type type, string index)
         {
-            UpdateMapping(type, type, index);    
+            UpdateMapping(type, type, index);
         }
 
         public void UpdateMapping(Type type, Type indexType, string index)
@@ -275,8 +275,8 @@ namespace Epinova.ElasticSearch.Core
                 foreach (var prop in indexableProperties)
                 {
                     string propName = prop.Name;
-                    IndexMappingProperty propertyMapping = mapping.Properties.ContainsKey(prop.Name) 
-                            ? mapping.Properties[prop.Name] 
+                    IndexMappingProperty propertyMapping = mapping.Properties.ContainsKey(prop.Name)
+                            ? mapping.Properties[prop.Name]
                             : Language.GetPropertyMapping(language, prop.Type, prop.Analyzable);
 
                     string mappingType = Mapping.GetMappingTypeAsString(prop.Type);

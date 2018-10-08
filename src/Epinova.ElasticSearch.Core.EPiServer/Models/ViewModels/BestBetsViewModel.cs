@@ -18,10 +18,10 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Models.ViewModels
         }
 
 
-        public List<ContentReference> SelectorRoots { get; } 
+        public List<ContentReference> SelectorRoots { get; }
             = new List<ContentReference> { SiteDefinition.Current.StartPage };
 
-        public List<string> SelectorTypes { get; } 
+        public List<string> SelectorTypes { get; }
             = new List<string> { "episerver.core.pagedata" };
 
         public string CurrentLanguage { get; }

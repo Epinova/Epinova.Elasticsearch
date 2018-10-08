@@ -130,7 +130,7 @@ namespace Epinova.ElasticSearch.Core.Utilities
                 analyzer = "\"analyzer\" : \"" + existingMappings.Properties[field.Key].Analyzer + "\",";
 
             string copyToJson = "[ \"FIELDNAME_TOKEN" + Models.Constants.RawSuffix + "\"";
-            string[] copyTo = existingMappings.Properties.ContainsKey(field.Key) 
+            string[] copyTo = existingMappings.Properties.ContainsKey(field.Key)
                 ? existingMappings.Properties[field.Key].CopyTo
                 : null;
             if (copyTo != null && copyTo.Length > 0)
