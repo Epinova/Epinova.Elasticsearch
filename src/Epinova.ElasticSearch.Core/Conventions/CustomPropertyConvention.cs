@@ -9,7 +9,7 @@ namespace Epinova.ElasticSearch.Core.Conventions
     /// Contains methods for configuring custom properties on indexed items
     /// </summary>
     /// <typeparam name="T">The type</typeparam>
-    public class CustomPropertyConvention<T> 
+    public class CustomPropertyConvention<T>
     {
         private readonly Indexing _instance;
         private static readonly ILogger Logger = LogManager.GetLogger(typeof(CustomPropertyConvention<T>));

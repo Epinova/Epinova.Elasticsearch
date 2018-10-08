@@ -282,7 +282,7 @@ namespace Epinova.ElasticSearch.Core.Engine
                     .Select(t => t.Trim().Trim('*'));
 
                 var key = setup.IndexName ?? _settings.GetDefaultIndexName(Language.GetLanguageCode(setup.Language));
-                
+
                 if (!Conventions.Indexing.BestBets.TryGetValue(key, out var bestBetsForLanguage))
                     return;
 

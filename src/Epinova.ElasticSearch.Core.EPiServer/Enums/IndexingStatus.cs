@@ -1,6 +1,6 @@
 namespace Epinova.ElasticSearch.Core.EPiServer.Enums
-{ 
-    public enum IndexingStatus 
+{
+    public enum IndexingStatus
     {
         Ok,
         ExcludedByConvention,

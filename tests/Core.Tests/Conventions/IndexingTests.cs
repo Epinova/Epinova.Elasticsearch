@@ -22,7 +22,7 @@ namespace Core.Tests.Conventions
         public void IncludeFileType_NullOrEmptyString_DoesNotAddToCollection(string type)
         {
             Indexing.Instance.IncludeFileType(type);
-            
+
             int result = Indexing.IncludedFileExtensions.Length;
 
             Assert.Equal(0, result);

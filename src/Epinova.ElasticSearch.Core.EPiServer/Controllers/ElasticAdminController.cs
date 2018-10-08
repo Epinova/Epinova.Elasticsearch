@@ -24,9 +24,9 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Controllers
         private static Health _healthHelper;
 
         public ElasticAdminController(
-            IContentLoader contentLoader, 
-            ILanguageBranchRepository languageBranchRepository, 
-            ICoreIndexer coreIndexer, 
+            IContentLoader contentLoader,
+            ILanguageBranchRepository languageBranchRepository,
+            ICoreIndexer coreIndexer,
             IElasticSearchSettings settings)
         {
             _languageBranchRepository = languageBranchRepository;

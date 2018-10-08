@@ -11,7 +11,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Controllers.Abstractions
         protected override void Initialize(RequestContext requestContext)
         {
             base.Initialize(requestContext);
-            
+
             SystemLanguage.Instance.SetCulture();
             UserInterfaceLanguage.Instance.SetCulture(EPiServerProfile.Current == null ? null: EPiServerProfile.Current.Language);
         }

@@ -31,7 +31,7 @@ namespace Epinova.ElasticSearch.Core.Services
             text = text ?? String.Empty;
             if (text.Length > 400)
                 text = text.Substring(0, 400);
-            
+
             if (SearchExists(text, languageId))
             {
                 string sql = $@"UPDATE [{Constants.TrackingTable}]

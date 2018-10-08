@@ -56,7 +56,7 @@ namespace Core.Tests.Engine
                     typeof(ComplexType)
                 }
             });
-            
+
             string match = request.Query.Bool.Filter
                 .Cast<NestedBoolQuery>().First().Bool.MustNot
                 .OfType<MatchSimple>()
@@ -114,7 +114,7 @@ namespace Core.Tests.Engine
                 request.Query.Bool.Should
                     .OfType<MatchWithBoost>()
                     .FirstOrDefault(s =>
-                        s.Match[field].Value<byte>(JsonNames.Boost) == weight && 
+                        s.Match[field].Value<byte>(JsonNames.Boost) == weight &&
                         s.Match[field].Value<string>(JsonNames.Query) == field );
 
             Assert.NotNull(match);
@@ -399,7 +399,7 @@ namespace Core.Tests.Engine
                 SearchText = "term",
                 Language = _language
             })));
-            
+
             Assert.Contains(json, result);
         }
 

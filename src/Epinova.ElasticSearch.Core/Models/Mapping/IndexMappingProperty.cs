@@ -83,7 +83,7 @@ namespace Epinova.ElasticSearch.Core.Models.Mapping
         {
             return String.Equals(Index, other.Index) && String.Equals(Analyzer, other.Analyzer) &&
                    String.Equals(Type, other.Type) && String.Equals(Format, other.Format) &&
-                   FieldData == other.FieldData && 
+                   FieldData == other.FieldData &&
                    (CopyTo == null && other.CopyTo == null || CopyTo != null && CopyTo.SequenceEqual(other.CopyTo));
         }
 
@@ -100,7 +100,7 @@ namespace Epinova.ElasticSearch.Core.Models.Mapping
                 return hashCode;
             }
         }
-        
+
         #endregion
     }
 }

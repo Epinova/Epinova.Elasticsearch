@@ -127,9 +127,9 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Services
 
         private static bool TypeIsValid(Type type)
         {
-            return !type.IsAbstract 
-                && !type.IsInterface 
-                && !type.IsGenericType 
+            return !type.IsAbstract
+                && !type.IsInterface
+                && !type.IsGenericType
                 && !(type.FullName ?? String.Empty).StartsWith("EPISERVER", StringComparison.OrdinalIgnoreCase);
         }
 

@@ -99,7 +99,7 @@ namespace Epinova.ElasticSearch.Core
             ExcludedRoots = new Dictionary<int, bool>();
             _usePostfilters = true;
         }
-        
+
 
         public IElasticSearchService<T> Boost(Expression<Func<T, object>> fieldSelector, byte weight)
         {
@@ -358,7 +358,7 @@ namespace Epinova.ElasticSearch.Core
         public CustomSearchResult<T> GetCustomResults()
         {
             QuerySetup query = CreateQuery();
-            query.EnableDidYouMean = false;
+            //query.EnableDidYouMean = false;
 
             if (!query.SearchFields.Any())
                 query.SearchFields.Add(DefaultFields.All);
@@ -680,7 +680,7 @@ namespace Epinova.ElasticSearch.Core
             MethodCallExpression expression = groupExpression.Body as MethodCallExpression;
             if (expression == null)
                 return this;
-            
+
             groupExpression.Compile().Invoke(new FilterGroup<T>(this, Guid.NewGuid().ToString()));
 
             return this;

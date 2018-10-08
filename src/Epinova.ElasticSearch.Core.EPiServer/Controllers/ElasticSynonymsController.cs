@@ -20,8 +20,8 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Controllers
         private readonly Admin.Index _indexHelper;
 
         internal ElasticSynonymsController(
-            IContentLoader contentLoader, 
-            ISynonymRepository synonymRepository, 
+            IContentLoader contentLoader,
+            ISynonymRepository synonymRepository,
             ILanguageBranchRepository languageBranchRepository,
             Admin.Index indexHelper)
         {
@@ -31,13 +31,13 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Controllers
         }
 
         public ElasticSynonymsController(
-            IContentLoader contentLoader, 
-            ISynonymRepository synonymRepository, 
+            IContentLoader contentLoader,
+            ISynonymRepository synonymRepository,
             ILanguageBranchRepository languageBranchRepository,
-            IElasticSearchSettings settings) 
+            IElasticSearchSettings settings)
                 : this(
-                      contentLoader, 
-                      synonymRepository, 
+                      contentLoader,
+                      synonymRepository,
                       languageBranchRepository,
                       new Admin.Index(settings))
         {
@@ -50,7 +50,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Controllers
             var languages = _languageBranchRepository.ListEnabled()
                 .Select(lang => new { lang.LanguageID, lang.Name })
                 .ToArray();
-            
+
             var indices = _indexHelper.GetIndices()
                 .Select(i => i.Index).ToList();
 

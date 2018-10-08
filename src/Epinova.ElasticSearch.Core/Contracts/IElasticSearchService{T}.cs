@@ -98,7 +98,7 @@ namespace Epinova.ElasticSearch.Core.Contracts
         /// <param name="fieldSelector">Field expression</param>
         /// <returns>The current <see cref="IElasticSearchService"/> instance</returns>
         IElasticSearchService<T> InField(Expression<Func<T, object>> fieldSelector);
-        
+
 
         /// <summary>
         /// Search in the specified field. Can be called multiple times for a selection of fields
@@ -290,7 +290,6 @@ namespace Epinova.ElasticSearch.Core.Contracts
         /// <returns>The current <see cref="IElasticSearchService"/> instance</returns>
         IElasticSearchService<T> ThenByDescending(Expression<Func<T, object>> fieldSelector);
 
-        
         /// <summary>
         /// Used to ignore any boosting set by <see cref="Epinova.ElasticSearch.Core.Attributes.BoostAttribute"/> 
         /// </summary>
@@ -391,7 +390,7 @@ namespace Epinova.ElasticSearch.Core.Contracts
         /// </summary>
         /// <returns>An instance of <see cref="CustomSearchResult{T}"/></returns>
         Task<CustomSearchResult<T>> GetCustomResultsAsync();
-        
+
         /// <summary>
         /// Materializes the search query and returns the results, 
         /// </summary>
