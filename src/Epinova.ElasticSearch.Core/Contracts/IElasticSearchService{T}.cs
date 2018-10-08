@@ -454,6 +454,13 @@ namespace Epinova.ElasticSearch.Core.Contracts
 
 
         /// <summary>
+        /// Use a different query-time analyzer. Overrides analyzer in mapping.
+        /// </summary>
+        /// <param name="analyzer">Analyzer name</param>
+        /// <returns>The current <see cref="IElasticSearchService"/> instance</returns>
+        IElasticSearchService<T> SetAnalyzer(string analyzer);
+
+        /// <summary>
         /// Track search terms for this search
         /// </summary>
         /// <returns>The current <see cref="IElasticSearchService"/> instance</returns>

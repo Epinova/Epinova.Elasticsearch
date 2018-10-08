@@ -52,6 +52,7 @@ namespace Epinova.ElasticSearch.Core
         public Type Type { get; private set; }
         public bool IsWildcard { get; private set; }
         public Operator Operator { get; private set; }
+        public string Analyzer { get; private set; }
         public string SearchText { get; private set; }
         public bool UseBoosting { get; private set; }
         public int FromValue { get; private set; }
@@ -374,6 +375,7 @@ namespace Epinova.ElasticSearch.Core
         {
             return new QuerySetup
             {
+                Analyzer = Analyzer,
                 BoostAncestors = BoostAncestors,
                 BoostFields = BoostFields,
                 BoostTypes = _boostTypes,
@@ -690,6 +692,13 @@ namespace Epinova.ElasticSearch.Core
         public IElasticSearchService<T> Track()
         {
             TrackSearch = true;
+            return this;
+        }
+
+
+        public IElasticSearchService<T> SetAnalyzer(string analyzer)
+        {
+            Analyzer = analyzer;
             return this;
         }
 

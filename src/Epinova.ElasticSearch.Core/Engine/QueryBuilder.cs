@@ -168,7 +168,8 @@ namespace Epinova.ElasticSearch.Core.Engine
                         setup.Operator,
                         null,
                         null,
-                        setup.FuzzyLength));
+                        setup.FuzzyLength,
+                        setup.Analyzer));
 
                 // Boost phrase matches if multiple words
                 if(request.Query.SearchText != null && request.Query.SearchText.IndexOf(" ", StringComparison.OrdinalIgnoreCase) > 0)
