@@ -15,7 +15,8 @@ namespace Epinova.ElasticSearch.Core.Models.Query
                 Type = type,
                 Boost = boost,
                 Fields = fields,
-                Fuzziness = fuzziness
+                Fuzziness = fuzziness,
+                Analyzer = analyzer
             };
         }
 
