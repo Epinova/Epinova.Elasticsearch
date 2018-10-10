@@ -22,7 +22,7 @@ Install the following Nuget packages in your project from Nuget.org:
 * Epinova.ElasticSearch.Core.EPiServer
 * Epinova.ElasticSearch.Core.EPiServer.Commerce (optional, for Commerce support)
 
-Check that the config transformation succeeded by adding the following configurations:
+Add the following configurations:
 
   ```xml
   <configuration>
@@ -33,8 +33,6 @@ Check that the config transformation succeeded by adding the following configura
       </configSections>
   </configuration>  
   ```
-  
-  If not, add them manually.
 
   ```xml
   <configuration>

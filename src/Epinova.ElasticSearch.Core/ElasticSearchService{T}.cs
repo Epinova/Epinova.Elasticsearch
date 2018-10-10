@@ -52,6 +52,7 @@ namespace Epinova.ElasticSearch.Core
         public Type Type { get; private set; }
         public bool IsWildcard { get; private set; }
         public Operator Operator { get; private set; }
+        public string Analyzer { get; private set; }
         public string SearchText { get; private set; }
         public bool UseBoosting { get; private set; }
         public int FromValue { get; private set; }
@@ -99,7 +100,7 @@ namespace Epinova.ElasticSearch.Core
             ExcludedRoots = new Dictionary<int, bool>();
             _usePostfilters = true;
         }
-        
+
 
         public IElasticSearchService<T> Boost(Expression<Func<T, object>> fieldSelector, byte weight)
         {
@@ -358,7 +359,7 @@ namespace Epinova.ElasticSearch.Core
         public CustomSearchResult<T> GetCustomResults()
         {
             QuerySetup query = CreateQuery();
-            query.EnableDidYouMean = false;
+            //query.EnableDidYouMean = false;
 
             if (!query.SearchFields.Any())
                 query.SearchFields.Add(DefaultFields.All);
@@ -374,6 +375,7 @@ namespace Epinova.ElasticSearch.Core
         {
             return new QuerySetup
             {
+                Analyzer = Analyzer,
                 BoostAncestors = BoostAncestors,
                 BoostFields = BoostFields,
                 BoostTypes = _boostTypes,
@@ -680,7 +682,7 @@ namespace Epinova.ElasticSearch.Core
             MethodCallExpression expression = groupExpression.Body as MethodCallExpression;
             if (expression == null)
                 return this;
-            
+
             groupExpression.Compile().Invoke(new FilterGroup<T>(this, Guid.NewGuid().ToString()));
 
             return this;
@@ -690,6 +692,13 @@ namespace Epinova.ElasticSearch.Core
         public IElasticSearchService<T> Track()
         {
             TrackSearch = true;
+            return this;
+        }
+
+
+        public IElasticSearchService<T> SetAnalyzer(string analyzer)
+        {
+            Analyzer = analyzer;
             return this;
         }
 

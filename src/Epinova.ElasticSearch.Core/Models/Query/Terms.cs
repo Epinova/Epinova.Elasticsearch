@@ -5,7 +5,7 @@ namespace Epinova.ElasticSearch.Core.Models.Query
 {
     internal class Terms : Term
     {
-        public Terms(string key, object value, bool nonRaw = false, Type dataType = null) 
+        public Terms(string key, object value, bool nonRaw = false, Type dataType = null)
             : base(key, value, nonRaw, dataType)
         {
             TermsItem = new TermItem

@@ -44,7 +44,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Extensions
         private static readonly IElasticSearchSettings ElasticSearchSettings;
         private static readonly ITrackingRepository TrackingRepository;
 
-        private static readonly string[] binaryExtensions = new[] 
+        private static readonly string[] binaryExtensions = new[]
         {
             "jpg", "jpeg", "gif", "psd", "bmp", "ai", "webp", "tif", "tiff", "ico", "jif", "png", "xcf", "eps", "raw", "cr2", "pct", "bpg",
             "exe", "zip", "rar", "7z", "dll", "gz", "bin", "iso", "apk", "dmp", "msi",
@@ -176,7 +176,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Extensions
                 {
                     if (ContentLoader.TryGet(contentLink, out T content))
                         return content;
-                }  
+                }
             }
 
             return default;

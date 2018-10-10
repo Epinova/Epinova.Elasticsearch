@@ -17,7 +17,7 @@ namespace Core.Tests.Engine
 
         public SearchEngineTests()
         {
-            Factory.SetupServiceLocator();    
+            Factory.SetupServiceLocator();
         }
 
 

@@ -12,7 +12,6 @@ namespace Epinova.ElasticSearch.Core.Models.Converters
             return null;
         }
 
-        
 
         public override bool CanConvert(Type objectType)
         {

@@ -316,8 +316,6 @@
       <LastGenOutput>Index.generated.cs</LastGenOutput>
     </None>
     <None Include="Views\Web.config" />
-    <None Include="Web.config.install.xdt" />
-    <None Include="Web.config.uninstall.xdt" />
     <Reference Include="System.Configuration" />
   </ItemGroup>
   <ItemGroup>

@@ -168,7 +168,8 @@ namespace Epinova.ElasticSearch.Core.Engine
                         setup.Operator,
                         null,
                         null,
-                        setup.FuzzyLength));
+                        setup.FuzzyLength,
+                        setup.Analyzer));
 
                 // Boost phrase matches if multiple words
                 if(request.Query.SearchText != null && request.Query.SearchText.IndexOf(" ", StringComparison.OrdinalIgnoreCase) > 0)
@@ -282,7 +283,7 @@ namespace Epinova.ElasticSearch.Core.Engine
                     .Select(t => t.Trim().Trim('*'));
 
                 var key = setup.IndexName ?? _settings.GetDefaultIndexName(Language.GetLanguageCode(setup.Language));
-                
+
                 if (!Conventions.Indexing.BestBets.TryGetValue(key, out var bestBetsForLanguage))
                     return;
 

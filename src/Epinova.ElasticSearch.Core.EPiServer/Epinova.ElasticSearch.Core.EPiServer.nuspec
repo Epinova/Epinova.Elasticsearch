@@ -18,8 +18,6 @@
     </dependencies>
   </metadata>
   <files>
-    <file src="Web.config.install.xdt" target="content" />
-    <file src="Web.config.uninstall.xdt" target="content" />
     <file src="Install.ps1" target="tools" />
     <file src="bin\$id$.pdb" target="lib\net461\" />
     <file src="bin\RazorGenerator.Mvc.dll" target="lib\net461\" />

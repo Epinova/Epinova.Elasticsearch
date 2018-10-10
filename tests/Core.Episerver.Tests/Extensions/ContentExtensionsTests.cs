@@ -15,8 +15,8 @@ namespace Core.Episerver.Tests.Extensions
         public ContentExtensionsTests()
         {
             _content = Factory.GetPageData<PageData>(
-                id: 100, 
-                parentId: 200, 
+                id: 100,
+                parentId: 200,
                 language: new CultureInfo("no"));
 
             Factory.SetupServiceLocator();
@@ -41,7 +41,6 @@ namespace Core.Episerver.Tests.Extensions
             Assert.Equal(expectedValue, dictionary[propName]);
         }
 
-        
         [Theory]
         [InlineData("jpg", true)]
         [InlineData("exe", true)]

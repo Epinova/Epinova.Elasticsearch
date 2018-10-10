@@ -160,7 +160,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Contracts
 
         internal static bool IsExludedType(IContent content)
         {
-            return IsExludedType(content.GetUnproxiedType()) 
+            return IsExludedType(content.GetUnproxiedType())
                 || IsExludedType(content?.GetType());
         }
 

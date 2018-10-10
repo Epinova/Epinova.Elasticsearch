@@ -10,7 +10,7 @@ namespace Core.Tests.Utilities
         public void EnsureNotNull_NullValue_Throws()
         {
             string instance = null;
-            
+
             Assert.Throws<NullReferenceException>(() =>
             {
                 instance.EnsureNotNull();

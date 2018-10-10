@@ -39,7 +39,7 @@ namespace Epinova.ElasticSearch.Core.Settings
 
         public int BulkSize => _configuration.Bulksize;
 
-        public int ProviderMaxResults => _configuration.ProviderMaxResults; 
+        public int ProviderMaxResults => _configuration.ProviderMaxResults;
 
         public bool EnableFileIndexing => _configuration.Files.Enabled;
 
