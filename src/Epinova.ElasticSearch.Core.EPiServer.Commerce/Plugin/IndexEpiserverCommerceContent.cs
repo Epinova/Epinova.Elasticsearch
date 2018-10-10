@@ -22,7 +22,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Commerce.Plugin
         public IndexEpiserverCommerceContent()
         {
             IsStoppable = true;
-
+            CustomIndexName = $"{Settings.Index}-{Core.Constants.CommerceProviderName}";
             _contentLoader = ServiceLocator.Current.GetInstance<IContentLoader>();
         }
     }

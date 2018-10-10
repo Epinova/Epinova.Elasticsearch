@@ -155,6 +155,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="CommerceInitializer.cs" />
     <Compile Include="Constants.cs" />
     <Compile Include="Plugin\IndexEpiserverCommerceContent.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -167,6 +168,10 @@
     <ProjectReference Include="..\Epinova.ElasticSearch.Core.EPiServer\Epinova.ElasticSearch.Core.EPiServer.csproj">
       <Project>{42a72bc5-77a3-4708-8e78-f459dd1ebf2a}</Project>
       <Name>Epinova.ElasticSearch.Core.EPiServer</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Epinova.ElasticSearch.Core\Epinova.ElasticSearch.Core.csproj">
+      <Project>{7169966d-df2c-42fb-970f-a412a92937f8}</Project>
+      <Name>Epinova.ElasticSearch.Core</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

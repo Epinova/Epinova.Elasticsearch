@@ -1,4 +1,4 @@
-using EPiServer.Core;
+﻿using EPiServer.Core;
 
 namespace Epinova.ElasticSearch.Core.EPiServer.Commerce
 {
@@ -8,7 +8,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Commerce
         /// ReferenceConverter.GetRootLink() is replaced with hardcoded reference to avoid Commerce dependency. 
         /// It's a constant value in Commerce, so it will most likely never change.
         /// </summary>
-        public static ContentReference CatalogRootLink = new ContentReference(-1073741823, 0, "CatalogContent");
+        public static ContentReference CatalogRootLink = new ContentReference(-1073741823, 0, Core.Constants.CommerceProviderName);
 
         public static string CommerceCatalogArea => "Commerce/Catalog";
 

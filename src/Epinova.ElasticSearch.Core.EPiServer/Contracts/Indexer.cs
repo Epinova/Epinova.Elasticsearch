@@ -62,22 +62,26 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Contracts
 
             var operations =
                 contentList.Select(
-                        content => new BulkOperation(
-                            content.AsIndexItem(),
-                            Operation.Index,
-                            GetLanguage(content),
-                            typeof(IndexItem),
-                            content.ContentLink.ID.ToString(),
-                            !String.IsNullOrWhiteSpace(indexName) ? indexName : _elasticSearchSettings.GetDefaultIndexName(GetLanguage(content)))
+                        content =>
+                        {
+                            var language = GetLanguage(content);
+                            return new BulkOperation(
+                                content.AsIndexItem(),
+                                Operation.Index,
+                                GetLanguage(content),
+                                typeof(IndexItem),
+                                content.ContentLink.ToString(),
+                                !String.IsNullOrWhiteSpace(indexName)
+                                    ? _elasticSearchSettings.GetCustomIndexName(indexName, language)
+                                    : _elasticSearchSettings.GetDefaultIndexName(language));
+                        }
                     )
                     .Where(b => b.Data != null)
                     .ToList();
 
             logger($"Initializing bulk operation... Bulk indexing {operations.Count} items");
 
-            var result = _coreIndexer.Bulk(operations, logger);
-
-            return result;
+            return _coreIndexer.Bulk(operations, logger);
         }
 
 
@@ -152,7 +156,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Contracts
 
             return Indexing.ExcludedRoots.Intersect(ancestors).Any();
         }
-        
+
 
         internal static bool IsExludedType(IContent content)
         {
@@ -232,7 +236,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Contracts
         }
 
 
-        private static string GetLanguage(IContent content)
+        public string GetLanguage(IContent content)
         {
             return content is ILocale localizable
                    && localizable.Language != null

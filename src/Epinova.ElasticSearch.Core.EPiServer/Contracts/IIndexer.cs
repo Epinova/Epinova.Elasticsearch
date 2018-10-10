@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using Epinova.ElasticSearch.Core.EPiServer.Enums;
 using Epinova.ElasticSearch.Core.Models.Bulk;
@@ -12,5 +12,6 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Contracts
         void Delete(IContent content, string indexName = null);
         IndexingStatus UpdateStructure(IContent root, string indexName = null);
         IndexingStatus Update(IContent content, string indexName = null);
+        string GetLanguage(IContent content);
     }
 }

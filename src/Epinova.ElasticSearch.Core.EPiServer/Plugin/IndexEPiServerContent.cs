@@ -27,12 +27,11 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Plugin
     {
         private readonly IContentLoader _contentLoader;
         private readonly ICoreIndexer _coreIndexer;
-
-        private readonly IElasticSearchSettings _settings;
         private readonly IIndexer _indexer;
         private readonly ILanguageBranchRepository _languageBranchRepository;
-
         private readonly ILogger _logger;
+        protected readonly IElasticSearchSettings Settings;
+        protected string CustomIndexName;
 
         public IndexEPiServerContent()
         {
@@ -43,8 +42,8 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Plugin
             _indexer = ServiceLocator.Current.GetInstance<IIndexer>();
             _coreIndexer = ServiceLocator.Current.GetInstance<ICoreIndexer>();
             _contentLoader = ServiceLocator.Current.GetInstance<IContentLoader>();
-            _settings = ServiceLocator.Current.GetInstance<IElasticSearchSettings>();
             _languageBranchRepository = ServiceLocator.Current.GetInstance<ILanguageBranchRepository>();
+            Settings = ServiceLocator.Current.GetInstance<IElasticSearchSettings>();
         }
 
         private bool IsStopped { get; set; }
@@ -63,7 +62,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Plugin
             var results = new BulkBatchResult();
             var bulkCounter = 1;
 
-            string logging = $"Indexing starting. Content retrived and indexed in bulks of {_settings.BulkSize} items.";
+            string logging = $"Indexing starting. Content retrived and indexed in bulks of {Settings.BulkSize} items.";
 
             _logger.Information(logging);
             OnStatusChanged(logging);
@@ -80,7 +79,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Plugin
                 //
                 while (contentReferences.Any())
                 {
-                    var contents = GetDescendentContents(contentReferences.Take(_settings.BulkSize).ToList(), languages, bulkCounter);
+                    var contents = GetDescendentContents(contentReferences.Take(Settings.BulkSize).ToList(), languages, bulkCounter);
                     Type[] contentTypes = contents.Select(c => c.GetOriginalType()).Distinct().ToArray();
 
                     UpdateMappings(languages, contentTypes);
@@ -88,8 +87,8 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Plugin
                     var batchResult = IndexContents(contents, bulkCounter);
                     results.Batches.AddRange(batchResult.Batches);
 
-                    contentReferences.RemoveRange(0, contentReferences.Count >= _settings.BulkSize
-                            ? _settings.BulkSize
+                    contentReferences.RemoveRange(0, contentReferences.Count >= Settings.BulkSize
+                            ? Settings.BulkSize
                             : contentReferences.Count);
 
                     bulkCounter++;
@@ -112,7 +111,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Plugin
 
             var finished = String.Format("Indexing complete. Content retrieved and indexed in {1} bulks of {3} items. Processed {2} batches of {3} items, for a total of {4} items to Elasticsearch index. Time elapsed: {0}. ",
                 bulkCounter, stopwatch.Elapsed, results.Batches.Count,
-                _settings.BulkSize, results.Batches.Sum(b => b.Items.Length));
+                Settings.BulkSize, results.Batches.Sum(b => b.Items.Length));
 
             for (var i = 1; i <= results.Batches.Count; i++)
             {
@@ -149,12 +148,12 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Plugin
                 try
                 {
                     if (String.IsNullOrWhiteSpace(indexName))
-                        indexName = _settings.GetDefaultIndexName(language);
+                        indexName = Settings.GetDefaultIndexName(language);
 
                     OnStatusChanged("Initializing index '" + indexName + "'");
                     _logger.Debug("Index: " + indexName);
 
-                    var indexing = new Indexing(_settings);
+                    var indexing = new Indexing(Settings);
 
                     if (!indexing.IndexExists(indexName))
                         throw new Exception("Index does not exist");
@@ -189,8 +188,9 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Plugin
             {
                 OnStatusChanged(str);
                 _logger.Debug(str);
-            });
+            }, CustomIndexName);
         }
+
 
         protected virtual List<ContentReference> GetContentReferences()
         {

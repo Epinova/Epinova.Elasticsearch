@@ -27,15 +27,15 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Providers
         where TSearchType : class
     {
         private readonly string _categoryKey;
+        protected string IndexName;
 
         // ReSharper disable StaticMemberInGenericType
 #pragma warning disable 649
         private static Injected<LocalizationService> _localizationServiceHelper;
 #pragma warning restore 649
         // ReSharper restore StaticMemberInGenericType
-        private readonly IElasticSearchService<TSearchType> _elasticSearchService;
-        private readonly IElasticSearchSettings _elasticSearchSettings =
-            ServiceLocator.Current.GetInstance<IElasticSearchSettings>();
+        protected readonly IElasticSearchService<TSearchType> _elasticSearchService;
+        protected readonly IElasticSearchSettings _elasticSearchSettings = ServiceLocator.Current.GetInstance<IElasticSearchSettings>();
 
 
         protected SearchProviderBase(string categoryKey)
@@ -51,7 +51,6 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Providers
                 ServiceLocator.Current.GetInstance<UIDescriptorRegistry>())
         {
             _categoryKey = categoryKey;
-
             _elasticSearchService = new ElasticSearchService<TSearchType>();
         }
 
@@ -116,6 +115,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Providers
         {
             return _elasticSearchService
                 .WildcardSearch<TContentData>(String.Concat("*", query.SearchQuery, "*"))
+                .UseIndex(IndexName)
                 .Language(language)
                 .Boost(x => DefaultFields.Name, 20)
                 .Boost(x => DefaultFields.Id, 10)
@@ -123,7 +123,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Providers
                 .Take(_elasticSearchSettings.ProviderMaxResults);
         }
 
-        private static CultureInfo GetLanguage()
+        protected static CultureInfo GetLanguage()
         {
             HttpContext context = HttpContext.Current;
 

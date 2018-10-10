@@ -22,6 +22,8 @@ namespace Epinova.ElasticSearch.Core.Settings
 
         public IEnumerable<string> Indices => _configuration.IndicesParsed.Select(i => i.Name);
 
+        public bool CommerceEnabled { get; set; }
+
         /// <summary>
         /// Default delay is 500 ms if attribute closeIndexDelay is not set in epinova.elasticsearch element i web.config
         /// </summary>
@@ -48,7 +50,6 @@ namespace Epinova.ElasticSearch.Core.Settings
         /// https://msdn.microsoft.com/en-us/library/system.net.http.httpclient.timeout(v=vs.110).aspx
         /// </summary>
         public int ClientTimeoutSeconds => _configuration.ClientTimeoutSeconds;
-
 
         public string GetDefaultIndexName(string language)
         {

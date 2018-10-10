@@ -11,7 +11,6 @@ using Epinova.ElasticSearch.Core.Models.Admin;
 using Epinova.ElasticSearch.Core.Settings;
 using Epinova.ElasticSearch.Core.Settings.Configuration;
 using Epinova.ElasticSearch.Core.Utilities;
-using EPiServer;
 using EPiServer.DataAbstraction;
 
 namespace Epinova.ElasticSearch.Core.EPiServer.Controllers
@@ -24,7 +23,6 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Controllers
         private static Health _healthHelper;
 
         public ElasticAdminController(
-            IContentLoader contentLoader, 
             ILanguageBranchRepository languageBranchRepository, 
             ICoreIndexer coreIndexer, 
             IElasticSearchSettings settings)
@@ -82,15 +80,27 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Controllers
                     var index = new Index(_settings, indexName);
 
                     if (!index.Exists)
+                    {
                         index.Initialize(indexType);
+                        index.WaitForStatus();
+                    }
 
                     if (IsCustomType(indexType))
                     {
                         index.DisableDynamicMapping(indexType);
                         _coreIndexer.UpdateMapping(indexType, indexType, indexName, lang, true);
+                        index.WaitForStatus();
                     }
-
-                    index.WaitForStatus();
+                    else if(_settings.CommerceEnabled)
+                    {
+                        indexName = _settings.GetCustomIndexName($"{indexConfig.Name}-{Constants.CommerceProviderName}", lang);
+                        index = new Index(_settings, indexName);
+                        if (!index.Exists)
+                        {
+                            index.Initialize(indexType);
+                            index.WaitForStatus();
+                        }
+                    }
                 }
             }
 
