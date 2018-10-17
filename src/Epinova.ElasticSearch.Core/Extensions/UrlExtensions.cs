@@ -8,10 +8,9 @@ namespace Epinova.ElasticSearch.Core.Extensions
 {
     public static class UrlExtensions
     {
-        // ReSharper disable once UnusedParameter.Global
         public static string FacetFilterUrl(this UrlHelper instance, string facetName, object facetValue, bool replace = false, bool removeAllOtherFacets = false)
         {
-            UrlBuilder ub = new UrlBuilder(HttpContext.Current.Request.Url);
+            var ub = new UrlBuilder(HttpContext.Current.Request.Url);
             string facet = ub.QueryCollection[facetName];
             ub.QueryCollection.Remove(facetName);
 

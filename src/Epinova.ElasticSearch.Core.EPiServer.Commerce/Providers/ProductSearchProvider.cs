@@ -12,11 +12,9 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Commerce.Providers
     [SearchProvider]
     public class ProductSearchProvider : SearchProviderBase<IContent, IContent, ContentType>
     {
-        // ReSharper disable UnusedAutoPropertyAccessor.Local
         private static Injected<DefaultContentProvider> DefaultContentProvider { get; set; }
         private static Injected<ReferenceConverter> ReferenceConverter { get; set; }
-        // ReSharper restore UnusedAutoPropertyAccessor.Local
-        
+
         public ProductSearchProvider() : base("product")
         {
             IconClass = Constants.CommerceCatalogIconCssClass;

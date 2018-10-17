@@ -22,21 +22,16 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Providers
 {
     public abstract class SearchProviderBase<TSearchType, TContentData, TContentType> :
         ContentSearchProviderBase<TContentData, TContentType>
-        where TContentType : ContentType
-        where TContentData : IContentData
         where TSearchType : class
+        where TContentData : IContentData
+        where TContentType : ContentType
     {
         private readonly string _categoryKey;
         protected string IndexName;
 
-        // ReSharper disable StaticMemberInGenericType
-#pragma warning disable 649
         private static Injected<LocalizationService> _localizationServiceHelper;
-#pragma warning restore 649
-        // ReSharper restore StaticMemberInGenericType
         protected readonly IElasticSearchService<TSearchType> _elasticSearchService;
         protected readonly IElasticSearchSettings _elasticSearchSettings = ServiceLocator.Current.GetInstance<IElasticSearchSettings>();
-
 
         protected SearchProviderBase(string categoryKey)
             : base(
@@ -54,7 +49,6 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Providers
             _elasticSearchService = new ElasticSearchService<TSearchType>();
         }
 
-
         public override string Area => AreaName;
 
         protected string AreaName { private get; set; }
@@ -69,8 +63,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Providers
 
         public override IEnumerable<SearchResult> Search(Query query)
         {
-            List<ContentSearchHit<TContentData>> contentSearchHits = new List<ContentSearchHit<TContentData>>();
-
+            var contentSearchHits = new List<ContentSearchHit<TContentData>>();
             CultureInfo language = GetLanguage();
 
             if (!query.SearchRoots.Any() || ForceRootLookup)
@@ -86,7 +79,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Providers
 
                 if (searchRootId != 0)
                 {
-                    var searchQuery = CreateQuery(query, language, searchRootId);
+                    IElasticSearchService<TContentData> searchQuery = CreateQuery(query, language, searchRootId);
                     ContentSearchResult<TContentData> contentSearchResult =
                         searchQuery.GetContentResults(providerNames: GetProviderKeys());
 
@@ -110,15 +103,14 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Providers
             return null;
         }
 
-
         private IElasticSearchService<TContentData> CreateQuery(Query query, CultureInfo language, int searchRootId)
         {
             return _elasticSearchService
                 .WildcardSearch<TContentData>(String.Concat("*", query.SearchQuery, "*"))
                 .UseIndex(IndexName)
                 .Language(language)
-                .Boost(x => DefaultFields.Name, 20)
-                .Boost(x => DefaultFields.Id, 10)
+                .Boost(_ => DefaultFields.Name, 20)
+                .Boost(_ => DefaultFields.Id, 10)
                 .StartFrom(searchRootId)
                 .Take(_elasticSearchSettings.ProviderMaxResults);
         }
@@ -127,7 +119,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Providers
         {
             HttpContext context = HttpContext.Current;
 
-            if (context != null && context.Request.Headers.AllKeys.Contains("X-EPiContentLanguage"))
+            if (context?.Request.Headers.AllKeys.Contains("X-EPiContentLanguage") == true)
                 return CultureInfo.CreateSpecificCulture(context.Request.Headers["X-EPiContentLanguage"]);
 
             return CultureInfo.InvariantCulture;

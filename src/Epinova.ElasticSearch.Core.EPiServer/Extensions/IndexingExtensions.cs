@@ -14,7 +14,6 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Extensions
         /// thus preventing you from using [Searchable]
         /// </para> 
         /// </summary>
-        // ReSharper disable once UnusedParameter.Global
         public static Indexing IncludeProperty<T, TProperty>(this CustomPropertyConvention<T> instance, Expression<Func<T, TProperty>> fieldSelector)
             where T: IContent
         {
@@ -22,12 +21,14 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Extensions
             Type type = typeof(T);
 
             if(!Indexing.Instance.SearchableProperties.ContainsKey(type))
+            {
                 Indexing.Instance.SearchableProperties.TryAdd(type, new []{ fieldName });
+            }
             else
             {
                 if (Indexing.Instance.SearchableProperties.TryGetValue(type, out string[] current))
                 {
-                    string[] merged = new string[current.Length + 1];
+                    var merged = new string[current.Length + 1];
                     current.CopyTo(merged, 1);
                     merged[0] = fieldName;
                     Indexing.Instance.SearchableProperties[type] = merged;

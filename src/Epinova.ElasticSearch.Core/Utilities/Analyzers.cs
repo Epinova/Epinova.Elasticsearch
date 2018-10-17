@@ -1,5 +1,4 @@
-using System.Collections.Concurrent;
-// ReSharper disable InconsistentNaming
+﻿using System.Collections.Concurrent;
 
 namespace Epinova.ElasticSearch.Core.Utilities
 {

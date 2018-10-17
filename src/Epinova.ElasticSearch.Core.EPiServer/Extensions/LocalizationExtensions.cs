@@ -12,7 +12,6 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Extensions
             return instance.Raw(LocalizationService.Current.GetString(String.Concat(localizationPath, key)));
         }
 
-        // ReSharper disable once UnusedParameter.Global
         public static string TranslateWithPath(this HtmlHelper instance, string key, string localizationPath)
         {
             return TranslateWithPath(key, localizationPath);

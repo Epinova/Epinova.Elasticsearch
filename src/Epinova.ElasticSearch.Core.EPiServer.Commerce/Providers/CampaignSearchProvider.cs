@@ -5,16 +5,13 @@ using EPiServer.DataAbstraction;
 using EPiServer.ServiceLocation;
 using EPiServer.Shell.Search;
 
-
 namespace Epinova.ElasticSearch.Core.EPiServer.Commerce.Providers
 {
     [SearchProvider]
     public class CampaignSearchProvider : SearchProviderBase<IContent, IContent, ContentType>
     {
-        // ReSharper disable UnusedAutoPropertyAccessor.Local
         private static Injected<ContentRootService> RootService { get; set; }
         private static Injected<DefaultContentProvider> DefaultContentProvider { get; set; }
-        // ReSharper restore UnusedAutoPropertyAccessor.Local
 
         public CampaignSearchProvider() : base("campaigns")
         {

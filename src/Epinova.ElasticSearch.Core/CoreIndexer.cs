@@ -36,6 +36,9 @@ namespace Epinova.ElasticSearch.Core
             _settings = settings;
         }
 
+        public static event OnBeforeUpdateItem BeforeUpdateItem;
+        public static event OnAfterUpdateBestBet AfterUpdateBestBet;
+
         public BulkBatchResult Bulk(params BulkOperation[] operations)
         {
             return Bulk(operations, _ => { });
@@ -93,7 +96,7 @@ namespace Epinova.ElasticSearch.Core
 
                         logger(message);
 
-                        foreach (var operation in batch)
+                        foreach (BulkOperation operation in batch)
                         {
                             serializer.Serialize(tw, operation.MetaData);
                             tw.WriteLine();
@@ -160,7 +163,7 @@ namespace Epinova.ElasticSearch.Core
                 return;
             }
 
-            var objectType = type ?? objectToUpdate.GetType();
+            Type objectType = type ?? objectToUpdate.GetType();
 
             // IContent type, prepared by AsIndexItem()
             if (objectType.GetProperty(DefaultFields.Types) != null)
@@ -171,10 +174,13 @@ namespace Epinova.ElasticSearch.Core
 
             // Custom content, get values via reflection
             dynamic updateItem = new ExpandoObject();
-            foreach (var prop in objectType.GetProperties().Where(p => p.GetIndexParameters().Length == 0))
+            IEnumerable<PropertyInfo> properties = objectType.GetProperties().Where(p => p.GetIndexParameters().Length == 0);
+
+            foreach (PropertyInfo prop in properties)
             {
                 ((IDictionary<string, object>)updateItem).Add(prop.Name, prop.GetValue(objectToUpdate));
             }
+
             updateItem.Types = objectType.GetInheritancHierarchyArray();
             PerformUpdate(id, updateItem, objectType, indexName);
         }
@@ -373,12 +379,6 @@ namespace Epinova.ElasticSearch.Core
 
             HttpClientHelper.GetString(new Uri(endpointUri));
         }
-
-        // ReSharper disable once EventNeverSubscribedTo.Global
-        public static event OnBeforeUpdateItem BeforeUpdateItem;
-
-        // ReSharper disable once EventNeverSubscribedTo.Global
-        public static event OnAfterUpdateBestBet AfterUpdateBestBet;
 
         private static JsonSerializer GetSerializer()
         {

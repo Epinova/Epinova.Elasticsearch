@@ -734,7 +734,9 @@ namespace Epinova.ElasticSearch.Core
                 return GetFieldInfoFromExpression(unaryExpression.Operand, explicitType);
             }
             else
+            {
                 return null;
+            }
 
             return new Tuple<string, MappingType>(fieldName, fieldType);
         }

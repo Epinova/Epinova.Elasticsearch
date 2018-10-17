@@ -29,7 +29,7 @@ namespace Epinova.ElasticSearch.Core.Models.Query
 
                 var sorts = new JArray();
 
-                for (int i = 0; i < _sortFields.Count; i++)
+                for (var i = 0; i < _sortFields.Count; i++)
                 {
                     string sortField = _sortFields[i].FieldName;
 

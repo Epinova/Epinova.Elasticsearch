@@ -13,7 +13,6 @@ using TestData;
 using Epinova.ElasticSearch.Core.Settings;
 using Epinova.ElasticSearch.Core.Admin;
 using Epinova.ElasticSearch.Core.Models.Admin;
-// ReSharper disable PossibleNullReferenceException
 
 namespace Core.Episerver.Tests.Controllers
 {
@@ -57,7 +56,6 @@ namespace Core.Episerver.Tests.Controllers
                 indexMock.Object);
         }
 
-
         [Theory]
         [InlineData("foo", "")]
         [InlineData("", "bar")]
@@ -69,7 +67,6 @@ namespace Core.Episerver.Tests.Controllers
             _synonymRepositoryMock.Verify(m => m.GetSynonyms("", null), Times.Never);
         }
 
-
         [Theory]
         [InlineData("foo", "bar", true)]
         [InlineData("omg", "lol", false)]
@@ -80,7 +77,6 @@ namespace Core.Episerver.Tests.Controllers
             _synonymRepositoryMock.Verify(m => m.SetSynonyms("", "", It.IsAny<List<Synonym>>(), ""), Times.Once);
         }
 
-
         [Fact]
         public void Index_GetsEnabledLanguages()
         {
@@ -90,7 +86,6 @@ namespace Core.Episerver.Tests.Controllers
             Assert.Contains(model.SynonymsByLanguage, l => l.LanguageId == "en");
             Assert.Contains(model.SynonymsByLanguage, l => l.LanguageId == "no");
         }
-
 
         [Theory]
         [InlineData("foo", "bar", false)]

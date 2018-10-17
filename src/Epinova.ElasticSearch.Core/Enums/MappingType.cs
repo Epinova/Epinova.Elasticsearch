@@ -1,5 +1,4 @@
-﻿// ReSharper disable InconsistentNaming
-namespace Epinova.ElasticSearch.Core.Enums
+﻿namespace Epinova.ElasticSearch.Core.Enums
 {
     /// <summary>
     /// https://www.elastic.co/guide/en/elasticsearch/reference/1.7/mapping-core-types.html
