@@ -340,8 +340,6 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Extensions
                 IBestBetsRepository repository = ServiceLocator.Current.GetInstance<IBestBetsRepository>();
 
                 dictionary.Add(DefaultFields.BestBets, repository.GetBestBetsForContent(language, content.ContentLink.ID, null));
-
-                CreateAnalyzedMappingsIfNeeded(content, language);
             }
         }
 
@@ -400,25 +398,20 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Extensions
         {
             TryAddLanguageProperty(indexItem, content, dictionary, out string language);
 
-            var stringProperties = new List<string>();
             List<PropertyInfo> indexableProperties = contentType.GetIndexableProps(false);
             bool ignoreXhtmlStringContentFragments = ElasticSearchSettings.IgnoreXhtmlStringContentFragments;
 
             indexableProperties.ForEach(property =>
             {
-                object indexValue = GetIndexValue(content, property, out bool isString, ignoreXhtmlStringContentFragments);
-                string propertyName = property.Name;
-                if (isString && !stringProperties.Contains(propertyName))
+                if (!dictionary.ContainsKey(property.Name))
                 {
-                    stringProperties.Add(propertyName);
+                    object indexValue = GetIndexValue(content, property, out bool isString, ignoreXhtmlStringContentFragments);
+                    if (indexValue != null)
+                    {
+                        dictionary.Add(property.Name, indexValue);
+                    }
                 }
-
-                if (!dictionary.ContainsKey(property.Name) && indexValue != null)
-                    dictionary.Add(property.Name, indexValue);
             });
-
-            if (language != null && stringProperties.Count > 0)
-                CreateDidYouMeanMappingsIfNeeded(stringProperties, language);
 
             AppendSuggestions(indexItem, content, contentType, indexableProperties);
         }
@@ -482,16 +475,21 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Extensions
             return Serialization.Serialize(value);
         }
 
-        private static void CreateDidYouMeanMappingsIfNeeded(List<string> stringProperties, string language, string indexName = null)
+        internal static void CreateDidYouMeanMappingsIfNeeded(Type type, string language, string indexName = null)
         {
             Logger.Debug("Checking if DidYouMean mappings needs updating");
+
+            var stringProperties = type.GetIndexableProps(false)
+                .Where(p => p.PropertyType == typeof(string) || p.PropertyType == typeof(string[]) || p.PropertyType == typeof(XhtmlString))
+                .Select(p => p.Name)
+                .ToList();
 
             string json = null;
             string oldJson = null;
 
             try
             {
-                IndexMapping mapping = Mapping.GetIndexMapping(typeof(IndexItem), language, null);
+                IndexMapping mapping = Mapping.GetIndexMapping(typeof(IndexItem), language, indexName);
 
                 var jsonSettings = new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore };
                 oldJson = JsonConvert.SerializeObject(mapping, jsonSettings);
@@ -544,7 +542,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Extensions
                 .ToList();
         }
 
-        private static void CreateAnalyzedMappingsIfNeeded(IContent content, string language, string indexName = null)
+        internal static void CreateAnalyzedMappingsIfNeeded(Type type, string language, string indexName = null)
         {
             Logger.Debug("Checking if analyzable mappings needs updating");
 
@@ -563,7 +561,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Extensions
                 oldJson = JsonConvert.SerializeObject(mapping, jsonSettings);
 
                 // Get indexable properties (string, XhtmlString, [Searchable(true)]) 
-                var indexableProperties = content.GetType().GetIndexableProps(false)
+                var indexableProperties = type.GetIndexableProps(false)
                     .Select(p => new
                     {
                         p.Name,
@@ -607,7 +605,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Extensions
             catch (Exception ex)
             {
                 Logger.Error(
-                    $"Failed to update mappings for content with id '{content.ContentLink}'\n. Properties with the same name but different type, " +
+                    $"Failed to update mappings for content of type '{type.Name}'\n. Properties with the same name but different type, " +
                     "where one of the types is analyzable and the other is not, is often the cause of this error. Ie. 'string MainIntro' vs 'XhtmlString MainIntro'. \n" +
                     "All properties with equal name must be of the same type or ignored from indexing with [Searchable(false)]. \n" +
                     "Enable debug-logging to view further details.", ex);
