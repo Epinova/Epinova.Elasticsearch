@@ -1,4 +1,4 @@
-using Epinova.ElasticSearch.Core.EPiServer.Providers;
+﻿using Epinova.ElasticSearch.Core.EPiServer.Providers;
 using EPiServer.Core.Internal;
 using EPiServer.Core;
 using EPiServer.DataAbstraction;

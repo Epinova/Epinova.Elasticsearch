@@ -15,6 +15,7 @@
     <tags>Epinova EPiServer ElasticSearch Commerce</tags>
     <dependencies>
       <dependency id="Epinova.ElasticSearch.Core.EPiServer" version="[11.2, 12)" />
+      <dependency id="EPiServer.Commerce.Core" version="11.5" />
     </dependencies>
   </metadata>
   <files>

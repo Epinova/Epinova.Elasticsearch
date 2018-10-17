@@ -5,6 +5,7 @@ using EPiServer.Core.Internal;
 using EPiServer.DataAbstraction;
 using EPiServer.ServiceLocation;
 using EPiServer.Shell.Search;
+using Mediachase.Commerce.Catalog;
 
 namespace Epinova.ElasticSearch.Core.EPiServer.Commerce.Providers
 {
@@ -13,6 +14,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Commerce.Providers
     {
         // ReSharper disable UnusedAutoPropertyAccessor.Local
         private static Injected<DefaultContentProvider> DefaultContentProvider { get; set; }
+        private static Injected<ReferenceConverter> ReferenceConverter { get; set; }
         // ReSharper restore UnusedAutoPropertyAccessor.Local
         
         public ProductSearchProvider() : base("product")
@@ -30,7 +32,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Commerce.Providers
 
         protected override string GetSearchRoot()
         {
-            return Constants.CatalogRootLink.ID.ToString();
+            return ReferenceConverter.Service.GetRootLink().ID.ToString();
         }
 
         protected override string[] GetProviderKeys()
