@@ -26,9 +26,7 @@ namespace Epinova.ElasticSearch.Core.Models.Converters
                 return;
 
             string name = term.Key;
-            if (!term.NonRaw && Server.Info.Version.Major < 5)
-                name += Constants.RawSuffix;
-            else if (!term.NonRaw && Server.Info.Version.Major >= 5 && term.Type != null && term.Type == typeof(string))
+            if (!term.NonRaw && term.Type != null && term.Type == typeof(string))
                 name += Constants.KeywordSuffix;
 
             writer.WriteStartObject();

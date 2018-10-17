@@ -13,9 +13,8 @@ namespace Core.Tests.Utilities
             Factory.SetupServiceLocator();
         }
 
-
         [Theory]
-        [InlineData(typeof(string), MappingType.String)]
+        [InlineData(typeof(string), MappingType.Text)]
         [InlineData(typeof(bool), MappingType.Boolean)]
         [InlineData(typeof(bool?), MappingType.Boolean)]
         [InlineData(typeof(DateTime), MappingType.Date)]
@@ -36,9 +35,8 @@ namespace Core.Tests.Utilities
         [InlineData(typeof(short?), MappingType.Integer)]
         [InlineData(typeof(long), MappingType.Long)]
         [InlineData(typeof(long?), MappingType.Long)]
-        [InlineData(typeof(string), MappingType.String)]
-        [InlineData(typeof(Attribute), MappingType.String)]
-        [InlineData(typeof(TestPage), MappingType.String)]
+        [InlineData(typeof(Attribute), MappingType.Text)]
+        [InlineData(typeof(TestPage), MappingType.Text)]
         public void GetMappingType_ReturnsCorrectType(Type type, MappingType expectedType)
         {
             MappingType result = Mapping.GetMappingType(type);

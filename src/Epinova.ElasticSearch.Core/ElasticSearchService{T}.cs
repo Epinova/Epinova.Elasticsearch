@@ -467,7 +467,7 @@ namespace Epinova.ElasticSearch.Core
             {
                 FieldName = fieldInfo.Item1,
                 Direction = descending ? "desc" : "asc",
-                IsStringField = fieldInfo.Item2 == MappingType.String || fieldInfo.Item2 == MappingType.Text
+                IsStringField = fieldInfo.Item2 == MappingType.Text
             });
 
             return this;
@@ -657,9 +657,6 @@ namespace Epinova.ElasticSearch.Core
         internal async Task<SearchResult> GetResultsAsync(QuerySetup querySetup, CancellationToken cancellationToken)
         {
             string language = Utilities.Language.GetLanguageCode(querySetup.Language);
-            bool newFieldsAdded = RawMapper.TryRegister(querySetup.FacetFieldNames, language);
-            await RawMapper.UpdateMappingsAsync(Type, language, newFieldsAdded, IndexName, cancellationToken);
-
             RequestBase request = _builder.TypedSearch(querySetup);
             return await _engine.QueryAsync(request, querySetup.Language, cancellationToken, IndexName);
         }
@@ -667,9 +664,6 @@ namespace Epinova.ElasticSearch.Core
         internal SearchResult GetResults(QuerySetup querySetup)
         {
             string language = Utilities.Language.GetLanguageCode(querySetup.Language);
-            bool newFieldsAdded = RawMapper.TryRegister(querySetup.FacetFieldNames, language);
-            RawMapper.UpdateMappings(SearchType, language, newFieldsAdded, querySetup.IndexName);
-
             RequestBase request = _builder.TypedSearch(querySetup);
             return _engine.Query(request, querySetup.Language, IndexName);
         }
@@ -677,9 +671,6 @@ namespace Epinova.ElasticSearch.Core
         internal async Task<CustomSearchResult<T>> GetCustomResultsAsync<T>(QuerySetup querySetup, CancellationToken cancellationToken)
         {
             string language = Utilities.Language.GetLanguageCode(querySetup.Language);
-            bool newFieldsAdded = RawMapper.TryRegister(querySetup.FacetFieldNames, language);
-            await RawMapper.UpdateMappingsAsync(SearchType, language, newFieldsAdded, querySetup.IndexName, cancellationToken);
-
             RequestBase request = _builder.TypedSearch(querySetup);
             return  await _engine.CustomQueryAsync<T>(request, querySetup.Language, cancellationToken, IndexName);
         }
@@ -687,9 +678,6 @@ namespace Epinova.ElasticSearch.Core
         internal CustomSearchResult<T> GetCustomResults<T>(QuerySetup querySetup)
         {
             string language = Utilities.Language.GetLanguageCode(querySetup.Language);
-            bool newFieldsAdded = RawMapper.TryRegister(querySetup.FacetFieldNames, language);
-            RawMapper.UpdateMappings(SearchType, language, newFieldsAdded, querySetup.IndexName);
-
             RequestBase request = _builder.TypedSearch(querySetup);
             return _engine.CustomQuery<T>(request, querySetup.Language, IndexName);
         }
@@ -698,14 +686,14 @@ namespace Epinova.ElasticSearch.Core
         {
             Tuple<string, MappingType> fieldInfo = GetFieldInfoFromExpression(fieldSelector.Body, explicitType);
 
-            return fieldInfo ?? new Tuple<string, MappingType>(fieldSelector.ToString(), MappingType.String);
+            return fieldInfo ?? new Tuple<string, MappingType>(fieldSelector.ToString(), MappingType.Text);
         }
 
         internal static Tuple<string, MappingType> GetFieldInfo<TProperty>(Expression<Func<T, TProperty>> fieldSelector, Type explicitType = null)
         {
             Tuple<string, MappingType> fieldInfo = GetFieldInfoFromExpression(fieldSelector.Body, explicitType);
 
-            return fieldInfo ?? new Tuple<string, MappingType>(fieldSelector.ToString(), MappingType.String);
+            return fieldInfo ?? new Tuple<string, MappingType>(fieldSelector.ToString(), MappingType.Text);
         }
 
         private static Tuple<string, MappingType> GetFieldInfoFromExpression(Expression expression, Type explicitType)

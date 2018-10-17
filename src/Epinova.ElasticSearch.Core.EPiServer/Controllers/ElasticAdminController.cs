@@ -63,6 +63,9 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Controllers
         [Authorize(Roles = "ElasticsearchAdmins")]
         public ActionResult AddNewIndex()
         {
+            if (Core.Server.Info.Version.Major < 5)
+                throw new Exception("Elasticsearch version 5 or higher required");
+
             ElasticSearchSection config = ElasticSearchSection.GetConfiguration();
 
             IEnumerable<string> languages = _languageBranchRepository

@@ -320,7 +320,6 @@
     <Compile Include="Utilities\Language.cs" />
     <Compile Include="Utilities\Mapping.cs" />
     <Compile Include="Utilities\MappingPatterns.cs" />
-    <Compile Include="Utilities\RawMapper.cs" />
     <Compile Include="Utilities\Serialization.cs" />
     <Compile Include="Utilities\TextUtil.cs" />
     <Compile Include="Utilities\Validation.cs" />

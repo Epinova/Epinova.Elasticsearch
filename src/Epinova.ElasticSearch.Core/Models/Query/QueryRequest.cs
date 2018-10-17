@@ -33,7 +33,7 @@ namespace Epinova.ElasticSearch.Core.Models.Query
                 {
                     string sortField = _sortFields[i].FieldName;
 
-                    if (sortField[0] != '_' && Server.Info.Version.Major >= 5 && _sortFields[i].IsStringField)
+                    if (sortField[0] != '_' && _sortFields[i].IsStringField)
                         sortField += Constants.KeywordSuffix;
 
                     sorts.Add(

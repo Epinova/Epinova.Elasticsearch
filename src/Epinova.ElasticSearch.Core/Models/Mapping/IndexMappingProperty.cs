@@ -6,9 +6,6 @@ namespace Epinova.ElasticSearch.Core.Models.Mapping
 {
     internal class IndexMappingProperty
     {
-        [JsonProperty(JsonNames.Payloads, Order = 1)]
-        public bool? Payloads { get; set; }
-
         [JsonProperty(JsonNames.Analyzer, Order = 10)]
         public string Analyzer { get; set; }
 

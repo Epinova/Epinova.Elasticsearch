@@ -115,7 +115,7 @@ namespace Core.Tests.Utilities
             IndexMappingProperty result = Language.GetPropertyMapping(language, typeof(string), isAnalyzable);
 
             Assert.Equal(expectedAnalyzer, result.Analyzer);
-            Assert.Equal(MappingType.String.ToString().ToLower(), result.Type);
+            Assert.Equal(nameof(MappingType.Text).ToLower(), result.Type);
         }
     }
 }

@@ -31,9 +31,8 @@ namespace Epinova.ElasticSearch.Core.Engine
         private Type _searchType;
         private string[] _mappedFields;
         private readonly string[] _searchableFieldTypes = {
-            MappingType.String.ToString().ToLower(),
-            MappingType.Text.ToString().ToLower(),
-            MappingType.Attachment.ToString().ToLower()
+            nameof(MappingType.Text).ToLower(),
+            nameof(MappingType.Attachment).ToLower()
         };
 
         public QueryBuilder(Type searchType, IElasticSearchSettings settings)
@@ -485,19 +484,11 @@ namespace Epinova.ElasticSearch.Core.Engine
 
             foreach (KeyValuePair<string, MappingType> field in sortedFields)
             {
-                string raw;
-                if (Server.Info.Version.Major >= 5 && (field.Value == MappingType.String || field.Value == MappingType.Text))
+                if (field.Value == MappingType.Text)
                 {
-                    raw = String.Concat(field.Key, Models.Constants.KeywordSuffix);
+                    var raw = String.Concat(field.Key, Models.Constants.KeywordSuffix);
+                    aggregations.Add(raw, new Bucket(raw));
                 }
-                else
-                {
-                    raw = field.Key;
-                    if (field.Value == MappingType.String)
-                        raw = String.Concat(raw, Models.Constants.RawSuffix);
-                }
-
-                aggregations.Add(raw, new Bucket(raw));
             }
 
             return aggregations;

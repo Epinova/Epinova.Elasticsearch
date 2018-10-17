@@ -27,9 +27,7 @@ namespace Epinova.ElasticSearch.Core.Models.Converters
 
             foreach (KeyValuePair<string, Bucket> bucket in buckets)
             {
-                string name = bucket.Value.Terms.Field
-                    .Replace(Constants.RawSuffix, String.Empty)
-                    .Replace(Constants.KeywordSuffix, String.Empty);
+                string name = bucket.Value.Terms.Field.Replace(Constants.KeywordSuffix, String.Empty);
 
                 writer.WritePropertyName(name);
                 serializer.Serialize(writer, bucket.Value);

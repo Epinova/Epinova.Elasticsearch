@@ -140,8 +140,6 @@ namespace Epinova.ElasticSearch.Core.Admin
                     CreateStandardMappings();
                 else
                     CreateCustomMappings(type);
-
-                RawMapper.UpdateMappings(type, _language, forceMappingUpdate, _name);
             }
         }
 

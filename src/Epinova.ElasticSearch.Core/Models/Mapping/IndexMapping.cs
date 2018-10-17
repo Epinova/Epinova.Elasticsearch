@@ -70,19 +70,15 @@ namespace Epinova.ElasticSearch.Core.Models.Mapping
                 if (Properties[name].Type != property.Type)
                     IsDirty = true;
 
-                if (property.Type == MappingPatterns.StringType && Server.Info.Version.Major >= 5)
+                if (property.Type == nameof(MappingType.Text).ToLower())
                 {
                     Logger.Debug("Type is string");
                     property.Fields = property.Fields ?? new IndexMappingProperty.ContentProperty();
-
-                    if(Server.Info.Version.Major >= 5)
+                    property.Fields.KeywordSettings = new IndexMappingProperty.ContentProperty.Keyword
                     {
-                        property.Fields.KeywordSettings = new IndexMappingProperty.ContentProperty.Keyword
-                        {
-                            IgnoreAbove = 256,
-                            Type = JsonNames.Keyword
-                        };
-                    }
+                        IgnoreAbove = 256,
+                        Type = JsonNames.Keyword
+                    };
                 }
 
                 Properties[name].Type = property.Type;

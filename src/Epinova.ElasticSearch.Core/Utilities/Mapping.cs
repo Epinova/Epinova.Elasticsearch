@@ -30,13 +30,10 @@ namespace Epinova.ElasticSearch.Core.Utilities
             {MappingType.Long, new[] {typeof (long), typeof (long?)}}
         };
 
-
         internal static MappingType GetMappingType(Type type)
         {
             if(type == typeof(IntegerRange))
-                return Server.Info.Version.Major >= 5
-                    ? MappingType.Integer_Range
-                    : MappingType.String;
+                return MappingType.Integer_Range;
 
             if (type.IsEnum)
                 return MappingType.Integer;
@@ -50,9 +47,7 @@ namespace Epinova.ElasticSearch.Core.Utilities
                     return typeEntry.Key;
             }
 
-            return Server.Info.Version.Major >= 5
-                ? MappingType.Text
-                : MappingType.String;
+            return MappingType.Text;
         }
 
         internal static bool IsNumericType(Type type)

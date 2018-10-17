@@ -23,7 +23,6 @@ namespace Epinova.ElasticSearch.Core.Models.Converters
                 return;
 
             writer.WriteStartObject();
-            writer.WritePropertyName(bucket.Terms.Field.Replace(Constants.RawSuffix, String.Empty));
             serializer.Serialize(writer, bucket);
             writer.WriteEnd();
         }

@@ -39,34 +39,9 @@ namespace Epinova.ElasticSearch.Core.Utilities
             }
         };
 
-        private static IndexMappingProperty SuggestMapping
-        {
-            get
-            {
-                var suggestMapping = new IndexMappingProperty
-                {
-                    Type = "completion",
-                    Analyzer = "suggest"
-                };
+        private static IndexMappingProperty SuggestMapping => new IndexMappingProperty { Type = "completion", Analyzer = "suggest" };
 
-                // Payloads deprecated in v5
-                if (Server.Info.Version.Major < 5)
-                    suggestMapping.Payloads = false;
-
-                return suggestMapping;
-            }
-        }
-
-
-        internal static readonly string StringType = Server.Info.Version.Major >= 5
-            ? MappingType.Text.ToString().ToLower()
-            : MappingType.String.ToString().ToLower();
-
-
-        internal static readonly dynamic Fields = Server.Info.Version.Major >= 5
-            ? new { keyword = new { ignore_above = 256, type = JsonNames.Keyword } }
-            : null;
-
+        internal static readonly dynamic Fields = new { keyword = new { ignore_above = 256, type = JsonNames.Keyword } };
 
         internal static string GetDisableDynamicMapping(string typeName)
         {
@@ -86,12 +61,12 @@ namespace Epinova.ElasticSearch.Core.Utilities
                 {
                     Attachment = new
                     {
-                        type = StringType,
+                        type = nameof(MappingType.Text).ToLower(),
                         fields = new
                         {
                             content = new
                             {
-                                type = StringType,
+                                type = nameof(MappingType.Text).ToLower(),
                                 term_vector = "with_positions_offsets",
                                 store = true
                             }
@@ -99,16 +74,16 @@ namespace Epinova.ElasticSearch.Core.Utilities
                     },
                     Id = new { type = "long", include_in_all = false },
                     _bestbets = new {
-                        type = StringType,
+                        type = nameof(MappingType.Text).ToLower(),
                         fields = Fields
                     },
                     ParentLink = new { type = "long", include_in_all = false },
                     Path = new { type = "long", include_in_all = false },
-                    Lang = new { type = StringType },
-                    DidYouMean = new { type = StringType, analyzer = languageName + "_suggest", fields = new { raw = new { analyzer = "raw", type = StringType } } },
+                    Lang = new { type = nameof(MappingType.Text).ToLower() },
+                    DidYouMean = new { type = nameof(MappingType.Text).ToLower(), analyzer = languageName + "_suggest", fields = new { raw = new { analyzer = "raw", type = nameof(MappingType.Text).ToLower() } } },
                     Suggest = SuggestMapping,
-                    Type = new { type = StringType, analyzer = "raw" },
-                    Types = new { type = StringType, analyzer = "raw" }
+                    Type = new { type = nameof(MappingType.Text).ToLower(), analyzer = "raw" },
+                    Types = new { type = nameof(MappingType.Text).ToLower(), analyzer = "raw" }
                 }
             };
         }
@@ -120,12 +95,12 @@ namespace Epinova.ElasticSearch.Core.Utilities
                 _all = new { analyzer = "snowball" },
                 properties = new
                 {
-                    _bestbets = new { type = StringType },
-                    Lang = new { type = StringType },
-                    DidYouMean = new { type = StringType, analyzer = languageName + "_suggest", fields = new { raw = new { analyzer = "raw", type = StringType } } },
+                    _bestbets = new { type = nameof(MappingType.Text).ToLower() },
+                    Lang = new { type = nameof(MappingType.Text).ToLower() },
+                    DidYouMean = new { type = nameof(MappingType.Text).ToLower(), analyzer = languageName + "_suggest", fields = new { raw = new { analyzer = "raw", type = nameof(MappingType.Text).ToLower() } } },
                     Suggest = SuggestMapping,
-                    Type = new { type = StringType, analyzer = "raw" },
-                    Types = new { type = StringType, analyzer = "raw" }
+                    Type = new { type = nameof(MappingType.Text).ToLower(), analyzer = "raw" },
+                    Types = new { type = nameof(MappingType.Text).ToLower(), analyzer = "raw" }
                 }
             };
         }

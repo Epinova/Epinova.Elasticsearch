@@ -7,8 +7,7 @@ namespace Epinova.ElasticSearch.Core.Enums
     /// </summary>
     public enum MappingType
     {
-        String = 0,
-        Text,
+        Text = 0,
         Attachment,
         Integer,
         Long,
