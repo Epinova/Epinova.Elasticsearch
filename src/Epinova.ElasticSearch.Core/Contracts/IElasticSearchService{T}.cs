@@ -16,7 +16,7 @@ namespace Epinova.ElasticSearch.Core.Contracts
         CultureInfo SearchLanguage { get; }
         int RootId { get; }
         Type Type { get;  }
-        Type SearchType { get; }
+        Type SearchType { get; set; }
         string SearchText { get; }
         string IndexName { get; }
         Operator Operator { get; }

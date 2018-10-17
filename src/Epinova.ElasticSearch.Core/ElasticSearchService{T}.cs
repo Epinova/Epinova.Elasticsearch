@@ -48,7 +48,7 @@ namespace Epinova.ElasticSearch.Core
         public bool TrackSearch { get; private set; }
         public bool EnableBestBets { get; private set; }
         public bool EnableHighlight { get; private set; }
-        public Type SearchType { get; private set; }
+        public Type SearchType { get; set; }
         public Type Type { get; private set; }
         public bool IsWildcard { get; private set; }
         public Operator Operator { get; private set; }
