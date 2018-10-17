@@ -73,7 +73,6 @@ namespace Core.Tests.Utilities
             Assert.Equal(expectedCode, result);
         }
 
-
         [Fact]
         public void GetLanguageCode_ReturnsAsteriskForInvariantCulture()
         {
@@ -81,7 +80,6 @@ namespace Core.Tests.Utilities
 
             Assert.Equal("*", result);
         }
-
 
         [Theory]
         [InlineData("da", "danish")]
@@ -101,7 +99,6 @@ namespace Core.Tests.Utilities
 
             Assert.Equal(expectedAnalyzer, result);
         }
-
 
         [Theory]
         [InlineData("da", true, "danish")]

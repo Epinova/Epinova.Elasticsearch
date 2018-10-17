@@ -10,7 +10,6 @@ namespace Epinova.ElasticSearch.Core.Models.Query
     {
         private readonly List<Sort> _sortFields;
 
-
         public QueryRequest(QuerySetup querySetup)
         {
             _sortFields = querySetup.SortFields;
@@ -76,16 +75,14 @@ namespace Epinova.ElasticSearch.Core.Models.Query
         [JsonProperty(JsonNames.PostFilter)]
         public PostFilter PostFilter { get; set; } = new PostFilter();
 
-
         public bool ShouldSerializePostFilter()
         {
-            return PostFilter != null && PostFilter.ShouldSerializeBool();
+            return PostFilter?.ShouldSerializeBool() == true;
         }
-
 
         public bool ShouldSerializeAggregation()
         {
-            return IsPartOfFilteredQuery == false;
+            return !IsPartOfFilteredQuery;
         }
     }
 }

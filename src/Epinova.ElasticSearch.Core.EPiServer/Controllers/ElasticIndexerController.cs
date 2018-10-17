@@ -21,7 +21,6 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Controllers
             _indexer = indexer;
         }
 
-
         [HttpPost]
         [Authorize(Roles = "WebEditors,WebAdmins,Administrators")]
         public JsonResult UpdateItem(string id, bool recursive = false)
@@ -40,10 +39,10 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Controllers
             catch (Exception ex)
             {
                 Logger.Error("Error updating item with id '" + id + "'", ex);
-                return Json(new { status = IndexingStatus.Error.ToString(), error = ex.Message });
+                return Json(new { status = nameof(IndexingStatus.Error), error = ex.Message });
             }
 
-            return Json(new { status = IndexingStatus.Error.ToString() });
+            return Json(new { status = nameof(IndexingStatus.Error) });
         }
     }
 }

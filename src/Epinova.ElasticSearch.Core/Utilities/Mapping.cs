@@ -122,7 +122,6 @@ namespace Epinova.ElasticSearch.Core.Utilities
             return mappings;
         }
 
-
         /// <summary>
         /// Gets all property mappings for the configured index and the supplied type
         /// </summary>

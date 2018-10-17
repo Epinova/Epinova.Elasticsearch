@@ -76,8 +76,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Plugin
                 _logger.Information(logging);
                 OnStatusChanged(logging);
 
-                //
-                while (contentReferences.Any())
+                while (contentReferences.Count > 0)
                 {
                     var contents = GetDescendentContents(contentReferences.Take(Settings.BulkSize).ToList(), languages, bulkCounter);
                     Type[] contentTypes = contents.Select(c => c.GetOriginalType()).Distinct().ToArray();
@@ -102,8 +101,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Plugin
                 _logger.Error(ex.Message, ex);
                 finalStatus.AppendLine();
                 finalStatus.AppendLine(ex.Message);
-                finalStatus.AppendLine("<pre>" + ex.StackTrace + "</pre>");
-
+                finalStatus.Append("<pre>").Append(ex.StackTrace).AppendLine("</pre>");
                 // If we re-throw here, stacktrace won't be displayed
             }
 
@@ -117,7 +115,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Plugin
             {
                 if (results.Batches[i - 1].Errors)
                 {
-                    var message = " Batch " + i + " failed.";
+                    var message = $" Batch {i} failed.";
 
                     foreach (var item in results.Batches[i - 1].Items.Where(item => item.Status >= 400))
                     {
@@ -183,14 +181,13 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Plugin
             List<IContent> contentToIndex = GetContentToIndex(contentItems, bulkCounter);
 
             // Perform bulk update
-            OnStatusChanged($"Bulk{bulkCounter} - Preparing bulk update of {contentToIndex.Count} items...");
+            OnStatusChanged($"Bulk {bulkCounter} - Preparing bulk update of {contentToIndex.Count} items...");
             return _indexer.BulkUpdate(contentToIndex, str =>
             {
                 OnStatusChanged(str);
                 _logger.Debug(str);
             }, CustomIndexName);
         }
-
 
         protected virtual List<ContentReference> GetContentReferences()
         {
@@ -201,7 +198,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Plugin
         protected virtual List<IContent> GetDescendentContents(List<ContentReference> contentReferences,
             IList<LanguageBranch> languages, int bulkCounter)
         {
-            OnStatusChanged($"Bulk{bulkCounter} - Loading all contents from database...");
+            OnStatusChanged($"Bulk {bulkCounter} - Loading all contents from database...");
 
             var contentItems = new List<IContent>();
 
@@ -225,7 +222,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Plugin
                 counter++;
 
                 if (counter % 100 == 0)
-                    OnStatusChanged($"Bulk{bulkCounter} - Analyzing content item {counter} of {contentItems.Count}...");
+                    OnStatusChanged($"Bulk {bulkCounter} - Analyzing content item {counter} of {contentItems.Count}...");
 
                 if (IsStopped)
                     return contentToIndex;
@@ -241,7 +238,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Plugin
                 if (_logger.IsDebugEnabled())
                 {
                     _logger.Debug("Indexable properties:");
-                    indexableProperties.ForEach(p => { _logger.Debug(p.Key); });
+                    indexableProperties.ForEach(p => _logger.Debug(p.Key));
                 }
 
                 contentToIndex.Add(content);

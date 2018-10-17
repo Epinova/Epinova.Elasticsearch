@@ -16,7 +16,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Initialization
         {
             if (context.Locate.Advanced.GetInstance<LocalizationService>() is ProviderBasedLocalizationService localizationService)
             {
-                Assembly ass = Assembly.GetAssembly(typeof(LocalizationInitialization));
+                var ass = Assembly.GetAssembly(typeof(LocalizationInitialization));
 
                 string[] xmlResources =
                     ass.GetManifestResourceNames()

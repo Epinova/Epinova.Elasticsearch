@@ -22,10 +22,8 @@ namespace Epinova.ElasticSearch.Core.Models.Query
             Bool = null;
         }
 
-
         [JsonProperty(JsonNames.FunctionScore)]
         public FunctionData Function { get; set; }
-
 
         internal class FunctionData
         {
@@ -55,7 +53,7 @@ namespace Epinova.ElasticSearch.Core.Models.Query
             {
                 get
                 {
-                    if (Gauss == null || !Gauss.Any())
+                    if (Gauss?.Any() != true)
                         return null;
 
                     return

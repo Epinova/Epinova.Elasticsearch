@@ -69,7 +69,6 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Services
                 .ToDictionary(g => g.Key, g => g.ToList());
         }
 
-
         private string GetIndexName(string languageId, string selectedIndex = null)
         {
             return selectedIndex != null

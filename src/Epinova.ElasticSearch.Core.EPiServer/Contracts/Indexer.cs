@@ -31,7 +31,6 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Contracts
         // Avoid dependency on Episerver.Forms for this simple functionallity
         internal static string FormsUploadNamespace = "EPiServer.Forms.Core.IFileUploadElementBlock";
 
-
         internal void SetContentPathGetter(Func<ContentReference, int[]> func)
         {
             _getContentPath = func;
@@ -45,7 +44,6 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Contracts
             _elasticSearchSettings = elasticSearchSettings;
             _contentLoader = contentLoader;
         }
-
 
         public BulkBatchResult BulkUpdate(IEnumerable<IContent> contents, Action<string> logger, string indexName = null)
         {
@@ -65,15 +63,17 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Contracts
                         content =>
                         {
                             var language = GetLanguage(content);
+                            var index = String.IsNullOrWhiteSpace(indexName)
+                                    ? _elasticSearchSettings.GetDefaultIndexName(language)
+                                    : _elasticSearchSettings.GetCustomIndexName(indexName, language);
+
                             return new BulkOperation(
                                 content.AsIndexItem(),
                                 Operation.Index,
                                 GetLanguage(content),
                                 typeof(IndexItem),
                                 content.ContentLink.ToString(),
-                                !String.IsNullOrWhiteSpace(indexName)
-                                    ? _elasticSearchSettings.GetCustomIndexName(indexName, language)
-                                    : _elasticSearchSettings.GetDefaultIndexName(language));
+                                index);
                         }
                     )
                     .Where(b => b.Data != null)
@@ -84,12 +84,10 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Contracts
             return _coreIndexer.Bulk(operations, logger);
         }
 
-
         public void Delete(IContent content, string indexName)
         {
             _coreIndexer.Delete(content.ContentLink.ID.ToString(), GetLanguage(content), typeof(IndexItem), indexName);
         }
-
 
         public IndexingStatus UpdateStructure(IContent root, string indexName)
         {
@@ -116,7 +114,6 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Contracts
             return status;
         }
 
-
         public IndexingStatus Update(IContent content, string indexName = null)
         {
             if (ShouldHideFromSearch(content))
@@ -140,7 +137,6 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Contracts
             return IndexingStatus.Ok;
         }
 
-
         private bool IsExludedByRoot(IContent content)
         {
             // Check options less expensive than DB-lookup first
@@ -157,13 +153,11 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Contracts
             return Indexing.ExcludedRoots.Intersect(ancestors).Any();
         }
 
-
         internal static bool IsExludedType(IContent content)
         {
             return IsExludedType(content.GetUnproxiedType())
                 || IsExludedType(content?.GetType());
         }
-
 
         internal static bool IsExludedType(Type type)
         {
@@ -171,10 +165,9 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Contracts
                 return true;
 
             return Indexing.ExcludedTypes.Contains(type)
-                   || type.GetCustomAttributes(typeof(ExcludeFromSearchAttribute), true).Any()
+                   || type.GetCustomAttributes(typeof(ExcludeFromSearchAttribute), true).Length > 0
                    || DerivesFromExludedType(type);
         }
-
 
         internal static bool ShouldHideFromSearch(IContent content)
         {
@@ -216,7 +209,6 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Contracts
             return shortcutType != PageShortcutType.Normal;
         }
 
-
         private static string GetFallbackLanguage()
         {
             if (!HostingEnvironment.IsHosted)
@@ -235,23 +227,19 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Contracts
             return FallbackLanguage;
         }
 
-
         public string GetLanguage(IContent content)
         {
             return content is ILocale localizable
-                   && localizable.Language != null
-                   && !localizable.Language.Equals(CultureInfo.InvariantCulture)
+                   && localizable.Language?.Equals(CultureInfo.InvariantCulture) == false
                 ? localizable.Language.Name
                 : GetFallbackLanguage();
         }
 
-
         private static bool DerivesFromExludedType(Type typeToCheck)
         {
             return Indexing.ExcludedTypes
-                .Any(type =>
-                    type.IsClass && typeToCheck.IsSubclassOf(type)
-                    || type.IsInterface && type.IsAssignableFrom(typeToCheck));
+                .Any(type => (type.IsClass && typeToCheck.IsSubclassOf(type))
+                    || (type.IsInterface && type.IsAssignableFrom(typeToCheck)));
         }
 
         private static DateTime GetEpiserverDateTimeProperty(PropertyData content)

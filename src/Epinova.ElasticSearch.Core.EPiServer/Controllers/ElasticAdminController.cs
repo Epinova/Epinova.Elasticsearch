@@ -23,8 +23,8 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Controllers
         private static Health _healthHelper;
 
         public ElasticAdminController(
-            ILanguageBranchRepository languageBranchRepository, 
-            ICoreIndexer coreIndexer, 
+            ILanguageBranchRepository languageBranchRepository,
+            ICoreIndexer coreIndexer,
             IElasticSearchSettings settings)
         {
             _languageBranchRepository = languageBranchRepository;
@@ -32,7 +32,6 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Controllers
             _settings = settings;
             _healthHelper = new Health(settings);
         }
-
 
         [Authorize(Roles = "ElasticsearchAdmins")]
         public ActionResult Index()

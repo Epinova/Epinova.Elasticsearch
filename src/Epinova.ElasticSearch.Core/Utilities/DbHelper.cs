@@ -30,7 +30,6 @@ namespace Epinova.ElasticSearch.Core.Utilities
                         return exists;
                     }
                 }
-
             }
             catch (Exception exception)
             {

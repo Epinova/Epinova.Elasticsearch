@@ -32,7 +32,6 @@ namespace Epinova.ElasticSearch.Core.Extensions
             return typeName.Split('_').Last();
         }
 
-
         /// <summary>
         /// Get the fully qualified type name
         /// </summary>
@@ -48,7 +47,6 @@ namespace Epinova.ElasticSearch.Core.Extensions
             return type.FullName?.Replace(".", "_");
         }
 
-
         internal static Type GetUnproxiedType(this object source)
         {
             if (!(source is IProxyTargetAccessor proxy))
@@ -56,7 +54,6 @@ namespace Epinova.ElasticSearch.Core.Extensions
 
             return proxy.GetType().BaseType;
         }
-
 
         internal static bool IsAnonymousType(this Type type)
         {
@@ -71,14 +68,12 @@ namespace Epinova.ElasticSearch.Core.Extensions
             return Type.GetType("System." + typeCode);
         }
 
-
         internal static List<PropertyInfo> GetIndexableProps(this Type contentType, bool optIn)
         {
             return contentType.GetProperties()
                 .Where(prop => IsIndexable(contentType, prop, optIn))
                 .ToList();
         }
-
 
         internal static IEnumerable<Type> GetInheritancHierarchy(this Type type)
         {
@@ -96,7 +91,6 @@ namespace Epinova.ElasticSearch.Core.Extensions
             foreach (var i in interfaces)
                 yield return i;
         }
-
 
         private static bool IsIndexable(Type contentType, PropertyInfo p, bool optIn)
         {
