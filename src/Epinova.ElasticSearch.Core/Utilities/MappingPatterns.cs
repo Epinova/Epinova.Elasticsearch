@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using Epinova.ElasticSearch.Core.Enums;
 using Epinova.ElasticSearch.Core.Models;
 using Epinova.ElasticSearch.Core.Models.Mapping;
@@ -87,7 +87,7 @@ namespace Epinova.ElasticSearch.Core.Utilities
                 {
                     Attachment = new
                     {
-                        type = StringType,
+                        type = "attachment",
                         fields = new
                         {
                             content = new
