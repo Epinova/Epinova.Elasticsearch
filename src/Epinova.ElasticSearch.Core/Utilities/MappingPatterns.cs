@@ -61,7 +61,7 @@ namespace Epinova.ElasticSearch.Core.Utilities
                 {
                     Attachment = new
                     {
-                        type = nameof(MappingType.Text).ToLower(),
+                        type = nameof(MappingType.Attachment).ToLower(),
                         fields = new
                         {
                             content = new
