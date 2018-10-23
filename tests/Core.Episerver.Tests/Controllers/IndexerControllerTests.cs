@@ -21,7 +21,7 @@ namespace Core.Episerver.Tests.Controllers
             _contentLoaderMock = new Mock<IContentLoader>();
             _indexerMock = new Mock<IIndexer>();
 
-            _controller = new ElasticIndexerController(_contentLoaderMock.Object, _indexerMock.Object);
+            _controller = new ElasticIndexerController(_contentLoaderMock.Object, _indexerMock.Object, null);
         }
 
         [Theory]
