@@ -6,6 +6,7 @@ using System.Web;
 using Epinova.ElasticSearch.Core.Contracts;
 using Epinova.ElasticSearch.Core.EPiServer.Extensions;
 using Epinova.ElasticSearch.Core.Settings;
+using Epinova.ElasticSearch.Core.Utilities;
 using EPiServer.Cms.Shell.Search;
 using EPiServer.Core;
 using EPiServer.DataAbstraction;
@@ -64,7 +65,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Providers
         public override IEnumerable<SearchResult> Search(Query query)
         {
             var contentSearchHits = new List<ContentSearchHit<TContentData>>();
-            CultureInfo language = GetLanguage();
+            CultureInfo language = Language.GetRequestLanguage();
 
             if (!query.SearchRoots.Any() || ForceRootLookup)
                 query.SearchRoots = new[] { GetSearchRoot() };
@@ -113,16 +114,6 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Providers
                 .Boost(_ => DefaultFields.Id, 10)
                 .StartFrom(searchRootId)
                 .Take(_elasticSearchSettings.ProviderMaxResults);
-        }
-
-        protected static CultureInfo GetLanguage()
-        {
-            HttpContext context = HttpContext.Current;
-
-            if (context?.Request.Headers.AllKeys.Contains("X-EPiContentLanguage") == true)
-                return CultureInfo.CreateSpecificCulture(context.Request.Headers["X-EPiContentLanguage"]);
-
-            return CultureInfo.InvariantCulture;
         }
     }
 }

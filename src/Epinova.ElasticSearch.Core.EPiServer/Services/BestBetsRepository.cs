@@ -109,18 +109,9 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Services
         {
             string[] parts = row.Split(PhraseDelim);
             string rawId = parts[1];
-            if (!Int32.TryParse(rawId, out int id))
-            {
-                Logger.Information($"Invalid id: {rawId}");
-                return null;
-            }
-
-            string phrase = parts[0];
-            string provider = parts.Length > 2 ? parts[2] : null;
-            var contentLink = String.IsNullOrWhiteSpace(provider)
-                ? new ContentReference(id)
-                : new ContentReference(id, provider);
-            string url = _urlResolver.GetUrl(contentLink, languageId);
+            var phrase = parts[0];
+            var contentLink = ContentReference.Parse(rawId);
+            var url = _urlResolver.GetUrl(contentLink, languageId);
 
             return new BestBet(phrase, contentLink, url);
         }
@@ -147,8 +138,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Services
                 Logger.Information($"Old content:\n{filecontents}");
             }
 
-            string content = String.Join(RowDelim,
-                bestBetsToAdd.Select(PhraseToRow));
+            string content = String.Join(RowDelim, bestBetsToAdd.Select(PhraseToRow));
 
             Logger.Information($"New content:\n{content}");
 

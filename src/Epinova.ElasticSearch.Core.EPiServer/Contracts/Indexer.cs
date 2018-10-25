@@ -72,7 +72,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Contracts
                                 Operation.Index,
                                 GetLanguage(content),
                                 typeof(IndexItem),
-                                content.ContentLink.ToString(),
+                                content.ContentLink.ToReferenceWithoutVersion().ToString(),
                                 index);
                         }
                     )
@@ -84,9 +84,19 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Contracts
             return _coreIndexer.Bulk(operations, logger);
         }
 
+        public void Delete(ContentReference contentLink)
+        {
+            var language = Utilities.Language.GetRequestLanguageCode();
+
+            var indexName = GetIndexname(contentLink, null, language);
+            _coreIndexer.Delete(contentLink.ToReferenceWithoutVersion().ToString(), language, typeof(IndexItem), indexName);
+        }
+
         public void Delete(IContent content, string indexName)
         {
-            _coreIndexer.Delete(content.ContentLink.ID.ToString(), GetLanguage(content), typeof(IndexItem), indexName);
+            indexName = GetIndexname(content.ContentLink, indexName, GetLanguage(content));
+
+            _coreIndexer.Delete(content.ContentLink.ToReferenceWithoutVersion().ToString(), GetLanguage(content), typeof(IndexItem), indexName);
         }
 
         public IndexingStatus UpdateStructure(IContent root, string indexName)
@@ -116,6 +126,8 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Contracts
 
         public IndexingStatus Update(IContent content, string indexName = null)
         {
+            indexName = GetIndexname(content.ContentLink, indexName, GetLanguage(content));
+
             if (ShouldHideFromSearch(content))
             {
                 Delete(content, indexName);
@@ -127,12 +139,9 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Contracts
 
             if (IsExludedByRoot(content))
                 return IndexingStatus.ExcludedByConvention;
-
-            if(String.IsNullOrWhiteSpace(indexName))
-                indexName = _elasticSearchSettings.GetDefaultIndexName(GetLanguage(content));
-
+            
             _coreIndexer.UpdateMapping(content.GetOriginalType(), typeof(IndexItem), indexName);
-            _coreIndexer.Update(content.ContentLink.ID.ToString(), content.AsIndexItem(), indexName, typeof(IndexItem));
+            _coreIndexer.Update(content.ContentLink.ToReferenceWithoutVersion().ToString(), content.AsIndexItem(), indexName, typeof(IndexItem));
 
             return IndexingStatus.Ok;
         }
@@ -265,6 +274,18 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Contracts
                 return false;
 
             return owner.GetType().GetInterfaces().Select(i => i.FullName).Contains(FormsUploadNamespace);
+        }
+
+        private string GetIndexname(ContentReference contentLink, string indexName, string language)
+        {
+            if (String.IsNullOrWhiteSpace(indexName) && contentLink.ProviderName == null)
+            {
+                return _elasticSearchSettings.GetDefaultIndexName(language);
+            }
+            else
+            {
+                return _elasticSearchSettings.GetCustomIndexName($"{_elasticSearchSettings.Index}-{Constants.CommerceProviderName}", language);
+            }
         }
     }
 }
