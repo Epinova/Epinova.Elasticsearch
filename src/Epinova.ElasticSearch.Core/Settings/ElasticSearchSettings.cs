@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using Epinova.ElasticSearch.Core.Settings.Configuration;
 using EPiServer.ServiceLocation;
 
@@ -10,6 +11,7 @@ namespace Epinova.ElasticSearch.Core.Settings
     public class ElasticSearchSettings : IElasticSearchSettings
     {
         private readonly ElasticSearchSection _configuration;
+        private static bool? _commerceEnabled;
 
         public ElasticSearchSettings()
         {
@@ -22,7 +24,17 @@ namespace Epinova.ElasticSearch.Core.Settings
 
         public IEnumerable<string> Indices => _configuration.IndicesParsed.Select(i => i.Name);
 
-        public bool CommerceEnabled { get; set; }
+        public bool CommerceEnabled
+        {
+            get
+            {
+                if (_commerceEnabled.HasValue)
+                    return _commerceEnabled.Value;
+
+                _commerceEnabled = Assembly.Load("Epinova.ElasticSearch.Core.EPiServer.Commerce") != null;
+                return _commerceEnabled.Value;
+            }
+        }
 
         /// <summary>
         /// Default delay is 500 ms if attribute closeIndexDelay is not set in epinova.elasticsearch element i web.config

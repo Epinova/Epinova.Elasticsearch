@@ -19,6 +19,6 @@ namespace Epinova.ElasticSearch.Core.Settings
         int CloseIndexDelay { get; }
         bool IgnoreXhtmlStringContentFragments { get; }
         int ClientTimeoutSeconds { get; }
-        bool CommerceEnabled { get; set; }
+        bool CommerceEnabled { get; }
     }
 }
