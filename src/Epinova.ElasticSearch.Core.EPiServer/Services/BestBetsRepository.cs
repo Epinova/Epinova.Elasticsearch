@@ -155,7 +155,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Services
             contentFile.LanguageId = languageId;
 
             ContentReference current = _contentRepository.Save(contentFile, SaveAction.Publish, AccessLevel.NoAccess);
-            UpdateIndex(bestBetsToAdd, languageId, index, type);
+            UpdateIndex(bestBetsToAdd, index, type);
         }
 
         private static string PhraseToRow(BestBet bestBet)
@@ -163,7 +163,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Services
             return $"{bestBet.Phrase}{PhraseDelim}{bestBet.Id}{PhraseDelim}{bestBet.Provider}";
         }
 
-        private void UpdateIndex(in IEnumerable<BestBet> bestbets, string languageId, string index, Type type)
+        private void UpdateIndex(in IEnumerable<BestBet> bestbets, string index, Type type)
         {
             var termsById = bestbets
                 .GroupBy(b => b.Id)

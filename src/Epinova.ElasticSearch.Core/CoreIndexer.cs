@@ -224,6 +224,8 @@ namespace Epinova.ElasticSearch.Core
                 Logger.Debug("Firing subscribed event AfterUpdateBestBet");
                 AfterUpdateBestBet(new BestBetEventArgs { Index = indexName, Type = indexType, Id = id, Terms = terms });
             }
+
+            RefreshIndex(indexName);
         }
 
         public void UpdateMapping(Type type, string index)
