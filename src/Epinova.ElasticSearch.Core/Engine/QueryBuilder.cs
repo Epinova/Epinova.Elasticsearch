@@ -413,13 +413,22 @@ namespace Epinova.ElasticSearch.Core.Engine
                           .Except(notFilters)
                           .Where(f => f.Operator == Operator.Or && !f.Not)
                           .Select(CreateTerm));
-
-                    if (request.PostFilter.Bool.Should.Count > 0)
-                        request.PostFilter.Bool.MinimumNumberShouldMatch = 1;
                 }
             }
 
             request.Query.Bool.Filter.Add(filterQuery);
+
+
+            if (request.Query.Bool.Should.Count > 0)
+                request.Query.Bool.MinimumNumberShouldMatch = 1;
+            else
+                request.Query.Bool.MinimumNumberShouldMatch = 0;
+
+            if (request.PostFilter.Bool.Should.Count > 0)
+                request.PostFilter.Bool.MinimumNumberShouldMatch = 1;
+            else
+                request.PostFilter.Bool.MinimumNumberShouldMatch = 0;
+
 
             AppendDefaultFilters(request.Query, setup.Type);
         }
