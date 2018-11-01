@@ -5,6 +5,7 @@ using System.Net.Http.Headers;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Epinova.ElasticSearch.Core.Conventions;
 using EPiServer.Logging;
 using Epinova.ElasticSearch.Core.Settings;
 using EPiServer.ServiceLocation;
@@ -21,7 +22,9 @@ namespace Epinova.ElasticSearch.Core.Utilities
 
         static HttpClientHelper()
         {
-            Client = new HttpClient();
+            Client = MessageHandlers.Handler != null ?
+                new HttpClient(MessageHandlers.Handler) :
+                new HttpClient();
             Initialize();
         }
 
