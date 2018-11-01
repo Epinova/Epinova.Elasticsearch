@@ -179,6 +179,7 @@
   <ItemGroup>
     <Compile Include="Admin\HealthTests.cs" />
     <Compile Include="Conventions\IndexingTests.cs" />
+    <Compile Include="Conventions\MessageHandlerTests.cs" />
     <Compile Include="ElasticSearchServiceTests.cs" />
     <Compile Include="Engine\QueryBuilderTests.cs" />
     <Compile Include="Engine\SearchEngineTests.cs" />
