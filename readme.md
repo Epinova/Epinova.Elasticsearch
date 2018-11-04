@@ -708,8 +708,6 @@ var results = _service
     .GetCustomResults();
 ```
 
-&nbsp;
-
 ## Set custom http client message handler
 
 Epinova.ElasticSearch uses standard `HttpClient` to call elasticsearch. Sometimes it's neccassary to handle messages sent differently. For example signing request for cloud services.
@@ -720,6 +718,8 @@ For Example:
 ```csharp
 MessageHandler.Instance.SetMessageHandler(new AWSHandler());
 ```
+
+&nbsp;
 
 ## Important
 `GetCustomResults` returns strongly typed objects as opposed to
