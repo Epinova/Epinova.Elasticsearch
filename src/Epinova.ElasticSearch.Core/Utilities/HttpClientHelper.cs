@@ -22,8 +22,8 @@ namespace Epinova.ElasticSearch.Core.Utilities
 
         static HttpClientHelper()
         {
-            Client = MessageHandlers.Handler != null ?
-                new HttpClient(MessageHandlers.Handler) :
+            Client = MessageHandler.Handler != null ?
+                new HttpClient(MessageHandler.Handler) :
                 new HttpClient();
             Initialize();
         }

@@ -13,11 +13,11 @@ namespace Core.Tests.Conventions
         }
 
         [Fact]
-        public void ExcludeType_AnyType_AddsToCollection()
+        public void SetMessageHandler_IsCorrectType()
         {
-            MessageHandlers.Instance.IncludeMessageHandler(new MockHandler());
+            MessageHandler.Instance.SetMessageHandler(new MockHandler());
 
-            HttpMessageHandler result = MessageHandlers.Handler;
+            HttpMessageHandler result = MessageHandler.Handler;
 
             Assert.IsType<MockHandler>(result);
         }

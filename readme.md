@@ -28,6 +28,7 @@ A search plugin for Episerver CMS and Commerce
 * Stemming
 * Index custom types
 * Basic authentication support
+* Custom http client message handler
 
 ## Planned features
 
@@ -709,8 +710,16 @@ var results = _service
 
 &nbsp;
 
+## Set custom http client message handler
 
+Epinova.ElasticSearch uses standard `HttpClient` to call elasticsearch. Sometimes it's neccassary to handle messages sent differently. For example signing request for cloud services.
 
+If you want several HttpMessageHandlers, we recommend chaining them before setting.
+
+For Example:
+```csharp
+MessageHandler.Instance.SetMessageHandler(new AWSHandler());
+```
 
 ## Important
 `GetCustomResults` returns strongly typed objects as opposed to
