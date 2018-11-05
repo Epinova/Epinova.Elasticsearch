@@ -171,6 +171,7 @@
     <Compile Include="Conventions\Indexing.Roots.cs" />
     <Compile Include="Conventions\Indexing.Suggestions.cs" />
     <Compile Include="Conventions\Indexing.Types.cs" />
+    <Compile Include="Conventions\MessageHandler.cs" />
     <Compile Include="Conventions\Suggestion.cs" />
     <Compile Include="CoreIndexer.cs" />
     <Compile Include="DefaultFields.cs" />
