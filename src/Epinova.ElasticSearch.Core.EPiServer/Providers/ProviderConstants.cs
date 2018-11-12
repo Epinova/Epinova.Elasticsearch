@@ -1,4 +1,4 @@
-namespace Epinova.ElasticSearch.Core.EPiServer.Providers
+﻿namespace Epinova.ElasticSearch.Core.EPiServer.Providers
 {
     // Borrowed from ContentSearchProviderConstants
 
@@ -55,5 +55,13 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Providers
         public const string CmsProviderKey = "cms";
 
         public const string DefaultProviderKey = "default";
+
+        public static string CommerceCatalogArea => "Commerce/Catalog";
+
+        public static string CommerceCatalogIconCssClass => "epi-resourceIcon epi-resourceIcon-page";
+
+        public static string CommerceCampaignsArea => "Commerce/Campaigns";
+
+        public static string CommerceCampaignsIconCssClass => "epi-resourceIcon";
     }
 }

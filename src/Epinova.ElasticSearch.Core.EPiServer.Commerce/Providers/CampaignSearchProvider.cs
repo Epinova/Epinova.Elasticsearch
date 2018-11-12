@@ -15,8 +15,8 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Commerce.Providers
 
         public CampaignSearchProvider() : base("campaigns")
         {
-            IconClass = Constants.CommerceCampaignsIconCssClass;
-            AreaName = Constants.CommerceCampaignsArea;
+            IconClass = ProviderConstants.CommerceCampaignsIconCssClass;
+            AreaName = ProviderConstants.CommerceCampaignsArea;
             ForceRootLookup = true;
         }
 

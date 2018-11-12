@@ -5,9 +5,11 @@ namespace Epinova.ElasticSearch.Core.Models
 {
     internal abstract class RequestBase
     {
+        //TODO: Should this be virtual?
         [JsonProperty(JsonNames.From)]
         public abstract int From { get; internal set; }
 
+        //TODO: Should this be virtual?
         [JsonProperty(JsonNames.Size)]
         public abstract int Size { get; internal set; }
 

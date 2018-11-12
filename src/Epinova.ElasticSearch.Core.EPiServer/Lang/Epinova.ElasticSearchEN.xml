@@ -172,6 +172,13 @@
         <product>Epinova products</product>
         <campaigns>Epinova campaigns</campaigns>
       </providers>
+      <components>
+        <mlt>
+          <title>Similar content</title>
+          <description>Shows a list of content similar to the current item</description>
+          <prefix>Content similar to</prefix>
+        </mlt>
+      </components>
     </epinovaelasticsearch>
   </language>
 </languages>
