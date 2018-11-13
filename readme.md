@@ -15,6 +15,7 @@ A search plugin for Episerver CMS and Commerce
 * Facets
 * Filtering
 * Best Bets
+* More Like This
 * Tracking/stats
 * Boosting
 * Synonyms
@@ -33,7 +34,7 @@ A search plugin for Episerver CMS and Commerce
 
 * Elasticsearch 6+ support
 * Caching
-* Compound work token filter
+* Compound word token filter
 * Utilize aliases for better downtime management
 
 
@@ -61,7 +62,8 @@ A separate index will be created for each active language on your site. If you a
 
 # Configuration
 
-You can configure your setup programmatically with the singleton `Epinova.ElasticSearch.Core.Conventions.Indexing`. Only do this once per app domain, typically in an initializable module, e.g. Application_Start().
+You can configure your setup programmatically with the singleton `Epinova.ElasticSearch.Core.Conventions.Indexing`. 
+Only do this once per appdomain, typically in an initializable module or Application_Start().
 
 A sample configuration class:
 
@@ -191,6 +193,38 @@ SearchResult result = service
    .WildcardSearch<ArticlePage>("me?t")
    .GetResults();
 ```
+
+
+### More Like This
+
+Find content similar to the document-id provided
+
+```csharp
+SearchResult result = service
+   .MoreLikeThis("42")
+   .GetResults();
+```
+
+Commerce: 
+
+```csharp
+SearchResult result = service
+   .MoreLikeThis("123__CatalogContent")
+   .GetResults();
+```
+
+Optional parameters:
+
+`minimumTermFrequency` The minimum term frequency below which the terms will be ignored from the input document. Defaults to 1.  
+`maxQueryTerms` The maximum number of query terms that will be selected. Increasing this value gives greater accuracy at the expense of query execution speed. Defaults to 25.  
+`minimumDocFrequency` The minimum document frequency below which the terms will be ignored from the input document. Defaults to 3.  
+`minimumWordLength` The minimum word length below which the terms will be ignored. Defaults to 3.  
+
+
+Gadget:
+
+![MLT Component](assets/mltcomp.png?raw)
+
 
 &nbsp;
 
