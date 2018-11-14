@@ -51,7 +51,6 @@ namespace Epinova.ElasticSearch.Core
             "CreatedBy",
             "ChangedBy",
             "DeletedBy",
-            "PageTypeName",
             "URLSegment",
             "ExternalURL",
             "PageName",
