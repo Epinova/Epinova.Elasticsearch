@@ -225,7 +225,6 @@
   <ItemGroup>
     <Compile Include="CatalogSearchHit.cs" />
     <Compile Include="CatalogSearchResult.cs" />
-    <Compile Include="Constants.cs" />
     <Compile Include="Extensions\CatalogExtensions.cs" />
     <Compile Include="Plugin\IndexEpiserverCommerceContent.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

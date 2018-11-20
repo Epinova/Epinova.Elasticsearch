@@ -106,6 +106,25 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Providers
 
         private IElasticSearchService<TContentData> CreateQuery(Query query, CultureInfo language, int searchRootId)
         {
+            if (query.Parameters.TryGetValue(Core.Models.Constants.MoreLikeThisId, out object mltId) && mltId != null)
+            {
+                var id = ContentReference.Parse(mltId.ToString()).ToReferenceWithoutVersion();
+
+                var esQuery = _elasticSearchService
+                    .MoreLikeThis<TContentData>(id.ToString(), minimumWordLength: 2, minimumDocFrequency: 1)
+                    .UseIndex(IndexName)
+                    .Language(language)
+                    .StartFrom(searchRootId)
+                    .Take(_elasticSearchSettings.ProviderMaxResults);
+
+                foreach (var field in Conventions.MoreLikeThis.ComponentFields.Keys.ToArray())
+                {
+                    esQuery = esQuery.InField(_ => field);
+                }
+
+                return esQuery;
+            }
+
             return _elasticSearchService
                 .WildcardSearch<TContentData>(String.Concat("*", query.SearchQuery, "*"))
                 .UseIndex(IndexName)

@@ -197,6 +197,7 @@
     <Compile Include="Conventions\Indexing.cs" />
     <Compile Include="Conventions\Indexing.CustomProperties.cs" />
     <Compile Include="Conventions\Indexing.Files.cs" />
+    <Compile Include="Conventions\MoreLikeThis.cs" />
     <Compile Include="Conventions\Indexing.Highlighting.cs" />
     <Compile Include="Conventions\Indexing.Roots.cs" />
     <Compile Include="Conventions\Indexing.Suggestions.cs" />
@@ -267,6 +268,8 @@
     <Compile Include="Models\Query\MatchMulti.cs" />
     <Compile Include="Models\Query\MatchSimple.cs" />
     <Compile Include="Models\Query\MatchWithBoost.cs" />
+    <Compile Include="Models\Query\MoreLikeThisQuery.cs" />
+    <Compile Include="Models\Query\MoreLikeThisRequest.cs" />
     <Compile Include="Models\Query\Must.cs" />
     <Compile Include="Models\Query\NestedBoolQuery.cs" />
     <Compile Include="Models\Query\PostFilter.cs" />

@@ -108,6 +108,11 @@ namespace Epinova.ElasticSearch.Core.Engine
             return new SuggestRequest(querySetup.SearchText, querySetup.Size);
         }
 
+        internal RequestBase MoreLikeThis(QuerySetup setup)
+        {
+            return new MoreLikeThisRequest(setup);
+        }
+
         private RequestBase SearchInternal(QuerySetup setup)
         {
             _searchType = setup.SearchType;

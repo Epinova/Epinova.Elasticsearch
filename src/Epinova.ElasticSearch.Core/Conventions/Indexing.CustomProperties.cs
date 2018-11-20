@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 
@@ -9,7 +9,6 @@ namespace Epinova.ElasticSearch.Core.Conventions
         internal readonly ConcurrentDictionary<Type, string[]> SearchableProperties;
 
         internal static List<CustomProperty> CustomProperties { get; }
-
 
         /// <summary>
         /// Add a convention for the specified type

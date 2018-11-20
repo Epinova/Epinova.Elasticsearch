@@ -397,6 +397,23 @@ namespace Epinova.ElasticSearch.Core.Contracts
         IElasticSearchService<T> WildcardSearch<T>(string searchText);
 
         /// <summary>
+        /// <para>
+        /// Performs a more-like-this search, finding documents similar in content to the one identified by <paramref name="id"/>
+        /// </para>
+        /// <para>
+        /// Use <see cref="InField(Expression{Func{T, object}})"/> to control which fields to compare. 
+        /// Defaults to «Name», «Description», «MainIntro», «MainBody»
+        /// </para>
+        /// </summary>
+        /// <param name="id">Id of the document</param>
+        /// <param name="minimumTermFrequency">The minimum term frequency below which the terms will be ignored from the input document. Defaults to 1.</param>
+        /// <param name="maxQueryTerms">The maximum number of query terms that will be selected. Increasing this value gives greater accuracy at the expense of query execution speed. Defaults to 25.</param>
+        /// <param name="minimumDocFrequency">The minimum document frequency below which the terms will be ignored from the input document. Defaults to 3.</param>
+        /// <param name="minimumWordLength">The minimum word length below which the terms will be ignored. Defaults to 3.</param>
+        /// <returns>The current <see cref="IElasticSearchService"/> instance</returns>
+        IElasticSearchService<T> MoreLikeThis<T>(string id, int minimumTermFrequency = 1, int maxQueryTerms = 25, int minimumDocFrequency = 3, int minimumWordLength = 3);
+
+        /// <summary>
         /// Perform multiple filters as a logical group
         /// </summary>
         /// <param name="groupExpression">The expression to perform ORs or ANDs on</param>

@@ -17,15 +17,15 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Commerce.Providers
 
         public ProductSearchProvider() : base("product")
         {
-            IconClass = Constants.CommerceCatalogIconCssClass;
-            AreaName = Constants.CommerceCatalogArea;
+            IconClass = ProviderConstants.CommerceCatalogIconCssClass;
+            AreaName = ProviderConstants.CommerceCatalogArea;
             ForceRootLookup = true;
             IndexName = GetIndexName();
         }
 
         private string GetIndexName()
         {
-            return $"{_elasticSearchSettings.Index}-{Core.Constants.CommerceProviderName}-{Language.GetRequestLanguageCode()}";
+            return $"{_elasticSearchSettings.Index}-{Constants.CommerceProviderName}-{Language.GetRequestLanguageCode()}";
         }
 
         protected override string GetSearchRoot()

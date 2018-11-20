@@ -55,6 +55,11 @@ namespace Epinova.ElasticSearch.Core
         public Operator Operator { get; private set; }
         public string Analyzer { get; private set; }
         public string SearchText { get; private set; }
+        public string MoreLikeId { get; private set; }
+        public int MltMinTermFreq { get; private set; }
+        public int MltMinDocFreq { get; private set; }
+        public int MltMinWordLength { get; private set; }
+        public int MltMaxQueryTerms { get; set; }
         public bool UseBoosting { get; private set; }
         public int FromValue { get; private set; }
         public int SizeValue { get; private set; }
@@ -320,7 +325,7 @@ namespace Epinova.ElasticSearch.Core
             QuerySetup query = CreateQuery();
             query.EnableDidYouMean = false;
 
-            if(query.SearchFields.Count == 0)
+            if (query.SearchFields.Count == 0)
                 query.SearchFields.Add(DefaultFields.All);
 
             // Always return all fields for custom objects
@@ -356,6 +361,11 @@ namespace Epinova.ElasticSearch.Core
                 Gauss = _gauss,
                 ScriptScore = CreateScriptScore(),
                 Type = Type,
+                MoreLikeId = MoreLikeId,
+                MltMinTermFreq = MltMinTermFreq,
+                MltMinDocFreq = MltMinDocFreq,
+                MltMinWordLength = MltMinWordLength,
+                MltMaxQueryTerms = MltMaxQueryTerms,
                 ExcludedTypes = _excludedTypes,
                 ExcludedRoots = ExcludedRoots,
                 Language = SearchLanguage,
@@ -410,6 +420,28 @@ namespace Epinova.ElasticSearch.Core
             return WildcardSearch<object>(searchText);
         }
 
+        public IElasticSearchService<T> MoreLikeThis<T>(string id, int minimumTermFrequency = 1, int maxQueryTerms = 25, int minimumDocFrequency = 3, int minimumWordLength = 3)
+        {
+            return new ElasticSearchService<T>
+            {
+                MoreLikeId = id,
+                MltMinTermFreq = minimumTermFrequency,
+                MltMinDocFreq = minimumDocFrequency,
+                MltMinWordLength = minimumWordLength,
+                MltMaxQueryTerms = maxQueryTerms,
+                Type = typeof(T),
+                SearchLanguage = SearchLanguage,
+                RootId = RootId,
+                SearchType = SearchType,
+                UseBoosting = false,
+                EnableBestBets = false,
+                FromValue = FromValue,
+                SizeValue = SizeValue,
+                IsWildcard = false,
+                IndexName = IndexName
+            };
+        }
+
         public IElasticSearchService<T> WildcardSearch<T>(string searchText)
         {
             return new ElasticSearchService<T>
@@ -438,7 +470,7 @@ namespace Epinova.ElasticSearch.Core
 
         public IElasticSearchService<T> SortBy(Expression<Func<T, object>> fieldSelector)
         {
-            if(SortFields.Count > 0)
+            if (SortFields.Count > 0)
                 throw new InvalidOperationException("Query is already sorted. Use ThenBy or ThenByDescending to apply further sorting");
 
             return Sort(fieldSelector, false);
@@ -659,28 +691,27 @@ namespace Epinova.ElasticSearch.Core
 
         internal async Task<SearchResult> GetResultsAsync(QuerySetup querySetup, CancellationToken cancellationToken)
         {
-            string language = Utilities.Language.GetLanguageCode(querySetup.Language);
             RequestBase request = _builder.TypedSearch(querySetup);
             return await _engine.QueryAsync(request, querySetup.Language, cancellationToken, IndexName);
         }
 
         internal SearchResult GetResults(QuerySetup querySetup)
         {
-            string language = Utilities.Language.GetLanguageCode(querySetup.Language);
-            RequestBase request = _builder.TypedSearch(querySetup);
+            RequestBase request = querySetup.MoreLikeId != null
+                ? _builder.MoreLikeThis(querySetup)
+                : _builder.TypedSearch(querySetup);
+
             return _engine.Query(request, querySetup.Language, IndexName);
         }
 
         internal async Task<CustomSearchResult<T>> GetCustomResultsAsync<T>(QuerySetup querySetup, CancellationToken cancellationToken)
         {
-            string language = Utilities.Language.GetLanguageCode(querySetup.Language);
             RequestBase request = _builder.TypedSearch(querySetup);
-            return  await _engine.CustomQueryAsync<T>(request, querySetup.Language, cancellationToken, IndexName);
+            return await _engine.CustomQueryAsync<T>(request, querySetup.Language, cancellationToken, IndexName);
         }
 
         internal CustomSearchResult<T> GetCustomResults<T>(QuerySetup querySetup)
         {
-            string language = Utilities.Language.GetLanguageCode(querySetup.Language);
             RequestBase request = _builder.TypedSearch(querySetup);
             return _engine.CustomQuery<T>(request, querySetup.Language, IndexName);
         }
@@ -704,41 +735,54 @@ namespace Epinova.ElasticSearch.Core
             string fieldName;
             MappingType fieldType;
 
-            if (expression is MethodCallExpression callExpression)
+            switch (expression)
             {
-                MethodInfo methodInfo = callExpression.Method;
+                case MethodCallExpression callExpression:
+                    {
+                        MethodInfo methodInfo = callExpression.Method;
 
-                if (ArrayHelper.IsArrayCandidate(methodInfo.ReturnType))
-                    explicitType = methodInfo.ReturnType.GetTypeFromTypeCode();
+                        if (ArrayHelper.IsArrayCandidate(methodInfo.ReturnType))
+                            explicitType = methodInfo.ReturnType.GetTypeFromTypeCode();
 
-                fieldName = methodInfo.Name;
-                fieldType = Mapping.GetMappingType(explicitType ?? methodInfo.ReturnType);
-            }
-            else if (expression is MemberExpression memberExpression)
-            {
-                MemberInfo memberInfo = memberExpression.Member;
+                        fieldName = methodInfo.Name;
+                        fieldType = Mapping.GetMappingType(explicitType ?? methodInfo.ReturnType);
+                        break;
+                    }
 
-                if (ArrayHelper.IsArrayCandidate(memberExpression.Type))
-                    explicitType = memberExpression.Type.GetTypeFromTypeCode();
+                case MemberExpression memberExpression:
+                    {
+                        if (memberExpression.Member is FieldInfo fieldInfo)
+                        {
+                            var constantExpression = memberExpression.Expression as ConstantExpression;
+                            if (fieldInfo != null && constantExpression != null)
+                            {
+                                fieldName = fieldInfo.GetValue(constantExpression.Value).ToString();
+                                fieldType = Mapping.GetMappingType(explicitType ?? constantExpression.Type);
+                                break;
+                            }
+                        }
 
-                fieldName = memberInfo.Name;
-                fieldType = Mapping.GetMappingType(explicitType ?? memberExpression.Type);
-            }
-            else if (expression is ConstantExpression constantExpression)
-            {
-                if (ArrayHelper.IsArrayCandidate(constantExpression.Type))
-                    explicitType = constantExpression.Type.GetTypeFromTypeCode();
+                        MemberInfo memberInfo = memberExpression.Member;
 
-                fieldName = constantExpression.Value.ToString();
-                fieldType = Mapping.GetMappingType(explicitType ?? constantExpression.Type);
-            }
-            else if (expression is UnaryExpression unaryExpression)
-            {
-                return GetFieldInfoFromExpression(unaryExpression.Operand, explicitType);
-            }
-            else
-            {
-                return null;
+                        if (ArrayHelper.IsArrayCandidate(memberExpression.Type))
+                            explicitType = memberExpression.Type.GetTypeFromTypeCode();
+
+                        fieldName = memberInfo.Name;
+                        fieldType = Mapping.GetMappingType(explicitType ?? memberExpression.Type);
+                        break;
+                    }
+
+                case ConstantExpression constantExpression:
+                    if (ArrayHelper.IsArrayCandidate(constantExpression.Type))
+                        explicitType = constantExpression.Type.GetTypeFromTypeCode();
+
+                    fieldName = constantExpression.Value.ToString();
+                    fieldType = Mapping.GetMappingType(explicitType ?? constantExpression.Type);
+                    break;
+                case UnaryExpression unaryExpression:
+                    return GetFieldInfoFromExpression(unaryExpression.Operand, explicitType);
+                default:
+                    return null;
             }
 
             return new Tuple<string, MappingType>(fieldName, fieldType);

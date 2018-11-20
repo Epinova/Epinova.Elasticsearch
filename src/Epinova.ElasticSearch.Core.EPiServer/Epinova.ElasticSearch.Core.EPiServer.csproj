@@ -179,6 +179,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Components\MoreLikeThis\MoreLikeThisComponent.cs" />
+    <Compile Include="Components\MoreLikeThis\MoreLikeThisQuery.cs" />
     <Compile Include="ContentSearchHit.cs" />
     <Compile Include="ContentSearchResult.cs" />
     <Compile Include="Contracts\IAutoSuggestRepository.cs" />
@@ -292,9 +294,12 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Index.cshtml</DependentUpon>
     </Compile>
+    <None Include="modules\_protected\ElasticSearch\ClientResources\Scripts\MoreLikeThisSearch.js" />
     <Content Include="modules\_protected\ElasticSearch\ElasticSearch.zip" />
     <EmbeddedResource Include="Lang\Epinova.ElasticSearchEN.xml" />
-    <EmbeddedResource Include="Lang\Epinova.ElasticSearchNO.xml" />
+    <EmbeddedResource Include="Lang\Epinova.ElasticSearchNO.xml">
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
     <None Include="Epinova.ElasticSearch.Core.EPiServer.nuspec">
       <SubType>Designer</SubType>
     </None>

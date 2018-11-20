@@ -173,6 +173,13 @@
         <product>Epinova produkter</product>
         <campaigns>Epinova kampanjer</campaigns>
       </providers>
+      <components>
+        <mlt>
+          <title>Lignende innhold</title>
+          <description>Viser en liste over innhold som ligner på valgt element</description>
+          <prefix>Lignende innhold som</prefix>
+        </mlt>
+      </components>
     </epinovaelasticsearch>
   </language>
 </languages>
