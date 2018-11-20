@@ -9,7 +9,6 @@ using EPiServer;
 using EPiServer.DataAbstraction;
 using Moq;
 using Xunit;
-// ReSharper disable PossibleNullReferenceException
 
 namespace Core.Episerver.Tests.Controllers
 {
@@ -31,7 +30,6 @@ namespace Core.Episerver.Tests.Controllers
                     new LanguageBranch(new CultureInfo("no"))
                 });
 
-
             _controller = new ElasticAutoSuggestController(
                 contentLoaderMock.Object,
                 languageBranchRepositoryMock.Object,
@@ -48,7 +46,6 @@ namespace Core.Episerver.Tests.Controllers
             Assert.Contains(model.WordsByLanguage, l => l.LanguageId == "no");
         }
 
-
         [Theory]
         [InlineData("")]
         [InlineData(" ")]
@@ -60,7 +57,6 @@ namespace Core.Episerver.Tests.Controllers
             _autoSuggestRepositoryMock.Verify(m => m.AddWord("", It.IsAny<string>()), Times.Never);
         }
 
-
         [Theory]
         [InlineData("foo")]
         [InlineData("høyesterettsjustitiarius")]
@@ -69,7 +65,6 @@ namespace Core.Episerver.Tests.Controllers
             _controller.AddWord("", word);
             _autoSuggestRepositoryMock.Verify(m => m.AddWord("", word), Times.Once);
         }
-
 
         [Theory]
         [InlineData("foo|bar")]
@@ -80,7 +75,6 @@ namespace Core.Episerver.Tests.Controllers
             _controller.AddWord("", word);
             _autoSuggestRepositoryMock.Verify(m => m.AddWord("", expected), Times.Once);
         }
-
 
         [Theory]
         [InlineData("foo")]

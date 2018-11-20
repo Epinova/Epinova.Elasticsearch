@@ -54,7 +54,6 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Initialization
             "WebGrease"
         };
 
-
         public void Initialize(InitializationEngine context)
         {
             try
@@ -114,15 +113,11 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Initialization
 
         private static List<Type> GetExcludedTypes()
         {
-            List<Type> types = new List<Type>();
-
-            List<Assembly> assemblies = AppDomain.CurrentDomain.GetAssemblies().OrderBy(a => a.FullName).ToList();
+            var types = new List<Type>();
+            var assemblies = AppDomain.CurrentDomain.GetAssemblies().OrderBy(a => a.FullName).ToList();
 
             AssemblyBlacklist.ToList().ForEach(
-                b =>
-                {
-                    assemblies.RemoveAll(a => a.FullName.StartsWith(b, StringComparison.OrdinalIgnoreCase));
-                });
+                b => assemblies.RemoveAll(a => a.FullName.StartsWith(b, StringComparison.OrdinalIgnoreCase)));
 
             foreach (var assembly in assemblies)
             {
@@ -135,10 +130,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Initialization
                 catch (ReflectionTypeLoadException ex)
                 {
                     Logger.Error($"Error while scanning assembly '{assembly.FullName}'");
-                    ex.LoaderExceptions.ToList().ForEach(e =>
-                    {
-                        Logger.Error("LoaderException", e);
-                    });
+                    ex.LoaderExceptions.ToList().ForEach(e => Logger.Error("LoaderException", e));
                 }
                 catch
                 {

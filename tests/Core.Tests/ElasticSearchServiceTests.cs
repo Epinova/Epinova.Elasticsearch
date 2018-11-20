@@ -6,8 +6,6 @@ using Epinova.ElasticSearch.Core.Models;
 using TestData;
 using Xunit;
 
-// ReSharper disable PossibleNullReferenceException
-
 namespace Core.Tests
 {
     public class ElasticSearchServiceTests
@@ -82,7 +80,7 @@ namespace Core.Tests
             var result = _service.SortBy(x => x.StringProperty) as ElasticSearchService<ComplexType>;
             const string fieldName = "StringProperty";
 
-            Assert.Equal(result.SortFields.First().FieldName, fieldName);
+            Assert.Equal(result.SortFields[0].FieldName, fieldName);
         }
 
         [Fact]
@@ -90,7 +88,7 @@ namespace Core.Tests
         {
             var result = _service.SortBy(x => x.StringProperty) as ElasticSearchService<ComplexType>;
 
-            Assert.Equal("asc", result.SortFields.First().Direction);
+            Assert.Equal("asc", result.SortFields[0].Direction);
         }
 
         [Fact]
@@ -98,7 +96,7 @@ namespace Core.Tests
         {
             var result = _service.SortByDescending(x => x.StringProperty) as ElasticSearchService<ComplexType>;
 
-            Assert.Equal("desc", result.SortFields.First().Direction);
+            Assert.Equal("desc", result.SortFields[0].Direction);
         }
 
         [Theory]

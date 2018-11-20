@@ -18,6 +18,9 @@ namespace Epinova.ElasticSearch.Core.Models.Query
 
             [JsonProperty(JsonNames.Inline)]
             public string Inline { get; set; }
+
+            [JsonProperty(JsonNames.Params)]
+            public object Parameters { get; set; }
         }
     }
 }

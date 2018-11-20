@@ -6,9 +6,6 @@ namespace Epinova.ElasticSearch.Core.Models.Mapping
 {
     internal class IndexMappingProperty
     {
-        [JsonProperty(JsonNames.Payloads, Order = 1)]
-        public bool? Payloads { get; set; }
-
         [JsonProperty(JsonNames.Analyzer, Order = 10)]
         public string Analyzer { get; set; }
 
@@ -35,8 +32,7 @@ namespace Epinova.ElasticSearch.Core.Models.Mapping
 
         public override string ToString()
         {
-            return
-                $"Analyzer: {Analyzer}, Format: {Format}, FieldData: {FieldData}, Type: {Type}, CopyTo: {String.Join(",", CopyTo ?? Enumerable.Empty<string>())}, Index: {Index}";
+            return $"Analyzer: {Analyzer}, Format: {Format}, FieldData: {FieldData}, Type: {Type}, CopyTo: {String.Join(",", CopyTo ?? Enumerable.Empty<string>())}, Index: {Index}";
         }
 
         internal class ContentProperty
@@ -84,19 +80,19 @@ namespace Epinova.ElasticSearch.Core.Models.Mapping
             return String.Equals(Index, other.Index) && String.Equals(Analyzer, other.Analyzer) &&
                    String.Equals(Type, other.Type) && String.Equals(Format, other.Format) &&
                    FieldData == other.FieldData &&
-                   (CopyTo == null && other.CopyTo == null || CopyTo != null && CopyTo.SequenceEqual(other.CopyTo));
+                   (CopyTo == null && other.CopyTo == null || CopyTo?.SequenceEqual(other.CopyTo) == true);
         }
 
         public override int GetHashCode()
         {
             unchecked
             {
-                int hashCode = Index != null ? Index.GetHashCode() : 0;
-                hashCode = (hashCode * 397) ^ (Analyzer != null ? Analyzer.GetHashCode() : 0);
-                hashCode = (hashCode * 397) ^ (Type != null ? Type.GetHashCode() : 0);
-                hashCode = (hashCode * 397) ^ (Format != null ? Format.GetHashCode() : 0);
+                int hashCode = Index?.GetHashCode() ?? 0;
+                hashCode = (hashCode * 397) ^ (Analyzer?.GetHashCode() ?? 0);
+                hashCode = (hashCode * 397) ^ (Type?.GetHashCode() ?? 0);
+                hashCode = (hashCode * 397) ^ (Format?.GetHashCode() ?? 0);
                 hashCode = (hashCode * 397) ^ FieldData.GetHashCode();
-                hashCode = (hashCode * 397) ^ (CopyTo != null ? CopyTo.GetHashCode() : 0);
+                hashCode = (hashCode * 397) ^ (CopyTo?.GetHashCode() ?? 0);
                 return hashCode;
             }
         }

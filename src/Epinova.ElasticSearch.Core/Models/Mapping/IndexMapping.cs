@@ -4,6 +4,7 @@ using System.Linq;
 using EPiServer.Logging;
 using Epinova.ElasticSearch.Core.Utilities;
 using Newtonsoft.Json;
+using Epinova.ElasticSearch.Core.Enums;
 
 namespace Epinova.ElasticSearch.Core.Models.Mapping
 {
@@ -11,16 +12,13 @@ namespace Epinova.ElasticSearch.Core.Models.Mapping
     {
         private static readonly ILogger Logger = LogManager.GetLogger(typeof(IndexMapping));
 
-
         public IndexMapping()
         {
             Properties = new Dictionary<string, IndexMappingProperty>();
         }
 
-
         [JsonProperty(DefaultFields.All)]
         public IndexMappingProperty All { get; set; }
-
 
         [JsonIgnore]
         public bool IsDirty { get; private set; }
@@ -28,16 +26,17 @@ namespace Epinova.ElasticSearch.Core.Models.Mapping
         [JsonProperty(JsonNames.Properties)]
         public Dictionary<string, IndexMappingProperty> Properties { get; set; }
 
-
         public void AddOrUpdateProperty(string name, IndexMappingProperty property)
         {
             Logger.Debug("Property: " + name);
 
             if (property == null)
+            {
                 property = new IndexMappingProperty
                 {
-                    Type = MappingPatterns.StringType
+                    Type = nameof(MappingType.Text).ToLower()
                 };
+            }
 
             if (!Properties.ContainsKey(name))
             {
@@ -71,20 +70,15 @@ namespace Epinova.ElasticSearch.Core.Models.Mapping
                 if (Properties[name].Type != property.Type)
                     IsDirty = true;
 
-                if (property.Type == MappingPatterns.StringType && Server.Info.Version.Major >= 5)
+                if (property.Type == nameof(MappingType.Text).ToLower())
                 {
                     Logger.Debug("Type is string");
-
                     property.Fields = property.Fields ?? new IndexMappingProperty.ContentProperty();
-
-                    if(Server.Info.Version.Major >= 5)
+                    property.Fields.KeywordSettings = new IndexMappingProperty.ContentProperty.Keyword
                     {
-                        property.Fields.KeywordSettings = new IndexMappingProperty.ContentProperty.Keyword
-                        {
-                            IgnoreAbove = 256,
-                            Type = JsonNames.Keyword
-                        };
-                    }
+                        IgnoreAbove = 256,
+                        Type = JsonNames.Keyword
+                    };
                 }
 
                 Properties[name].Type = property.Type;
@@ -112,11 +106,10 @@ namespace Epinova.ElasticSearch.Core.Models.Mapping
                 Logger.Debug("CopyTo: " + String.Join(", ", Properties[name].CopyTo));
         }
 
-
         private static bool IncludeInDidYouMean(string name, IndexMappingProperty property)
         {
             return name != null
-                   && property.Type == MappingPatterns.StringType
+                   && property.Type == nameof(MappingType.Text).ToLower()
                    && !WellKnownProperties.IgnoreDidYouMean.Contains(name);
         }
     }

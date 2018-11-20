@@ -3,7 +3,7 @@
   <metadata xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
     <id>$id$</id>
     <version>$version$</version>
-    <title>Epinova ElasticSearch Core EPiServer Commerce</title>
+    <title>Epinova ElasticSearch Commerce addon</title>
     <authors>Espen Lønnkvist and Øyvind Tanum</authors>
     <owners>Epinova AS</owners>
     <iconUrl>http://www.epinova.no/favicon.ico</iconUrl>
@@ -15,6 +15,7 @@
     <tags>Epinova EPiServer ElasticSearch Commerce</tags>
     <dependencies>
       <dependency id="Epinova.ElasticSearch.Core.EPiServer" version="[11.2, 12)" />
+      <dependency id="EPiServer.Commerce.Core" version="11.5" />
     </dependencies>
   </metadata>
   <files>

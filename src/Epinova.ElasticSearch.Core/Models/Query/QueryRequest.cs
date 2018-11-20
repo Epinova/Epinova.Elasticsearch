@@ -10,7 +10,6 @@ namespace Epinova.ElasticSearch.Core.Models.Query
     {
         private readonly List<Sort> _sortFields;
 
-
         public QueryRequest(QuerySetup querySetup)
         {
             _sortFields = querySetup.SortFields;
@@ -30,11 +29,11 @@ namespace Epinova.ElasticSearch.Core.Models.Query
 
                 var sorts = new JArray();
 
-                for (int i = 0; i < _sortFields.Count; i++)
+                for (var i = 0; i < _sortFields.Count; i++)
                 {
                     string sortField = _sortFields[i].FieldName;
 
-                    if (sortField[0] != '_' && Server.Info.Version.Major >= 5 && _sortFields[i].IsStringField)
+                    if (sortField[0] != '_' && _sortFields[i].IsStringField)
                         sortField += Constants.KeywordSuffix;
 
                     sorts.Add(
@@ -76,16 +75,14 @@ namespace Epinova.ElasticSearch.Core.Models.Query
         [JsonProperty(JsonNames.PostFilter)]
         public PostFilter PostFilter { get; set; } = new PostFilter();
 
-
         public bool ShouldSerializePostFilter()
         {
-            return PostFilter != null && PostFilter.ShouldSerializeBool();
+            return PostFilter?.ShouldSerializeBool() == true;
         }
-
 
         public bool ShouldSerializeAggregation()
         {
-            return IsPartOfFilteredQuery == false;
+            return !IsPartOfFilteredQuery;
         }
     }
 }

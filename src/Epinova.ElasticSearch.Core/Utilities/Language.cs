@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Linq;
+using System.Web;
 using Epinova.ElasticSearch.Core.Models.Mapping;
 
 namespace Epinova.ElasticSearch.Core.Utilities
@@ -22,6 +24,11 @@ namespace Epinova.ElasticSearch.Core.Utilities
             { "es", "spanish" },
             { "sv", "swedish" }
         };
+
+        internal static string GetRequestLanguageCode()
+        {
+            return GetLanguageCode(GetRequestLanguage());
+        }
 
         internal static string GetLanguageCode(CultureInfo cultureInfo)
         {
@@ -74,6 +81,16 @@ namespace Epinova.ElasticSearch.Core.Utilities
                 return analyzer;
 
             return null;
+        }
+
+        internal static CultureInfo GetRequestLanguage()
+        {
+            var headers = HttpContext.Current?.Request?.Headers;
+
+            if (headers?.AllKeys.Contains("X-EPiContentLanguage") == true)
+                return CultureInfo.CreateSpecificCulture(headers["X-EPiContentLanguage"]);
+
+            return CultureInfo.InvariantCulture;
         }
     }
 }

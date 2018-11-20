@@ -3,8 +3,6 @@ using Epinova.ElasticSearch.Core.Extensions;
 using TestData;
 using Xunit;
 
-// ReSharper disable ExpressionIsAlwaysNull
-
 namespace Core.Tests.Extensions
 {
     public class TypeExtensionsTests
@@ -116,7 +114,7 @@ namespace Core.Tests.Extensions
         {
             const string instance = "foo";
             var actual = instance.GetShortTypeName();
-            var expected = instance;
+            const string expected = instance;
 
             Assert.Equal(expected, actual);
         }
@@ -133,5 +131,3 @@ namespace Core.Tests.Extensions
         }
     }
 }
-
-// ReSharper restore ExpressionIsAlwaysNull

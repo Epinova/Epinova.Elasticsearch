@@ -27,7 +27,6 @@ namespace Epinova.ElasticSearch.Core.Engine
         private static readonly ILogger Logger = LogManager.GetLogger(typeof(SearchEngine));
         private static IElasticSearchSettings _elasticSearchSettings;
 
-
         internal SearchEngine()
         {
             _elasticSearchSettings = ServiceLocator.Current.GetInstance<IElasticSearchSettings>();
@@ -37,7 +36,6 @@ namespace Epinova.ElasticSearch.Core.Engine
         {
             _elasticSearchSettings = settings;
         }
-
 
         /// <summary>
         /// Execute the provided query
@@ -55,14 +53,13 @@ namespace Epinova.ElasticSearch.Core.Engine
             if (results == null)
                 return new SearchResult();
 
-            RawResults<EsRootObject> rawResults = new RawResults<EsRootObject> { RootObject = results };
+            var rawResults = new RawResults<EsRootObject> { RootObject = results };
 
             SearchResult searchResult = SetupResults(rawResults, query.ToString(Formatting.Indented));
             SetupFacets(results, searchResult);
 
             return searchResult;
         }
-
 
         /// <summary>
         /// Execute the provided query
@@ -87,7 +84,6 @@ namespace Epinova.ElasticSearch.Core.Engine
             return searchResult;
         }
 
-
         public async Task<CustomSearchResult<T>> CustomQueryAsync<T>(RequestBase query, CultureInfo culture, CancellationToken cancellationToken, string indexName = null)
         {
             if (query == null)
@@ -98,10 +94,10 @@ namespace Epinova.ElasticSearch.Core.Engine
             if (rawResults == null)
                 return new CustomSearchResult<T>();
 
-            if (rawResults.Hits?.HitArray == null || !rawResults.Hits.HitArray.Any())
+            if (rawResults.Hits?.HitArray == null || rawResults.Hits.HitArray.Length == 0)
                 return new CustomSearchResult<T>();
 
-            SearchResult searchResult = new SearchResult
+            var searchResult = new SearchResult
             {
                 Query = query.ToString(Formatting.Indented),
                 TotalHits = rawResults.Hits.Total,
@@ -109,12 +105,11 @@ namespace Epinova.ElasticSearch.Core.Engine
             };
 
             IEnumerable<CustomSearchHit<T>> searchHits = rawResults.Hits.HitArray.Select(h => new CustomSearchHit<T>(h.Source, h.Score, h.Highlight));
-            CustomSearchResult<T> customSearchResult = new CustomSearchResult<T>(searchResult, searchHits);
+            var customSearchResult = new CustomSearchResult<T>(searchResult, searchHits);
             SetupFacets(rawResults, customSearchResult);
 
             return customSearchResult;
         }
-
 
         public CustomSearchResult<T> CustomQuery<T>(RequestBase query, CultureInfo culture, string indexName = null)
         {
@@ -125,12 +120,12 @@ namespace Epinova.ElasticSearch.Core.Engine
             if (rawResults?.RootObject == null)
                 return new CustomSearchResult<T>();
 
-            CustomSearchResult<T> searchResult = new CustomSearchResult<T>
+            var searchResult = new CustomSearchResult<T>
             {
                 Query = query.ToString(Formatting.Indented)
             };
 
-            if (rawResults.RootObject.Hits?.HitArray != null && rawResults.RootObject.Hits.HitArray.Any())
+            if (rawResults.RootObject.Hits?.HitArray != null && rawResults.RootObject.Hits.HitArray.Length > 0)
             {
                 searchResult.Hits = rawResults.RootObject.Hits.HitArray.Select(h => new CustomSearchHit<T>(h.Source, h.Score, h.Highlight));
                 searchResult.TotalHits = rawResults.RootObject.Hits.Total;
@@ -142,11 +137,10 @@ namespace Epinova.ElasticSearch.Core.Engine
             return searchResult;
         }
 
-
         private SearchResult SetupResults(RawResults<EsRootObject> results, string query)
         {
             Hits hits = results.RootObject.Hits;
-            SearchResult searchResult = new SearchResult
+            var searchResult = new SearchResult
             {
                 Query = query,
                 RawJsonOutput = results.RawJson
@@ -155,7 +149,7 @@ namespace Epinova.ElasticSearch.Core.Engine
             if (results.RootObject.Suggest?.DidYouMean != null && results.RootObject.Suggest.DidYouMean.Length > 0)
                 searchResult.DidYouMeanSuggestions = results.RootObject.Suggest.DidYouMean[0].Options;
 
-            if (hits?.HitArray != null && hits.HitArray.Any())
+            if (hits?.HitArray != null && hits.HitArray.Length > 0)
             {
                 searchResult.Hits = hits.HitArray.Select(Map);
                 searchResult.TotalHits = hits.Total;
@@ -165,10 +159,9 @@ namespace Epinova.ElasticSearch.Core.Engine
             return searchResult;
         }
 
-
         private static SearchHit Map(Hit hit)
         {
-            SearchHit searchHit = new SearchHit(hit);
+            var searchHit = new SearchHit(hit);
 
             CustomProperty[] customPropertiesForType =
                 hit.Source?.Types != null
@@ -212,11 +205,11 @@ namespace Epinova.ElasticSearch.Core.Engine
             Logger.Information($"Index:\n{indexName}\n");
             Logger.Information($"Query:\n{query?.ToString(Formatting.Indented)}\n");
 
-            string uri = $"{_elasticSearchSettings.Host}/{indexName}/_search";
+            var uri = $"{_elasticSearchSettings.Host}/{indexName}/_search";
 
             JsonReader response = GetResponse(query, uri, out string rawJsonResult);
 
-            JsonSerializer serializer = new JsonSerializer
+            var serializer = new JsonSerializer
             {
                 ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
                 NullValueHandling = NullValueHandling.Ignore
@@ -233,7 +226,6 @@ namespace Epinova.ElasticSearch.Core.Engine
             };
         }
 
-
         public async Task<TRoot> GetRawResultsAsync<TRoot>(RequestBase query, string language, CancellationToken cancellationToken, string indexName = null)
         {
             if (indexName == null)
@@ -242,11 +234,11 @@ namespace Epinova.ElasticSearch.Core.Engine
             Logger.Information($"Index:\n{indexName}\n");
             Logger.Information($"Query:\n{query?.ToString(Formatting.Indented)}\n");
 
-            string uri = $"{_elasticSearchSettings.Host}/{indexName}/_search";
+            var uri = $"{_elasticSearchSettings.Host}/{indexName}/_search";
 
             JsonReader response = await GetResponseAsync(query, uri, cancellationToken);
 
-            JsonSerializer serializer = new JsonSerializer
+            var serializer = new JsonSerializer
             {
                 ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
                 NullValueHandling = NullValueHandling.Ignore
@@ -257,11 +249,10 @@ namespace Epinova.ElasticSearch.Core.Engine
                 : serializer.Deserialize<TRoot>(response);
         }
 
-
         private void SetupFacets<T, TU>(EsRootObjectBase<T> results, SearchResultBase<TU> searchResult)
         {
             Dictionary<string, Aggregation> facets = results.Aggregations;
-            if (facets != null && facets.Any())
+            if (facets?.Any() == true)
             {
                 searchResult.Facets = facets.Select(f => new FacetEntry
                 {
@@ -276,20 +267,19 @@ namespace Epinova.ElasticSearch.Core.Engine
             }
         }
 
-
         public virtual string[] GetSuggestions(SuggestRequest request, CultureInfo culture, string indexName = null)
         {
             if (indexName == null)
                 indexName = _elasticSearchSettings.GetDefaultIndexName(Language.GetLanguageCode(culture));
 
-            string endpoint = $"{_elasticSearchSettings.Host}/{indexName}/_suggest";
+            var endpoint = $"{_elasticSearchSettings.Host}/{indexName}/_suggest";
 
             Logger.Information(
                 $"GetSuggestions query:\nGET {endpoint}\n{request?.ToString(Formatting.Indented)}\n");
 
             JsonReader response = GetResponse(request, endpoint, out _);
 
-            JsonSerializer serializer = new JsonSerializer
+            var serializer = new JsonSerializer
             {
                 ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
                 NullValueHandling = NullValueHandling.Ignore
@@ -297,7 +287,7 @@ namespace Epinova.ElasticSearch.Core.Engine
 
             SuggestionsRootObject results = serializer.Deserialize<SuggestionsRootObject>(response);
 
-            if (results?.Suggestions != null && results.Suggestions.Any())
+            if (results?.Suggestions != null && results.Suggestions.Length > 0)
             {
                 return results.Suggestions.SelectMany(s => s.Options.Select(o => o.Text)).ToArray();
             }
@@ -305,12 +295,11 @@ namespace Epinova.ElasticSearch.Core.Engine
             return new string[0];
         }
 
-
         protected async Task<JsonReader> GetResponseAsync(RequestBase request, string endpoint, CancellationToken cancellationToken)
         {
             try
             {
-                byte[] data = Encoding.UTF8.GetBytes(request.ToString());
+                var data = Encoding.UTF8.GetBytes(request.ToString());
                 byte[] returnData = await HttpClientHelper.PostAsync(new Uri(endpoint), data, cancellationToken);
                 if (returnData == null)
                     throw new Exception("Failed to POST to " + endpoint);
@@ -331,14 +320,13 @@ namespace Epinova.ElasticSearch.Core.Engine
             return null;
         }
 
-
         public virtual JsonReader GetResponse(RequestBase request, string endpoint, out string rawJsonResult)
         {
             rawJsonResult = null;
 
             try
             {
-                byte[] data = Encoding.UTF8.GetBytes(request.ToString());
+                var data = Encoding.UTF8.GetBytes(request.ToString());
                 byte[] returnData = HttpClientHelper.Post(new Uri(endpoint), data);
                 if (returnData == null)
                     throw new Exception("Failed to POST to " + endpoint);
@@ -362,13 +350,11 @@ namespace Epinova.ElasticSearch.Core.Engine
             return null;
         }
 
-
         private static void TryLogErrors(WebException webException)
         {
             // Assume the response is json
             try
             {
-                // ReSharper disable once AssignNullToNotNullAttribute
                 using (var reader = new StreamReader(webException.Response.GetResponseStream()))
                 {
                     Logger.Error(JToken.Parse(reader.ReadToEnd()).ToString(Formatting.Indented));

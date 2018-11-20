@@ -25,7 +25,6 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Services
             _blobFactory = blobFactory;
         }
 
-
         public void AddWord(string languageId, string word)
         {
             List<string> words = GetWords(languageId);
@@ -43,7 +42,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Services
         private void SetWords(string languageId, IEnumerable<string> wordsToAdd)
         {
             var name = GetFilename(languageId);
-            var contentFile = GetAutoSuggest(name);
+            AutoSuggestFile contentFile = GetAutoSuggest(name);
 
             contentFile = contentFile == null
                 ? _contentRepository.GetDefault<AutoSuggestFile>(GetAutoSuggestFolder().ContentLink)
@@ -73,7 +72,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Services
         {
             var words = new List<string>();
 
-            var backup = GetAutoSuggest(GetFilename(languageId));
+            AutoSuggestFile backup = GetAutoSuggest(GetFilename(languageId));
             if (backup?.BinaryData == null)
                 return words;
 
@@ -88,10 +87,9 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Services
             return words;
         }
 
-
         private AutoSuggestFile GetAutoSuggest(string name)
         {
-            var backupFolder = GetAutoSuggestFolder().ContentLink;
+            ContentReference backupFolder = GetAutoSuggestFolder().ContentLink;
 
             return _contentRepository
                 .GetChildren<AutoSuggestFile>(backupFolder)
@@ -105,9 +103,9 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Services
 
         private AutoSuggestFileFolder GetAutoSuggestFolder(string folderName = "Elasticsearch Autosuggest")
         {
-            var parent = ContentReference.RootPage;
+            PageReference parent = ContentReference.RootPage;
 
-            var backupFolder = _contentRepository.GetChildren<AutoSuggestFileFolder>(parent).FirstOrDefault();
+            AutoSuggestFileFolder backupFolder = _contentRepository.GetChildren<AutoSuggestFileFolder>(parent).FirstOrDefault();
             if (backupFolder == null)
             {
                 backupFolder = _contentRepository.GetDefault<AutoSuggestFileFolder>(parent);
@@ -119,11 +117,11 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Services
 
         private void DeleteabAndonedDocuments(ContentReference current, string name, string languageId)
         {
-            var folder = GetAutoSuggestFolder().ContentLink;
+            ContentReference folder = GetAutoSuggestFolder().ContentLink;
             var abandonedSuggestions = _contentRepository.GetChildren<AutoSuggestFile>(folder)
-                .Where(b => !b.ContentLink.CompareToIgnoreWorkID(current))
-                .Where(b => b.Name != name)
-                .Where(b => b.LanguageId == languageId)
+                .Where(b => !b.ContentLink.CompareToIgnoreWorkID(current)
+                    && b.Name != name
+                    && b.LanguageId == languageId)
                 .Select(s => s.Name);
             abandonedSuggestions.ToList().ForEach(n =>
             {

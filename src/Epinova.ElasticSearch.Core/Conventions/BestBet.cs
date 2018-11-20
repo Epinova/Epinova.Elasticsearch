@@ -8,7 +8,7 @@ namespace Epinova.ElasticSearch.Core.Conventions
     {
         public BestBet(string phrase, ContentReference contentLink, string url = null)
         {
-            Id = contentLink.ID.ToString();
+            Id = contentLink.ToString();
             Phrase = phrase;
             Url = url;
             Provider = contentLink.ProviderName;
