@@ -438,8 +438,9 @@ namespace Epinova.ElasticSearch.Core.Contracts
         /// </summary>
         /// <param name="script">The script source</param>
         /// <param name="scriptLanguage">The script language, defaults to painless</param>
+        /// <param name="parameters">An anonymous object containing parameters to be used in <paramref name="script"/> </param>
         /// <returns>The current <see cref="IElasticSearchService"/> instance</returns>
-        IElasticSearchService<T> CustomScriptScore(string script, string scriptLanguage = null);
+        IElasticSearchService<T> CustomScriptScore(string script, string scriptLanguage = null, object parameters = null);
     }
 }
 #pragma warning restore 693

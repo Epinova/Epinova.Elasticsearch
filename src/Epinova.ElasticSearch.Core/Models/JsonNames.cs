@@ -54,6 +54,7 @@
         public const string Operator = "operator";
         public const string Options = "options";
         public const string Order = "order";
+        public const string Params = "params";
         public const string Payloads = "payloads";
         public const string PostFilter = "post_filter";
         public const string PostTags = "post_tags";
