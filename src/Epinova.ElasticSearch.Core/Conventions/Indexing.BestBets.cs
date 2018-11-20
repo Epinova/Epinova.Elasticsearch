@@ -3,6 +3,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using Epinova.ElasticSearch.Core.Contracts;
+using Epinova.ElasticSearch.Core.Settings;
 using Epinova.ElasticSearch.Core.Settings.Configuration;
 using EPiServer.DataAbstraction;
 using EPiServer.Logging;
@@ -19,6 +20,7 @@ namespace Epinova.ElasticSearch.Core.Conventions
             BestBets = new ConcurrentDictionary<string, List<BestBet>>();
 
             var repository = ServiceLocator.Current.GetInstance<IBestBetsRepository>();
+            var settings = ServiceLocator.Current.GetInstance<IElasticSearchSettings>();
             var languageBranchRepository = ServiceLocator.Current.GetInstance<ILanguageBranchRepository>();
 
             var languageIds = languageBranchRepository.ListEnabled()
@@ -26,13 +28,20 @@ namespace Epinova.ElasticSearch.Core.Conventions
 
             var config = ElasticSearchSection.GetConfiguration();
 
-            foreach (var index in config.IndicesParsed)
+            var indexList = config.IndicesParsed.Select(i => i.Name).ToList();
+
+            if (settings.CommerceEnabled)
             {
-                Logger.Information($"Setup BestBets for index '{index.Name}'");
+                indexList.Add($"{settings.Index}-{Constants.CommerceProviderName}".ToLower());
+            }
+
+            foreach (var index in indexList)
+            {
+                Logger.Information($"Setup BestBets for index '{index}'");
                 foreach (var languageId in languageIds)
                 {
                     Logger.Information($"Language '{languageId}'");
-                    var indexName = index.Name + "-" + languageId;
+                    var indexName = index + "-" + languageId;
                     var bestBets = repository.GetBestBets(languageId, indexName).ToList();
                     BestBets.TryAdd(indexName, bestBets);
                     Logger.Information($"BestBets:\n{String.Join("\n", bestBets.Select(b => b.Phrase + " => " + b.Id))}");

@@ -40,19 +40,19 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Services
             _settings = settings;
         }
 
-        public void SetSynonyms(string languageId, string analyzer, List<Synonym> synonymsToAdd, string indexName = null)
+        public void SetSynonyms(string languageId, string analyzer, List<Synonym> synonymsToAdd, string index = null)
         {
-            if(String.IsNullOrWhiteSpace(indexName))
-                indexName = _settings.GetDefaultIndexName(languageId);
+            if(String.IsNullOrWhiteSpace(index))
+                index = _settings.GetDefaultIndexName(languageId);
 
             var indexing = new Indexing(_settings);
-            indexing.Close(indexName);
+            indexing.Close(index);
 
             string[] synonymPairs = synonymsToAdd
                 .Select(s => String.Concat(s.From, ",", s.To))
                 .ToArray();
 
-            if (!synonymPairs.Any())
+            if (synonymPairs.Length == 0)
                 synonymPairs = new[] {"example_from,example_to"};
 
             Logger.Information(
@@ -79,7 +79,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Services
                 }
             };
 
-            SaveBackup(languageId, indexName, synonymPairs);
+            SaveBackup(languageId, index, synonymPairs);
 
             string json = Serialization.Serialize(body);
 
@@ -91,11 +91,11 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Services
             }
 
             var data = Encoding.UTF8.GetBytes(json);
-            var uri = indexing.GetUri(indexName, "_settings");
+            var uri = indexing.GetUri(index, "_settings");
 
             HttpClientHelper.Put(uri, data);
 
-            indexing.Open(indexName);
+            indexing.Open(index);
         }
 
         public List<Synonym> GetSynonyms(string languageId, string index)
@@ -117,13 +117,13 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Services
             JContainer settings = JsonConvert.DeserializeObject<JContainer>(json);
             JToken synonymPairs = settings.SelectToken(jpath);
             string[] parsedSynonyms;
-            if (synonymPairs != null && synonymPairs.Any(s => s.ToString() != "example_from,example_to"))
+            if (synonymPairs?.Any(s => s.ToString() != "example_from,example_to") == true)
             {
                 parsedSynonyms = synonymPairs.ToArray().Select(s => s.ToString()).ToArray();
             }
             else
             {
-                var backup = GetBackup(GetFilename(languageId, index));
+                SynonymBackupFile backup = GetBackup(GetFilename(languageId, index));
                 if (backup?.BinaryData == null)
                     return synonyms;
 
@@ -144,7 +144,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Services
                     continue;
 
                 Logger.Debug("Synonym: " + synonym);
-                string[] pair = synonym.Split(',');
+                var pair = synonym.Split(',');
                 if(pair.Length > 1)
                     synonyms.Add(new Synonym {From = pair[0], To = pair[1], TwoWay = !pair[0].Contains("=>")});
             }
@@ -152,12 +152,11 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Services
             return synonyms;
         }
 
-
         private SynonymBackupFile GetBackup(string name)
         {
-            var backupFolder = GetBackupFolder().ContentLink;
+            ContentReference backupFolder = GetBackupFolder().ContentLink;
 
-            var backupFile = _contentLoader
+            SynonymBackupFile backupFile = _contentLoader
                 .GetChildren<SynonymBackupFile>(backupFolder)
                 .FirstOrDefault(s => s.Name.Equals(name, StringComparison.OrdinalIgnoreCase));
 
@@ -173,7 +172,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Services
         private void SaveBackup(string languageId, string index, string[] synonymPairs)
         {
             var name = GetFilename(languageId, index);
-            var contentFile = GetBackup(name);
+            SynonymBackupFile contentFile = GetBackup(name);
 
             //TODO: Don't create new version for identical files.
 
@@ -181,9 +180,8 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Services
                 ? _contentRepository.GetDefault<SynonymBackupFile>(GetBackupFolder().ContentLink)
                 : contentFile.CreateWritableClone() as SynonymBackupFile;
 
-            string content = String.Join("|", synonymPairs);
+            var content = String.Join("|", synonymPairs);
 
-            // ReSharper disable once PossibleNullReferenceException
             var blob = _blobFactory.CreateBlob(contentFile.BinaryDataContainer, ".synonyms");
             using (var stream = blob.OpenWrite())
             {

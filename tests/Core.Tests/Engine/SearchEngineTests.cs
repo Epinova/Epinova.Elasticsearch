@@ -20,7 +20,6 @@ namespace Core.Tests.Engine
             Factory.SetupServiceLocator();
         }
 
-
         public void Dispose()
         {
             _engine = null;
@@ -71,7 +70,6 @@ namespace Core.Tests.Engine
             Assert.NotNull(result);
         }
 
-
         [Fact]
         public void Query_NoHits_ReturnsNoHits()
         {
@@ -82,7 +80,6 @@ namespace Core.Tests.Engine
             Assert.Equal(0, result.Hits.Count());
         }
 
-
         [Fact]
         public void Query_NoHits_ReturnsNoFacets()
         {
@@ -92,7 +89,6 @@ namespace Core.Tests.Engine
 
             Assert.Equal(0, result.Facets.Length);
         }
-
 
         [Theory]
         [InlineData("Results_With_Hits_And_Facets.json")]
@@ -106,7 +102,6 @@ namespace Core.Tests.Engine
             Assert.NotEmpty(result.Hits);
         }
 
-
         [Theory]
         [InlineData("Results_With_Hits_And_Facets.json")]
         [InlineData("Results_With_Facets_Only.json")]
@@ -118,7 +113,6 @@ namespace Core.Tests.Engine
 
             Assert.NotEmpty(result.Facets);
         }
-
 
         [Fact]
         public void Query_ReturnsCustomProperties()
@@ -132,12 +126,12 @@ namespace Core.Tests.Engine
             var arr2 = new[] { "Foo", "Bar" };
 
             Indexing.Instance
-                .ForType<TestPage>().IncludeField("Date", m => date)
-                .ForType<TestPage>().IncludeField("Text", m => text)
-                .ForType<TestPage>().IncludeField("Int", m => lng1)
-                .ForType<TestPage>().IncludeField("Dec", m => dec1)
-                .ForType<TestPage>().IncludeField("Array1", m => arr1)
-                .ForType<TestPage>().IncludeField("Array2", m => arr2);
+                .ForType<TestPage>().IncludeField("Date", _ => date)
+                .ForType<TestPage>().IncludeField("Text", _ => text)
+                .ForType<TestPage>().IncludeField("Int", _ => lng1)
+                .ForType<TestPage>().IncludeField("Dec", _ => dec1)
+                .ForType<TestPage>().IncludeField("Array1", _ => arr1)
+                .ForType<TestPage>().IncludeField("Array2", _ => arr2);
 
             SearchResult result = _engine.Query(new QueryRequest(new QuerySetup()), CultureInfo.InvariantCulture);
 
@@ -157,17 +151,16 @@ namespace Core.Tests.Engine
             Indexing.CustomProperties.Clear();
 
             Indexing.Instance
-                .ForType<TestPage>().IncludeField<object>("Date", m => null)
-                .ForType<TestPage>().IncludeField<object>("Text", m => null)
-                .ForType<TestPage>().IncludeField<object>("Int", m => null)
-                .ForType<TestPage>().IncludeField<object>("Dec", m => null)
-                .ForType<TestPage>().IncludeField<object>("Array1", m => null)
-                .ForType<TestPage>().IncludeField<object>("Array2", m => null);
+                .ForType<TestPage>().IncludeField<object>("Date", _ => null)
+                .ForType<TestPage>().IncludeField<object>("Text", _ => null)
+                .ForType<TestPage>().IncludeField<object>("Int", _ => null)
+                .ForType<TestPage>().IncludeField<object>("Dec", _ => null)
+                .ForType<TestPage>().IncludeField<object>("Array1", _ => null)
+                .ForType<TestPage>().IncludeField<object>("Array2", _ => null);
 
             SearchResult result = _engine.Query(new QueryRequest(new QuerySetup()), CultureInfo.InvariantCulture);
 
             // Materialize ienumerable
-            // ReSharper disable once UnusedVariable
             SearchHit[] hits = result.Hits.ToArray();
         }
     }

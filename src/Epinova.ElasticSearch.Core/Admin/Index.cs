@@ -22,7 +22,6 @@ namespace Epinova.ElasticSearch.Core.Admin
         private static readonly ILogger Logger = LogManager.GetLogger(typeof(Index));
         private static IElasticSearchSettings _settings;
 
-
         public Index(IElasticSearchSettings settings, string name) : this(settings)
         {
             if (String.IsNullOrWhiteSpace(name))
@@ -37,7 +36,6 @@ namespace Epinova.ElasticSearch.Core.Admin
             _settings = settings;
             _indexing = new Indexing(settings);
         }
-
 
         public virtual IEnumerable<IndexInformation> GetIndices()
         {
@@ -62,7 +60,6 @@ namespace Epinova.ElasticSearch.Core.Admin
 
             return indices;
         }
-
 
         internal bool Exists => _indexing.IndexExists(_name);
 
@@ -114,7 +111,7 @@ namespace Epinova.ElasticSearch.Core.Admin
             }
         }
 
-        internal void Initialize(Type type, bool forceMappingUpdate = true)
+        internal void Initialize(Type type)
         {
             string typeName = type?.FullName ?? "Unknown/Custom";
 
@@ -143,8 +140,6 @@ namespace Epinova.ElasticSearch.Core.Admin
                     CreateStandardMappings();
                 else
                     CreateCustomMappings(type);
-
-                RawMapper.UpdateMappings(type, _language, forceMappingUpdate, _name);
             }
         }
 

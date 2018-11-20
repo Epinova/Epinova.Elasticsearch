@@ -19,7 +19,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Initialization
 
             IContentEvents events = ServiceLocator.Current.GetInstance<IContentEvents>();
             events.PublishedContent += IndexingEvents.UpdateIndex;
-            events.DeletedContent += IndexingEvents.DeleteFromIndex;
+            events.DeletingContent += IndexingEvents.DeleteFromIndex;
             events.MovedContent += IndexingEvents.UpdateIndex;
 
             //INFO: Might be useful later for re-indexing upon ACL changes

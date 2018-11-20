@@ -42,18 +42,24 @@ namespace Epinova.ElasticSearch.Core
         // function_score values
         private readonly List<Gauss> _gauss;
         private string _customScriptScoreSource;
+        private object _customScriptScoreParams;
         private string _customScriptScoreLanguage;
 
         public int RootId { get; private set; }
         public bool TrackSearch { get; private set; }
         public bool EnableBestBets { get; private set; }
         public bool EnableHighlight { get; private set; }
-        public Type SearchType { get; private set; }
+        public Type SearchType { get; set; }
         public Type Type { get; private set; }
         public bool IsWildcard { get; private set; }
         public Operator Operator { get; private set; }
         public string Analyzer { get; private set; }
         public string SearchText { get; private set; }
+        public string MoreLikeId { get; private set; }
+        public int MltMinTermFreq { get; private set; }
+        public int MltMinDocFreq { get; private set; }
+        public int MltMinWordLength { get; private set; }
+        public int MltMaxQueryTerms { get; set; }
         public bool UseBoosting { get; private set; }
         public int FromValue { get; private set; }
         public int SizeValue { get; private set; }
@@ -76,7 +82,6 @@ namespace Epinova.ElasticSearch.Core
         internal ElasticSearchService() : this(ServiceLocator.Current.GetInstance<IElasticSearchSettings>())
         {
         }
-
 
         internal ElasticSearchService(IElasticSearchSettings settings)
         {
@@ -101,7 +106,6 @@ namespace Epinova.ElasticSearch.Core
             _usePostfilters = true;
         }
 
-
         public IElasticSearchService<T> Boost(Expression<Func<T, object>> fieldSelector, byte weight)
         {
             var fieldName = GetFieldName(fieldSelector);
@@ -115,7 +119,6 @@ namespace Epinova.ElasticSearch.Core
             return this;
         }
 
-
         public IElasticSearchService<T> BoostByAncestor(int path, sbyte weight)
         {
             if (!BoostAncestors.ContainsKey(path))
@@ -127,12 +130,10 @@ namespace Epinova.ElasticSearch.Core
             return this;
         }
 
-
         public IElasticSearchService<T> Boost<TBoost>(sbyte weight)
         {
             return Boost(typeof(TBoost), weight);
         }
-
 
         public IElasticSearchService<T> Boost(Type type, sbyte weight)
         {
@@ -145,12 +146,10 @@ namespace Epinova.ElasticSearch.Core
             return this;
         }
 
-
         public IElasticSearchService<T> Decay(Expression<Func<T, DateTime?>> fieldSelector, TimeSpan scale = default, TimeSpan offset = default)
         {
             return Decay(GetFieldName(fieldSelector), scale, offset);
         }
-
 
         public IElasticSearchService<T> Decay(string fieldName, TimeSpan scale = default, TimeSpan offset = default)
         {
@@ -170,25 +169,23 @@ namespace Epinova.ElasticSearch.Core
             return this;
         }
 
-
-        public IElasticSearchService<T> CustomScriptScore(string script, string scriptLanguage = null)
+        public IElasticSearchService<T> CustomScriptScore(string script, string scriptLanguage = null, object parameters = null)
         {
             if (!String.IsNullOrEmpty(script))
             {
                 _customScriptScoreSource = script;
+                _customScriptScoreParams = parameters;
                 _customScriptScoreLanguage = scriptLanguage ?? "painless";
             }
 
             return this;
         }
 
-
         public IElasticSearchService<T> UseIndex(string index)
         {
             IndexName = index;
             return this;
         }
-
 
         public IElasticSearchService<T> Fuzzy(byte? length = null)
         {
@@ -197,12 +194,10 @@ namespace Epinova.ElasticSearch.Core
             return this;
         }
 
-
         public IElasticSearchService<T> Exclude<TType>()
         {
             return Exclude(typeof(TType));
         }
-
 
         public IElasticSearchService<T> Exclude(Type type)
         {
@@ -212,15 +207,13 @@ namespace Epinova.ElasticSearch.Core
             return this;
         }
 
-
-        public IElasticSearchService<T> Exclude(int root, bool recursive = true)
+        public IElasticSearchService<T> Exclude(int rootId, bool recursive = true)
         {
-            if (!ExcludedRoots.ContainsKey(root))
-                ExcludedRoots.Add(root, recursive);
+            if (!ExcludedRoots.ContainsKey(rootId))
+                ExcludedRoots.Add(rootId, recursive);
 
             return this;
         }
-
 
         public IElasticSearchService<T> From(int from)
         {
@@ -229,7 +222,6 @@ namespace Epinova.ElasticSearch.Core
             return this;
         }
 
-
         public IElasticSearchService<T> Language(CultureInfo language)
         {
             SearchLanguage = language;
@@ -237,12 +229,10 @@ namespace Epinova.ElasticSearch.Core
             return this;
         }
 
-
         public IElasticSearchService<T> Skip(int skip)
         {
             return From(skip);
         }
-
 
         public IElasticSearchService<T> Size(int size)
         {
@@ -251,12 +241,10 @@ namespace Epinova.ElasticSearch.Core
             return this;
         }
 
-
         public IElasticSearchService<T> Take(int take)
         {
             return Size(take);
         }
-
 
         public IElasticSearchService<T> NoBoosting()
         {
@@ -265,24 +253,20 @@ namespace Epinova.ElasticSearch.Core
             return this;
         }
 
-
         public IElasticSearchService<T> Get<T>()
         {
             return WildcardSearch<T>("*");
         }
-
 
         public IElasticSearchService<object> Search(string searchText, Operator @operator = Operator.Or)
         {
             return Search<object>(searchText, null, @operator);
         }
 
-
         public IElasticSearchService<T> Search<T>(string searchText, Operator @operator = Operator.Or)
         {
             return Search<T>(searchText, null, @operator);
         }
-
 
         public IElasticSearchService<T> Search<T>(string searchText, string facetFieldName,
             Operator @operator = Operator.Or)
@@ -304,14 +288,12 @@ namespace Epinova.ElasticSearch.Core
             };
         }
 
-
         public SearchResult GetResults(params string[] fields)
         {
             QuerySetup query = CreateQuery(fields);
 
             return GetResults(query);
         }
-
 
         public virtual SearchResult GetResults(int from, int size, params string[] fields)
         {
@@ -321,12 +303,10 @@ namespace Epinova.ElasticSearch.Core
             return GetResults(fields);
         }
 
-
         public async Task<SearchResult> GetResultsAsync(params string[] fields)
         {
             return await GetResultsAsync(CancellationToken.None, fields);
         }
-
 
         public async Task<SearchResult> GetResultsAsync(CancellationToken cancellationToken, params string[] fields)
         {
@@ -340,13 +320,12 @@ namespace Epinova.ElasticSearch.Core
             return await GetCustomResultsAsync(CancellationToken.None);
         }
 
-
         public async Task<CustomSearchResult<T>> GetCustomResultsAsync(CancellationToken cancellationToken)
         {
             QuerySetup query = CreateQuery();
             query.EnableDidYouMean = false;
 
-            if(!query.SearchFields.Any())
+            if (query.SearchFields.Count == 0)
                 query.SearchFields.Add(DefaultFields.All);
 
             // Always return all fields for custom objects
@@ -355,13 +334,12 @@ namespace Epinova.ElasticSearch.Core
             return await GetCustomResultsAsync<T>(query, cancellationToken);
         }
 
-
         public CustomSearchResult<T> GetCustomResults()
         {
             QuerySetup query = CreateQuery();
             //query.EnableDidYouMean = false;
 
-            if (!query.SearchFields.Any())
+            if (query.SearchFields.Count == 0)
                 query.SearchFields.Add(DefaultFields.All);
 
             // Always return all fields for custom objects
@@ -369,7 +347,6 @@ namespace Epinova.ElasticSearch.Core
 
             return GetCustomResults<T>(query);
         }
-
 
         private QuerySetup CreateQuery(params string[] fields)
         {
@@ -384,6 +361,11 @@ namespace Epinova.ElasticSearch.Core
                 Gauss = _gauss,
                 ScriptScore = CreateScriptScore(),
                 Type = Type,
+                MoreLikeId = MoreLikeId,
+                MltMinTermFreq = MltMinTermFreq,
+                MltMinDocFreq = MltMinDocFreq,
+                MltMinWordLength = MltMinWordLength,
+                MltMaxQueryTerms = MltMaxQueryTerms,
                 ExcludedTypes = _excludedTypes,
                 ExcludedRoots = ExcludedRoots,
                 Language = SearchLanguage,
@@ -418,6 +400,7 @@ namespace Epinova.ElasticSearch.Core
                 Script = new ScriptScore.ScriptScoreInner
                 {
                     Language = _customScriptScoreLanguage,
+                    Parameters = _customScriptScoreParams
                 }
             };
 
@@ -437,6 +420,27 @@ namespace Epinova.ElasticSearch.Core
             return WildcardSearch<object>(searchText);
         }
 
+        public IElasticSearchService<T> MoreLikeThis<T>(string id, int minimumTermFrequency = 1, int maxQueryTerms = 25, int minimumDocFrequency = 3, int minimumWordLength = 3)
+        {
+            return new ElasticSearchService<T>
+            {
+                MoreLikeId = id,
+                MltMinTermFreq = minimumTermFrequency,
+                MltMinDocFreq = minimumDocFrequency,
+                MltMinWordLength = minimumWordLength,
+                MltMaxQueryTerms = maxQueryTerms,
+                Type = typeof(T),
+                SearchLanguage = SearchLanguage,
+                RootId = RootId,
+                SearchType = SearchType,
+                UseBoosting = false,
+                EnableBestBets = false,
+                FromValue = FromValue,
+                SizeValue = SizeValue,
+                IsWildcard = false,
+                IndexName = IndexName
+            };
+        }
 
         public IElasticSearchService<T> WildcardSearch<T>(string searchText)
         {
@@ -457,7 +461,6 @@ namespace Epinova.ElasticSearch.Core
             };
         }
 
-
         public IElasticSearchService<T> StartFrom(int id)
         {
             RootId = id;
@@ -465,21 +468,18 @@ namespace Epinova.ElasticSearch.Core
             return this;
         }
 
-
         public IElasticSearchService<T> SortBy(Expression<Func<T, object>> fieldSelector)
         {
-            if(SortFields.Count > 0)
+            if (SortFields.Count > 0)
                 throw new InvalidOperationException("Query is already sorted. Use ThenBy or ThenByDescending to apply further sorting");
 
             return Sort(fieldSelector, false);
         }
 
-
         public IElasticSearchService<T> ThenBy(Expression<Func<T, object>> fieldSelector)
         {
             return Sort(fieldSelector, false);
         }
-
 
         public IElasticSearchService<T> SortByDescending(Expression<Func<T, object>> fieldSelector)
         {
@@ -489,12 +489,10 @@ namespace Epinova.ElasticSearch.Core
             return Sort(fieldSelector, true);
         }
 
-
         public IElasticSearchService<T> ThenByDescending(Expression<Func<T, object>> fieldSelector)
         {
             return Sort(fieldSelector, true);
         }
-
 
         private IElasticSearchService<T> Sort(Expression<Func<T, object>> fieldSelector, bool descending)
         {
@@ -504,12 +502,11 @@ namespace Epinova.ElasticSearch.Core
             {
                 FieldName = fieldInfo.Item1,
                 Direction = descending ? "desc" : "asc",
-                IsStringField = fieldInfo.Item2 == MappingType.String || fieldInfo.Item2 == MappingType.Text
+                IsStringField = fieldInfo.Item2 == MappingType.Text
             });
 
             return this;
         }
-
 
         public IElasticSearchService<T> InField(Expression<Func<T, object>> fieldSelector, bool boost)
         {
@@ -517,7 +514,6 @@ namespace Epinova.ElasticSearch.Core
 
             return InField(fieldSelector);
         }
-
 
         public IElasticSearchService<T> InField(Expression<Func<T, object>> fieldSelector)
         {
@@ -536,7 +532,6 @@ namespace Epinova.ElasticSearch.Core
             return this;
         }
 
-
         public IElasticSearchService<T> FacetsFor(Expression<Func<T, object>> fieldSelector, bool usePostFilter = true, Type explicitType = null)
         {
             _usePostfilters = usePostFilter;
@@ -548,7 +543,6 @@ namespace Epinova.ElasticSearch.Core
             return this;
         }
 
-
         public IElasticSearchService<T> Filter<TType>(string fieldName, TType filterValue, bool raw = true)
         {
             if (filterValue != null)
@@ -556,7 +550,6 @@ namespace Epinova.ElasticSearch.Core
 
             return this;
         }
-
 
         public IElasticSearchService<T> Filters<TType>(string fieldName, IEnumerable<TType> filterValues, Operator @operator = Operator.Or, bool raw = true)
         {
@@ -572,14 +565,12 @@ namespace Epinova.ElasticSearch.Core
             return this;
         }
 
-
         public IElasticSearchService<T> Filter<TType>(Expression<Func<T, TType>> fieldSelector, TType filterValue, bool raw = true)
         {
             Tuple<string, MappingType> fieldInfo = GetFieldInfo(fieldSelector);
 
             return Filter(fieldInfo.Item1, filterValue, raw);
         }
-
 
         public IElasticSearchService<T> Filter<TType>(Expression<Func<T, TType[]>> fieldSelector, TType filterValue, bool raw = true)
         {
@@ -588,14 +579,12 @@ namespace Epinova.ElasticSearch.Core
             return Filter(fieldInfo.Item1, filterValue, raw);
         }
 
-
         public IElasticSearchService<T> Filters<TType>(Expression<Func<T, TType>> fieldSelector, IEnumerable<TType> filterValues, Operator @operator = Operator.Or, bool raw = true)
         {
             Tuple<string, MappingType> fieldInfo = GetFieldInfo(fieldSelector);
 
             return Filters(fieldInfo.Item1, filterValues, @operator, raw);
         }
-
 
         public IElasticSearchService<T> Filter<TType>(Expression<Action<T>> fieldSelector, TType filterValue, bool raw = true)
         {
@@ -604,14 +593,12 @@ namespace Epinova.ElasticSearch.Core
             return Filter(fieldInfo.Item1, filterValue, raw);
         }
 
-
         public IElasticSearchService<T> Filters<TType>(Expression<Action<T>> fieldSelector, IEnumerable<TType> filterValues, Operator @operator = Operator.Or, bool raw = true)
         {
             Tuple<string, MappingType> fieldInfo = GetFieldInfo(fieldSelector);
 
             return Filters(fieldInfo.Item1, filterValues, @operator, raw);
         }
-
 
         public IElasticSearchService<T> FilterMustNot<TType>(string fieldName, TType filterValue, bool raw = true)
         {
@@ -620,7 +607,6 @@ namespace Epinova.ElasticSearch.Core
 
             return this;
         }
-
 
         public IElasticSearchService<T> FiltersMustNot<TType>(string fieldName, IEnumerable<TType> filterValues, bool raw = true)
         {
@@ -636,14 +622,12 @@ namespace Epinova.ElasticSearch.Core
             return this;
         }
 
-
         public IElasticSearchService<T> FilterMustNot<TType>(Expression<Func<T, TType>> fieldSelector, TType filterValue, bool raw = true)
         {
             Tuple<string, MappingType> fieldInfo = GetFieldInfo(fieldSelector);
 
             return FilterMustNot(fieldInfo.Item1, filterValue, raw);
         }
-
 
         public IElasticSearchService<T> FilterMustNot<TType>(Expression<Func<T, TType[]>> fieldSelector, TType filterValue, bool raw = true)
         {
@@ -652,14 +636,12 @@ namespace Epinova.ElasticSearch.Core
             return FilterMustNot(fieldInfo.Item1, filterValue, raw);
         }
 
-
         public IElasticSearchService<T> FiltersMustNot<TType>(Expression<Func<T, TType>> fieldSelector, IEnumerable<TType> filterValues, bool raw = true)
         {
             Tuple<string, MappingType> fieldInfo = GetFieldInfo(fieldSelector);
 
             return FiltersMustNot(fieldInfo.Item1, filterValues, raw);
         }
-
 
         public IElasticSearchService<T> FilterMustNot<TType>(Expression<Action<T>> fieldSelector, TType filterValue, bool raw = true)
         {
@@ -668,7 +650,6 @@ namespace Epinova.ElasticSearch.Core
             return FilterMustNot(fieldInfo.Item1, filterValue, raw);
         }
 
-
         public IElasticSearchService<T> FiltersMustNot<TType>(Expression<Action<T>> fieldSelector, IEnumerable<TType> filterValues, bool raw = true)
         {
             Tuple<string, MappingType> fieldInfo = GetFieldInfo(fieldSelector);
@@ -676,18 +657,13 @@ namespace Epinova.ElasticSearch.Core
             return FiltersMustNot(fieldInfo.Item1, filterValues, raw);
         }
 
-
         public IElasticSearchService<T> FilterGroup(Expression<Func<IFilterGroup<T>, IFilterGroup<T>>> groupExpression, Operator @operator = Operator.And)
         {
-            MethodCallExpression expression = groupExpression.Body as MethodCallExpression;
-            if (expression == null)
-                return this;
-
-            groupExpression.Compile().Invoke(new FilterGroup<T>(this, Guid.NewGuid().ToString()));
+            if (groupExpression.Body is MethodCallExpression expression)
+                groupExpression.Compile().Invoke(new FilterGroup<T>(this, Guid.NewGuid().ToString()));
 
             return this;
         }
-
 
         public IElasticSearchService<T> Track()
         {
@@ -695,13 +671,11 @@ namespace Epinova.ElasticSearch.Core
             return this;
         }
 
-
         public IElasticSearchService<T> SetAnalyzer(string analyzer)
         {
             Analyzer = analyzer;
             return this;
         }
-
 
         public IElasticSearchService<T> UseBestBets()
         {
@@ -709,120 +683,110 @@ namespace Epinova.ElasticSearch.Core
             return this;
         }
 
-
         public IElasticSearchService<T> Highlight()
         {
             EnableHighlight = true;
             return this;
         }
 
-
         internal async Task<SearchResult> GetResultsAsync(QuerySetup querySetup, CancellationToken cancellationToken)
         {
-            string language = Utilities.Language.GetLanguageCode(querySetup.Language);
-            bool newFieldsAdded = RawMapper.TryRegister(querySetup.FacetFieldNames, language);
-            await RawMapper.UpdateMappingsAsync(Type, language, newFieldsAdded, IndexName, cancellationToken);
-
             RequestBase request = _builder.TypedSearch(querySetup);
             return await _engine.QueryAsync(request, querySetup.Language, cancellationToken, IndexName);
         }
 
-
         internal SearchResult GetResults(QuerySetup querySetup)
         {
-            string language = Utilities.Language.GetLanguageCode(querySetup.Language);
-            bool newFieldsAdded = RawMapper.TryRegister(querySetup.FacetFieldNames, language);
-            RawMapper.UpdateMappings(SearchType, language, newFieldsAdded, querySetup.IndexName);
+            RequestBase request = querySetup.MoreLikeId != null
+                ? _builder.MoreLikeThis(querySetup)
+                : _builder.TypedSearch(querySetup);
 
-            RequestBase request = _builder.TypedSearch(querySetup);
             return _engine.Query(request, querySetup.Language, IndexName);
         }
 
-
         internal async Task<CustomSearchResult<T>> GetCustomResultsAsync<T>(QuerySetup querySetup, CancellationToken cancellationToken)
         {
-            string language = Utilities.Language.GetLanguageCode(querySetup.Language);
-            bool newFieldsAdded = RawMapper.TryRegister(querySetup.FacetFieldNames, language);
-            await RawMapper.UpdateMappingsAsync(SearchType, language, newFieldsAdded, querySetup.IndexName, cancellationToken);
-
             RequestBase request = _builder.TypedSearch(querySetup);
-            return  await _engine.CustomQueryAsync<T>(request, querySetup.Language, cancellationToken, IndexName);
+            return await _engine.CustomQueryAsync<T>(request, querySetup.Language, cancellationToken, IndexName);
         }
-
 
         internal CustomSearchResult<T> GetCustomResults<T>(QuerySetup querySetup)
         {
-            string language = Utilities.Language.GetLanguageCode(querySetup.Language);
-            bool newFieldsAdded = RawMapper.TryRegister(querySetup.FacetFieldNames, language);
-            RawMapper.UpdateMappings(SearchType, language, newFieldsAdded, querySetup.IndexName);
-
             RequestBase request = _builder.TypedSearch(querySetup);
             return _engine.CustomQuery<T>(request, querySetup.Language, IndexName);
         }
-
 
         internal static Tuple<string, MappingType> GetFieldInfo(Expression<Action<T>> fieldSelector, Type explicitType = null)
         {
             Tuple<string, MappingType> fieldInfo = GetFieldInfoFromExpression(fieldSelector.Body, explicitType);
 
-            return fieldInfo ?? new Tuple<string, MappingType>(fieldSelector.ToString(), MappingType.String);
+            return fieldInfo ?? new Tuple<string, MappingType>(fieldSelector.ToString(), MappingType.Text);
         }
-
 
         internal static Tuple<string, MappingType> GetFieldInfo<TProperty>(Expression<Func<T, TProperty>> fieldSelector, Type explicitType = null)
         {
             Tuple<string, MappingType> fieldInfo = GetFieldInfoFromExpression(fieldSelector.Body, explicitType);
 
-            return fieldInfo ?? new Tuple<string, MappingType>(fieldSelector.ToString(), MappingType.String);
+            return fieldInfo ?? new Tuple<string, MappingType>(fieldSelector.ToString(), MappingType.Text);
         }
-
 
         private static Tuple<string, MappingType> GetFieldInfoFromExpression(Expression expression, Type explicitType)
         {
             string fieldName;
             MappingType fieldType;
 
-            if (expression is MethodCallExpression callExpression)
+            switch (expression)
             {
-                MethodInfo methodInfo = callExpression.Method;
+                case MethodCallExpression callExpression:
+                    {
+                        MethodInfo methodInfo = callExpression.Method;
 
-                if (ArrayHelper.IsArrayCandidate(methodInfo.ReturnType))
-                    explicitType = methodInfo.ReturnType.GetTypeFromTypeCode();
+                        if (ArrayHelper.IsArrayCandidate(methodInfo.ReturnType))
+                            explicitType = methodInfo.ReturnType.GetTypeFromTypeCode();
 
-                fieldName = methodInfo.Name;
-                fieldType = Mapping.GetMappingType(explicitType ?? methodInfo.ReturnType);
+                        fieldName = methodInfo.Name;
+                        fieldType = Mapping.GetMappingType(explicitType ?? methodInfo.ReturnType);
+                        break;
+                    }
+
+                case MemberExpression memberExpression:
+                    {
+                        if (memberExpression.Member is FieldInfo fieldInfo)
+                        {
+                            var constantExpression = memberExpression.Expression as ConstantExpression;
+                            if (fieldInfo != null && constantExpression != null)
+                            {
+                                fieldName = fieldInfo.GetValue(constantExpression.Value).ToString();
+                                fieldType = Mapping.GetMappingType(explicitType ?? constantExpression.Type);
+                                break;
+                            }
+                        }
+
+                        MemberInfo memberInfo = memberExpression.Member;
+
+                        if (ArrayHelper.IsArrayCandidate(memberExpression.Type))
+                            explicitType = memberExpression.Type.GetTypeFromTypeCode();
+
+                        fieldName = memberInfo.Name;
+                        fieldType = Mapping.GetMappingType(explicitType ?? memberExpression.Type);
+                        break;
+                    }
+
+                case ConstantExpression constantExpression:
+                    if (ArrayHelper.IsArrayCandidate(constantExpression.Type))
+                        explicitType = constantExpression.Type.GetTypeFromTypeCode();
+
+                    fieldName = constantExpression.Value.ToString();
+                    fieldType = Mapping.GetMappingType(explicitType ?? constantExpression.Type);
+                    break;
+                case UnaryExpression unaryExpression:
+                    return GetFieldInfoFromExpression(unaryExpression.Operand, explicitType);
+                default:
+                    return null;
             }
-            else if (expression is MemberExpression)
-            {
-                MemberExpression memberExpression = (MemberExpression)expression;
-                MemberInfo memberInfo = memberExpression.Member;
-
-                if (ArrayHelper.IsArrayCandidate(memberExpression.Type))
-                    explicitType = memberExpression.Type.GetTypeFromTypeCode();
-
-                fieldName = memberInfo.Name;
-                fieldType = Mapping.GetMappingType(explicitType ?? memberExpression.Type);
-            }
-            else if (expression is ConstantExpression)
-            {
-                ConstantExpression constantExpression = (ConstantExpression)expression;
-
-                if (ArrayHelper.IsArrayCandidate(constantExpression.Type))
-                    explicitType = constantExpression.Type.GetTypeFromTypeCode();
-
-                fieldName = constantExpression.Value.ToString();
-                fieldType = Mapping.GetMappingType(explicitType ?? constantExpression.Type);
-            }
-            else if (expression is UnaryExpression)
-            {
-                return GetFieldInfoFromExpression(((UnaryExpression) expression).Operand, explicitType);
-            }
-            else
-                return null;
 
             return new Tuple<string, MappingType>(fieldName, fieldType);
         }
-
 
         internal static string GetFieldName(Expression<Action<T>> fieldSelector)
         {
@@ -830,7 +794,6 @@ namespace Epinova.ElasticSearch.Core
 
             return fieldInfo.Item1;
         }
-
 
         internal static string GetFieldName<TValue>(Expression<Func<T, TValue>> fieldSelector)
         {

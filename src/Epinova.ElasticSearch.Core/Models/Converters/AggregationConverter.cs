@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using Epinova.ElasticSearch.Core.Models.Query;
 using Newtonsoft.Json;
@@ -19,7 +19,7 @@ namespace Epinova.ElasticSearch.Core.Models.Converters
 
         public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
         {
-            Dictionary<string, Bucket> buckets = value as Dictionary<string, Bucket>;
+            var buckets = value as Dictionary<string, Bucket>;
             if (buckets == null)
                 return;
 
@@ -27,9 +27,7 @@ namespace Epinova.ElasticSearch.Core.Models.Converters
 
             foreach (KeyValuePair<string, Bucket> bucket in buckets)
             {
-                string name = bucket.Value.Terms.Field
-                    .Replace(Constants.RawSuffix, String.Empty)
-                    .Replace(Constants.KeywordSuffix, String.Empty);
+                string name = bucket.Value.Terms.Field.Replace(Constants.KeywordSuffix, String.Empty);
 
                 writer.WritePropertyName(name);
                 serializer.Serialize(writer, bucket.Value);

@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using Epinova.ElasticSearch.Core.Models.Query;
 using Epinova.ElasticSearch.Core.Utilities;
 using Newtonsoft.Json;
@@ -14,23 +14,19 @@ namespace Epinova.ElasticSearch.Core.Models.Converters
             return null;
         }
 
-
         public override bool CanConvert(Type objectType)
         {
             return objectType == typeof(Term);
         }
 
-
         public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
         {
-            TermItem term = value as TermItem;
+            var term = value as TermItem;
             if (term == null)
                 return;
 
             string name = term.Key;
-            if (!term.NonRaw && Server.Info.Version.Major < 5)
-                name += Constants.RawSuffix;
-            else if (!term.NonRaw && Server.Info.Version.Major >= 5 && term.Type != null && term.Type == typeof(string))
+            if (!term.NonRaw && term.Type != null && term.Type == typeof(string))
                 name += Constants.KeywordSuffix;
 
             writer.WriteStartObject();

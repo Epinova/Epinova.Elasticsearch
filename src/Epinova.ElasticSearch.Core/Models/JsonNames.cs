@@ -41,12 +41,18 @@
         public const string Keyword = "keyword";
         public const string Lang = "lang";
         public const string Lenient = "lenient";
+        public const string Like = "like";
         public const string Lte = "lte";
         public const string LuceneVersion = "lucene_version";
         public const string MappingIndex = "index";
         public const string Match = "match";
+        public const string MaxQueryTerms = "max_query_terms";
         public const string MaxScore = "max_score";
         public const string MinimumNumberShouldMatch = "minimum_number_should_match";
+        public const string MinDocFreq = "min_doc_freq";
+        public const string MinTermFreq = "min_term_freq";
+        public const string MinWordLength = "min_word_length";
+        public const string MoreLikeThis = "more_like_this";
         public const string MultiMatch = "multi_match";
         public const string Must = "must";
         public const string MustNot = "must_not";
@@ -54,6 +60,7 @@
         public const string Operator = "operator";
         public const string Options = "options";
         public const string Order = "order";
+        public const string Params = "params";
         public const string Payloads = "payloads";
         public const string PostFilter = "post_filter";
         public const string PostTags = "post_tags";

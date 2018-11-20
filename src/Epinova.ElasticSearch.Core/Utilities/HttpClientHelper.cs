@@ -12,7 +12,6 @@ using EPiServer.ServiceLocation;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
-
 namespace Epinova.ElasticSearch.Core.Utilities
 {
     internal static class HttpClientHelper
@@ -35,7 +34,7 @@ namespace Epinova.ElasticSearch.Core.Utilities
             if (!String.IsNullOrEmpty(settings.Username)
                 && !String.IsNullOrEmpty(settings.Password))
             {
-                byte[] credentials = Encoding.ASCII.GetBytes(
+                var credentials = Encoding.ASCII.GetBytes(
                     String.Concat(settings.Username, ":", settings.Password));
 
                 Client.DefaultRequestHeaders.Authorization =
@@ -247,7 +246,6 @@ namespace Epinova.ElasticSearch.Core.Utilities
                     .ConfigureAwait(false)
                     .GetAwaiter()
                     .GetResult();
-
 
                 // Assume the response is json
                 try

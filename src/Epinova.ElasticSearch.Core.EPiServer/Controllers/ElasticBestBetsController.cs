@@ -110,7 +110,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Controllers
 
             foreach (BestBet bestBet in bestBets)
             {
-                var contentLink = new ContentReference(Convert.ToInt32(bestBet.Id), bestBet.Provider);
+                var contentLink = new ContentReference(Convert.ToInt32(ContentReference.Parse(bestBet.Id).ID), bestBet.Provider);
                 if (_contentLoader.TryGet(contentLink, out IContent content))
                     bestBet.Name = content.Name;
                 yield return bestBet;

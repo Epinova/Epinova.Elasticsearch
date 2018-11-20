@@ -15,6 +15,7 @@ A search plugin for Episerver CMS and Commerce
 * Facets
 * Filtering
 * Best Bets
+* More Like This
 * Tracking/stats
 * Boosting
 * Synonyms
@@ -34,7 +35,7 @@ A search plugin for Episerver CMS and Commerce
 
 * Elasticsearch 6+ support
 * Caching
-* Compound work token filter
+* Compound word token filter
 * Utilize aliases for better downtime management
 
 
@@ -48,7 +49,10 @@ A search plugin for Episerver CMS and Commerce
 
 # Usage
 
-First of all you need to create your index. Go to the administration page via the embedded menu Search Engine -> Administration and status, then click the `Create indices` button.
+First of all you need to create your index. 
+Go to the administration page via the embedded menu Search Engine -> Administration and status, then click the `Create indices` button.
+
+This will create one index per language on your site. If you have the Commerce addon installed, additional indices for catalog content will also be created. 
 
 ![Tools](assets/index-admin.png?raw)
 
@@ -59,7 +63,8 @@ A separate index will be created for each active language on your site. If you a
 
 # Configuration
 
-You can configure your setup programmatically with the singleton `Epinova.ElasticSearch.Core.Conventions.Indexing`. Only do this once per app domain, typically in an initializable module, e.g. Application_Start().
+You can configure your setup programmatically with the singleton `Epinova.ElasticSearch.Core.Conventions.Indexing`. 
+Only do this once per appdomain, typically in an initializable module or Application_Start().
 
 A sample configuration class:
 
@@ -189,6 +194,38 @@ SearchResult result = service
    .WildcardSearch<ArticlePage>("me?t")
    .GetResults();
 ```
+
+
+### More Like This
+
+Find content similar to the document-id provided
+
+```csharp
+SearchResult result = service
+   .MoreLikeThis("42")
+   .GetResults();
+```
+
+Commerce: 
+
+```csharp
+SearchResult result = service
+   .MoreLikeThis("123__CatalogContent")
+   .GetResults();
+```
+
+Optional parameters:
+
+`minimumTermFrequency` The minimum term frequency below which the terms will be ignored from the input document. Defaults to 1.  
+`maxQueryTerms` The maximum number of query terms that will be selected. Increasing this value gives greater accuracy at the expense of query execution speed. Defaults to 25.  
+`minimumDocFrequency` The minimum document frequency below which the terms will be ignored from the input document. Defaults to 3.  
+`minimumWordLength` The minimum word length below which the terms will be ignored. Defaults to 3.  
+
+
+Gadget:
+
+![MLT Component](assets/mltcomp.png?raw)
+
 
 &nbsp;
 
@@ -529,7 +566,8 @@ public string Title { get; set; }
 &nbsp;
 
 # Listing contents
-To list contents of a certain type without any scoring or analysis, use the `Get` function. This can be used in conjunction with `SortBy` for simple listings.
+To list contents of a certain type without any scoring or analysis, use the `Get` function. 
+This can be used in conjunction with `SortBy` for simple listings.
 
 ```csharp
 SearchResult result = service
@@ -542,7 +580,8 @@ SearchResult result = service
 
 
 # Sorting
-Sorting is normally performed by Elasticsearch based on the score of each match. Manual sorting should only be used in scenarios where scoring is not relevant, e.g. when using the previously mentioned `Get` function. 
+Sorting is normally performed by Elasticsearch based on the score of each match. 
+Manual sorting should only be used in scenarios where scoring is not relevant, e.g. when using the previously mentioned `Get` function. 
 
 ```csharp
 SearchResult result = service
@@ -574,7 +613,6 @@ string[] didYouMean = result.DidYouMean; // [ "alloy", "all" ]
 
 # Episerver specifics
 
-
 ## GetContentResults
 The results returned by `GetResults()` does not have any knowledge of Episerver. Use the function `GetContentResults()` in an Episerver context.  
 This will automatically apply the filters `FilterAccess`, `FilterPublished` and `FilterTemplate`.
@@ -604,7 +642,7 @@ Content will be automatically re-indexed when performing common operations such 
 
 &nbsp;
 
-To do an initial indexing of all contents, run the scheduled task &laquo;Elasticsearch: Index EPiServer contents&raquo;
+To do an initial indexing of all contents, run the scheduled task &laquo;Elasticsearch: Index CMS content&raquo;
 
 &nbsp;
 
@@ -620,9 +658,34 @@ Re-indexing can also be triggered manually on individual content via the Tools-m
 
 &nbsp;
 
+# Episerver Commerce specifics
+
+## GetCatalogResults 
+The results returned by `GetResults()` does not have any knowledge of Episerver. Use the function `GetCatalogResults()` in an Episerver Commerce context. 
+This will automatically choose the correct index and apply the filters `FilterAccess`, `FilterPublished` and `FilterTemplate`.
+
+```csharp
+IEnumerable<ProductContent> content = service
+   .Search<ProductContent>(text)
+   .GetCatalogResults();
+```
+&nbsp;
+
+## Re-indexing content
+
+Content will be automatically re-indexed when performing common operations such as publishing, moving and deletion.
+
+&nbsp;
+
+To do an initial indexing of all contents, run the scheduled task &laquo;Elasticsearch: Index Commerce content&raquo;
+
+&nbsp;
+
+
 # N-gram / Tri-gram tokenizer
 
-You can switch between normal and tri-gram tokenizer (harcoded to min=3, max=3, tokens=digit,char) via the menu Search Engine -> Administration and status.  
+You can switch between normal and tri-gram tokenizer (hardcoded to min=3, max=3, tokens=digit,char, per Elastic recommendations) 
+via the menu Search Engine -> Administration and status.  
 
 &nbsp;
 

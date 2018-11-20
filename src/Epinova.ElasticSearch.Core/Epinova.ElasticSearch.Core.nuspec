@@ -14,7 +14,7 @@
     <copyright>Copyright 2018 - Epinova AS</copyright>
     <tags>Epinova EPiServer ElasticSearch</tags>
     <dependencies>
-      <dependency id="EPiServer.CMS.AspNet" version="[11.1, 12)" />
+      <dependency id="EPiServer.CMS.AspNet" version="[11.2.1, 12)" />
     </dependencies>
   </metadata>
   <files>

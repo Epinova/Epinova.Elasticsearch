@@ -41,6 +41,11 @@ namespace Epinova.ElasticSearch.Core.Models
         public string SortDirection { get; set; }
         public bool SortFieldTypeIsString { get; set; }
         public string SearchText { get; set; }
+        public string MoreLikeId { get; set; }
+        public int MltMinTermFreq { get; set; }
+        public int MltMinDocFreq { get; set; }
+        public int MltMinWordLength { get; set; }
+        public int MltMaxQueryTerms { get; set; }
         public bool UseBoosting { get; set; }
         public int From { get; set; }
         public int RootId { get; set; }

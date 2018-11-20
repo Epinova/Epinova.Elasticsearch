@@ -8,6 +8,7 @@ using System.Reflection;
 using System.Text;
 using Epinova.ElasticSearch.Core.Attributes;
 using Epinova.ElasticSearch.Core.Contracts;
+using Epinova.ElasticSearch.Core.Enums;
 using Epinova.ElasticSearch.Core.Events;
 using Epinova.ElasticSearch.Core.Extensions;
 using Epinova.ElasticSearch.Core.Models.Bulk;
@@ -30,16 +31,17 @@ namespace Epinova.ElasticSearch.Core
         private static readonly ILogger Logger = LogManager.GetLogger(typeof(CoreIndexer));
         private readonly IElasticSearchSettings _settings;
 
-
         public CoreIndexer(IElasticSearchSettings settings)
         {
             _settings = settings;
         }
 
+        public static event OnBeforeUpdateItem BeforeUpdateItem;
+        public static event OnAfterUpdateBestBet AfterUpdateBestBet;
 
         public BulkBatchResult Bulk(params BulkOperation[] operations)
         {
-            return Bulk(operations, s => { });
+            return Bulk(operations, _ => { });
         }
 
         public BulkBatchResult Bulk(IEnumerable<BulkOperation> operations, Action<string> logger)
@@ -72,7 +74,7 @@ namespace Epinova.ElasticSearch.Core
             var totalCount = operationList.Count;
             var counter = 0;
             var size = _settings.BulkSize;
-            while (operationList.Any())
+            while (operationList.Count > 0)
             {
                 var batch = operationList.Take(size).ToList();
 
@@ -90,12 +92,11 @@ namespace Epinova.ElasticSearch.Core
                         Logger.Information(message);
 
                         if (Logger.IsDebugEnabled())
-                            message =
-                                $"WARNING: Debug logging is enabled, this will have a huge impact on indexing-time for large structures. {message}";
+                            message = $"WARNING: Debug logging is enabled, this will have a huge impact on indexing-time for large structures. {message}";
 
                         logger(message);
 
-                        foreach (var operation in batch)
+                        foreach (BulkOperation operation in batch)
                         {
                             serializer.Serialize(tw, operation.MetaData);
                             tw.WriteLine();
@@ -105,7 +106,6 @@ namespace Epinova.ElasticSearch.Core
                     }
 
                     var payload = sb.ToString();
-
 
                     if (Logger.IsDebugEnabled())
                     {
@@ -163,7 +163,7 @@ namespace Epinova.ElasticSearch.Core
                 return;
             }
 
-            var objectType = type ?? objectToUpdate.GetType();
+            Type objectType = type ?? objectToUpdate.GetType();
 
             // IContent type, prepared by AsIndexItem()
             if (objectType.GetProperty(DefaultFields.Types) != null)
@@ -172,13 +172,15 @@ namespace Epinova.ElasticSearch.Core
                 return;
             }
 
-
             // Custom content, get values via reflection
             dynamic updateItem = new ExpandoObject();
-            foreach (var prop in objectType.GetProperties().Where(p => p.GetIndexParameters().Length == 0))
+            IEnumerable<PropertyInfo> properties = objectType.GetProperties().Where(p => p.GetIndexParameters().Length == 0);
+
+            foreach (PropertyInfo prop in properties)
             {
                 ((IDictionary<string, object>)updateItem).Add(prop.Name, prop.GetValue(objectToUpdate));
             }
+
             updateItem.Types = objectType.GetInheritancHierarchyArray();
             PerformUpdate(id, updateItem, objectType, indexName);
         }
@@ -222,6 +224,8 @@ namespace Epinova.ElasticSearch.Core
                 Logger.Debug("Firing subscribed event AfterUpdateBestBet");
                 AfterUpdateBestBet(new BestBetEventArgs { Index = indexName, Type = indexType, Id = id, Terms = terms });
             }
+
+            RefreshIndex(indexName);
         }
 
         public void UpdateMapping(Type type, string index)
@@ -247,12 +251,12 @@ namespace Epinova.ElasticSearch.Core
                 {
                     p.Name,
                     Type = p.PropertyType,
-                    Analyzable = (p.PropertyType == typeof(string) || p.PropertyType == typeof(string[])) &&
-                                (p.GetCustomAttributes(typeof(StemAttribute)).Any() || WellKnownProperties.Analyze
+                    Analyzable = ((p.PropertyType == typeof(string) || p.PropertyType == typeof(string[]))
+                                && (p.GetCustomAttributes(typeof(StemAttribute)).Any() || WellKnownProperties.Analyze
                                      .Select(w => w.ToLower())
-                                     .Contains(p.Name.ToLower()))
-                                || p.PropertyType == typeof(XhtmlString) &&
-                                !p.GetCustomAttributes(typeof(ExcludeFromSearchAttribute), true).Any()
+                                     .Contains(p.Name.ToLower())))
+                                || (p.PropertyType == typeof(XhtmlString)
+                                && p.GetCustomAttributes(typeof(ExcludeFromSearchAttribute), true).Length == 0)
                 })
                 .ToList();
 
@@ -296,7 +300,7 @@ namespace Epinova.ElasticSearch.Core
 
                     if (prop.Analyzable && language != null)
                         propertyMapping.Analyzer = Language.GetLanguageAnalyzer(language);
-                    else if (language != null && mappingType == MappingPatterns.StringType)
+                    else if (language != null && mappingType == nameof(MappingType.Text).ToLower())
                         propertyMapping.Analyzer = Language.GetSimpleLanguageAnalyzer(language);
 
                     // If mapping with different analyzer exists, use its analyzer. 
@@ -377,13 +381,6 @@ namespace Epinova.ElasticSearch.Core
 
             HttpClientHelper.GetString(new Uri(endpointUri));
         }
-
-        // ReSharper disable once EventNeverSubscribedTo.Global
-        public static event OnBeforeUpdateItem BeforeUpdateItem;
-
-        // ReSharper disable once EventNeverSubscribedTo.Global
-        public static event OnAfterUpdateBestBet AfterUpdateBestBet;
-
 
         private static JsonSerializer GetSerializer()
         {

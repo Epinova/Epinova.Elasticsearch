@@ -1,11 +1,11 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
 using EPiServer.Logging;
 
 namespace Epinova.ElasticSearch.Core.Utilities
 {
-    public class DbHelper
+    public static class DbHelper
     {
         private static readonly ILogger Log = LogManager.GetLogger(typeof(DbHelper));
 
@@ -15,7 +15,7 @@ namespace Epinova.ElasticSearch.Core.Utilities
             {
                 using (var connection = new SqlConnection(connectionString))
                 {
-                    string sql = $"IF OBJECT_ID('{table}', 'U') IS NOT NULL SELECT 'true' ELSE SELECT 'false'";
+                    var sql = $"IF OBJECT_ID('{table}', 'U') IS NOT NULL SELECT 'true' ELSE SELECT 'false'";
 
                     using (var command = new SqlCommand(sql))
                     {
@@ -30,7 +30,6 @@ namespace Epinova.ElasticSearch.Core.Utilities
                         return exists;
                     }
                 }
-
             }
             catch (Exception exception)
             {
@@ -41,7 +40,7 @@ namespace Epinova.ElasticSearch.Core.Utilities
 
         public static void CreateTable(string connectionString, string table, string definition)
         {
-            string sql = $"CREATE TABLE {table}( {definition} )";
+            var sql = $"CREATE TABLE {table}( {definition} )";
 
             try
             {
@@ -74,7 +73,7 @@ namespace Epinova.ElasticSearch.Core.Utilities
                     {
                         if (parameters != null)
                         {
-                            foreach (var kvp in parameters)
+                            foreach (KeyValuePair<string, object> kvp in parameters)
                             {
                                 command.Parameters.Add(new SqlParameter(kvp.Key, kvp.Value));
                             }

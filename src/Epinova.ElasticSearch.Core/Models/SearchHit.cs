@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using Epinova.ElasticSearch.Core.Models.Serialization;
 
 namespace Epinova.ElasticSearch.Core.Models
@@ -19,7 +19,6 @@ namespace Epinova.ElasticSearch.Core.Models
             Highlight = hit.Highlight;
             CustomProperties = new Dictionary<string, object>();
         }
-
 
         public Dictionary<string, object> CustomProperties { get; set; }
 

@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using Epinova.ElasticSearch.Core.Settings.Configuration;
 using EPiServer.Logging;
 
 namespace Epinova.ElasticSearch.Core.Conventions

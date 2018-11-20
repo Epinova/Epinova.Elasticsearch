@@ -3,7 +3,6 @@ using Epinova.ElasticSearch.Core.Attributes;
 using Epinova.ElasticSearch.Core.Models.Properties;
 using EPiServer.Core;
 using EPiServer.DataAnnotations;
-// ReSharper disable VirtualMemberNeverOverridden.Global
 
 namespace TestData
 {

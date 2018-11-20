@@ -21,9 +21,8 @@ namespace Core.Episerver.Tests.Controllers
             _contentLoaderMock = new Mock<IContentLoader>();
             _indexerMock = new Mock<IIndexer>();
 
-            _controller = new ElasticIndexerController(_contentLoaderMock.Object, _indexerMock.Object);
+            _controller = new ElasticIndexerController(_contentLoaderMock.Object, _indexerMock.Object, null);
         }
-
 
         [Theory]
         [InlineData(null)]
@@ -38,11 +37,9 @@ namespace Core.Episerver.Tests.Controllers
             Assert.Contains(error, result);
         }
 
-
         [Fact]
         public void UpdateItem_ValidContent_ReturnsOk()
         {
-            // ReSharper disable once NotAccessedVariable
             IContent content = Factory.GetPageData();
             _contentLoaderMock.Setup(m => m.TryGet(It.IsAny<ContentReference>(), out content)).Returns(true);
             _indexerMock.Setup(m => m.Update(It.IsAny<IContent>(), null)).Returns(IndexingStatus.Ok);

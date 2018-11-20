@@ -7,6 +7,11 @@ namespace TestData
     [ExcludeFromSearch]
     public class TypeWithExcludeAttribute : ContentData, IContent
     {
+        public TypeWithExcludeAttribute()
+        {
+            ContentLink = Factory.GetPageReference();
+        }
+
         #region IContent implementation
 
         public string Name
@@ -15,11 +20,7 @@ namespace TestData
             set { }
         }
 
-        public ContentReference ContentLink
-        {
-            get { return null; }
-            set { }
-        }
+        public ContentReference ContentLink { get; set; }
 
         public ContentReference ParentLink
         {

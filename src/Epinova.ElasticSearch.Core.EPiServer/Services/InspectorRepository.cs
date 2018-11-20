@@ -69,7 +69,6 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Services
                 .ToDictionary(g => g.Key, g => g.ToList());
         }
 
-
         private string GetIndexName(string languageId, string selectedIndex = null)
         {
             return selectedIndex != null
@@ -97,15 +96,13 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Services
 
         private static object CreateTypeQuery(string searchText)
         {
-            string typeKey = "Type" + (Server.Info.Version.Major >= 5 ? ".keyword" : null);
-
             var aggsQuery = new
             {
                 typesAgg = new
                 {
                     terms = new
                     {
-                        field = typeKey,
+                        field = "Type.keyword",
                         size = 200
                     }
                 }

@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using Epinova.ElasticSearch.Core.Contracts;
@@ -15,36 +14,38 @@ using EPiServer;
 using EPiServer.Core;
 using EPiServer.DataAbstraction;
 using EPiServer.PlugIn;
-using EPiServer.ServiceLocation;
-using EpiJobBase = EPiServer.Scheduler.ScheduledJobBase;
-// ReSharper disable VirtualMemberNeverOverridden.Global
+using EPiServer.Scheduler;
+using Epinova.ElasticSearch.Core.EPiServer.Extensions;
 
 namespace Epinova.ElasticSearch.Core.EPiServer.Plugin
 {
-    [ScheduledPlugIn(SortIndex = 100000, DisplayName = "Elasticsearch: Index EPiServer contents",
-        Description = "Indexes EPiServer content in Elasticsearch.")]
-    public class IndexEPiServerContent : EpiJobBase
+    [ScheduledPlugIn(
+        SortIndex = 100000,
+        DisplayName = "Elasticsearch: Index CMS content",
+        Description = "Indexes CMS content in Elasticsearch.")]
+    public class IndexEPiServerContent : ScheduledJobBase
     {
+        private readonly ILogger _logger = LogManager.GetLogger(typeof(IndexEPiServerContent));
         private readonly IContentLoader _contentLoader;
         private readonly ICoreIndexer _coreIndexer;
-
-        private readonly IElasticSearchSettings _settings;
         private readonly IIndexer _indexer;
         private readonly ILanguageBranchRepository _languageBranchRepository;
+        private readonly IElasticSearchSettings _settings;
+        protected string CustomIndexName;
 
-        private readonly ILogger _logger;
-
-        public IndexEPiServerContent()
+        public IndexEPiServerContent(
+            IContentLoader contentLoader,
+            ICoreIndexer coreIndexer,
+            IIndexer indexer,
+            ILanguageBranchRepository languageBranchRepository,
+            IElasticSearchSettings settings)
         {
+            _indexer = indexer;
+            _coreIndexer = coreIndexer;
+            _contentLoader = contentLoader;
+            _languageBranchRepository = languageBranchRepository;
+            _settings = settings;
             IsStoppable = true;
-
-            _logger = LogManager.GetLogger(typeof(IndexEPiServerContent));
-
-            _indexer = ServiceLocator.Current.GetInstance<IIndexer>();
-            _coreIndexer = ServiceLocator.Current.GetInstance<ICoreIndexer>();
-            _contentLoader = ServiceLocator.Current.GetInstance<IContentLoader>();
-            _settings = ServiceLocator.Current.GetInstance<IElasticSearchSettings>();
-            _languageBranchRepository = ServiceLocator.Current.GetInstance<ILanguageBranchRepository>();
         }
 
         private bool IsStopped { get; set; }
@@ -57,34 +58,27 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Plugin
 
         public override string Execute()
         {
-            var stopwatch = Stopwatch.StartNew();
             var finalStatus = new StringBuilder();
             var skippedReason = new StringBuilder();
             var results = new BulkBatchResult();
             var bulkCounter = 1;
+            var logMessage = $"Indexing starting. Content retrived and indexed in bulks of {_settings.BulkSize} items.";
 
-            string logging = $"Indexing starting. Content retrived and indexed in bulks of {_settings.BulkSize} items.";
-
-            _logger.Information(logging);
-            OnStatusChanged(logging);
+            _logger.Information(logMessage);
+            OnStatusChanged(logMessage);
 
             try
             {
                 var languages = _languageBranchRepository.ListEnabled();
                 var contentReferences = GetContentReferences();
 
-                logging = $"Retrieved {contentReferences.Count} ContentReference items from the following languages: {string.Join(", ", languages.Select(l => l.LanguageID))}";
-                _logger.Information(logging);
-                OnStatusChanged(logging);
+                logMessage = $"Retrieved {contentReferences.Count} ContentReference items from the following languages: {String.Join(", ", languages.Select(l => l.LanguageID))}";
+                _logger.Information(logMessage);
+                OnStatusChanged(logMessage);
 
-                //
-                while (contentReferences.Any())
+                while (contentReferences.Count > 0)
                 {
                     var contents = GetDescendentContents(contentReferences.Take(_settings.BulkSize).ToList(), languages, bulkCounter);
-                    Type[] contentTypes = contents.Select(c => c.GetOriginalType()).Distinct().ToArray();
-
-                    UpdateMappings(languages, contentTypes);
-
                     var batchResult = IndexContents(contents, bulkCounter);
                     results.Batches.AddRange(batchResult.Batches);
 
@@ -95,6 +89,8 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Plugin
                     bulkCounter++;
                 }
 
+                UpdateMappings(languages, CustomIndexName);
+
                 if (IsStopped)
                     return "Aborted by user";
             }
@@ -103,22 +99,17 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Plugin
                 _logger.Error(ex.Message, ex);
                 finalStatus.AppendLine();
                 finalStatus.AppendLine(ex.Message);
-                finalStatus.AppendLine("<pre>" + ex.StackTrace + "</pre>");
-
+                finalStatus.Append("<pre>").Append(ex.StackTrace).AppendLine("</pre>");
                 // If we re-throw here, stacktrace won't be displayed
             }
 
-            stopwatch.Stop();
-
-            var finished = String.Format("Indexing complete. Content retrieved and indexed in {1} bulks of {3} items. Processed {2} batches of {3} items, for a total of {4} items to Elasticsearch index. Time elapsed: {0}. ",
-                bulkCounter, stopwatch.Elapsed, results.Batches.Count,
-                _settings.BulkSize, results.Batches.Sum(b => b.Items.Length));
+            var finished = $"Processed {results.Batches.Count} batches of {_settings.BulkSize} items, for a total of {results.Batches.Sum(b => b.Items.Length)} items to Elasticsearch index.";
 
             for (var i = 1; i <= results.Batches.Count; i++)
             {
                 if (results.Batches[i - 1].Errors)
                 {
-                    var message = " Batch " + i + " failed.";
+                    var message = $" Batch {i} failed.";
 
                     foreach (var item in results.Batches[i - 1].Items.Where(item => item.Status >= 400))
                     {
@@ -141,7 +132,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Plugin
             return finalStatus.ToString();
         }
 
-        private void UpdateMappings(IList<LanguageBranch> languages, Type[] contentTypes, string indexName = null)
+        private void UpdateMappings(IList<LanguageBranch> languages, string indexName = null)
         {
             // Update mappings
             foreach (var language in languages.Select(l => l.LanguageID))
@@ -150,8 +141,9 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Plugin
                 {
                     if (String.IsNullOrWhiteSpace(indexName))
                         indexName = _settings.GetDefaultIndexName(language);
+                    else
+                        indexName = _settings.GetCustomIndexName(indexName, language);
 
-                    OnStatusChanged("Initializing index '" + indexName + "'");
                     _logger.Debug("Index: " + indexName);
 
                     var indexing = new Indexing(_settings);
@@ -161,16 +153,10 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Plugin
 
                     OnStatusChanged("Updating mapping for index " + indexName);
 
-                    foreach (Type type in contentTypes)
-                    {
-                        if (Indexer.IsExludedType(type))
-                        {
-                            _logger.Information($"Skipping excluded type '{type.FullName}'");
-                            continue;
-                        }
+                    _coreIndexer.UpdateMapping(typeof(IndexItem), typeof(IndexItem), indexName);
 
-                        _coreIndexer.UpdateMapping(type, typeof(IndexItem), indexName);
-                    }
+                    ContentExtensions.CreateAnalyzedMappingsIfNeeded(typeof(IndexItem), language, indexName);
+                    ContentExtensions.CreateDidYouMeanMappingsIfNeeded(typeof(IndexItem), language, indexName);
                 }
                 catch (Exception ex)
                 {
@@ -184,12 +170,12 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Plugin
             List<IContent> contentToIndex = GetContentToIndex(contentItems, bulkCounter);
 
             // Perform bulk update
-            OnStatusChanged($"Bulk{bulkCounter} - Preparing bulk update of {contentToIndex.Count} items...");
+            OnStatusChanged($"Bulk {bulkCounter} - Preparing bulk update of {contentToIndex.Count} items...");
             return _indexer.BulkUpdate(contentToIndex, str =>
             {
                 OnStatusChanged(str);
                 _logger.Debug(str);
-            });
+            }, CustomIndexName);
         }
 
         protected virtual List<ContentReference> GetContentReferences()
@@ -201,7 +187,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Plugin
         protected virtual List<IContent> GetDescendentContents(List<ContentReference> contentReferences,
             IList<LanguageBranch> languages, int bulkCounter)
         {
-            OnStatusChanged($"Bulk{bulkCounter} - Loading all contents from database...");
+            OnStatusChanged($"Bulk {bulkCounter} - Loading all contents from database...");
 
             var contentItems = new List<IContent>();
 
@@ -225,7 +211,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Plugin
                 counter++;
 
                 if (counter % 100 == 0)
-                    OnStatusChanged($"Bulk{bulkCounter} - Analyzing content item {counter} of {contentItems.Count}...");
+                    OnStatusChanged($"Bulk {bulkCounter} - Analyzing content item {counter} of {contentItems.Count}...");
 
                 if (IsStopped)
                     return contentToIndex;
@@ -241,7 +227,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Plugin
                 if (_logger.IsDebugEnabled())
                 {
                     _logger.Debug("Indexable properties:");
-                    indexableProperties.ForEach(p => { _logger.Debug(p.Key); });
+                    indexableProperties.ForEach(p => _logger.Debug(p.Key));
                 }
 
                 contentToIndex.Add(content);

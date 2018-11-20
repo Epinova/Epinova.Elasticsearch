@@ -26,7 +26,6 @@ namespace Core.Episerver.Tests.Extensions
             _content.Name = "Foo";
         }
 
-
         [Theory]
         [InlineData(DefaultFields.Id, 100)]
         [InlineData(DefaultFields.ParentLink, 200)]
@@ -52,7 +51,6 @@ namespace Core.Episerver.Tests.Extensions
 
             Assert.Equal(expected, result);
         }
-
 
         [Fact]
         public void AsIndexItem_SetsTypeHierarchy()

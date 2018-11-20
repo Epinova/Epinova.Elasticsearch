@@ -11,7 +11,6 @@ using Epinova.ElasticSearch.Core.Settings;
 using Epinova.ElasticSearch.Core.Utilities;
 using EPiServer.Core;
 using EPiServer.ServiceLocation;
-// ReSharper disable MemberCanBePrivate.Global
 
 namespace Epinova.ElasticSearch.Core.EPiServer.Extensions
 {
@@ -24,12 +23,12 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Extensions
 
         public static IElasticSearchService<T> Exclude<T>(this IElasticSearchService<T> service, ContentReference root, bool recursive = true)
         {
-            return service.Exclude(root.ID);
+            return service.Exclude(root.ID, recursive);
         }
 
         public static IElasticSearchService<T> Exclude<T>(this IElasticSearchService<T> service, IContent root, bool recursive = true)
         {
-            return service.Exclude(root.ContentLink.ID);
+            return service.Exclude(root.ContentLink.ID, recursive);
         }
 
         public static IElasticSearchService<T> BoostByAncestor<T>(this IElasticSearchService<T> service, ContentReference path, sbyte weight)
@@ -74,7 +73,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Extensions
 
             var repository = ServiceLocator.Current.GetInstance<IAutoSuggestRepository>();
             var editorialSuggestions = repository.GetWords(Language.GetLanguageCode(service.CurrentLanguage))
-                .Where(w => w != null && w.StartsWith(searchText));
+                .Where(w => w?.StartsWith(searchText) == true);
 
             return editorialSuggestions.Concat(elasticSuggestions).Distinct().ToArray();
         }
