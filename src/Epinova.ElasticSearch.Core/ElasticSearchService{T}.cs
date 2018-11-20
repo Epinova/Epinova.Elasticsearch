@@ -42,6 +42,7 @@ namespace Epinova.ElasticSearch.Core
         // function_score values
         private readonly List<Gauss> _gauss;
         private string _customScriptScoreSource;
+        private object _customScriptScoreParams;
         private string _customScriptScoreLanguage;
 
         public int RootId { get; private set; }
@@ -163,11 +164,12 @@ namespace Epinova.ElasticSearch.Core
             return this;
         }
 
-        public IElasticSearchService<T> CustomScriptScore(string script, string scriptLanguage = null)
+        public IElasticSearchService<T> CustomScriptScore(string script, string scriptLanguage = null, object parameters = null)
         {
             if (!String.IsNullOrEmpty(script))
             {
                 _customScriptScoreSource = script;
+                _customScriptScoreParams = parameters;
                 _customScriptScoreLanguage = scriptLanguage ?? "painless";
             }
 
@@ -388,6 +390,7 @@ namespace Epinova.ElasticSearch.Core
                 Script = new ScriptScore.ScriptScoreInner
                 {
                     Language = _customScriptScoreLanguage,
+                    Parameters = _customScriptScoreParams
                 }
             };
 
