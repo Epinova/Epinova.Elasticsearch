@@ -20,14 +20,7 @@ namespace Epinova.ElasticSearch.Core
             "Description"
         };
 
-        public static readonly string[] ExcludeFromAll =
-        {
-            DefaultFields.Path
-        };
-
-
         public static readonly string[] Highlight;
-
 
         public static readonly string[] IgnoreDidYouMean =
         {
@@ -45,7 +38,6 @@ namespace Epinova.ElasticSearch.Core
             DefaultFields.Type,
             DefaultFields.Types
         };
-
 
         public static readonly string[] Ignore =
         {

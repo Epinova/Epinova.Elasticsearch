@@ -59,6 +59,7 @@ namespace Epinova.ElasticSearch.Core.Utilities
                 _all = new {analyzer = "snowball"},
                 properties = new
                 {
+                    Id = new { type = "long" },
                     Attachment = new
                     {
                         type = nameof(MappingType.Attachment).ToLower(),
@@ -72,13 +73,12 @@ namespace Epinova.ElasticSearch.Core.Utilities
                             }
                         }
                     },
-                    Id = new { type = "long", include_in_all = false },
                     _bestbets = new {
                         type = nameof(MappingType.Text).ToLower(),
                         fields = Fields
                     },
-                    ParentLink = new { type = "long", include_in_all = false },
-                    Path = new { type = "long", include_in_all = false },
+                    ParentLink = new { type = "long" },
+                    Path = new { type = "long" },
                     Lang = new { type = nameof(MappingType.Text).ToLower() },
                     DidYouMean = new { type = nameof(MappingType.Text).ToLower(), analyzer = languageName + "_suggest", fields = new { raw = new { analyzer = "raw", type = nameof(MappingType.Text).ToLower() } } },
                     Suggest = SuggestMapping,

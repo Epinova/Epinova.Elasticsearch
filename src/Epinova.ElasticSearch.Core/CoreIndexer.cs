@@ -318,9 +318,6 @@ namespace Epinova.ElasticSearch.Core
                     if (String.IsNullOrEmpty(propertyMapping.Type) || propertyMapping.Type != mappingType)
                         propertyMapping.Type = mappingType;
 
-                    if (WellKnownProperties.ExcludeFromAll.Contains(propName))
-                        propertyMapping.IncludeInAll = false;
-
                     mapping.AddOrUpdateProperty(propName, propertyMapping);
 
                     if (Logger.IsDebugEnabled())

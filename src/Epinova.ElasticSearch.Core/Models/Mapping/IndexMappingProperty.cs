@@ -18,9 +18,6 @@ namespace Epinova.ElasticSearch.Core.Models.Mapping
         [JsonProperty(JsonNames.Format)]
         public string Format { get; set; }
 
-        [JsonProperty(JsonNames.IncludeInAll)]
-        public bool? IncludeInAll { get; set; }
-
         [JsonProperty(JsonNames.FieldData)]
         public bool? FieldData { get; set; }
 

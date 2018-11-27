@@ -33,7 +33,6 @@
         public const string Id = "_id";
         public const string Inline = "inline";
         public const string IgnoreAbove = "ignore_above";
-        public const string IncludeInAll = "include_in_all";
         public const string Index = "_index";
         public const string Input = "input";
         public const string Key = "key";
