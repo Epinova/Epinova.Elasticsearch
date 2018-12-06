@@ -31,7 +31,15 @@ namespace Epinova.ElasticSearch.Core.Settings
                 if (_commerceEnabled.HasValue)
                     return _commerceEnabled.Value;
 
-                _commerceEnabled = Assembly.Load("Epinova.ElasticSearch.Core.EPiServer.Commerce") != null;
+                try
+                {
+                    _commerceEnabled = Assembly.Load("Epinova.ElasticSearch.Core.EPiServer.Commerce") != null;
+                }
+                catch
+                {
+                    _commerceEnabled = false;
+                }
+                
                 return _commerceEnabled.Value;
             }
         }
