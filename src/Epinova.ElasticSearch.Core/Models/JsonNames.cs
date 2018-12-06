@@ -47,7 +47,7 @@
         public const string Match = "match";
         public const string MaxQueryTerms = "max_query_terms";
         public const string MaxScore = "max_score";
-        public const string MinimumNumberShouldMatch = "minimum_number_should_match";
+        public const string MinimumNumberShouldMatch = "minimum_should_match";
         public const string MinDocFreq = "min_doc_freq";
         public const string MinTermFreq = "min_term_freq";
         public const string MinWordLength = "min_word_length";

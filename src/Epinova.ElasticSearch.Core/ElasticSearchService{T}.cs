@@ -301,6 +301,7 @@ namespace Epinova.ElasticSearch.Core
         {
             return await GetCustomResultsAsync(CancellationToken.None);
         }
+        
         public async Task<CustomSearchResult<T>> GetCustomResultsAsync(CancellationToken cancellationToken)
         {
             QuerySetup query = CreateQuery();
@@ -314,6 +315,7 @@ namespace Epinova.ElasticSearch.Core
 
             return await GetCustomResultsAsync<T>(query, cancellationToken);
         }
+        
         public CustomSearchResult<T> GetCustomResults()
         {
             QuerySetup query = CreateQuery();

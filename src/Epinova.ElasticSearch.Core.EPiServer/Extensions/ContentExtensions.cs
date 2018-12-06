@@ -94,9 +94,22 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Extensions
         }
 
         public static ContentSearchResult<T> GetContentResults<T>(
+            this IElasticSearchService<T> service) where T : IContentData
+        {
+            return service.GetContentResults(false, null);
+        }
+
+        public static ContentSearchResult<T> GetContentResults<T>(
             this IElasticSearchService<T> service,
-            bool requirePageTemplate = false,
-            string[] providerNames = null) where T : IContentData
+            bool requirePageTemplate) where T : IContentData
+        {
+            return service.GetContentResults(requirePageTemplate, null);
+        }
+        
+        public static ContentSearchResult<T> GetContentResults<T>(
+            this IElasticSearchService<T> service,
+            bool requirePageTemplate,
+            string[] providerNames) where T : IContentData
         {
             SearchResult results = service.GetResults();
             var hits = new List<ContentSearchHit<T>>();
@@ -120,19 +133,12 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Extensions
             return new ContentSearchResult<T>(results, hits);
         }
 
-        public static ContentSearchResult<T> GetContentResults<T>(
-            this IElasticSearchService<T> service,
-            bool requirePageTemplate = false) where T : IContentData
-        {
-            return service.GetContentResults(requirePageTemplate, null);
-        }
-
         internal static ContentSearchResult<T> GetContentResults<T>(
             this IElasticSearchService<T> service,
             bool requirePageTemplate,
             string[] providerNames,
-            bool enableHighlighting = true,
-            bool enableDidYouMean = true) where T : IContentData
+            bool enableHighlighting,
+            bool enableDidYouMean) where T : IContentData
         {
             SearchResult results = service.GetResults(enableHighlighting, enableDidYouMean);
             var hits = new List<ContentSearchHit<T>>();

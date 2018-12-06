@@ -41,7 +41,7 @@ namespace Epinova.ElasticSearch.Core.Utilities
 
         private static IndexMappingProperty SuggestMapping => new IndexMappingProperty { Type = "completion", Analyzer = "suggest" };
 
-        internal static readonly dynamic Fields = new { keyword = new { ignore_above = 256, type = JsonNames.Keyword } };
+        private static readonly dynamic Fields = new { keyword = new { ignore_above = 256, type = JsonNames.Keyword } };
 
         internal static string GetDisableDynamicMapping(string typeName)
         {
@@ -56,23 +56,10 @@ namespace Epinova.ElasticSearch.Core.Utilities
         {
             return new
             {
-                _all = new {analyzer = "snowball"},
+                //_all = new {analyzer = "snowball"},
                 properties = new
                 {
                     Id = new { type = "long" },
-                    Attachment = new
-                    {
-                        type = nameof(MappingType.Attachment).ToLower(),
-                        fields = new
-                        {
-                            content = new
-                            {
-                                type = nameof(MappingType.Text).ToLower(),
-                                term_vector = "with_positions_offsets",
-                                store = true
-                            }
-                        }
-                    },
                     _bestbets = new {
                         type = nameof(MappingType.Text).ToLower(),
                         fields = Fields
@@ -83,16 +70,41 @@ namespace Epinova.ElasticSearch.Core.Utilities
                     DidYouMean = new { type = nameof(MappingType.Text).ToLower(), analyzer = languageName + "_suggest", fields = new { raw = new { analyzer = "raw", type = nameof(MappingType.Text).ToLower() } } },
                     Suggest = SuggestMapping,
                     Type = new { type = nameof(MappingType.Text).ToLower(), analyzer = "raw" },
-                    Types = new { type = nameof(MappingType.Text).ToLower(), analyzer = "raw" }
+                    Types = new { type = nameof(MappingType.Text).ToLower(), analyzer = "raw" },
+                    _attachmentdata = new { type = nameof(MappingType.Text).ToLower() },
+                    attachment = GetAttachmentMapping(languageName)
                 }
             };
         }
 
+        private static dynamic GetAttachmentMapping(string languageName)
+        {
+            return new
+            {
+                properties = new
+                {
+                    content = new
+                    {
+                        type = nameof(MappingType.Text).ToLower(),
+                        analyzer = languageName,
+                        fields = new
+                        {
+                            keyword = new
+                            {
+                                type = "keyword",
+                                ignore_above = 256
+                            }
+                        }
+                    }
+                }
+            };
+        }
+        
         internal static dynamic GetCustomIndexMapping(string languageName)
         {
             return new
             {
-                _all = new { analyzer = "snowball" },
+                //_all = new { analyzer = "snowball" },
                 properties = new
                 {
                     _bestbets = new { type = nameof(MappingType.Text).ToLower() },

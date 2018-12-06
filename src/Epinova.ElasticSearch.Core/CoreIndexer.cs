@@ -11,6 +11,7 @@ using Epinova.ElasticSearch.Core.Contracts;
 using Epinova.ElasticSearch.Core.Enums;
 using Epinova.ElasticSearch.Core.Events;
 using Epinova.ElasticSearch.Core.Extensions;
+using Epinova.ElasticSearch.Core.Models;
 using Epinova.ElasticSearch.Core.Models.Bulk;
 using Epinova.ElasticSearch.Core.Models.Converters;
 using Epinova.ElasticSearch.Core.Models.Mapping;
@@ -258,6 +259,7 @@ namespace Epinova.ElasticSearch.Core
                                 || (p.PropertyType == typeof(XhtmlString)
                                 && p.GetCustomAttributes(typeof(ExcludeFromSearchAttribute), true).Length == 0)
                 })
+                .Where(p => p.Name != nameof(IndexItem.Type))
                 .ToList();
 
             // Custom properties marked for stemming
@@ -268,7 +270,7 @@ namespace Epinova.ElasticSearch.Core
                     c.Type,
                     Analyzable = WellKnownProperties.Analyze.Select(w => w.ToLower()).Contains(c.Name.ToLower())
                 }));
-
+                
             Logger.Information("IndexableProperties for " + type?.Name + ": " + String.Join(", ", indexableProperties.Select(p => p.Name)));
 
             // Get existing mapping
