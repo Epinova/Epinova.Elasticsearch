@@ -14,7 +14,7 @@ namespace Epinova.ElasticSearch.Core.Models.Query
         [JsonProperty(JsonNames.Should)]
         public List<MatchBase> Should { get; set; } = new List<MatchBase>();
 
-        [JsonIgnore]
+        [JsonProperty(JsonNames.MinimumNumberShouldMatch)]
         public int? MinimumNumberShouldMatch { get; set; }
 
         [JsonProperty(JsonNames.Filter)]
