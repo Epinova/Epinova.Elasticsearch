@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Net;
+using System.Text;
 using Epinova.ElasticSearch.Core.Admin;
 using EPiServer.Logging;
 using Epinova.ElasticSearch.Core.Settings;
@@ -30,7 +31,19 @@ namespace Epinova.ElasticSearch.Core.Utilities
         {
             Logger.Information("Creating index '" + indexName + "'");
 
-            HttpClientHelper.Put(GetUri(indexName));
+            var settings = new
+            {
+                settings = new
+                {
+                    number_of_shards = _settings.NumberOfShards > 0 ? _settings.NumberOfShards : 5,
+                    number_of_replicas = _settings.NumberOfReplicas > 0 ? _settings.NumberOfReplicas : 1
+                }
+            };
+            
+            string json = Serialization.Serialize(settings);
+            byte[] data = Encoding.UTF8.GetBytes(json);
+            
+            HttpClientHelper.Put(GetUri(indexName), data);
         }
 
         public bool IndexExists(string indexName)
