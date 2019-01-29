@@ -274,8 +274,7 @@ namespace Epinova.ElasticSearch.Core.Engine
 
             var endpoint = $"{_elasticSearchSettings.Host}/{indexName}/_suggest";
 
-            Logger.Information(
-                $"GetSuggestions query:\nGET {endpoint}\n{request?.ToString(Formatting.Indented)}\n");
+            Logger.Information($"GetSuggestions query:\nGET {endpoint}\n{request?.ToString(Formatting.Indented)}\n");
 
             JsonReader response = GetResponse(request, endpoint, out _);
 
