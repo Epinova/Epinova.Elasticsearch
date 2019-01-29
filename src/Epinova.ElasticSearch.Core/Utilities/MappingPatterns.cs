@@ -56,7 +56,6 @@ namespace Epinova.ElasticSearch.Core.Utilities
         {
             return new
             {
-                //_all = new {analyzer = "snowball"},
                 properties = new
                 {
                     Id = new { type = "long" },
@@ -104,7 +103,6 @@ namespace Epinova.ElasticSearch.Core.Utilities
         {
             return new
             {
-                //_all = new { analyzer = "snowball" },
                 properties = new
                 {
                     _bestbets = new { type = nameof(MappingType.Text).ToLower() },

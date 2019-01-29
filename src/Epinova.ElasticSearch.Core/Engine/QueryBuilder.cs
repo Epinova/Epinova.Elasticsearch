@@ -176,7 +176,7 @@ namespace Epinova.ElasticSearch.Core.Engine
                     request.Query.Bool.Should.Add(
                         new MatchMulti(
                             request.Query.SearchText,
-                            new List<string> { DefaultFields.All },
+                            setup.SearchFields,
                             setup.Operator,
                             "phrase",
                             2));

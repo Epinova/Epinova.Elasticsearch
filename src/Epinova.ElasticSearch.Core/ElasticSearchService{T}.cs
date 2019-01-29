@@ -307,9 +307,6 @@ namespace Epinova.ElasticSearch.Core
             QuerySetup query = CreateQuery();
             query.EnableDidYouMean = false;
 
-            if (query.SearchFields.Count == 0)
-                query.SearchFields.Add(DefaultFields.All);
-
             // Always return all fields for custom objects
             query.ReturnFields = null;
 
@@ -319,8 +316,6 @@ namespace Epinova.ElasticSearch.Core
         public CustomSearchResult<T> GetCustomResults()
         {
             QuerySetup query = CreateQuery();
-            if (query.SearchFields.Count == 0)
-                query.SearchFields.Add(DefaultFields.All);
 
             // Always return all fields for custom objects
             query.ReturnFields = null;
