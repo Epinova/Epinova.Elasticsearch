@@ -91,7 +91,7 @@ namespace Epinova.ElasticSearch.Core.Services
 
             return results.Select(r => new Tracking
             {
-                Query = Convert.ToString(r["Query"]),
+                Query = Convert.ToString(r["Query"])?.Replace('\\', ' '),
                 Searches = Convert.ToInt64(r["Searches"])
             });
         }
@@ -111,7 +111,7 @@ namespace Epinova.ElasticSearch.Core.Services
 
             return results.Select(r => new Tracking
             {
-                Query = Convert.ToString(r["Query"]),
+                Query = Convert.ToString(r["Query"])?.Replace('\\', ' '),
                 Searches = Convert.ToInt64(r["Searches"])
             });
         }

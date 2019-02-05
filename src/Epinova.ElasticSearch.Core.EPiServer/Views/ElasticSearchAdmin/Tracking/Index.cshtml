@@ -86,7 +86,7 @@
                     .renderArray([
                         @foreach (KeyValuePair<string, long> search in lang.Searches)
                         {
-                            <text>{ word: htmlDecode("@search.Key"), count: "@search.Value" }</text>
+                            <text>{ word: htmlDecode("@Html.Raw(search.Key)"), count: "@search.Value" }</text>
                             @(search.Key != lang.Searches.Last().Key ? "," : null)
                         }
                     ]);
@@ -106,7 +106,7 @@
                     .renderArray([
                         @foreach (KeyValuePair<string, long> search in lang.Searches)
                         {
-                            <text>{ word: htmlDecode("@search.Key"), count: "@search.Value" }</text>
+                            <text>{ word: htmlDecode("@Html.Raw(search.Key)"), count: "@search.Value" }</text>
                             @(search.Key != lang.Searches.Last().Key ? "," : null)
                         }
                     ]);
