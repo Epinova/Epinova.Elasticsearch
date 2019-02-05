@@ -45,7 +45,7 @@ A search plugin for Episerver CMS and Commerce
 * Episerver CMS 11+
 * Episerver Commerce 11.5+
 * Elasticsearch >5.1.1 && <6
-* Mapper Attachment Plugin
+* Ingest Attachment Processor Plugin
 
 # Usage
 
@@ -799,3 +799,4 @@ Custom objects do not require an `Id` property (or corresponding argument in the
 
 # See also
 * [Installation](setup.md)
+* [Changelog](changelog.md)
