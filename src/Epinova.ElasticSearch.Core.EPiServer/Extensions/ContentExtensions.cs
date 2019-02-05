@@ -392,7 +392,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Extensions
                 return false;
 
             if (attachmentData != null)
-                dictionary.Add(DefaultFields.Attachment, attachmentData);
+                dictionary.Add(DefaultFields.AttachmentData, attachmentData);
 
             return true;
         }

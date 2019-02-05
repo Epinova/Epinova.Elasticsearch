@@ -13,7 +13,8 @@
                 {
                     attachment = new
                     {
-                        field = DefaultFields.AttachmentData
+                        field = DefaultFields.AttachmentData,
+                        ignore_missing = true
                     }
                 }
             }

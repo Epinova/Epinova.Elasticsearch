@@ -27,8 +27,8 @@ namespace Epinova.ElasticSearch.Core.Models
         public string attachment { get; set; }
         public SuggestionItem Suggest { get; set; }
 
-        [JsonProperty(DefaultFields.AttachmentData), JsonIgnore]
-        public string AttachmentData { get; set; }
+        [JsonIgnore]
+        public string _attachmentdata { get; set; }
 
         public class SuggestionItem
         {

@@ -105,6 +105,22 @@ namespace Epinova.ElasticSearch.Core.Utilities
                                 ignore_above = 256
                             }
                         }
+                    },
+                    title = new
+                    {
+                        type = nameof(MappingType.Text).ToLower(),
+                    },
+                    language = new
+                    {
+                        type = nameof(MappingType.Text).ToLower(),
+                    },
+                    content_type = new
+                    {
+                        type = nameof(MappingType.Text).ToLower(),
+                    },
+                    content_length = new
+                    {
+                        type = nameof(MappingType.Integer).ToLower(),
                     }
                 }
             };

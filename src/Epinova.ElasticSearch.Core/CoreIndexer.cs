@@ -54,7 +54,7 @@ namespace Epinova.ElasticSearch.Core
 
             JsonSerializer serializer = GetSerializer();
 
-            var uri = $"{_settings.Host}/_bulk";
+            var uri = $"{_settings.Host}/_bulk?pipeline={Pipelines.Attachment.Name}";
 
             var operationList = operations.ToList();
 
@@ -259,7 +259,10 @@ namespace Epinova.ElasticSearch.Core
                                 || (p.PropertyType == typeof(XhtmlString)
                                 && p.GetCustomAttributes(typeof(ExcludeFromSearchAttribute), true).Length == 0)
                 })
-                .Where(p => p.Name != nameof(IndexItem.Type))
+                .Where(p => p.Name != nameof(IndexItem.Type) 
+                            && p.Name != nameof(IndexItem._bestbets) 
+                            && p.Name != nameof(IndexItem.attachment) 
+                            && p.Name != nameof(IndexItem._attachmentdata))
                 .ToList();
 
             // Custom properties marked for stemming
