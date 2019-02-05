@@ -140,7 +140,6 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Contracts
             if (IsExludedByRoot(content))
                 return IndexingStatus.ExcludedByConvention;
             
-            _coreIndexer.UpdateMapping(content.GetOriginalType(), typeof(IndexItem), indexName);
             _coreIndexer.Update(content.ContentLink.ToReferenceWithoutVersion().ToString(), content.AsIndexItem(), indexName, typeof(IndexItem));
 
             return IndexingStatus.Ok;

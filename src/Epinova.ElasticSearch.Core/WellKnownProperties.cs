@@ -39,6 +39,22 @@ namespace Epinova.ElasticSearch.Core
             DefaultFields.Types
         };
 
+        public static readonly string[] IgnoreAnalyzer =
+        {
+            DefaultFields.Id,
+            DefaultFields.BestBets,
+            DefaultFields.ParentLink,
+            DefaultFields.Path,
+            DefaultFields.Name,
+            DefaultFields.Lang,
+            DefaultFields.DidYouMean,
+            DefaultFields.Suggest,
+            DefaultFields.Type,
+            DefaultFields.Types,
+            DefaultFields.Attachment,
+            DefaultFields.AttachmentData,
+        };
+
         public static readonly string[] Ignore =
         {
             "CreatedBy",

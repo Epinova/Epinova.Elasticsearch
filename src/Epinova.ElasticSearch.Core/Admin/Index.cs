@@ -110,6 +110,24 @@ namespace Epinova.ElasticSearch.Core.Admin
                 return false;
             }
         }
+        
+        internal int GetDocumentCount()
+        {
+            var uri = _indexing.GetUri(_name, "_search") + "?size=0";
+            dynamic model = new { hits = new { total = 0 } };
+            
+            try
+            {
+                string response = HttpClientHelper.GetString(new Uri(uri));
+                var result = JsonConvert.DeserializeAnonymousType(response, model);
+                return result.hits.total;
+            }
+            catch (Exception ex)
+            {
+                Logger.Error("Could not get count", ex);
+                return 0;
+            }
+        }
 
         internal void Initialize(Type type)
         {
@@ -250,7 +268,7 @@ namespace Epinova.ElasticSearch.Core.Admin
             var uri = _indexing.GetUri(_name, "_settings");
             HttpClientHelper.Put(uri, data);
 
-            Logger.Information($"Adding raw analyzer:\n{json}");
+            Logger.Information($"Adding raw analyzer:\n{JToken.Parse(json).ToString(Formatting.Indented)}");
         }
 
         private void CreateSuggestAnalyzer()

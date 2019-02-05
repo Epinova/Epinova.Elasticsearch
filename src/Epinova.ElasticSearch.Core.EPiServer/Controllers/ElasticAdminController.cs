@@ -85,11 +85,12 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Controllers
                     {
                         index.Initialize(indexType);
                         index.WaitForStatus();
+                        index.DisableDynamicMapping(indexType);
+                        index.WaitForStatus();
                     }
 
                     if (IsCustomType(indexType))
                     {
-                        index.DisableDynamicMapping(indexType);
                         _coreIndexer.UpdateMapping(indexType, indexType, indexName, lang, true);
                         index.WaitForStatus();
                     }
@@ -100,6 +101,8 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Controllers
                         if (!index.Exists)
                         {
                             index.Initialize(indexType);
+                            index.WaitForStatus();
+                            index.DisableDynamicMapping(indexType);
                             index.WaitForStatus();
                         }
                     }

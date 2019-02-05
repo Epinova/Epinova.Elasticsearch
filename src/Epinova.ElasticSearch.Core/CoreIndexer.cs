@@ -107,7 +107,7 @@ namespace Epinova.ElasticSearch.Core
                     }
 
                     var payload = sb.ToString();
-
+                    
                     if (Logger.IsDebugEnabled())
                     {
                         var debugJson = $"[{String.Join(",", payload.Split('\n'))}]";
@@ -276,6 +276,13 @@ namespace Epinova.ElasticSearch.Core
             // Get existing mapping
             IndexMapping mapping = Mapping.GetIndexMapping(indexType, null, index);
 
+            // Ignore special mappings
+            mapping.Properties.Remove(DefaultFields.Attachment);
+            mapping.Properties.Remove(DefaultFields.AttachmentData);
+            mapping.Properties.Remove(DefaultFields.BestBets);            
+            mapping.Properties.Remove(DefaultFields.DidYouMean);
+            mapping.Properties.Remove(DefaultFields.Suggest);
+            
             try
             {
                 foreach (var prop in indexableProperties)
@@ -294,19 +301,23 @@ namespace Epinova.ElasticSearch.Core
                         string existingType = mapping.Properties[prop.Name].Type;
                         if (mappingType != existingType)
                         {
-                            Logger.Warning($"Conflicting mapping type for property '{propName}' detected. Using already mapped type '{existingType}'");
+                            Logger.Warning($"Conflicting mapping type '{mappingType}' for property '{propName}' detected. Using already mapped type '{existingType}'");
                         }
 
                         mappingType = existingType;
                     }
 
                     if (prop.Analyzable && language != null)
+                    {
                         propertyMapping.Analyzer = Language.GetLanguageAnalyzer(language);
-                    else if (language != null && mappingType == nameof(MappingType.Text).ToLower())
+                    }
+                    else if (!WellKnownProperties.IgnoreAnalyzer.Contains(prop.Name) && language != null && mappingType == nameof(MappingType.Text).ToLower())
+                    {
                         propertyMapping.Analyzer = Language.GetSimpleLanguageAnalyzer(language);
+                    }
 
                     // If mapping with different analyzer exists, use its analyzer. 
-                    if (mapping.Properties.ContainsKey(prop.Name))
+                    if (!WellKnownProperties.IgnoreAnalyzer.Contains(prop.Name) && mapping.Properties.ContainsKey(prop.Name))
                     {
                         string existingAnalyzer = mapping.Properties[prop.Name].Analyzer;
                         if (propertyMapping.Analyzer != existingAnalyzer)

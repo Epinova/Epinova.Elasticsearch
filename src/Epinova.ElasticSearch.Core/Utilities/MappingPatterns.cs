@@ -59,6 +59,15 @@ namespace Epinova.ElasticSearch.Core.Utilities
                 properties = new
                 {
                     Id = new { type = "long" },
+                    StartPublish = new { type = "date" },
+                    StopPublish = new { type = "date" },
+                    Created = new { type = "date" },
+                    Changed = new { type = "date" },
+                    Indexed = new { type = "date" },
+                    Name = new {
+                        type = nameof(MappingType.Text).ToLower(),
+                        fields = Fields
+                    },
                     _bestbets = new {
                         type = nameof(MappingType.Text).ToLower(),
                         fields = Fields
@@ -85,6 +94,8 @@ namespace Epinova.ElasticSearch.Core.Utilities
                     content = new
                     {
                         type = nameof(MappingType.Text).ToLower(),
+                        term_vector = "with_positions_offsets",
+                        store = true,
                         analyzer = languageName,
                         fields = new
                         {

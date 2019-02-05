@@ -597,8 +597,16 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Extensions
                 if (String.IsNullOrWhiteSpace(indexName))
                     indexName = ElasticSearchSettings.GetDefaultIndexName(language);
 
+                // Get mappings from server
                 mapping = Mapping.GetIndexMapping(typeof(IndexItem), language, indexName);
 
+                // Ignore special mappings
+                mapping.Properties.Remove(DefaultFields.Attachment);
+                mapping.Properties.Remove(DefaultFields.AttachmentData);
+                mapping.Properties.Remove(DefaultFields.BestBets);            
+                mapping.Properties.Remove(DefaultFields.DidYouMean);
+                mapping.Properties.Remove(DefaultFields.Suggest);
+                
                 var jsonSettings = new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore };
                 oldJson = JsonConvert.SerializeObject(mapping, jsonSettings);
 
@@ -615,6 +623,12 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Extensions
                                      || (p.PropertyType == typeof(XhtmlString)
                                      && p.GetCustomAttributes(typeof(ExcludeFromSearchAttribute), true).Length == 0)
                     })
+                    .Where(p => p.Name != nameof(IndexItem.Type) 
+                                && p.Name != nameof(IndexItem._bestbets) 
+                                && p.Name != DefaultFields.DidYouMean
+                                && p.Name != DefaultFields.Suggest
+                                && p.Name != nameof(IndexItem.attachment) 
+                                && p.Name != nameof(IndexItem._attachmentdata))
                     .ToList();
 
                 // Get well-known and Stemmed property-names
