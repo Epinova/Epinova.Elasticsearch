@@ -171,6 +171,55 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Plugin
             return finalStatus.ToString();
         }
 
+        protected virtual List<ContentReference> GetContentReferences()
+        {
+            OnStatusChanged("Loading all references from database...");
+            return _contentLoader.GetDescendents(ContentReference.RootPage).ToList();
+        }
+
+        protected virtual List<IContent> GetDescendentContents(List<ContentReference> contentReferences, IEnumerable<LanguageBranch> languages)
+        {
+            var contentItems = new List<IContent>();
+
+            foreach (var languageBranch in languages)
+            {
+                contentItems.AddRange(_contentLoader.GetItems(contentReferences, languageBranch.Culture));
+            }
+
+            return contentItems;
+        }
+        
+        //TODO: Review the need for this
+        protected virtual List<IContent> GetContentToIndex(IEnumerable<IContent> contentItems)
+        {
+            // Indexable properties (string, XhtmlString, [Searchable(true)]) 
+            var allIndexableProperties = new List<KeyValuePair<string, Type>>();
+            var contentToIndex = new List<IContent>();
+
+            foreach (var content in contentItems)
+            {
+                if (IsStopped) break;
+
+                // Get indexable properties (string, XhtmlString, [Searchable(true)]) 
+                var indexableProperties = content.GetType().GetIndexableProps(false)
+                    .Where(p => allIndexableProperties.All(kvp => kvp.Key != p.Name))
+                    .Select(p => new KeyValuePair<string, Type>(p.Name, p.PropertyType))
+                    .ToList();
+
+                allIndexableProperties.AddRange(indexableProperties);
+
+                if (_logger.IsDebugEnabled())
+                {
+                    _logger.Debug("Indexable properties:");
+                    indexableProperties.ForEach(p => _logger.Debug(p.Key));
+                }
+
+                contentToIndex.Add(content);
+            }
+
+            return contentToIndex;
+        }
+
         private bool IndicesExists(IEnumerable<LanguageBranch> languages)
         {
             foreach (var language in languages.Select(l => l.LanguageID))
@@ -241,56 +290,6 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Plugin
                 OnStatusChanged(str);
                 _logger.Debug(str);
             }, CustomIndexName);
-        }
-
-        protected virtual List<ContentReference> GetContentReferences()
-        {
-            OnStatusChanged("Loading all references from database...");
-            return _contentLoader.GetDescendents(ContentReference.RootPage).ToList();
-        }
-
-        protected virtual List<IContent> GetDescendentContents(List<ContentReference> contentReferences, IEnumerable<LanguageBranch> languages)
-        {
-            var contentItems = new List<IContent>();
-
-            foreach (var languageBranch in languages)
-            {
-                contentItems.AddRange(_contentLoader.GetItems(contentReferences, languageBranch.Culture));
-            }
-
-            return contentItems;
-        }
-
-        
-        //TODO: Review the need for this
-        protected virtual List<IContent> GetContentToIndex(IEnumerable<IContent> contentItems)
-        {
-            // Indexable properties (string, XhtmlString, [Searchable(true)]) 
-            var allIndexableProperties = new List<KeyValuePair<string, Type>>();
-            var contentToIndex = new List<IContent>();
-
-            foreach (var content in contentItems)
-            {
-                if (IsStopped) break;
-
-                // Get indexable properties (string, XhtmlString, [Searchable(true)]) 
-                var indexableProperties = content.GetType().GetIndexableProps(false)
-                    .Where(p => allIndexableProperties.All(kvp => kvp.Key != p.Name))
-                    .Select(p => new KeyValuePair<string, Type>(p.Name, p.PropertyType))
-                    .ToList();
-
-                allIndexableProperties.AddRange(indexableProperties);
-
-                if (_logger.IsDebugEnabled())
-                {
-                    _logger.Debug("Indexable properties:");
-                    indexableProperties.ForEach(p => _logger.Debug(p.Key));
-                }
-
-                contentToIndex.Add(content);
-            }
-
-            return contentToIndex;
         }
     }
 }
