@@ -9,6 +9,66 @@ namespace Epinova.ElasticSearch.Core.Utilities
     {
         private static readonly ILogger Log = LogManager.GetLogger(typeof(DbHelper));
 
+        public static bool ColumnExists(string connectionString, string table, string column, string schema = "dbo")
+        {
+            try
+            {
+                using (var connection = new SqlConnection(connectionString))
+                {
+                    var sql = $"SELECT COUNT(*) FROM INFORMATION_SCHEMA.COLUMNS WHERE [TABLE_SCHEMA] = '{schema}' AND [TABLE_NAME] = '{table}' AND [COLUMN_NAME] = '{column}'";
+
+                    using (var command = new SqlCommand(sql))
+                    {
+                        command.Connection = connection;
+                        command.Connection.Open();
+                        object result = command.ExecuteScalar();
+                        command.Connection.Close();
+
+                        var count = Convert.ToInt32(result);
+                            
+                        if (count > 0)
+                        {
+                            Log.Debug($"Column '{schema}.{table}.{column}' exists");
+                            return true;
+                        }
+
+                        Log.Debug($"Column '{schema}.{table}.{column}' does NOT exist");
+                        return false;
+                    }
+                }
+            }
+            catch (Exception exception)
+            {
+                Log.Warning($"Issue when checking if column '{schema}.{table}.{column}' exists", exception);
+                return false;
+            }
+        }
+
+        public static void AddColumn(string connectionString, string table, string column, string typeDef)
+        {
+            try
+            {
+                using (var connection = new SqlConnection(connectionString))
+                {
+                    var sql = $"ALTER TABLE {table} ADD {column} {typeDef}";
+                    
+                    using (var command = new SqlCommand(sql))
+                    {
+                        command.Connection = connection;
+                        command.Connection.Open();
+                        command.ExecuteNonQuery();
+                        command.Connection.Close();
+                    }
+                }
+                
+                Log.Debug($"Column '{table}.{column}' added succesfully");
+            }
+            catch (Exception exception)
+            {
+                Log.Warning($"Issue when adding column '{table}.{column}'", exception);
+            }
+        }
+
         public static bool TableExists(string connectionString, string table)
         {
             try
