@@ -16,6 +16,8 @@ namespace Epinova.ElasticSearch.Core.Models.Bulk
         [JsonProperty(JsonNames.Cause)]
         public Cause CausedBy { get; set; }
 
+        public HeaderInfo Header { get; set; }
+
         [JsonProperty(JsonNames.StackTrace)]
         public string StackTrace { get; set; }
 
@@ -27,6 +29,12 @@ namespace Epinova.ElasticSearch.Core.Models.Bulk
 
             [JsonProperty(JsonNames.Reason)]
             public string Reason { get; set; }
+        }
+
+        public class HeaderInfo
+        {
+            [JsonProperty("processor_type")]
+            public string Processor { get; set; }
         }
     }
 }
