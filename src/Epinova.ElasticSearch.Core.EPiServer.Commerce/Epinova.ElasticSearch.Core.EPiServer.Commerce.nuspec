@@ -9,7 +9,6 @@
     <iconUrl>http://www.epinova.no/favicon.ico</iconUrl>
     <projectUrl>https://github.com/Epinova/Epinova.Elasticsearch</projectUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
-    <license type="expression">MIT</license>
     <description>Epinova ElasticSearch Core Commerce functionality</description>
     <releaseNotes></releaseNotes>
     <copyright>Copyright 2018 - Epinova AS</copyright>
