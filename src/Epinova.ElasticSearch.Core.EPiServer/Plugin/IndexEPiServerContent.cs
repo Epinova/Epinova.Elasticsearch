@@ -127,8 +127,8 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Plugin
                     var batch = contentList.Take(_settings.BulkSize);
                     var batchResult = IndexContents(batch);
                     results.Batches.AddRange(batchResult.Batches);
-                    var removeCount = contentList.Count >= _settings.BulkSize ? _settings.BulkSize : contentReferences.Count;
-                    contentReferences.RemoveRange(0, removeCount);
+                    var removeCount = contentList.Count >= _settings.BulkSize ? _settings.BulkSize : contentList.Count;
+                    contentList.RemoveRange(0, removeCount);
 
                     if (IsStopped) return "Aborted by user";
                 }
