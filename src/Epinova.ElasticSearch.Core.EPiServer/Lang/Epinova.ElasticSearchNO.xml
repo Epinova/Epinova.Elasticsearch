@@ -165,6 +165,8 @@
         <searchesnohits>Søk uten treff</searchesnohits>
         <clear>Slett historikk</clear>
         <clearconfirm>Sikker?</clearconfirm>
+        <index>Indeks</index>
+        <show>Velg</show>
       </tracking>
       <providers>
         <page>Epinova sidesøk</page>

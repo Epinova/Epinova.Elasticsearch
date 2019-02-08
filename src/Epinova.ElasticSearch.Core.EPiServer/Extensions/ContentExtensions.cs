@@ -44,7 +44,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Extensions
         private static readonly IElasticSearchSettings ElasticSearchSettings;
         private static readonly ITrackingRepository TrackingRepository;
 
-        private static readonly string[] binaryExtensions = new[]
+        private static readonly string[] BinaryExtensions = new[]
         {
             "jpg", "jpeg", "gif", "psd", "bmp", "ai", "webp", "tif", "tiff", "ico", "jif", "png", "xcf", "eps", "raw", "cr2", "pct", "bpg",
             "exe", "zip", "rar", "7z", "dll", "gz", "bin", "iso", "apk", "dmp", "msi",
@@ -87,7 +87,8 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Extensions
                 TrackingRepository.AddSearch(
                     Language.GetLanguageCode(service.SearchLanguage),
                     service.SearchText,
-                    results.TotalHits == 0);
+                    results.TotalHits == 0,
+                    GetIndexName(service));
             }
 
             return new ContentSearchResult<T>(results, hits);
@@ -127,7 +128,8 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Extensions
                 TrackingRepository.AddSearch(
                     Language.GetLanguageCode(service.SearchLanguage),
                     service.SearchText,
-                    results.TotalHits == 0);
+                    results.TotalHits == 0,
+                    GetIndexName(service));
             }
 
             return new ContentSearchResult<T>(results, hits);
@@ -156,7 +158,8 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Extensions
                 TrackingRepository.AddSearch(
                     Language.GetLanguageCode(service.SearchLanguage),
                     service.SearchText,
-                    results.TotalHits == 0);
+                    results.TotalHits == 0,
+                    GetIndexName(service));
             }
 
             return new ContentSearchResult<T>(results, hits);
@@ -870,7 +873,17 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Extensions
         internal static bool IsBinary(string fileExtension)
         {
             return !String.IsNullOrWhiteSpace(fileExtension)
-                && binaryExtensions.Contains(fileExtension.TrimStart('.').ToLowerInvariant());
+                && BinaryExtensions.Contains(fileExtension.TrimStart('.').ToLowerInvariant());
+        }
+
+        private static string GetIndexName<T>(IElasticSearchService<T> service)
+        {
+            if (!String.IsNullOrEmpty(service.IndexName))
+            {
+                return service.IndexName;
+            }
+
+            return ElasticSearchSettings.GetDefaultIndexName(Language.GetLanguageCode(service.SearchLanguage));
         }
     }
 }

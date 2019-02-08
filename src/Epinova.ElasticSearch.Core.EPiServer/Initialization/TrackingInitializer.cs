@@ -24,8 +24,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Initialization
                     [Searches] [int] NOT NULL,
                     [NoHits] [bit] NOT NULL,
                 	[Language] [nvarchar](10) NOT NULL,
-                	[IndexName] [nvarchar](255) NULL,
-                    CONSTRAINT [PK_ElasticTracking] PRIMARY KEY CLUSTERED ( [Query] ASC, [Language] ASC )";
+                	[IndexName] [nvarchar](200) NOT NULL";
 
                 Logger.Information("Creating tracking table");
                 
@@ -35,8 +34,9 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Initialization
             if (!DbHelper.ColumnExists(connectionString, Constants.TrackingTable, Constants.TrackingFieldIndex))
             {
                 Logger.Information($"Extending table with {Constants.TrackingFieldIndex} column");
-                
-                DbHelper.AddColumn(connectionString, Constants.TrackingTable, Constants.TrackingFieldIndex, "nvarchar(255)");
+
+                DbHelper.ExecuteCommand(connectionString, $"ALTER TABLE {Constants.TrackingTable} ADD {Constants.TrackingFieldIndex} nvarchar(200)");
+                DbHelper.ExecuteCommand(connectionString, $"IF (OBJECT_ID('PK_ElasticTracking', 'U') IS NOT NULL) BEGIN ALTER TABLE {Constants.TrackingTable}  DROP CONSTRAINT [PK_ElasticTracking] END" );
             }
         }
 
