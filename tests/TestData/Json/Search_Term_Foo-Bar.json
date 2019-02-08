@@ -19,7 +19,7 @@
       "type": "phrase",
       "boost": 2,
       "fields": [
-        "_all"
+        "bar"
       ]
     }
   }
