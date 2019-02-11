@@ -9,8 +9,6 @@ namespace Core.Tests.Settings.Configuration
 {
     public class ElasticsearchSectionTests
     {
-        private readonly ElasticSearchSection _section;
-
         public ElasticsearchSectionTests()
         {
             var mockSection = new Mock<ElasticSearchSection>();
@@ -26,6 +24,8 @@ namespace Core.Tests.Settings.Configuration
             _section = mockSection.Object;
         }
 
+        private readonly ElasticSearchSection _section;
+
 
         [Theory]
         [InlineData("1")]
@@ -38,7 +38,7 @@ namespace Core.Tests.Settings.Configuration
         [InlineData("42GB")]
         public void IsValidSizeString_ValidString_ReturnsTrue(string size)
         {
-            bool result = _section.IsValidSizeString(size);
+            var result = _section.IsValidSizeString(size);
 
             Assert.True(result);
         }
@@ -56,54 +56,9 @@ namespace Core.Tests.Settings.Configuration
         [InlineData("GB42")]
         public void IsValidSizeString_InvalidString_ReturnsTrue(string size)
         {
-            bool result = _section.IsValidSizeString(size);
+            var result = _section.IsValidSizeString(size);
 
             Assert.False(result);
-        }
-
-        [Fact]
-        public void ValidateIndices_NoIndices_Throws()
-        {
-            var exception = Assert.Throws<ConfigurationErrorsException>(() =>
-                _section.ValidateIndices());
-
-            Assert.Equal("Configuration Error. You must add at least one index to the <indices> node", exception.Message);
-        }
-
-        [Fact]
-        public void ValidateIndices_NoDefaultIndex_Throws()
-        {
-            _section.Indices.Add(new IndexConfiguration { Name = "foo" });
-            _section.Indices.Add(new IndexConfiguration { Name = "bar" });
-
-            var exception = Assert.Throws<ConfigurationErrorsException>(() =>
-                _section.ValidateIndices());
-
-            Assert.Equal("Configuration Error. One index must be set as default when adding multiple indices", exception.Message);
-        }
-
-        [Fact]
-        public void ValidateIndices_MultipleDefaultIndices_Throws()
-        {
-            _section.Indices.Add(new IndexConfiguration { Name = "foo", Default = true });
-            _section.Indices.Add(new IndexConfiguration { Name = "bar", Default = true });
-
-            var exception = Assert.Throws<ConfigurationErrorsException>(() =>
-                _section.ValidateIndices());
-
-            Assert.Equal("Configuration Error. Only one index can be set as default", exception.Message);
-        }
-
-        [Fact]
-        public void ValidateIndices_MissingTypeOnCustomIndex_Throws()
-        {
-            _section.Indices.Add(new IndexConfiguration { Name = "foo", Default = true });
-            _section.Indices.Add(new IndexConfiguration { Name = "bar" });
-
-            var exception = Assert.Throws<ConfigurationErrorsException>(() =>
-                _section.ValidateIndices());
-
-            Assert.Equal("Configuration Error. Custom indices must define a type", exception.Message);
         }
 
         [Theory]
@@ -134,13 +89,6 @@ namespace Core.Tests.Settings.Configuration
             Assert.StartsWith("The value for the property 'name' is not", exception.Message);
         }
 
-        [Fact]
-        public void ValidateFiles_NoFiles_IsOk()
-        {
-            _section.Files.Clear();
-            _section.ValidateFiles();
-        }
-
         [Theory]
         [InlineData(null)]
         [InlineData("")]
@@ -153,6 +101,24 @@ namespace Core.Tests.Settings.Configuration
 
             Assert.Throws<ConfigurationErrorsException>(() =>
                 _section.ValidateFiles()
+            );
+        }
+
+        [Theory]
+        [InlineData(0)]
+        [InlineData(-2)]
+        [InlineData(-99)]
+        public void ValidateIndexingMaxDegreeOfParallelism_invalidSetting_Throws(int setting)
+        {
+            var mockSection = new Mock<ElasticSearchSection>();
+            mockSection
+                .Setup(m => m.IndexingMaxDegreeOfParallelism)
+                .Returns(setting);
+
+            ElasticSearchSection section = mockSection.Object;
+
+            Assert.Throws<ConfigurationErrorsException>(() =>
+                section.ValidateIndexingMaxDegreeOfParallelism()
             );
         }
 
@@ -171,14 +137,68 @@ namespace Core.Tests.Settings.Configuration
 
         private static IEnumerable<object[]> GetIndexNameInvalidCharacters()
         {
-            foreach (char c in IndexConfiguration.InvalidCharacters)
+            foreach (var c in IndexConfiguration.InvalidCharacters)
                 yield return new object[] { c };
         }
 
         private static IEnumerable<object[]> GetFileExtensionInvalidCharacters()
         {
-            foreach (char c in FileConfiguration.InvalidCharacters)
+            foreach (var c in FileConfiguration.InvalidCharacters)
                 yield return new object[] { c };
+        }
+
+        [Fact]
+        public void ValidateFiles_NoFiles_IsOk()
+        {
+            _section.Files.Clear();
+            _section.ValidateFiles();
+        }
+
+        [Fact]
+        public void ValidateIndices_MissingTypeOnCustomIndex_Throws()
+        {
+            _section.Indices.Add(new IndexConfiguration { Name = "foo", Default = true });
+            _section.Indices.Add(new IndexConfiguration { Name = "bar" });
+
+            var exception = Assert.Throws<ConfigurationErrorsException>(() =>
+                _section.ValidateIndices());
+
+            Assert.Equal("Configuration Error. Custom indices must define a type", exception.Message);
+        }
+
+        [Fact]
+        public void ValidateIndices_MultipleDefaultIndices_Throws()
+        {
+            _section.Indices.Add(new IndexConfiguration { Name = "foo", Default = true });
+            _section.Indices.Add(new IndexConfiguration { Name = "bar", Default = true });
+
+            var exception = Assert.Throws<ConfigurationErrorsException>(() =>
+                _section.ValidateIndices());
+
+            Assert.Equal("Configuration Error. Only one index can be set as default", exception.Message);
+        }
+
+        [Fact]
+        public void ValidateIndices_NoDefaultIndex_Throws()
+        {
+            _section.Indices.Add(new IndexConfiguration { Name = "foo" });
+            _section.Indices.Add(new IndexConfiguration { Name = "bar" });
+
+            var exception = Assert.Throws<ConfigurationErrorsException>(() =>
+                _section.ValidateIndices());
+
+            Assert.Equal("Configuration Error. One index must be set as default when adding multiple indices",
+                exception.Message);
+        }
+
+        [Fact]
+        public void ValidateIndices_NoIndices_Throws()
+        {
+            var exception = Assert.Throws<ConfigurationErrorsException>(() =>
+                _section.ValidateIndices());
+
+            Assert.Equal("Configuration Error. You must add at least one index to the <indices> node",
+                exception.Message);
         }
     }
 }
