@@ -214,7 +214,8 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Contracts
 
             var shortcutType = (PageShortcutType)linkTypeValue;
 
-            return shortcutType != PageShortcutType.Normal;
+            return shortcutType != PageShortcutType.Normal
+                && shortcutType != PageShortcutType.FetchData;
         }
 
         private static string GetFallbackLanguage()

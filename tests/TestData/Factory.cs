@@ -136,10 +136,11 @@ namespace TestData
             bool userHasAccess = true,
             bool hasTemplate = true,
             bool isNotInWaste = true,
+            PageShortcutType shortcutType = PageShortcutType.Normal,
             int id = 0,
             int parentId = 0)
         {
-            return GetPageData<PageData>(visibleInMenu, isPublished, userHasAccess, hasTemplate, isNotInWaste, id, parentId);
+            return GetPageData<PageData>(visibleInMenu, isPublished, userHasAccess, hasTemplate, isNotInWaste, shortcutType, id, parentId);
         }
 
         public static PageReference GetPageReference()
@@ -184,6 +185,7 @@ namespace TestData
             bool userHasAccess = true,
             bool hasTemplate = true,
             bool isNotInWaste = true,
+            PageShortcutType shortcutType = PageShortcutType.Normal,
             int id = 0,
             int parentId = 0,
             CultureInfo language = null) where T : PageData
@@ -214,6 +216,7 @@ namespace TestData
             if (!isNotInWaste)
                 instance.Setup(m => m.ContentLink).Returns(ContentReference.WasteBasket);
 
+            instance.Object.LinkType = shortcutType;
             return instance.Object;
         }
 
