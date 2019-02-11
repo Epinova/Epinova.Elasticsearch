@@ -2,20 +2,21 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 using Epinova.ElasticSearch.Core.Contracts;
 using Epinova.ElasticSearch.Core.EPiServer.Contracts;
+using Epinova.ElasticSearch.Core.EPiServer.Extensions;
 using Epinova.ElasticSearch.Core.Extensions;
 using Epinova.ElasticSearch.Core.Models;
-using EPiServer.Logging;
 using Epinova.ElasticSearch.Core.Models.Bulk;
 using Epinova.ElasticSearch.Core.Settings;
 using Epinova.ElasticSearch.Core.Utilities;
 using EPiServer;
 using EPiServer.Core;
 using EPiServer.DataAbstraction;
+using EPiServer.Logging;
 using EPiServer.PlugIn;
 using EPiServer.Scheduler;
-using Epinova.ElasticSearch.Core.EPiServer.Extensions;
 
 namespace Epinova.ElasticSearch.Core.EPiServer.Plugin
 {
@@ -25,11 +26,11 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Plugin
         Description = "Indexes CMS content in Elasticsearch.")]
     public class IndexEPiServerContent : ScheduledJobBase
     {
-        private readonly ILogger _logger = LogManager.GetLogger(typeof(IndexEPiServerContent));
         private readonly IContentLoader _contentLoader;
         private readonly ICoreIndexer _coreIndexer;
         private readonly IIndexer _indexer;
         private readonly ILanguageBranchRepository _languageBranchRepository;
+        private readonly ILogger _logger = LogManager.GetLogger(typeof(IndexEPiServerContent));
         private readonly IElasticSearchSettings _settings;
         protected string CustomIndexName;
 
@@ -61,7 +62,6 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Plugin
             var finalStatus = new StringBuilder();
             var skippedReason = new StringBuilder();
             var results = new BulkBatchResult();
-            var bulkCounter = 1;
             var logMessage = $"Indexing starting. Content retrived and indexed in bulks of {_settings.BulkSize} items.";
 
             _logger.Information(logMessage);
@@ -69,25 +69,24 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Plugin
 
             try
             {
-                var languages = _languageBranchRepository.ListEnabled();
-                var contentReferences = GetContentReferences();
+                IList<LanguageBranch> languages = _languageBranchRepository.ListEnabled();
+                List<ContentReference> contentReferences = GetContentReferences();
 
-                logMessage = $"Retrieved {contentReferences.Count} ContentReference items from the following languages: {String.Join(", ", languages.Select(l => l.LanguageID))}";
+                logMessage =
+                    $"Retrieved {contentReferences.Count} ContentReference items from the following languages: {String.Join(", ", languages.Select(l => l.LanguageID))}";
                 _logger.Information(logMessage);
                 OnStatusChanged(logMessage);
 
-                while (contentReferences.Count > 0)
-                {
-                    var contents = GetDescendentContents(contentReferences.Take(_settings.BulkSize).ToList(), languages, bulkCounter);
-                    var batchResult = IndexContents(contents, bulkCounter);
-                    results.Batches.AddRange(batchResult.Batches);
-
-                    contentReferences.RemoveRange(0, contentReferences.Count >= _settings.BulkSize
-                            ? _settings.BulkSize
-                            : contentReferences.Count);
-
-                    bulkCounter++;
-                }
+                Parallel.For(0, (int)Math.Ceiling((Decimal)contentReferences.Count / _settings.BulkSize),
+                    new ParallelOptions
+                    { MaxDegreeOfParallelism = _settings.IndexingMaxDegreeOfParallelism }, i =>
+                    {
+                        List<IContent> contents = GetDescendentContents(
+                            contentReferences.Skip(i * _settings.BulkSize).Take(_settings.BulkSize).ToList(),
+                            languages, i + 1);
+                        BulkBatchResult batchResult = IndexContents(contents, i + 1);
+                        results.Batches.AddRange(batchResult.Batches);
+                    });
 
                 UpdateMappings(languages, CustomIndexName);
 
@@ -103,7 +102,8 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Plugin
                 // If we re-throw here, stacktrace won't be displayed
             }
 
-            var finished = $"Processed {results.Batches.Count} batches of {_settings.BulkSize} items, for a total of {results.Batches.Sum(b => b.Items.Length)} items to Elasticsearch index.";
+            var finished =
+                $"Processed {results.Batches.Count} batches of {_settings.BulkSize} items, for a total of {results.Batches.Sum(b => b.Items.Length)} items to Elasticsearch index.";
 
             for (var i = 1; i <= results.Batches.Count; i++)
             {
@@ -111,7 +111,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Plugin
                 {
                     var message = $" Batch {i} failed.";
 
-                    foreach (var item in results.Batches[i - 1].Items.Where(item => item.Status >= 400))
+                    foreach (BulkResultItem item in results.Batches[i - 1].Items.Where(item => item.Status >= 400))
                     {
                         message += item.ToString();
                     }
@@ -191,7 +191,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Plugin
 
             var contentItems = new List<IContent>();
 
-            foreach (var languageBranch in languages)
+            foreach (LanguageBranch languageBranch in languages)
             {
                 contentItems.AddRange(_contentLoader.GetItems(contentReferences, languageBranch.Culture));
             }
@@ -211,13 +211,14 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Plugin
                 counter++;
 
                 if (counter % 100 == 0)
-                    OnStatusChanged($"Bulk {bulkCounter} - Analyzing content item {counter} of {contentItems.Count}...");
+                    OnStatusChanged(
+                        $"Bulk {bulkCounter} - Analyzing content item {counter} of {contentItems.Count}...");
 
                 if (IsStopped)
                     return contentToIndex;
 
                 // Get indexable properties (string, XhtmlString, [Searchable(true)]) 
-                var indexableProperties = content.GetType().GetIndexableProps(false)
+                List<KeyValuePair<string, Type>> indexableProperties = content.GetType().GetIndexableProps(false)
                     .Where(p => allIndexableProperties.All(kvp => kvp.Key != p.Name))
                     .Select(p => new KeyValuePair<string, Type>(p.Name, p.PropertyType))
                     .ToList();
