@@ -10,30 +10,12 @@ namespace Epinova.ElasticSearch.Core.Settings.Configuration
     public class ElasticSearchSection : ConfigurationSection
     {
         private static readonly string[] ValidSizeSuffixes = { "kb", "mb", "gb" };
+
         private static readonly char[] ValidSizeChars =
         {
             '0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
             'k', 'm', 'g', 'b'
         };
-
-        public static ElasticSearchSection GetConfiguration()
-        {
-            if(!HostingEnvironment.IsHosted)
-                return new ElasticSearchSection();
-
-            var section = WebConfigurationManager
-                    .OpenWebConfiguration("~")
-                    .GetSection("epinova.elasticSearch")
-                as ElasticSearchSection;
-
-            if (section == null)
-                throw new ConfigurationErrorsException("epinova.elasticSearch not found");
-
-            section.ValidateIndices();
-            section.ValidateFiles();
-
-            return section;
-        }
 
         [ConfigurationProperty("host", IsRequired = true)]
         [StringValidator(InvalidCharacters = "~!#$%^&* ()[]{};'\"|\\")]
@@ -71,6 +53,15 @@ namespace Epinova.ElasticSearch.Core.Settings.Configuration
             get => (int)this["bulksize"];
             set => this["bulksize"] = value;
         }
+
+        [ConfigurationProperty("indexingMaxDegreeOfParallelism", DefaultValue = -1, IsRequired = false)]
+        [IntegerValidator(MinValue = -1, MaxValue = 10)]
+        public virtual int IndexingMaxDegreeOfParallelism
+        {
+            get => (int)this["indexingMaxDegreeOfParallelism"];
+            set => this["indexingMaxDegreeOfParallelism"] = value;
+        }
+
 
         [ConfigurationProperty("closeIndexDelay", DefaultValue = 500, IsRequired = false)]
         [IntegerValidator(MinValue = 0, MaxValue = 10000)]
@@ -129,13 +120,32 @@ namespace Epinova.ElasticSearch.Core.Settings.Configuration
             set => base["contentSelector"] = value;
         }
 
+        public static ElasticSearchSection GetConfiguration()
+        {
+            if (!HostingEnvironment.IsHosted)
+                return new ElasticSearchSection();
+
+            var section = WebConfigurationManager
+                    .OpenWebConfiguration("~")
+                    .GetSection("epinova.elasticSearch")
+                as ElasticSearchSection;
+
+            if (section == null)
+                throw new ConfigurationErrorsException("epinova.elasticSearch not found");
+
+            section.ValidateIndices();
+            section.ValidateFiles();
+            section.ValidateIndexingMaxDegreeOfParallelism();
+            return section;
+        }
+
 
         internal bool IsValidSizeString(string size)
         {
             if (String.IsNullOrWhiteSpace(size))
                 return false;
 
-            if (Int64.TryParse(size, out long parsed))
+            if (Int64.TryParse(size, out var parsed))
                 return parsed > 0;
 
             IEnumerable<char> invalidChars = size.ToLower().ToCharArray().Except(ValidSizeChars);
@@ -156,6 +166,13 @@ namespace Epinova.ElasticSearch.Core.Settings.Configuration
 
             if (!IsValidSizeString(Files.Maxsize))
                 throw new ConfigurationErrorsException("Configuration Error. Maxsize value is invalid");
+        }
+
+        internal void ValidateIndexingMaxDegreeOfParallelism()
+        {
+            if (IndexingMaxDegreeOfParallelism == 0 || IndexingMaxDegreeOfParallelism < -1)
+                throw new ConfigurationErrorsException(
+                    "Configuration Error. indexingMaxDegreeOfParallelism must be -1 or greater than 0");
         }
 
         internal void ValidateIndices()

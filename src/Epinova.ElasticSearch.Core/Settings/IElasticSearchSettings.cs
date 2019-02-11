@@ -5,6 +5,7 @@ namespace Epinova.ElasticSearch.Core.Settings
     public interface IElasticSearchSettings
     {
         int BulkSize { get; }
+        int IndexingMaxDegreeOfParallelism { get; }
         long DocumentMaxSize { get; }
         bool EnableFileIndexing { get; }
         string Host { get; }

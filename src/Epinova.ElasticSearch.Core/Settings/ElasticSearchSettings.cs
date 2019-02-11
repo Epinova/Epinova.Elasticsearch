@@ -10,13 +10,15 @@ namespace Epinova.ElasticSearch.Core.Settings
     [ServiceConfiguration(typeof(IElasticSearchSettings), Lifecycle = ServiceInstanceScope.Singleton)]
     public class ElasticSearchSettings : IElasticSearchSettings
     {
-        private readonly ElasticSearchSection _configuration;
         private static bool? _commerceEnabled;
+        private readonly ElasticSearchSection _configuration;
 
         public ElasticSearchSettings()
         {
             _configuration = ElasticSearchSection.GetConfiguration();
         }
+
+        public int IndexingMaxDegreeOfParallelism => _configuration.IndexingMaxDegreeOfParallelism;
 
         public string Index => _configuration.IndicesParsed.Length == 1
             ? _configuration.IndicesParsed[0].Name
@@ -39,7 +41,7 @@ namespace Epinova.ElasticSearch.Core.Settings
                 {
                     _commerceEnabled = false;
                 }
-                
+
                 return _commerceEnabled.Value;
             }
         }
@@ -81,23 +83,13 @@ namespace Epinova.ElasticSearch.Core.Settings
 
         public string GetCustomIndexName(string index, string language)
         {
-            if(String.IsNullOrWhiteSpace(index))
+            if (String.IsNullOrWhiteSpace(index))
                 throw new InvalidOperationException("IndexInformation is null");
 
             if (String.IsNullOrWhiteSpace(language))
                 throw new InvalidOperationException("Language must be specified");
 
             return CreateIndexName(index, language);
-        }
-
-        private static string CreateIndexName(string index, string language)
-        {
-            if (String.IsNullOrWhiteSpace(index))
-                throw new InvalidOperationException("Index must be specified");
-            if (String.IsNullOrWhiteSpace(language))
-                throw new InvalidOperationException("Language must be specified");
-
-            return $"{index}-{language}".ToLower();
         }
 
         public string GetLanguage(string indexName)
@@ -108,6 +100,16 @@ namespace Epinova.ElasticSearch.Core.Settings
                 throw new InvalidOperationException("Invalid index name '" + indexName + "' (Must be <name>-<lang>)");
 
             return indexName.Split('-').Last();
+        }
+
+        private static string CreateIndexName(string index, string language)
+        {
+            if (String.IsNullOrWhiteSpace(index))
+                throw new InvalidOperationException("Index must be specified");
+            if (String.IsNullOrWhiteSpace(language))
+                throw new InvalidOperationException("Language must be specified");
+
+            return $"{index}-{language}".ToLower();
         }
     }
 }
