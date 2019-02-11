@@ -33,7 +33,6 @@ A search plugin for Episerver CMS and Commerce
 
 ## Planned features
 
-* Elasticsearch 6+ support
 * Caching
 * Compound word token filter
 * Utilize aliases for better downtime management
@@ -115,7 +114,8 @@ Explanation of the different options:
 
 ## What will be indexed?
 
-The module tries to follow the same conventions as Episerver, meaning that all properties of type `string` and `XhtmlString` will be indexed unless explicitly decorated with `[Searchable(false)]`. Additional properties can be indexed by decorating them with [Searchable] or with the conventions above.
+The module tries to follow the same conventions as Episerver, meaning that all properties of type `string` and `XhtmlString` will be indexed unless explicitly decorated with `[Searchable(false)]`. 
+Additional properties can be indexed by decorating them with [Searchable] or with the conventions above.
 
 &nbsp;
 
