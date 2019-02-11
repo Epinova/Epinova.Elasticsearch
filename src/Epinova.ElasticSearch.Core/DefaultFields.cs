@@ -11,11 +11,8 @@
         public const string Types = "Types";
         public const string Path = "Path";
         public const string AttachmentData = "_attachmentdata";
-        public const string Attachment = "attachment";
         public const string AttachmentContent = "attachment.content";
         public const string AttachmentAuthor = "attachment.author";
-        public const string AttachmentTitle = "attachment.title";
-        public const string AttachmentName = "attachment.name";
         public const string AttachmentKeywords = "attachment.keywords";
         public const string Suggest = "Suggest";
         public const string StartPublish = "StartPublish";

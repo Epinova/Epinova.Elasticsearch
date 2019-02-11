@@ -604,7 +604,6 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Extensions
                 mapping = Mapping.GetIndexMapping(typeof(IndexItem), language, indexName);
 
                 // Ignore special mappings
-                mapping.Properties.Remove(DefaultFields.Attachment);
                 mapping.Properties.Remove(DefaultFields.AttachmentData);
                 mapping.Properties.Remove(DefaultFields.BestBets);            
                 mapping.Properties.Remove(DefaultFields.DidYouMean);

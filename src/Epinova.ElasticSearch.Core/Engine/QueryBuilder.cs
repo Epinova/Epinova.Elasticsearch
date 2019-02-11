@@ -469,20 +469,13 @@ namespace Epinova.ElasticSearch.Core.Engine
 
         private static void SetupAttachmentFields(QuerySetup querySetup)
         {
-            if (!querySetup.SearchFields.Contains(DefaultFields.Attachment))
-                return;
-
-            querySetup.SearchFields.Remove(DefaultFields.Attachment);
+            querySetup.SearchFields.Remove(DefaultFields.AttachmentData);
             querySetup.SearchFields.Remove(DefaultFields.AttachmentContent);
             querySetup.SearchFields.Remove(DefaultFields.AttachmentAuthor);
-            querySetup.SearchFields.Remove(DefaultFields.AttachmentTitle);
-            querySetup.SearchFields.Remove(DefaultFields.AttachmentName);
             querySetup.SearchFields.Remove(DefaultFields.AttachmentKeywords);
 
             querySetup.SearchFields.Add(DefaultFields.AttachmentContent);
             querySetup.SearchFields.Add(DefaultFields.AttachmentAuthor);
-            querySetup.SearchFields.Add(DefaultFields.AttachmentTitle);
-            querySetup.SearchFields.Add(DefaultFields.AttachmentName);
             querySetup.SearchFields.Add(DefaultFields.AttachmentKeywords);
         }
 

@@ -280,7 +280,6 @@ namespace Epinova.ElasticSearch.Core
             IndexMapping mapping = Mapping.GetIndexMapping(indexType, null, index);
 
             // Ignore special mappings
-            mapping.Properties.Remove(DefaultFields.Attachment);
             mapping.Properties.Remove(DefaultFields.AttachmentData);
             mapping.Properties.Remove(DefaultFields.BestBets);            
             mapping.Properties.Remove(DefaultFields.DidYouMean);
