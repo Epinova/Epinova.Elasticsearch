@@ -13,7 +13,6 @@ namespace Epinova.ElasticSearch.Core.Models.Query
         public QueryRequest(QuerySetup querySetup)
         {
             _sortFields = querySetup.SortFields;
-
             From = querySetup.From;
             Size = querySetup.Size;
             Operator = querySetup.Operator;

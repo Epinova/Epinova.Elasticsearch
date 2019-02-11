@@ -125,10 +125,7 @@ namespace Epinova.ElasticSearch.Core.Engine
                     "From (skip) and size (take) must be less than or equal to: 10000. If you really must, this limit can be set by changing the [index.max_result_window] index level parameter");
             }
 
-            var request = new QueryRequest(setup)
-            {
-                SourceFields = setup.ReturnFields
-            };
+            var request = new QueryRequest(setup);
 
             request.Query.SearchText = setup.SearchText.ToLower();
 
@@ -142,6 +139,7 @@ namespace Epinova.ElasticSearch.Core.Engine
             }
 
             SetupAttachmentFields(setup);
+            SetupSourceFields(request, setup);
 
             if (setup.IsWildcard)
             {
@@ -221,6 +219,28 @@ namespace Epinova.ElasticSearch.Core.Engine
             }
 
             return request;
+        }
+
+        private void SetupSourceFields(QueryRequest request, QuerySetup setup)
+        {
+            var fields = request.SourceFields?.ToList() ?? new List<string>();
+            fields.AddRange(setup.SearchFields);
+
+            fields.Add(DefaultFields.Id);
+            fields.Add(DefaultFields.Indexed);
+            fields.Add(DefaultFields.ParentLink);
+            fields.Add(DefaultFields.Name);
+            fields.Add(DefaultFields.Type);
+            fields.Add(DefaultFields.Types);
+            fields.Add(DefaultFields.Path);
+            fields.Add(DefaultFields.StartPublish);
+            fields.Add(DefaultFields.StopPublish);
+            fields.Add(DefaultFields.Created);
+            fields.Add(DefaultFields.Changed);
+
+            fields.Remove(DefaultFields.BestBets);
+
+            request.SourceFields = fields.Distinct().OrderBy(f => f).ToArray();
         }
 
         private static void AppendDefaultFilters(QueryBase query, Type type)
