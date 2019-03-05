@@ -25,11 +25,9 @@ cache:
 before_package:
 - ps: >-
     cd $env:APPVEYOR_BUILD_FOLDER\src\Epinova.ElasticSearch.Core.EPiServer;
-
     (Get-Content Epinova.ElasticSearch.Core.EPiServer.nuspec) -replace '\[11\.2.*12\)', $env:APPVEYOR_BUILD_VERSION | Out-File Epinova.ElasticSearch.Core.EPiServer.nuspec
 
     cd $env:APPVEYOR_BUILD_FOLDER\src\Epinova.ElasticSearch.Core.EPiServer.Commerce;
-
     (Get-Content Epinova.ElasticSearch.Core.EPiServer.Commerce.nuspec) -replace '\[11\.2.*12\)', $env:APPVEYOR_BUILD_VERSION | Out-File Epinova.ElasticSearch.Core.EPiServer.Commerce.nuspec
 
 deploy:
