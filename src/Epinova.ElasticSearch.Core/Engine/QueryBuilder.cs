@@ -446,12 +446,12 @@ namespace Epinova.ElasticSearch.Core.Engine
             AppendDefaultFilters(request.Query, setup.Type);
 
 
-            if (request.Query.Bool.Should.Count > 0)
+            if (request.Query.Bool.Should.Count > 1 && request.Query.Bool.Must.Count == 0)
                 request.Query.Bool.MinimumNumberShouldMatch = 1;
             else
                 request.Query.Bool.MinimumNumberShouldMatch = null;
 
-            if (request.PostFilter.Bool.Should.Count > 0)
+            if (request.PostFilter.Bool.Should.Count > 0 && request.PostFilter.Bool.Must.Count == 0)
                 request.PostFilter.Bool.MinimumNumberShouldMatch = 1;
             else
                 request.PostFilter.Bool.MinimumNumberShouldMatch = null;
