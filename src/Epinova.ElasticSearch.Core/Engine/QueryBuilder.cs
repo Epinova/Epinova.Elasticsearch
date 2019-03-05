@@ -58,7 +58,7 @@ namespace Epinova.ElasticSearch.Core.Engine
             {
                 Log.Debug("No mapped fields found, lookup with Mapping.GetIndexMapping");
 
-                _mappedFields = Mapping.GetIndexMapping(_searchType, language, index)
+                _mappedFields = Mapping.GetIndexMapping(typeof(IndexItem), language, index)
                     .Properties
                     .Where(m => _searchableFieldTypes.Contains(m.Value.Type)
                         && !m.Key.EndsWith(Models.Constants.KeywordSuffix))
