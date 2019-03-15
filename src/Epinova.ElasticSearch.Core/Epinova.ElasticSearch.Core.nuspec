@@ -14,8 +14,8 @@
     <copyright>Copyright 2018 - Epinova AS</copyright>
     <tags>Epinova EPiServer ElasticSearch</tags>
     <dependencies>
-      <dependency id="Epinova.ResourceProvider" version="[11, 12)" />
-      <dependency id="EPiServer.CMS.Core" version="[10.0.1, 11)" />    </dependencies>
+      <dependency id="EPiServer.CMS.Core" version="[10.0.1, 11)" />
+    </dependencies>
   </metadata>
   <files>
     <file src="bin\$id$.pdb" target="lib\net461\" />
