@@ -29,7 +29,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Initialization
                     var provider = new XmlLocalizationProvider();
                     provider.Initialize(name, null);
                     provider.Load(stream);
-                    localizationService.AddProvider(provider);
+                    localizationService.Providers.Add(provider);
                 }
             }
         }

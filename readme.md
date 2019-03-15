@@ -1,6 +1,3 @@
-[![Build status](https://ci.appveyor.com/api/projects/status/vhaehgrviq4u92ha/branch/master?svg=true)](https://ci.appveyor.com/project/Epinova_AppVeyor_Team/epinova-elasticsearch/branch/master)
-
-
 # Introduction
 
 A search plugin for Episerver CMS and Commerce
@@ -43,7 +40,7 @@ A search plugin for Episerver CMS and Commerce
 
 * .NET 4.6.1+
 * Episerver CMS 11+
-* Episerver Commerce 11.5+
+* Episerver Commerce >10 && <11.5
 * Elasticsearch >5.1.1 && <6
 * Mapper Attachment Plugin
 

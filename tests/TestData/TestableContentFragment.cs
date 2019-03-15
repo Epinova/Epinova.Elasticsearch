@@ -19,6 +19,7 @@ namespace TestData
 
         public TestableContentFragment(IContent content)
             : base(new Mock<IContentLoader>().Object,
+            new Mock<ITemplateControlLoader>().Object,
             new Mock<ISecuredFragmentMarkupGenerator>().Object,
             new Mock<DisplayOptions>().Object,
             new Mock<IPublishedStateAssessor>().Object,

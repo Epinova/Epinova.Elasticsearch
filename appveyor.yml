@@ -1,4 +1,4 @@
-version: 11.4.0.{build}
+version: 10.3.0.{build}
 skip_tags: true
 image: Visual Studio 2017
 configuration: Release
@@ -26,11 +26,11 @@ before_package:
 - ps: >-
     cd $env:APPVEYOR_BUILD_FOLDER\src\Epinova.ElasticSearch.Core.EPiServer;
 
-    (Get-Content Epinova.ElasticSearch.Core.EPiServer.nuspec) -replace '\[11\.2.*12\)', $env:APPVEYOR_BUILD_VERSION | Out-File Epinova.ElasticSearch.Core.EPiServer.nuspec
+    (Get-Content Epinova.ElasticSearch.Core.EPiServer.nuspec) -replace '\[10\.3.*11\)', $env:APPVEYOR_BUILD_VERSION | Out-File Epinova.ElasticSearch.Core.EPiServer.nuspec
 
     cd $env:APPVEYOR_BUILD_FOLDER\src\Epinova.ElasticSearch.Core.EPiServer.Commerce;
 
-    (Get-Content Epinova.ElasticSearch.Core.EPiServer.Commerce.nuspec) -replace '\[11\.2.*12\)', $env:APPVEYOR_BUILD_VERSION | Out-File Epinova.ElasticSearch.Core.EPiServer.Commerce.nuspec
+    (Get-Content Epinova.ElasticSearch.Core.EPiServer.Commerce.nuspec) -replace '\[10\.3.*11\)', $env:APPVEYOR_BUILD_VERSION | Out-File Epinova.ElasticSearch.Core.EPiServer.Commerce.nuspec
 
 deploy:
   provider: NuGet

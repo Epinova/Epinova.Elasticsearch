@@ -60,7 +60,8 @@ namespace TestData
                 .Setup(m => m.IsPublished(It.IsAny<IContent>(), It.IsAny<PublishedStateCondition>()))
                 .Returns(true);
 
-            Mock<ContentPathDB> contentPathMock = new Mock<ContentPathDB>(new Mock<IDatabaseExecutor>().Object);
+            Mock<ContentPathDB> contentPathMock = new Mock<ContentPathDB>(new Mock<IDatabaseHandler>().Object);
+
             Mock<IBestBetsRepository> bestbetMock = new Mock<IBestBetsRepository>();
             Mock<IBoostingRepository> boostMock = new Mock<IBoostingRepository>();
             boostMock
