@@ -39,5 +39,5 @@ deploy:
   skip_symbols: false
   artifact: /.*\.nupkg/
   on:
-    branch: master
-    APPVEYOR_REPO_BRANCH: master
+    branch: cms10
+    APPVEYOR_REPO_BRANCH: cms10
