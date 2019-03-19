@@ -82,7 +82,7 @@ namespace Epinova.ElasticSearch.Core.Utilities
                     Lang = new { type = nameof(MappingType.Text).ToLower() },
                     DidYouMean = new { type = nameof(MappingType.Text).ToLower(), analyzer = languageName + "_suggest", fields = new { raw = new { analyzer = "raw", type = nameof(MappingType.Text).ToLower() } } },
                     Suggest = SuggestMapping,
-                    Type = new { type = nameof(MappingType.Text).ToLower(), analyzer = "raw" },
+                    Type = new { type = nameof(MappingType.Text).ToLower(), analyzer = "raw", fields = Fields },
                     Types = new { type = nameof(MappingType.Text).ToLower(), analyzer = "raw" }
                 }
             };
