@@ -4,7 +4,6 @@ using System.Web.Mvc;
 using Epinova.ElasticSearch.Core.EPiServer.Contracts;
 using Epinova.ElasticSearch.Core.EPiServer.Controllers.Abstractions;
 using Epinova.ElasticSearch.Core.EPiServer.Models.ViewModels;
-using EPiServer;
 using EPiServer.DataAbstraction;
 
 namespace Epinova.ElasticSearch.Core.EPiServer.Controllers
@@ -14,7 +13,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Controllers
         private readonly ILanguageBranchRepository _languageBranchRepository;
         private readonly IAutoSuggestRepository _autoSuggestRepository;
 
-        public ElasticAutoSuggestController(IContentLoader contentLoader, ILanguageBranchRepository languageBranchRepository, IAutoSuggestRepository autoSuggestRepository)
+        public ElasticAutoSuggestController(ILanguageBranchRepository languageBranchRepository, IAutoSuggestRepository autoSuggestRepository)
         {
             _languageBranchRepository = languageBranchRepository;
             _autoSuggestRepository = autoSuggestRepository;
