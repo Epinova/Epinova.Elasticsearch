@@ -25,8 +25,6 @@ namespace Core.Episerver.Tests.Controllers
         {
             Factory.SetupServiceLocator(testHost: "http://example.com");
 
-            var contentLoaderMock = new Mock<IContentLoader>();
-
             _synonymRepositoryMock = new Mock<ISynonymRepository>();
             _synonymRepositoryMock
                 .Setup(m => m.GetSynonyms(It.IsAny<string>(), It.IsAny<string>()))
@@ -50,7 +48,6 @@ namespace Core.Episerver.Tests.Controllers
                 });
 
             _controller = new ElasticSynonymsController(
-                contentLoaderMock.Object,
                 _synonymRepositoryMock.Object,
                 languageBranchRepositoryMock.Object,
                 indexMock.Object);

@@ -6,7 +6,6 @@ using Epinova.ElasticSearch.Core.EPiServer.Controllers.Abstractions;
 using Epinova.ElasticSearch.Core.EPiServer.Models;
 using Epinova.ElasticSearch.Core.EPiServer.Models.ViewModels;
 using Epinova.ElasticSearch.Core.Utilities;
-using EPiServer;
 using EPiServer.DataAbstraction;
 using System.Collections.Generic;
 using Epinova.ElasticSearch.Core.Settings;
@@ -20,7 +19,6 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Controllers
         private readonly Admin.Index _indexHelper;
 
         internal ElasticSynonymsController(
-            IContentLoader contentLoader,
             ISynonymRepository synonymRepository,
             ILanguageBranchRepository languageBranchRepository,
             Admin.Index indexHelper)
@@ -31,12 +29,10 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Controllers
         }
 
         public ElasticSynonymsController(
-            IContentLoader contentLoader,
             ISynonymRepository synonymRepository,
             ILanguageBranchRepository languageBranchRepository,
             IElasticSearchSettings settings)
                 : this(
-                      contentLoader,
                       synonymRepository,
                       languageBranchRepository,
                       new Admin.Index(settings))

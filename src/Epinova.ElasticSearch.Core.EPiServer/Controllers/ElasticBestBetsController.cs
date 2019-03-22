@@ -6,7 +6,6 @@ using Epinova.ElasticSearch.Core.Contracts;
 using Epinova.ElasticSearch.Core.Conventions;
 using Epinova.ElasticSearch.Core.EPiServer.Controllers.Abstractions;
 using Epinova.ElasticSearch.Core.EPiServer.Models.ViewModels;
-using Epinova.ElasticSearch.Core.Extensions;
 using Epinova.ElasticSearch.Core.Models;
 using Epinova.ElasticSearch.Core.Settings;
 using Epinova.ElasticSearch.Core.Settings.Configuration;
