@@ -58,7 +58,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Initialization
         {
             try
             {
-                RouteTable.Routes.MapRoute("ElasticSearchAdmin", "ElasticSearchAdmin/{controller}/{action}", new { controller = "Admin", action = "Index"}, new { controller = GetControllers() });
+                RouteTable.Routes.MapRoute("ElasticSearchAdmin", "ElasticSearchAdmin/{controller}/{action}", new { controller = "ElasticAdmin", action = "Index"}, new { controller = GetControllers() });
 
                 Logger.Information($"Initializing Elasticsearch.\n{Server.Info}\nPlugins:\n{String.Join("\n", Server.Plugins.Select(p => p.ToString()))}");
 

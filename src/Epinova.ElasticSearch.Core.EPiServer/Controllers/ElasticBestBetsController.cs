@@ -6,7 +6,6 @@ using Epinova.ElasticSearch.Core.Contracts;
 using Epinova.ElasticSearch.Core.Conventions;
 using Epinova.ElasticSearch.Core.EPiServer.Controllers.Abstractions;
 using Epinova.ElasticSearch.Core.EPiServer.Models.ViewModels;
-using Epinova.ElasticSearch.Core.Extensions;
 using Epinova.ElasticSearch.Core.Models;
 using Epinova.ElasticSearch.Core.Settings;
 using Epinova.ElasticSearch.Core.Settings.Configuration;
@@ -69,10 +68,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Controllers
             ViewBag.Indices = indices.Count > 1 ? indices : null;
             ViewBag.SelectedIndex = index;
 
-            if (languageId != null)
-                CurrentLanguage = languageId;
-
-            var model = new BestBetsViewModel(CurrentLanguage);
+            var model = new BestBetsViewModel(languageId);
 
             foreach (var language in languages)
             {
@@ -131,8 +127,6 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Controllers
                 Indexing.SetupBestBets();
             }
 
-            CurrentLanguage = languageId;
-
             return RedirectToAction("Index", new { index, languageId });
         }
 
@@ -143,9 +137,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Controllers
 
             Indexing.SetupBestBets();
 
-            CurrentLanguage = languageId;
-
-            return RedirectToAction("Index");
+            return RedirectToAction("Index", new { languageId });
         }
     }
 }

@@ -4,7 +4,6 @@ using System.Web.Mvc;
 using Epinova.ElasticSearch.Core.EPiServer.Contracts;
 using Epinova.ElasticSearch.Core.EPiServer.Controllers.Abstractions;
 using Epinova.ElasticSearch.Core.EPiServer.Models.ViewModels;
-using EPiServer;
 using EPiServer.DataAbstraction;
 
 namespace Epinova.ElasticSearch.Core.EPiServer.Controllers
@@ -14,21 +13,20 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Controllers
         private readonly ILanguageBranchRepository _languageBranchRepository;
         private readonly IAutoSuggestRepository _autoSuggestRepository;
 
-        public ElasticAutoSuggestController(IContentLoader contentLoader, ILanguageBranchRepository languageBranchRepository, IAutoSuggestRepository autoSuggestRepository)
+        public ElasticAutoSuggestController(ILanguageBranchRepository languageBranchRepository, IAutoSuggestRepository autoSuggestRepository)
         {
             _languageBranchRepository = languageBranchRepository;
             _autoSuggestRepository = autoSuggestRepository;
         }
 
-
         [Authorize(Roles = "ElasticsearchAdmins")]
-        public ActionResult Index()
+        public ActionResult Index(string languageId = null)
         {
             var languages = _languageBranchRepository.ListEnabled()
                 .Select(lang => new {lang.LanguageID, lang.Name})
                 .ToArray();
 
-            AutoSuggestViewModel model = new AutoSuggestViewModel(CurrentLanguage);
+            AutoSuggestViewModel model = new AutoSuggestViewModel(languageId);
 
             foreach (var language in languages)
             {
@@ -52,8 +50,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Controllers
             if(!String.IsNullOrWhiteSpace(word))
                 _autoSuggestRepository.AddWord(languageId, word.Replace("|", String.Empty));
 
-            CurrentLanguage = languageId;
-            return RedirectToAction("Index");
+            return RedirectToAction("Index", new { languageId });
         }
 
         public ActionResult DeleteWord(string languageId, string word)
@@ -61,8 +58,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Controllers
             if (!String.IsNullOrWhiteSpace(word))
                 _autoSuggestRepository.DeleteWord(languageId, word);
 
-            CurrentLanguage = languageId;
-            return RedirectToAction("Index");
+            return RedirectToAction("Index", new { languageId });
         }
     }
 }
