@@ -68,7 +68,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Controllers
             ViewBag.Indices = indices.Count > 1 ? indices : null;
             ViewBag.SelectedIndex = index;
 
-            var model = new BestBetsViewModel(languageId ?? String.Empty);
+            var model = new BestBetsViewModel(languageId);
 
             foreach (var language in languages)
             {

@@ -34,7 +34,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Controllers
                 .Select(lang => new {lang.LanguageID, lang.Name})
                 .ToArray();
 
-            TrackingViewModel model = new TrackingViewModel(languageId ?? String.Empty);
+            TrackingViewModel model = new TrackingViewModel(languageId);
 
             foreach (var language in languages)
             {

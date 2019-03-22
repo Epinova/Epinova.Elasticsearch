@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Epinova.ElasticSearch.Core.EPiServer.Models.ViewModels.Abstractions;
 using EPiServer;
 using EPiServer.Core;
 using EPiServer.Framework.Web.Resources;
@@ -10,11 +11,10 @@ using EPiServer.Web;
 
 namespace Epinova.ElasticSearch.Core.EPiServer.Models.ViewModels
 {
-    public class BestBetsViewModel
+    public class BestBetsViewModel : LanguageAwareViewModelBase
     {
-        public BestBetsViewModel(string currentLanguage)
+        public BestBetsViewModel(string currentLanguage) : base(currentLanguage)
         {
-            CurrentLanguage = currentLanguage;
         }
 
 
@@ -23,8 +23,6 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Models.ViewModels
 
         public List<string> SelectorTypes { get; }
             = new List<string> { "episerver.core.pagedata" };
-
-        public string CurrentLanguage { get; }
 
         public List<BestBetsByLanguage> BestBetsByLanguage { get; } = new List<BestBetsByLanguage>();
 

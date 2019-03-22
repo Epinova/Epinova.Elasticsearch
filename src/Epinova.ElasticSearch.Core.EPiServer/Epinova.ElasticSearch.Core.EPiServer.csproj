@@ -227,6 +227,7 @@
     <Compile Include="Models\ViewModels\BestBetsViewModel.cs" />
     <Compile Include="Models\ViewModels\InspectViewModel.cs" />
     <Compile Include="Models\ViewModels\LanguageAutoSuggestWords.cs" />
+    <Compile Include="Models\ViewModels\Abstractions\LanguageAwareViewModelBase.cs" />
     <Compile Include="Models\ViewModels\LanguageSynonyms.cs" />
     <Compile Include="Models\ViewModels\SynonymsViewModel.cs" />
     <Compile Include="Models\ViewModels\TrackingByLanguage.cs" />
