@@ -56,10 +56,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Controllers
             ViewBag.Indices = indices.Count > 1 ? indices : null;
             ViewBag.SelectedIndex = index;
 
-            if (languageId != null)
-                CurrentLanguage = languageId;
-
-            var model = new SynonymsViewModel(CurrentLanguage);
+            var model = new SynonymsViewModel(languageId ?? String.Empty);
 
             foreach (var language in languages)
             {
@@ -99,8 +96,6 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Controllers
 
             _synonymRepository.SetSynonyms(languageId, analyzer, synonyms, index);
 
-            CurrentLanguage = languageId;
-
             return RedirectToAction("Index", new { index, languageId });
         }
 
@@ -119,8 +114,6 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Controllers
 
                 _synonymRepository.SetSynonyms(languageId, analyzer, synonyms, index);
             }
-
-            CurrentLanguage = languageId;
 
             return RedirectToAction("Index", new { index, languageId });
         }

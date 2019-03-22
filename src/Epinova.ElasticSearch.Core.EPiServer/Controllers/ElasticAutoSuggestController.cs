@@ -19,15 +19,14 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Controllers
             _autoSuggestRepository = autoSuggestRepository;
         }
 
-
         [Authorize(Roles = "ElasticsearchAdmins")]
-        public ActionResult Index()
+        public ActionResult Index(string languageId = null)
         {
             var languages = _languageBranchRepository.ListEnabled()
                 .Select(lang => new {lang.LanguageID, lang.Name})
                 .ToArray();
 
-            AutoSuggestViewModel model = new AutoSuggestViewModel(CurrentLanguage);
+            AutoSuggestViewModel model = new AutoSuggestViewModel(languageId);
 
             foreach (var language in languages)
             {
@@ -51,8 +50,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Controllers
             if(!String.IsNullOrWhiteSpace(word))
                 _autoSuggestRepository.AddWord(languageId, word.Replace("|", String.Empty));
 
-            CurrentLanguage = languageId;
-            return RedirectToAction("Index");
+            return RedirectToAction("Index", new { languageId });
         }
 
         public ActionResult DeleteWord(string languageId, string word)
@@ -60,8 +58,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Controllers
             if (!String.IsNullOrWhiteSpace(word))
                 _autoSuggestRepository.DeleteWord(languageId, word);
 
-            CurrentLanguage = languageId;
-            return RedirectToAction("Index");
+            return RedirectToAction("Index", new { languageId });
         }
     }
 }

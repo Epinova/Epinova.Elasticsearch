@@ -24,18 +24,17 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Controllers
         public ActionResult Clear(string languageId)
         {
             _trackingRepository.Clear(languageId);
-            CurrentLanguage = languageId;
-            return RedirectToAction("Index");
+            return RedirectToAction("Index", new { languageId });
         }
 
         [Authorize(Roles = "ElasticsearchAdmins")]
-        public ActionResult Index()
+        public ActionResult Index(string languageId = null)
         {
             var languages = _languageBranchRepository.ListEnabled()
                 .Select(lang => new {lang.LanguageID, lang.Name})
                 .ToArray();
 
-            TrackingViewModel model = new TrackingViewModel(CurrentLanguage);
+            TrackingViewModel model = new TrackingViewModel(languageId ?? String.Empty);
 
             foreach (var language in languages)
             {
