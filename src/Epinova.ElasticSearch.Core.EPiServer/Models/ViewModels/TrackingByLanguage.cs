@@ -1,13 +1,10 @@
 ﻿using System.Collections.Generic;
+using Epinova.ElasticSearch.Core.EPiServer.Models.ViewModels.Abstractions;
 
 namespace Epinova.ElasticSearch.Core.EPiServer.Models.ViewModels
 {
-    public class TrackingByLanguage
+    public class TrackingByLanguage : LanguageViewModelBase
     {
-        public string LanguageId { get; set; }
-
-        public string LanguageName { get; set; }
-
         public Dictionary<string, long> Searches { get; set; }
     }
 }

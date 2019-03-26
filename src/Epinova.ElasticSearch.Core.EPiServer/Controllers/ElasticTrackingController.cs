@@ -45,12 +45,11 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Controllers
         public ActionResult Clear(string languageId, string index)
         {
             _trackingRepository.Clear(languageId, index);
-            CurrentLanguage = languageId;
-            return RedirectToAction("Index");
+            return RedirectToAction("Index", new { languageId });
         }
 
         [Authorize(Roles = "ElasticsearchAdmins")]
-        public ActionResult Index(string index = null)
+        public ActionResult Index(string languageId = null, string index = null)
         {
             var languages = _languageBranchRepository.ListEnabled()
                 .Select(lang => new {lang.LanguageID, lang.Name})
@@ -65,7 +64,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Controllers
             ViewBag.Indices = indices.Count > 1 ? indices : null;
             ViewBag.SelectedIndex = index;
             
-            TrackingViewModel model = new TrackingViewModel(CurrentLanguage);
+            TrackingViewModel model = new TrackingViewModel(languageId);
 
             foreach (var language in languages)
             {

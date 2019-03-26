@@ -135,7 +135,7 @@
         <create>Create</create>
         <addnewindex>Add new Index</addnewindex>
         <addorupdateindexes>Setup</addorupdateindexes>
-        <addorupdateindexesbutton>Create indices</addorupdateindexesbutton>
+        <addorupdateindexesbutton>Create or update indices</addorupdateindexesbutton>
         <addnewindexinfo>Uses name from configuration.</addnewindexinfo>
         <confirmDelete>Are you sure you want to delete this index?</confirmDelete>
         <delete>Delete</delete>

@@ -1,18 +1,15 @@
 ﻿using System.Collections.Generic;
+using Epinova.ElasticSearch.Core.EPiServer.Models.ViewModels.Abstractions;
 
 namespace Epinova.ElasticSearch.Core.EPiServer.Models.ViewModels
 {
-    public class TrackingViewModel
+    public class TrackingViewModel : LanguageAwareViewModelBase
     {
-        public TrackingViewModel(string currentLanguage)
+        public TrackingViewModel(string currentLanguage) : base(currentLanguage)
         {
             SearchesByLanguage = new List<TrackingByLanguage>();
             SearchesWithoutHitsByLanguage = new List<TrackingByLanguage>();
-            CurrentLanguage = currentLanguage;
         }
-
-
-        public string CurrentLanguage { get; }
 
         public List<TrackingByLanguage> SearchesByLanguage { get; }
 

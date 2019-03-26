@@ -221,12 +221,14 @@
     <Compile Include="Models\Synonym.cs" />
     <Compile Include="Models\SynonymBackupFile.cs" />
     <Compile Include="Models\SynonymBackupFileFolder.cs" />
+    <Compile Include="Models\ViewModels\Abstractions\LanguageViewModelBase.cs" />
     <Compile Include="Models\ViewModels\AdminViewModel.cs" />
     <Compile Include="Models\ViewModels\AutoSuggestViewModel.cs" />
     <Compile Include="Models\ViewModels\BestBetsByLanguage.cs" />
     <Compile Include="Models\ViewModels\BestBetsViewModel.cs" />
     <Compile Include="Models\ViewModels\InspectViewModel.cs" />
     <Compile Include="Models\ViewModels\LanguageAutoSuggestWords.cs" />
+    <Compile Include="Models\ViewModels\Abstractions\LanguageAwareViewModelBase.cs" />
     <Compile Include="Models\ViewModels\LanguageSynonyms.cs" />
     <Compile Include="Models\ViewModels\SynonymsViewModel.cs" />
     <Compile Include="Models\ViewModels\TrackingByLanguage.cs" />
