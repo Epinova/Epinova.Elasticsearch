@@ -12,9 +12,101 @@ namespace Epinova.ElasticSearch.Core
         private readonly List<RangeBase> _ranges;
 
         public IElasticSearchService<T> Range(
+            string fieldName, 
+            int greaterThan, 
+            int lessThan)
+        {
+            return CreateIntegerRange(fieldName, greaterThan, lessThan);
+        }
+
+
+        public IElasticSearchService<T> Range(
+            string fieldName,
+            long greaterThan,
+            long? lessThan = null)
+        {
+            return CreateRange(fieldName, greaterThan, lessThan);
+        }
+
+
+        public IElasticSearchService<T> Range(
+            string fieldName,
+            double greaterThan,
+            double? lessThan = null)
+        {
+            return CreateRange(fieldName, greaterThan, lessThan);
+        }
+
+
+        public IElasticSearchService<T> Range(
+            string fieldName,
+            decimal greaterThan,
+            decimal? lessThan = null)
+        {
+            return CreateRange(fieldName, greaterThan, lessThan);
+        }
+
+
+        public IElasticSearchService<T> Range(
+            string fieldName,
+            DateTime greaterThan,
+            DateTime? lessThan = null)
+        {
+            return CreateRange(fieldName, greaterThan, lessThan);
+        }
+
+
+        public IElasticSearchService<T> RangeInclusive(
+            string fieldName,
+            DateTime greaterThanOrEqualTo,
+            DateTime? lessThanOrEqualTo = null)
+        {
+            return CreateRange(fieldName, greaterThanOrEqualTo, lessThanOrEqualTo, true);
+        }
+
+
+        public IElasticSearchService<T> RangeInclusive(
+            string fieldName,
+            double greaterThanOrEqualTo,
+            double? lessThanOrEqualTo = null)
+        {
+            return CreateRange(fieldName, greaterThanOrEqualTo, lessThanOrEqualTo, true);
+        }
+
+
+        public IElasticSearchService<T> RangeInclusive(
+            string fieldName,
+            long greaterThanOrEqualTo,
+            long? lessThanOrEqualTo = null)
+        {
+            return CreateRange(fieldName, greaterThanOrEqualTo, lessThanOrEqualTo, true);
+        }
+
+
+        public IElasticSearchService<T> RangeInclusive(
+            string fieldName,
+            decimal greaterThanOrEqualTo,
+            decimal? lessThanOrEqualTo = null)
+        {
+            return CreateRange(fieldName, greaterThanOrEqualTo, lessThanOrEqualTo, true);
+        }
+
+
+        public IElasticSearchService<T> RangeInclusive(
+            string fieldName, 
+            int greaterThanOrEqualTo, 
+            int lessThanOrEqualTo)
+        {
+            return CreateIntegerRange(fieldName, greaterThanOrEqualTo, lessThanOrEqualTo, true);
+        }
+
+
+
+
+        public IElasticSearchService<T> Range(
             Expression<Func<T, IntegerRange>> fieldSelector, int greaterThan, int lessThan)
         {
-            return CreateIntegerRange(fieldSelector, greaterThan, lessThan);
+            return CreateIntegerRange(GetFieldName(fieldSelector), greaterThan, lessThan);
         }
 
 
@@ -23,7 +115,7 @@ namespace Epinova.ElasticSearch.Core
             long greaterThan,
             long? lessThan = null)
         {
-            return CreateRange(fieldSelector, greaterThan, lessThan);
+            return CreateRange(GetFieldName(fieldSelector), greaterThan, lessThan);
         }
 
 
@@ -32,7 +124,7 @@ namespace Epinova.ElasticSearch.Core
             double greaterThan,
             double? lessThan = null)
         {
-            return CreateRange(fieldSelector, greaterThan, lessThan);
+            return CreateRange(GetFieldName(fieldSelector), greaterThan, lessThan);
         }
 
 
@@ -41,7 +133,7 @@ namespace Epinova.ElasticSearch.Core
             decimal greaterThan,
             decimal? lessThan = null)
         {
-            return CreateRange(fieldSelector, greaterThan, lessThan);
+            return CreateRange(GetFieldName(fieldSelector), greaterThan, lessThan);
         }
 
 
@@ -50,7 +142,7 @@ namespace Epinova.ElasticSearch.Core
             DateTime greaterThan,
             DateTime? lessThan = null)
         {
-            return CreateRange(fieldSelector, greaterThan, lessThan);
+            return CreateRange(GetFieldName(fieldSelector), greaterThan, lessThan);
         }
 
 
@@ -59,7 +151,7 @@ namespace Epinova.ElasticSearch.Core
             DateTime greaterThanOrEqualTo,
             DateTime? lessThanOrEqualTo = null)
         {
-            return CreateRange(fieldSelector, greaterThanOrEqualTo, lessThanOrEqualTo, true);
+            return CreateRange(GetFieldName(fieldSelector), greaterThanOrEqualTo, lessThanOrEqualTo, true);
         }
 
 
@@ -68,7 +160,7 @@ namespace Epinova.ElasticSearch.Core
             double greaterThanOrEqualTo,
             double? lessThanOrEqualTo = null)
         {
-            return CreateRange(fieldSelector, greaterThanOrEqualTo, lessThanOrEqualTo, true);
+            return CreateRange(GetFieldName(fieldSelector), greaterThanOrEqualTo, lessThanOrEqualTo, true);
         }
 
 
@@ -77,7 +169,7 @@ namespace Epinova.ElasticSearch.Core
             long greaterThanOrEqualTo,
             long? lessThanOrEqualTo = null)
         {
-            return CreateRange(fieldSelector, greaterThanOrEqualTo, lessThanOrEqualTo, true);
+            return CreateRange(GetFieldName(fieldSelector), greaterThanOrEqualTo, lessThanOrEqualTo, true);
         }
 
 
@@ -86,26 +178,24 @@ namespace Epinova.ElasticSearch.Core
             decimal greaterThanOrEqualTo,
             decimal? lessThanOrEqualTo = null)
         {
-            return CreateRange(fieldSelector, greaterThanOrEqualTo, lessThanOrEqualTo, true);
+            return CreateRange(GetFieldName(fieldSelector), greaterThanOrEqualTo, lessThanOrEqualTo, true);
         }
 
 
         public IElasticSearchService<T> RangeInclusive(
             Expression<Func<T, IntegerRange>> fieldSelector, int greaterThanOrEqualTo, int lessThanOrEqualTo)
         {
-            return CreateIntegerRange(fieldSelector, greaterThanOrEqualTo, lessThanOrEqualTo, true);
+            return CreateIntegerRange(GetFieldName(fieldSelector), greaterThanOrEqualTo, lessThanOrEqualTo, true);
         }
 
 
         private IElasticSearchService<T> CreateIntegerRange(
-            Expression<Func<T, IntegerRange>> fieldSelector,
+            string fieldName,
             int greaterThan,
             int lessThan,
             bool inclusive = false,
             string relation = "intersects")
         {
-            string fieldName = GetFieldName(fieldSelector);
-
             Range<int> range = new Range<int>(fieldName, true)
             {
                 RangeSetting =
@@ -134,14 +224,13 @@ namespace Epinova.ElasticSearch.Core
 
 
         private IElasticSearchService<T> CreateRange<TValue>(
-            Expression<Func<T, TValue?>> fieldSelector,
+            string fieldName,
             TValue greaterThan,
             TValue? lessThan,
             bool inclusive = false,
             string relation = null)
             where TValue : struct
         {
-            string fieldName = GetFieldName(fieldSelector);
             Range<TValue> range = new Range<TValue>(fieldName, inclusive)
             {
                 RangeSetting =
