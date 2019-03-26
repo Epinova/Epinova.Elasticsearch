@@ -5,7 +5,6 @@ using System.Web.Mvc;
 using Epinova.ElasticSearch.Core.EPiServer.Contracts;
 using Epinova.ElasticSearch.Core.EPiServer.Controllers;
 using Epinova.ElasticSearch.Core.EPiServer.Models.ViewModels;
-using EPiServer;
 using EPiServer.DataAbstraction;
 using Moq;
 using Xunit;
@@ -19,7 +18,6 @@ namespace Core.Episerver.Tests.Controllers
 
         public AutoSuggestControllerTests()
         {
-            var contentLoaderMock = new Mock<IContentLoader>();
             _autoSuggestRepositoryMock = new Mock<IAutoSuggestRepository>();
 
             var languageBranchRepositoryMock = new Mock<ILanguageBranchRepository>();
@@ -31,7 +29,6 @@ namespace Core.Episerver.Tests.Controllers
                 });
 
             _controller = new ElasticAutoSuggestController(
-                contentLoaderMock.Object,
                 languageBranchRepositoryMock.Object,
                 _autoSuggestRepositoryMock.Object);
         }

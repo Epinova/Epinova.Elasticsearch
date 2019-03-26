@@ -50,9 +50,9 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Controllers
                 var parsed = config.IndicesParsed.FirstOrDefault(i =>
                     index.Index.StartsWith(i.Name, StringComparison.InvariantCultureIgnoreCase));
 
-                index.Type = String.IsNullOrWhiteSpace(parsed.Type)
+                index.Type = String.IsNullOrWhiteSpace(parsed?.Type)
                     ? "[default]"
-                    : Type.GetType(parsed.Type).Name;
+                    : Type.GetType(parsed.Type)?.Name;
             }
 
             var adminViewModel = new AdminViewModel(clusterHealth, allIndices.OrderBy(i => i.Type), nodeInfo);
