@@ -41,14 +41,14 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Controllers
         }
 
 
-        [Authorize(Roles = "ElasticsearchAdmins")]
+        [Authorize(Roles = RoleNames.ElasticsearchAdmins)]
         public ActionResult Clear(string languageId, string index)
         {
             _trackingRepository.Clear(languageId, index);
             return RedirectToAction("Index", new { languageId });
         }
 
-        [Authorize(Roles = "ElasticsearchAdmins")]
+        [Authorize(Roles = RoleNames.ElasticsearchAdmins)]
         public ActionResult Index(string languageId = null, string index = null)
         {
             var languages = _languageBranchRepository.ListEnabled()

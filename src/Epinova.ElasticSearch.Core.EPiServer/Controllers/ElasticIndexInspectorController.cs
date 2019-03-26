@@ -23,7 +23,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Controllers
         }
 
 
-        [Authorize(Roles = "ElasticsearchAdmins")]
+        [Authorize(Roles = RoleNames.ElasticsearchAdmins)]
         public ActionResult Index(InspectViewModel model)
         {
             model.Languages = _languageBranchRepository.ListEnabled();

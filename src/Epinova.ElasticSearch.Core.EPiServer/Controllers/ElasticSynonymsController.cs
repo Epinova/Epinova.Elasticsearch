@@ -40,7 +40,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Controllers
         }
 
 
-        [Authorize(Roles = "ElasticsearchAdmins")]
+        [Authorize(Roles = RoleNames.ElasticsearchAdmins)]
         public ActionResult Index(string index = null, string languageId = null)
         {
             var languages = _languageBranchRepository.ListEnabled()
@@ -84,7 +84,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Controllers
             return View("~/Views/ElasticSearchAdmin/Synonyms/Index.cshtml", model);
         }
 
-        [Authorize(Roles = "ElasticsearchAdmins")]
+        [Authorize(Roles = RoleNames.ElasticsearchAdmins)]
         public ActionResult Delete(Synonym synonym, string languageId, string analyzer, string index)
         {
             List<Synonym> synonyms = _synonymRepository.GetSynonyms(languageId, index);
@@ -100,7 +100,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Controllers
         }
 
         [HttpPost]
-        [Authorize(Roles = "ElasticsearchAdmins")]
+        [Authorize(Roles = RoleNames.ElasticsearchAdmins)]
         public ActionResult Add(Synonym synonym, string languageId, string analyzer, string index)
         {
             if (!String.IsNullOrWhiteSpace(synonym.From) && !String.IsNullOrWhiteSpace(synonym.To))

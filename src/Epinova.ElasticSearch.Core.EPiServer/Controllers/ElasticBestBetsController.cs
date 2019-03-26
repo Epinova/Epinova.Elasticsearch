@@ -15,7 +15,7 @@ using EPiServer.DataAbstraction;
 
 namespace Epinova.ElasticSearch.Core.EPiServer.Controllers
 {
-    [Authorize(Roles = "ElasticsearchAdmins")]
+    [Authorize(Roles = RoleNames.ElasticsearchAdmins)]
     public class ElasticBestBetsController : ElasticSearchControllerBase
     {
         private readonly IContentLoader _contentLoader;
@@ -52,7 +52,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Controllers
         }
 
 
-        [Authorize(Roles = "ElasticsearchAdmins")]
+        [Authorize(Roles = RoleNames.ElasticsearchAdmins)]
         public ActionResult Index(string index = null, string languageId = null)
         {
             var languages = _languageBranchRepository.ListEnabled()

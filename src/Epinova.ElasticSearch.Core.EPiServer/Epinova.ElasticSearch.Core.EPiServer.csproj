@@ -241,6 +241,7 @@
     <Compile Include="Providers\PageSearchProvider.cs" />
     <Compile Include="Providers\ProviderConstants.cs" />
     <Compile Include="Providers\SearchProviderBase.cs" />
+    <Compile Include="RoleNames.cs" />
     <Compile Include="Services\AutoSuggestRepository.cs" />
     <Compile Include="Services\BestBetsRepository.cs" />
     <Compile Include="Services\BoostingRepository.cs" />
