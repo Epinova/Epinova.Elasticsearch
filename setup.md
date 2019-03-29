@@ -53,11 +53,8 @@ Add the following configurations:
     <episerver.framework>
       <virtualRoles>
         <providers>
-          <add 
-            name="ElasticsearchAdmins" 
-            roles="WebAdmins,Administrators" 
-            mode="Any" 
-            type="EPiServer.Security.MappedRole, EPiServer" />
+          <add name="ElasticsearchAdmins" roles="CmsAdmins" mode="Any" type="EPiServer.Security.MappedRole, EPiServer" />
+          <add name="ElasticsearchEditors" roles="CmsEditors" mode="Any" type="EPiServer.Security.MappedRole, EPiServer" />
         </providers>
       </virtualRoles>
     </episerver.framework>
