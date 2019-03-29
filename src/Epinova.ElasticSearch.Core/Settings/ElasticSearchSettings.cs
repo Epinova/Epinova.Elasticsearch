@@ -58,6 +58,10 @@ namespace Epinova.ElasticSearch.Core.Settings
         public long DocumentMaxSize => _configuration.Files.ParsedMaxsize;
 
         public int BulkSize => _configuration.Bulksize;
+        
+        public int NumberOfShards => _configuration.NumberOfShards;
+        
+        public int NumberOfReplicas => _configuration.NumberOfReplicas;
 
         public int ProviderMaxResults => _configuration.ProviderMaxResults;
 

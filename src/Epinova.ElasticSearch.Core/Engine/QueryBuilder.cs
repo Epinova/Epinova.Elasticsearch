@@ -58,7 +58,7 @@ namespace Epinova.ElasticSearch.Core.Engine
             {
                 Log.Debug("No mapped fields found, lookup with Mapping.GetIndexMapping");
 
-                _mappedFields = Mapping.GetIndexMapping(_searchType, language, index)
+                _mappedFields = Mapping.GetIndexMapping(typeof(IndexItem), language, index)
                     .Properties
                     .Where(m => _searchableFieldTypes.Contains(m.Value.Type)
                         && !m.Key.EndsWith(Models.Constants.KeywordSuffix))
@@ -125,10 +125,7 @@ namespace Epinova.ElasticSearch.Core.Engine
                     "From (skip) and size (take) must be less than or equal to: 10000. If you really must, this limit can be set by changing the [index.max_result_window] index level parameter");
             }
 
-            var request = new QueryRequest(setup)
-            {
-                SourceFields = setup.ReturnFields
-            };
+            var request = new QueryRequest(setup);
 
             request.Query.SearchText = setup.SearchText.ToLower();
 
@@ -142,6 +139,7 @@ namespace Epinova.ElasticSearch.Core.Engine
             }
 
             SetupAttachmentFields(setup);
+            SetupSourceFields(request, setup);
 
             if (setup.IsWildcard)
             {
@@ -176,7 +174,7 @@ namespace Epinova.ElasticSearch.Core.Engine
                     request.Query.Bool.Should.Add(
                         new MatchMulti(
                             request.Query.SearchText,
-                            new List<string> { DefaultFields.All },
+                            setup.SearchFields,
                             setup.Operator,
                             "phrase",
                             2));
@@ -221,6 +219,28 @@ namespace Epinova.ElasticSearch.Core.Engine
             }
 
             return request;
+        }
+
+        private void SetupSourceFields(QueryRequest request, QuerySetup setup)
+        {
+            var fields = request.SourceFields?.ToList() ?? new List<string>();
+            fields.AddRange(setup.SearchFields);
+
+            fields.Add(DefaultFields.Id);
+            fields.Add(DefaultFields.Indexed);
+            fields.Add(DefaultFields.ParentLink);
+            fields.Add(DefaultFields.Name);
+            fields.Add(DefaultFields.Type);
+            fields.Add(DefaultFields.Types);
+            fields.Add(DefaultFields.Path);
+            fields.Add(DefaultFields.StartPublish);
+            fields.Add(DefaultFields.StopPublish);
+            fields.Add(DefaultFields.Created);
+            fields.Add(DefaultFields.Changed);
+
+            fields.Remove(DefaultFields.BestBets);
+
+            request.SourceFields = fields.Distinct().OrderBy(f => f).ToArray();
         }
 
         private static void AppendDefaultFilters(QueryBase query, Type type)
@@ -426,12 +446,12 @@ namespace Epinova.ElasticSearch.Core.Engine
             AppendDefaultFilters(request.Query, setup.Type);
 
 
-            if (request.Query.Bool.Should.Count > 0)
+            if (request.Query.Bool.Should.Count > 1 && request.Query.Bool.Must.Count == 0)
                 request.Query.Bool.MinimumNumberShouldMatch = 1;
             else
                 request.Query.Bool.MinimumNumberShouldMatch = null;
 
-            if (request.PostFilter.Bool.Should.Count > 0)
+            if (request.PostFilter.Bool.Should.Count > 0 && request.PostFilter.Bool.Must.Count == 0)
                 request.PostFilter.Bool.MinimumNumberShouldMatch = 1;
             else
                 request.PostFilter.Bool.MinimumNumberShouldMatch = null;
@@ -469,20 +489,13 @@ namespace Epinova.ElasticSearch.Core.Engine
 
         private static void SetupAttachmentFields(QuerySetup querySetup)
         {
-            if (!querySetup.SearchFields.Contains(DefaultFields.Attachment))
-                return;
-
-            querySetup.SearchFields.Remove(DefaultFields.Attachment);
+            querySetup.SearchFields.Remove(DefaultFields.AttachmentData);
             querySetup.SearchFields.Remove(DefaultFields.AttachmentContent);
             querySetup.SearchFields.Remove(DefaultFields.AttachmentAuthor);
-            querySetup.SearchFields.Remove(DefaultFields.AttachmentTitle);
-            querySetup.SearchFields.Remove(DefaultFields.AttachmentName);
             querySetup.SearchFields.Remove(DefaultFields.AttachmentKeywords);
 
             querySetup.SearchFields.Add(DefaultFields.AttachmentContent);
             querySetup.SearchFields.Add(DefaultFields.AttachmentAuthor);
-            querySetup.SearchFields.Add(DefaultFields.AttachmentTitle);
-            querySetup.SearchFields.Add(DefaultFields.AttachmentName);
             querySetup.SearchFields.Add(DefaultFields.AttachmentKeywords);
         }
 

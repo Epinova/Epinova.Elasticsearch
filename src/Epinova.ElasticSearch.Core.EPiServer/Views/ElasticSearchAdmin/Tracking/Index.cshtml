@@ -39,6 +39,26 @@
         {
             <div data-dojo-type="dijit/layout/ContentPane" title="@lang.LanguageName" data-dojo-props="@(lang.LanguageId == Model.CurrentLanguage ? "selected:true" : null)">
                 <div class="epi-padding-small">
+                    @if (ViewBag.Indices != null)
+                    {
+                        using (Html.BeginForm("Index", "ElasticTracking"))
+                        {
+                            <input type="hidden" name="LanguageId" value="@lang.LanguageId" />
+                            <h2>@Html.TranslateWithPathRaw("index", localizationPath)</h2>
+                            <p>
+                                <label>
+                                    <select data-dojo-type="dijit/form/Select" name="index">
+                                        @foreach (string index in ViewBag.Indices)
+                                        {
+                                            <option value="@index" selected="@(ViewBag.SelectedIndex == index ? "selected" : null)">@index</option>
+                                        }
+                                    </select>
+                                </label>
+                                <button data-dojo-type="dijit/form/Button" type="submit" class="epi-primary">@Html.TranslateWithPathRaw("show", localizationPath)</button>
+                            </p>
+                        }
+                    }
+                    
                     <h2>@Html.TranslateWithPath("searches", localizationPath)</h2>
                     <div id="@(lang.LanguageId)-wordsGrid"></div>
                     <h2>@Html.TranslateWithPath("searchesnohits", localizationPath)</h2>
@@ -47,6 +67,7 @@
                     @using (Html.BeginForm("Clear", "ElasticTracking"))
                     {
                         <input type="hidden" name="LanguageID" value="@lang.LanguageId" />
+                        <input type="hidden" name="index" value="@ViewBag.SelectedIndex" />
                         <p>&nbsp;</p>
                         <p>
                             <button data-dojo-type="dijit/form/Button"
@@ -54,9 +75,9 @@
                                     type="submit"
                                     class="epi-primary @(lang.Searches.Count == 0 ? "is-disabled" : null)">
                                 @Html.TranslateWithPath("clear", localizationPath)
-                                </button>
-                            </p>
-                        }
+                            </button>
+                        </p>
+                    }
                 </div>
             </div>
         }
@@ -86,7 +107,7 @@
                     .renderArray([
                         @foreach (KeyValuePair<string, long> search in lang.Searches)
                         {
-                            <text>{ word: htmlDecode("@search.Key"), count: "@search.Value" }</text>
+                            <text>{ word: htmlDecode("@Html.Raw(search.Key)"), count: "@search.Value" }</text>
                             @(search.Key != lang.Searches.Last().Key ? "," : null)
                         }
                     ]);
@@ -106,7 +127,7 @@
                     .renderArray([
                         @foreach (KeyValuePair<string, long> search in lang.Searches)
                         {
-                            <text>{ word: htmlDecode("@search.Key"), count: "@search.Value" }</text>
+                            <text>{ word: htmlDecode("@Html.Raw(search.Key)"), count: "@search.Value" }</text>
                             @(search.Key != lang.Searches.Last().Key ? "," : null)
                         }
                     ]);

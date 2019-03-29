@@ -5,7 +5,10 @@
       "lenient": true,
       "operator": "or",
       "fields": [
-        "bar"
+        "bar",
+        "attachment.content",
+        "attachment.author",
+        "attachment.keywords"
       ]
     }
   }
@@ -19,7 +22,10 @@
       "type": "phrase",
       "boost": 2,
       "fields": [
-        "_all"
+        "bar",
+        "attachment.content",
+        "attachment.author",
+        "attachment.keywords"
       ]
     }
   }

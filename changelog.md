@@ -1,5 +1,10 @@
 # Changelog
 
+#### 11.6
+* ES 6 support
+* Replace Attachment Mapper with Ingest plugin
+* No dynamic mapping, base on analyzed content
+
 #### 11.4
 
 * Commerce overhaul, catalog content now has its own index

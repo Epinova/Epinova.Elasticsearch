@@ -68,7 +68,7 @@ namespace Epinova.ElasticSearch.Core.Utilities
         {
             List = new ConcurrentDictionary<string, dynamic>();
 
-            var synonymFilter = new { ignore_case = true, type = "synonym", synonyms = new[] { "example_from,example_to" } };
+            var synonymFilter = new { type = "synonym", synonyms = new[] { "example_from,example_to" } };
 
             dynamic dutch = new { settings = new { analysis = new {
                 char_filter = new {

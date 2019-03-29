@@ -272,10 +272,9 @@ namespace Epinova.ElasticSearch.Core.Engine
             if (indexName == null)
                 indexName = _elasticSearchSettings.GetDefaultIndexName(Language.GetLanguageCode(culture));
 
-            var endpoint = $"{_elasticSearchSettings.Host}/{indexName}/_suggest";
+            var endpoint = $"{_elasticSearchSettings.Host}/{indexName}/_search";
 
-            Logger.Information(
-                $"GetSuggestions query:\nGET {endpoint}\n{request?.ToString(Formatting.Indented)}\n");
+            Logger.Information($"GetSuggestions query:\nGET {endpoint}\n{request?.ToString(Formatting.Indented)}\n");
 
             JsonReader response = GetResponse(request, endpoint, out _);
 

@@ -82,7 +82,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Providers
                 {
                     IElasticSearchService<TContentData> searchQuery = CreateQuery(query, language, searchRootId);
                     ContentSearchResult<TContentData> contentSearchResult =
-                        searchQuery.GetContentResults(providerNames: GetProviderKeys());
+                        searchQuery.GetContentResults(false, GetProviderKeys());
 
                     contentSearchHits.AddRange(contentSearchResult.Hits);
                 }

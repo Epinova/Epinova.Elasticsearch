@@ -8,8 +8,6 @@ namespace Epinova.ElasticSearch.Core.Models.Query
     {
         public class MatchInternal
         {
-            [JsonProperty(DefaultFields.All)]
-            public All AllQuery { get; internal set; }
         }
 
         public class All
@@ -27,14 +25,7 @@ namespace Epinova.ElasticSearch.Core.Models.Query
 
         public Match(string query, Operator @operator)
         {
-            MatchQuery = new MatchInternal
-            {
-                AllQuery = new All
-                {
-                    Query = query,
-                    Operator = @operator
-                }
-            };
+            MatchQuery = new MatchInternal();
         }
 
         [JsonProperty(JsonNames.Match)]

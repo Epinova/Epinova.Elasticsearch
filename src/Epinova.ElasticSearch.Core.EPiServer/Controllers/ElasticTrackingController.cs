@@ -4,6 +4,8 @@ using System.Web.Mvc;
 using Epinova.ElasticSearch.Core.Contracts;
 using Epinova.ElasticSearch.Core.EPiServer.Controllers.Abstractions;
 using Epinova.ElasticSearch.Core.EPiServer.Models.ViewModels;
+using Epinova.ElasticSearch.Core.Settings;
+using EPiServer;
 using EPiServer.DataAbstraction;
 
 namespace Epinova.ElasticSearch.Core.EPiServer.Controllers
@@ -12,28 +14,56 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Controllers
     {
         private readonly ILanguageBranchRepository _languageBranchRepository;
         private readonly ITrackingRepository _trackingRepository;
+        private readonly Admin.Index _indexHelper;
 
-        public ElasticTrackingController(ILanguageBranchRepository languageBranchRepository, ITrackingRepository trackingRepository)
+        internal ElasticTrackingController(
+            IContentLoader contentLoader, 
+            ILanguageBranchRepository languageBranchRepository, 
+            ITrackingRepository trackingRepository,
+            Admin.Index indexHelper)
         {
             _languageBranchRepository = languageBranchRepository;
             _trackingRepository = trackingRepository;
+            _indexHelper = indexHelper;
+        }
+
+        public ElasticTrackingController(
+            IContentLoader contentLoader,
+            ILanguageBranchRepository languageBranchRepository,
+            ITrackingRepository trackingRepository,
+            IElasticSearchSettings settings)
+            : this(
+                contentLoader,
+                languageBranchRepository,
+                trackingRepository,
+                new Admin.Index(settings))
+        {
         }
 
 
-        [Authorize(Roles = "ElasticsearchAdmins")]
-        public ActionResult Clear(string languageId)
+        [Authorize(Roles = RoleNames.ElasticsearchAdmins)]
+        public ActionResult Clear(string languageId, string index)
         {
-            _trackingRepository.Clear(languageId);
+            _trackingRepository.Clear(languageId, index);
             return RedirectToAction("Index", new { languageId });
         }
 
-        [Authorize(Roles = "ElasticsearchAdmins")]
-        public ActionResult Index(string languageId = null)
+        [Authorize(Roles = RoleNames.ElasticsearchAdmins)]
+        public ActionResult Index(string languageId = null, string index = null)
         {
             var languages = _languageBranchRepository.ListEnabled()
                 .Select(lang => new {lang.LanguageID, lang.Name})
                 .ToArray();
 
+            var indices = _indexHelper.GetIndices()
+                .Select(i => i.Index).ToList();
+
+            if (String.IsNullOrWhiteSpace(index) || !indices.Contains(index))
+                index = indices.FirstOrDefault();
+
+            ViewBag.Indices = indices.Count > 1 ? indices : null;
+            ViewBag.SelectedIndex = index;
+            
             TrackingViewModel model = new TrackingViewModel(languageId);
 
             foreach (var language in languages)
@@ -46,7 +76,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Controllers
                     LanguageName = name,
                     LanguageId = language.LanguageID,
                     Searches = _trackingRepository
-                        .GetSearches(language.LanguageID)
+                        .GetSearches(language.LanguageID, index)
                         .OrderByDescending(kvp => kvp.Searches)
                         .ToDictionary(d => d.Query, d => d.Searches)
                 });
@@ -56,7 +86,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Controllers
                     LanguageName = name,
                     LanguageId = language.LanguageID,
                     Searches = _trackingRepository
-                        .GetSearchesWithoutHits(language.LanguageID)
+                        .GetSearchesWithoutHits(language.LanguageID, index)
                         .OrderByDescending(kvp => kvp.Searches)
                         .ToDictionary(d => d.Query, d => d.Searches)
                 });

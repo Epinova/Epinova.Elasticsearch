@@ -33,7 +33,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Controllers
             _healthHelper = new Health(settings);
         }
 
-        [Authorize(Roles = "ElasticsearchAdmins")]
+        [Authorize(Roles = RoleNames.ElasticsearchAdmins)]
         public ActionResult Index()
         {
             HealthInformation clusterHealth = _healthHelper.GetClusterHealth();
@@ -60,7 +60,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Controllers
             return View("~/Views/ElasticSearchAdmin/Admin/Index.cshtml", adminViewModel);
         }
 
-        [Authorize(Roles = "ElasticsearchAdmins")]
+        [Authorize(Roles = RoleNames.ElasticsearchAdmins)]
         public ActionResult AddNewIndex()
         {
             if (Core.Server.Info.Version.Major < 5)
@@ -85,11 +85,12 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Controllers
                     {
                         index.Initialize(indexType);
                         index.WaitForStatus();
+                        index.DisableDynamicMapping(indexType);
+                        index.WaitForStatus();
                     }
 
                     if (IsCustomType(indexType))
                     {
-                        index.DisableDynamicMapping(indexType);
                         _coreIndexer.UpdateMapping(indexType, indexType, indexName, lang, true);
                         index.WaitForStatus();
                     }
@@ -100,6 +101,8 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Controllers
                         if (!index.Exists)
                         {
                             index.Initialize(indexType);
+                            index.WaitForStatus();
+                            index.DisableDynamicMapping(indexType);
                             index.WaitForStatus();
                         }
                     }
@@ -125,7 +128,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Controllers
             return Type.GetType(index.Type, false, true);
         }
 
-        [Authorize(Roles = "ElasticsearchAdmins")]
+        [Authorize(Roles = RoleNames.ElasticsearchAdmins)]
         public ActionResult DeleteIndex(string indexName)
         {
             var indexing = new Indexing(_settings);
@@ -134,7 +137,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Controllers
             return RedirectToAction("Index");
         }
 
-        [Authorize(Roles = "ElasticsearchAdmins")]
+        [Authorize(Roles = RoleNames.ElasticsearchAdmins)]
         public ActionResult ChangeTokenizer(string indexName, string tokenizer)
         {
             var indexing = new Indexing(_settings);

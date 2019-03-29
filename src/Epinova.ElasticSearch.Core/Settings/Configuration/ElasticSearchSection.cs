@@ -102,6 +102,22 @@ namespace Epinova.ElasticSearch.Core.Settings.Configuration
             get => (int)this["clientTimeoutSeconds"];
             set => this["clientTimeoutSeconds"] = value;
         }
+        
+        [ConfigurationProperty("shards", DefaultValue = 5, IsRequired = false)]
+        [IntegerValidator(MinValue = 1, MaxValue = 1000)]
+        public int NumberOfShards
+        {
+            get => (int)this["shards"];
+            set => this["shards"] = value;
+        }
+        
+        [ConfigurationProperty("replicas", DefaultValue = 1, IsRequired = false)]
+        [IntegerValidator(MinValue = 1, MaxValue = 1000)]
+        public int NumberOfReplicas
+        {
+            get => (int)this["replicas"];
+            set => this["replicas"] = value;
+        }
 
         [ConfigurationProperty("indices", IsDefaultCollection = false)]
         [ConfigurationCollection(typeof(IndicesCollection))]

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
+using System.Linq;
 using EPiServer.Logging;
 
 namespace Epinova.ElasticSearch.Core.Utilities
@@ -8,6 +9,41 @@ namespace Epinova.ElasticSearch.Core.Utilities
     public static class DbHelper
     {
         private static readonly ILogger Log = LogManager.GetLogger(typeof(DbHelper));
+
+        public static bool ColumnExists(string connectionString, string table, string column, string schema = "dbo")
+        {
+            try
+            {
+                using (var connection = new SqlConnection(connectionString))
+                {
+                    var sql = $"SELECT COUNT(*) FROM INFORMATION_SCHEMA.COLUMNS WHERE [TABLE_SCHEMA] = '{schema}' AND [TABLE_NAME] = '{table}' AND [COLUMN_NAME] = '{column}'";
+
+                    using (var command = new SqlCommand(sql))
+                    {
+                        command.Connection = connection;
+                        command.Connection.Open();
+                        object result = command.ExecuteScalar();
+                        command.Connection.Close();
+
+                        var count = Convert.ToInt32(result);
+                            
+                        if (count > 0)
+                        {
+                            Log.Debug($"Column '{schema}.{table}.{column}' exists");
+                            return true;
+                        }
+
+                        Log.Debug($"Column '{schema}.{table}.{column}' does NOT exist");
+                        return false;
+                    }
+                }
+            }
+            catch (Exception exception)
+            {
+                Log.Warning($"Issue when checking if column '{schema}.{table}.{column}' exists", exception);
+                return false;
+            }
+        }
 
         public static bool TableExists(string connectionString, string table)
         {
@@ -67,6 +103,8 @@ namespace Epinova.ElasticSearch.Core.Utilities
         {
             try
             {
+                Log.Debug($"ExecuteCommand: '{sql}");
+
                 using (var connection = new SqlConnection(connectionString))
                 {
                     using (var command = new SqlCommand(sql))
@@ -76,6 +114,11 @@ namespace Epinova.ElasticSearch.Core.Utilities
                             foreach (KeyValuePair<string, object> kvp in parameters)
                             {
                                 command.Parameters.Add(new SqlParameter(kvp.Key, kvp.Value));
+                            }
+
+                            if (Log.IsDebugEnabled())
+                            {
+                                Log.Debug($"Parameters:\n {String.Join("\n", parameters.Select(p => p.Key + "=" + p.Value))}");
                             }
                         }
 
@@ -101,6 +144,8 @@ namespace Epinova.ElasticSearch.Core.Utilities
         {
             try
             {
+                Log.Debug($"ExecuteReader: '{sql}");
+
                 using (var connection = new SqlConnection(connectionString))
                 {
                     using (var command = new SqlCommand(sql))
@@ -110,6 +155,11 @@ namespace Epinova.ElasticSearch.Core.Utilities
                             foreach (var kvp in parameters)
                             {
                                 command.Parameters.Add(new SqlParameter(kvp.Key, kvp.Value));
+                            }
+
+                            if (Log.IsDebugEnabled())
+                            {
+                                Log.Debug($"Parameters:\n {String.Join("\n", parameters.Select(p => p.Key + "=" + p.Value))}");
                             }
                         }
 

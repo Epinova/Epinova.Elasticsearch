@@ -2,7 +2,6 @@
 {
     public static class DefaultFields
     {
-        public const string All = "_all";
         public const string BestBets = "_bestbets";
         public const string Id = "Id";
         public const string Indexed = "Indexed";
@@ -11,12 +10,10 @@
         public const string Type = "Type";
         public const string Types = "Types";
         public const string Path = "Path";
-        public const string Attachment = "Attachment";
-        public const string AttachmentContent = "Attachment.content";
-        public const string AttachmentAuthor = "Attachment.author";
-        public const string AttachmentTitle = "Attachment.title";
-        public const string AttachmentName = "Attachment.name";
-        public const string AttachmentKeywords = "Attachment.keywords";
+        public const string AttachmentData = "_attachmentdata";
+        public const string AttachmentContent = "attachment.content";
+        public const string AttachmentAuthor = "attachment.author";
+        public const string AttachmentKeywords = "attachment.keywords";
         public const string Suggest = "Suggest";
         public const string StartPublish = "StartPublish";
         public const string StopPublish = "StopPublish";

@@ -11,6 +11,7 @@ using Epinova.ElasticSearch.Core.Contracts;
 using Epinova.ElasticSearch.Core.Enums;
 using Epinova.ElasticSearch.Core.Events;
 using Epinova.ElasticSearch.Core.Extensions;
+using Epinova.ElasticSearch.Core.Models;
 using Epinova.ElasticSearch.Core.Models.Bulk;
 using Epinova.ElasticSearch.Core.Models.Converters;
 using Epinova.ElasticSearch.Core.Models.Mapping;
@@ -53,7 +54,7 @@ namespace Epinova.ElasticSearch.Core
 
             JsonSerializer serializer = GetSerializer();
 
-            var uri = $"{_settings.Host}/_bulk";
+            var uri = $"{_settings.Host}/_bulk?pipeline={Pipelines.Attachment.Name}";
 
             var operationList = operations.ToList();
 
@@ -106,7 +107,7 @@ namespace Epinova.ElasticSearch.Core
                     }
 
                     var payload = sb.ToString();
-
+                    
                     if (Logger.IsDebugEnabled())
                     {
                         var debugJson = $"[{String.Join(",", payload.Split('\n'))}]";
@@ -258,6 +259,10 @@ namespace Epinova.ElasticSearch.Core
                                 || (p.PropertyType == typeof(XhtmlString)
                                 && p.GetCustomAttributes(typeof(ExcludeFromSearchAttribute), true).Length == 0)
                 })
+                .Where(p => p.Name != nameof(IndexItem.Type) 
+                            && p.Name != nameof(IndexItem._bestbets) 
+                            && p.Name != nameof(IndexItem.attachment) 
+                            && p.Name != nameof(IndexItem._attachmentdata))
                 .ToList();
 
             // Custom properties marked for stemming
@@ -268,12 +273,18 @@ namespace Epinova.ElasticSearch.Core
                     c.Type,
                     Analyzable = WellKnownProperties.Analyze.Select(w => w.ToLower()).Contains(c.Name.ToLower())
                 }));
-
+                
             Logger.Information("IndexableProperties for " + type?.Name + ": " + String.Join(", ", indexableProperties.Select(p => p.Name)));
 
             // Get existing mapping
             IndexMapping mapping = Mapping.GetIndexMapping(indexType, null, index);
 
+            // Ignore special mappings
+            mapping.Properties.Remove(DefaultFields.AttachmentData);
+            mapping.Properties.Remove(DefaultFields.BestBets);            
+            mapping.Properties.Remove(DefaultFields.DidYouMean);
+            mapping.Properties.Remove(DefaultFields.Suggest);
+            
             try
             {
                 foreach (var prop in indexableProperties)
@@ -292,19 +303,23 @@ namespace Epinova.ElasticSearch.Core
                         string existingType = mapping.Properties[prop.Name].Type;
                         if (mappingType != existingType)
                         {
-                            Logger.Warning($"Conflicting mapping type for property '{propName}' detected. Using already mapped type '{existingType}'");
+                            Logger.Warning($"Conflicting mapping type '{mappingType}' for property '{propName}' detected. Using already mapped type '{existingType}'");
                         }
 
                         mappingType = existingType;
                     }
 
                     if (prop.Analyzable && language != null)
+                    {
                         propertyMapping.Analyzer = Language.GetLanguageAnalyzer(language);
-                    else if (language != null && mappingType == nameof(MappingType.Text).ToLower())
+                    }
+                    else if (!WellKnownProperties.IgnoreAnalyzer.Contains(prop.Name) && language != null && mappingType == nameof(MappingType.Text).ToLower())
+                    {
                         propertyMapping.Analyzer = Language.GetSimpleLanguageAnalyzer(language);
+                    }
 
                     // If mapping with different analyzer exists, use its analyzer. 
-                    if (mapping.Properties.ContainsKey(prop.Name))
+                    if (!WellKnownProperties.IgnoreAnalyzer.Contains(prop.Name) && mapping.Properties.ContainsKey(prop.Name))
                     {
                         string existingAnalyzer = mapping.Properties[prop.Name].Analyzer;
                         if (propertyMapping.Analyzer != existingAnalyzer)
@@ -317,9 +332,6 @@ namespace Epinova.ElasticSearch.Core
 
                     if (String.IsNullOrEmpty(propertyMapping.Type) || propertyMapping.Type != mappingType)
                         propertyMapping.Type = mappingType;
-
-                    if (WellKnownProperties.ExcludeFromAll.Contains(propName))
-                        propertyMapping.IncludeInAll = false;
 
                     mapping.AddOrUpdateProperty(propName, propertyMapping);
 
@@ -405,6 +417,11 @@ namespace Epinova.ElasticSearch.Core
 
             var endpointUri = $"{_settings.Host}/{indexName}/{objectType.GetTypeName()}/{id}";
 
+            if (HasAttachmentData(objectToUpdate))
+            {
+                endpointUri += $"?pipeline={Pipelines.Attachment.Name}";
+            }
+
             if (BeforeUpdateItem != null)
             {
                 Logger.Debug("Firing subscribed event BeforeUpdateItem");
@@ -417,6 +434,12 @@ namespace Epinova.ElasticSearch.Core
             HttpClientHelper.Put(new Uri(endpointUri), data);
 
             RefreshIndex(indexName);
+        }
+
+        private static bool HasAttachmentData(object objectToUpdate)
+        {
+            return objectToUpdate is IDictionary<string, object> dict
+                   && dict.TryGetValue(DefaultFields.AttachmentData, out _);
         }
     }
 }
