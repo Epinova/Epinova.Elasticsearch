@@ -317,6 +317,7 @@
     <Compile Include="Settings\Configuration\IndicesCollection.cs" />
     <Compile Include="Settings\ElasticSearchSettings.cs" />
     <Compile Include="Settings\IElasticSearchSettings.cs" />
+    <Compile Include="Utilities\AsyncUtil.cs" />
     <Compile Include="Utilities\Analyzers.cs" />
     <Compile Include="Utilities\ArrayHelper.cs" />
     <Compile Include="Utilities\DbHelper.cs" />
