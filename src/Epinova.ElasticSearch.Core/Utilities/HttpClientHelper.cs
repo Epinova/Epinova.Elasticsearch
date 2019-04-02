@@ -56,11 +56,9 @@ namespace Epinova.ElasticSearch.Core.Utilities
 
             try
             {
-                HttpResponseMessage response = Client
-                    .PutAsync(uri, JsonContent(data))
-                    .ConfigureAwait(false)
-                    .GetAwaiter()
-                    .GetResult();
+                HttpResponseMessage response = AsyncUtil.RunSync(() =>
+                    Client.PutAsync(uri, JsonContent(data))
+                );
 
                 LogErrorIfNotSuccess(response);
             }
@@ -98,19 +96,15 @@ namespace Epinova.ElasticSearch.Core.Utilities
 
             try
             {
-                HttpResponseMessage response = Client
-                    .PostAsync(uri, JsonContent(data))
-                    .ConfigureAwait(false)
-                    .GetAwaiter()
-                    .GetResult();
+                HttpResponseMessage response = AsyncUtil.RunSync(() =>
+                      Client.PostAsync(uri, JsonContent(data))
+                );
 
                 LogErrorIfNotSuccess(response);
 
-                return response.Content
-                    .ReadAsByteArrayAsync()
-                    .ConfigureAwait(false)
-                    .GetAwaiter()
-                    .GetResult();
+                return AsyncUtil.RunSync(() =>
+                      response.Content.ReadAsByteArrayAsync()
+                );
             }
             catch (Exception ex)
             {
@@ -142,26 +136,24 @@ namespace Epinova.ElasticSearch.Core.Utilities
             HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Get, uri);
             request.Headers.Add("Accept", "application/json");
 
-            HttpResponseMessage response = Client
-                .SendAsync(request)
-                .ConfigureAwait(false)
-                .GetAwaiter()
-                .GetResult();
+            HttpResponseMessage response = AsyncUtil.RunSync(() =>
+                Client.SendAsync(request)
+            );
 
             response.EnsureSuccessStatusCode();
 
-            return response.Content.ReadAsStringAsync().GetAwaiter().GetResult();
+            return AsyncUtil.RunSync(() =>
+                response.Content.ReadAsStringAsync()
+            );
         }
 
         internal static string GetString(Uri uri)
         {
             Logger.Debug($"Uri: {uri}");
 
-            return Client
-                .GetStringAsync(uri)
-                .ConfigureAwait(false)
-                .GetAwaiter()
-                .GetResult();
+            return AsyncUtil.RunSync(() =>
+                Client.GetStringAsync(uri)
+            );
         }
 
         internal static async Task<string> GetStringAsync(Uri uri)
@@ -177,11 +169,9 @@ namespace Epinova.ElasticSearch.Core.Utilities
 
             try
             {
-                HttpResponseMessage response = Client
-                    .SendAsync(new HttpRequestMessage(HttpMethod.Head, uri))
-                    .ConfigureAwait(false)
-                    .GetAwaiter()
-                    .GetResult();
+                HttpResponseMessage response = AsyncUtil.RunSync(() =>
+                    Client.SendAsync(new HttpRequestMessage(HttpMethod.Head, uri))
+                );
 
                 HttpStatusCode statusCode = response.StatusCode;
                 Logger.Debug($"Status: {statusCode}");
@@ -217,11 +207,10 @@ namespace Epinova.ElasticSearch.Core.Utilities
         internal static bool Delete(Uri uri)
         {
             Logger.Debug($"Uri: {uri}");
-            HttpResponseMessage response = Client
-                .DeleteAsync(uri)
-                .ConfigureAwait(false)
-                .GetAwaiter()
-                .GetResult();
+
+            HttpResponseMessage response = AsyncUtil.RunSync(() =>
+                Client.DeleteAsync(uri)
+            );
 
             HttpStatusCode statusCode = response.StatusCode;
             Logger.Debug($"Status: {statusCode}");
@@ -241,11 +230,9 @@ namespace Epinova.ElasticSearch.Core.Utilities
         {
             if (!response.IsSuccessStatusCode)
             {
-                string error = response.Content
-                    .ReadAsStringAsync()
-                    .ConfigureAwait(false)
-                    .GetAwaiter()
-                    .GetResult();
+                string error =AsyncUtil.RunSync(() =>
+                    response.Content.ReadAsStringAsync()
+                );
 
                 // Assume the response is json
                 try
