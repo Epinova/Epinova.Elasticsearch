@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Epinova.ElasticSearch.Core.Admin;
 using Epinova.ElasticSearch.Core.Contracts;
 using Epinova.ElasticSearch.Core.EPiServer.Contracts;
 using Epinova.ElasticSearch.Core.Extensions;
@@ -9,7 +10,6 @@ using Epinova.ElasticSearch.Core.Models;
 using EPiServer.Logging;
 using Epinova.ElasticSearch.Core.Models.Bulk;
 using Epinova.ElasticSearch.Core.Settings;
-using Epinova.ElasticSearch.Core.Utilities;
 using EPiServer;
 using EPiServer.Core;
 using EPiServer.DataAbstraction;
@@ -61,7 +61,6 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Plugin
             var finalStatus = new StringBuilder();
             var skippedReason = new StringBuilder();
             var results = new BulkBatchResult();
-            var bulkCounter = 1;
             var logMessage = $"Indexing starting. Content retrived and indexed in bulks of {_settings.BulkSize} items.";
 
             _logger.Information(logMessage);
@@ -70,29 +69,69 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Plugin
             try
             {
                 var languages = _languageBranchRepository.ListEnabled();
+
+                if (!IndicesExists(languages))
+                {
+                    throw new Exception("One or more indices is missing, please create them.");
+                }
+
+                if (!Server.Plugins.Any(p => p.Component.Equals("ingest-attachment")))
+                {
+                    throw new Exception("Plugin 'ingest-attachment' is missing, please install it.");
+                }
+                
                 var contentReferences = GetContentReferences();
 
                 logMessage = $"Retrieved {contentReferences.Count} ContentReference items from the following languages: {String.Join(", ", languages.Select(l => l.LanguageID))}";
                 _logger.Information(logMessage);
                 OnStatusChanged(logMessage);
 
+                var contentList = new List<IContent>();
+
+                // Fetch all content to index
                 while (contentReferences.Count > 0)
                 {
-                    var contents = GetDescendentContents(contentReferences.Take(_settings.BulkSize).ToList(), languages, bulkCounter);
-                    var batchResult = IndexContents(contents, bulkCounter);
-                    results.Batches.AddRange(batchResult.Batches);
+                    if (IsStopped) return "Aborted by user";
 
-                    contentReferences.RemoveRange(0, contentReferences.Count >= _settings.BulkSize
-                            ? _settings.BulkSize
-                            : contentReferences.Count);
+                    var contents = GetDescendentContents(contentReferences.Take(_settings.BulkSize).ToList(), languages);
+                    
+                    contents.RemoveAll(Indexer.ShouldHideFromSearch);
+                    contents.RemoveAll(Indexer.IsExludedType);
 
-                    bulkCounter++;
+                    contentList.AddRange(contents);
+                    var removeCount = contentReferences.Count >= _settings.BulkSize ? _settings.BulkSize : contentReferences.Count;
+                    contentReferences.RemoveRange(0, removeCount);
                 }
 
-                UpdateMappings(languages, CustomIndexName);
+                // Is this the first run?
+                var isFirstRun = GetTotalDocumentCount(languages) == 0;
 
-                if (IsStopped)
-                    return "Aborted by user";
+                // Update mappings on first run after analyzing the actual content
+                if (isFirstRun)
+                {
+                    var uniqueTypes = contentList.Select(content =>
+                        {
+                            var type = content.GetType();
+                            return type.Name.EndsWith("Proxy") ? type.BaseType : type;
+                        })
+                        .Distinct()
+                        .ToArray();
+                    
+                    UpdateMappings(languages, uniqueTypes);
+                }
+
+                var bulkCount = Math.Ceiling(contentList.Count / (double)_settings.BulkSize);
+                for (var i = 1; i <= bulkCount; i++)
+                {
+                    OnStatusChanged($"Bulk {i} of {bulkCount} - Preparing bulk update of {_settings.BulkSize} items...");
+                    var batch = contentList.Take(_settings.BulkSize);
+                    var batchResult = IndexContents(batch);
+                    results.Batches.AddRange(batchResult.Batches);
+                    var removeCount = contentList.Count >= _settings.BulkSize ? _settings.BulkSize : contentList.Count;
+                    contentList.RemoveRange(0, removeCount);
+
+                    if (IsStopped) return "Aborted by user";
+                }
             }
             catch (Exception ex)
             {
@@ -109,7 +148,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Plugin
             {
                 if (results.Batches[i - 1].Errors)
                 {
-                    var message = $" Batch {i} failed.";
+                    var message = $" Batch {i} failed. Details: \n";
 
                     foreach (var item in results.Batches[i - 1].Items.Where(item => item.Status >= 400))
                     {
@@ -121,7 +160,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Plugin
                 }
             }
 
-            finalStatus.Insert(0, finished);
+            finalStatus.Insert(0, finished.Replace("\n", "<br/>"));
             OnStatusChanged(finalStatus.ToString());
 
             _logger.Information(skippedReason.ToString());
@@ -132,63 +171,14 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Plugin
             return finalStatus.ToString();
         }
 
-        private void UpdateMappings(IList<LanguageBranch> languages, string indexName = null)
-        {
-            // Update mappings
-            foreach (var language in languages.Select(l => l.LanguageID))
-            {
-                try
-                {
-                    if (String.IsNullOrWhiteSpace(indexName))
-                        indexName = _settings.GetDefaultIndexName(language);
-                    else
-                        indexName = _settings.GetCustomIndexName(indexName, language);
-
-                    _logger.Debug("Index: " + indexName);
-
-                    var indexing = new Indexing(_settings);
-
-                    if (!indexing.IndexExists(indexName))
-                        throw new Exception("Index does not exist");
-
-                    OnStatusChanged("Updating mapping for index " + indexName);
-
-                    _coreIndexer.UpdateMapping(typeof(IndexItem), typeof(IndexItem), indexName);
-
-                    ContentExtensions.CreateAnalyzedMappingsIfNeeded(typeof(IndexItem), language, indexName);
-                    ContentExtensions.CreateDidYouMeanMappingsIfNeeded(typeof(IndexItem), language, indexName);
-                }
-                catch (Exception ex)
-                {
-                    _logger.Warning("Uh oh...", ex);
-                }
-            }
-        }
-
-        private BulkBatchResult IndexContents(List<IContent> contentItems, int bulkCounter)
-        {
-            List<IContent> contentToIndex = GetContentToIndex(contentItems, bulkCounter);
-
-            // Perform bulk update
-            OnStatusChanged($"Bulk {bulkCounter} - Preparing bulk update of {contentToIndex.Count} items...");
-            return _indexer.BulkUpdate(contentToIndex, str =>
-            {
-                OnStatusChanged(str);
-                _logger.Debug(str);
-            }, CustomIndexName);
-        }
-
         protected virtual List<ContentReference> GetContentReferences()
         {
             OnStatusChanged("Loading all references from database...");
             return _contentLoader.GetDescendents(ContentReference.RootPage).ToList();
         }
 
-        protected virtual List<IContent> GetDescendentContents(List<ContentReference> contentReferences,
-            IList<LanguageBranch> languages, int bulkCounter)
+        protected virtual List<IContent> GetDescendentContents(List<ContentReference> contentReferences, IEnumerable<LanguageBranch> languages)
         {
-            OnStatusChanged($"Bulk {bulkCounter} - Loading all contents from database...");
-
             var contentItems = new List<IContent>();
 
             foreach (var languageBranch in languages)
@@ -198,23 +188,17 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Plugin
 
             return contentItems;
         }
-
-        protected virtual List<IContent> GetContentToIndex(List<IContent> contentItems, int bulkCounter)
+        
+        //TODO: Review the need for this
+        protected virtual List<IContent> GetContentToIndex(IEnumerable<IContent> contentItems)
         {
             // Indexable properties (string, XhtmlString, [Searchable(true)]) 
             var allIndexableProperties = new List<KeyValuePair<string, Type>>();
             var contentToIndex = new List<IContent>();
-            var counter = 0;
 
-            foreach (IContent content in contentItems)
+            foreach (var content in contentItems)
             {
-                counter++;
-
-                if (counter % 100 == 0)
-                    OnStatusChanged($"Bulk {bulkCounter} - Analyzing content item {counter} of {contentItems.Count}...");
-
-                if (IsStopped)
-                    return contentToIndex;
+                if (IsStopped) break;
 
                 // Get indexable properties (string, XhtmlString, [Searchable(true)]) 
                 var indexableProperties = content.GetType().GetIndexableProps(false)
@@ -234,6 +218,78 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Plugin
             }
 
             return contentToIndex;
+        }
+
+        private bool IndicesExists(IEnumerable<LanguageBranch> languages)
+        {
+            foreach (var language in languages.Select(l => l.LanguageID))
+            {
+                var indexName = GetIndexName(language);
+                var index = new Index(_settings, indexName);
+                if (!index.Exists)
+                {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+        private int GetTotalDocumentCount(IEnumerable<LanguageBranch> languages)
+        {
+            var count = 0;
+            foreach (var language in languages.Select(l => l.LanguageID))
+            {
+                var indexName = GetIndexName(language);
+                var index = new Index(_settings, indexName);
+                count += index.GetDocumentCount();
+            }
+
+            return count;
+        }
+
+        private void UpdateMappings(IEnumerable<LanguageBranch> languages, Type[] contentTypes)
+        {
+            foreach (var language in languages.Select(l => l.LanguageID))
+            {
+                try
+                {
+                    var indexName = GetIndexName(language);
+                    _logger.Debug("Index: " + indexName);
+                    OnStatusChanged("Updating mapping for index " + indexName);
+
+                    foreach (var type in contentTypes)
+                    {
+                        _coreIndexer.UpdateMapping(type, typeof(IndexItem), indexName);
+                        ContentExtensions.CreateAnalyzedMappingsIfNeeded(type, language, indexName);
+                        ContentExtensions.CreateDidYouMeanMappingsIfNeeded(type, language, indexName);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    _logger.Warning("Failed to update mappings", ex);
+                }
+            }
+        }
+
+        private string GetIndexName(string language)
+        {
+            if(!String.IsNullOrEmpty(CustomIndexName))
+                return _settings.GetCustomIndexName(CustomIndexName, language);
+
+            return _settings.GetDefaultIndexName(language);
+        }
+
+        private BulkBatchResult IndexContents(IEnumerable<IContent> contentItems)
+        {
+            List<IContent> contentToIndex = GetContentToIndex(contentItems);
+
+            // Perform bulk update
+            return _indexer.BulkUpdate(contentToIndex, str =>
+            {
+                OnStatusChanged(str);
+                _logger.Debug(str);
+            }, CustomIndexName);
         }
     }
 }

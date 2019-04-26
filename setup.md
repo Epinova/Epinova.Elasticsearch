@@ -6,11 +6,11 @@ Elasticsearch recommends Oracle JDK 1.8 or higher, but your environment may requ
 Read more [here](https://www.elastic.co/guide/en/elasticsearch/reference/current/_installation.html)
 
 ## Service
-Download and install Elasticsearch version >5.1.1 && <6.0. Setup preferences are outside the scope of this document, 
+Download and install Elasticsearch version >5.6. Setup preferences are outside the scope of this document, 
 but you need to at least address running as a service, roles and [heap size](https://www.elastic.co/guide/en/elasticsearch/reference/current/heap-size.html).
 
 ## Plugins
-The only required plugin is the [Mapper Attachments Plugin](https://www.elastic.co/guide/en/elasticsearch/plugins/5.0/mapper-attachments.html). 
+The only required plugin is the [Ingest Attachment Processor Plugin](https://www.elastic.co/guide/en/elasticsearch/plugins/master/ingest-attachment.html). 
 This enables indexing of files by using the Apache text extraction library Tika 
 
 Please install it per the instructions mentioned in the link above.
@@ -53,11 +53,8 @@ Add the following configurations:
     <episerver.framework>
       <virtualRoles>
         <providers>
-          <add 
-            name="ElasticsearchAdmins" 
-            roles="WebAdmins,Administrators" 
-            mode="Any" 
-            type="EPiServer.Security.MappedRole, EPiServer" />
+          <add name="ElasticsearchAdmins" roles="CmsAdmins" mode="Any" type="EPiServer.Security.MappedRole, EPiServer" />
+          <add name="ElasticsearchEditors" roles="CmsEditors,CmsAdmins" mode="Any" type="EPiServer.Security.MappedRole, EPiServer" />
         </providers>
       </virtualRoles>
     </episerver.framework>
@@ -75,6 +72,8 @@ Add the following configurations:
         clientTimeoutSeconds="100"
         username=""
         password=""
+        shards="5"
+        replicas="1"
         trackingConnectionStringName="EPiServerDB">
         <indices>
           <add name="my-index-name" />
@@ -87,10 +86,11 @@ Add the following configurations:
   </configuration>
   ```
 
-The last 8 attributes in `<epinova.elasticSearch>` are optional and show default values. 
+The ´host´ attribute is the only required setting. The remaing attributes are optional and shows their default values above. 
 
-Explanation:
+Attribute details:
 
+* `host` hostname and port of the Elasticsearch server.
 * `bulksize` defines how many documents should be sent simultaneously when performing bulk updates.
 * `providerMaxResults` how many hits to return in the UI search.
 * `closeIndexDelay` the delay in milliseconds between open/close operations. An increase might be necessary on slower servers.
@@ -98,6 +98,8 @@ Explanation:
 * `clientTimeoutSeconds` the timeout in seconds used by the underlying HttpClient.
 * `username` username for basic authentication.
 * `password` password for basic authentication.
+* `shards` the number of shards for new indices.
+* `replicas` the number of replicas for new indices.
 * `trackingConnectionStringName` the name of the SQL connectionstring used for tracking.
 
 

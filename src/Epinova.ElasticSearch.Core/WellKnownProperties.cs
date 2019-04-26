@@ -20,18 +20,11 @@ namespace Epinova.ElasticSearch.Core
             "Description"
         };
 
-        public static readonly string[] ExcludeFromAll =
-        {
-            DefaultFields.Path
-        };
-
-
         public static readonly string[] Highlight;
-
 
         public static readonly string[] IgnoreDidYouMean =
         {
-            DefaultFields.Attachment,
+            DefaultFields.AttachmentData,
             DefaultFields.Changed,
             DefaultFields.Created,
             DefaultFields.DidYouMean,
@@ -45,6 +38,20 @@ namespace Epinova.ElasticSearch.Core
             DefaultFields.Types
         };
 
+        public static readonly string[] IgnoreAnalyzer =
+        {
+            DefaultFields.Id,
+            DefaultFields.BestBets,
+            DefaultFields.ParentLink,
+            DefaultFields.Path,
+            DefaultFields.Name,
+            DefaultFields.Lang,
+            DefaultFields.DidYouMean,
+            DefaultFields.Suggest,
+            DefaultFields.Type,
+            DefaultFields.Types,
+            DefaultFields.AttachmentData,
+        };
 
         public static readonly string[] Ignore =
         {

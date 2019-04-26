@@ -6,13 +6,16 @@ namespace Epinova.ElasticSearch.Core.Models.Query
     {
         public SuggestRequest(string query, int size)
         {
-            Suggestions = new Suggestions
+            Suggestions = new SuggestionsWrapper
             {
-                Text = query,
-                Completion = new Completion
+                Suggestions = new Suggestions
                 {
-                    Field = DefaultFields.Suggest,
-                    Size = size > 0 ? size : 5
+                    Text = query,
+                    Completion = new Completion
+                    {
+                        Field = DefaultFields.Suggest,
+                        Size = size > 0 ? size : 5
+                    }
                 }
             };
         }
@@ -23,6 +26,12 @@ namespace Epinova.ElasticSearch.Core.Models.Query
         [JsonIgnore]
         public override int Size { get; internal set; }
 
-        public Suggestions Suggestions { get; set; }
+        [JsonProperty(JsonNames.Suggest)]
+        internal SuggestionsWrapper Suggestions { get; set; }
+
+        internal class SuggestionsWrapper
+        {
+            public Suggestions Suggestions { get; set; }
+        }
     }
 }

@@ -164,6 +164,8 @@
         <searchesnohits>Searches without hits</searchesnohits>
         <clear>Clear history</clear>
         <clearconfirm>Are you sure?</clearconfirm>
+        <index>Index</index>
+        <show>Show</show>
       </tracking>
       <providers>
         <page>Epinova page search</page>

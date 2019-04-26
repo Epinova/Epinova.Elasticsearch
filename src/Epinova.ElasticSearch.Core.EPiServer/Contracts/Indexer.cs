@@ -140,7 +140,6 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Contracts
             if (IsExludedByRoot(content))
                 return IndexingStatus.ExcludedByConvention;
             
-            _coreIndexer.UpdateMapping(content.GetOriginalType(), typeof(IndexItem), indexName);
             _coreIndexer.Update(content.ContentLink.ToReferenceWithoutVersion().ToString(), content.AsIndexItem(), indexName, typeof(IndexItem));
 
             return IndexingStatus.Ok;
@@ -215,7 +214,8 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Contracts
 
             var shortcutType = (PageShortcutType)linkTypeValue;
 
-            return shortcutType != PageShortcutType.Normal;
+            return shortcutType != PageShortcutType.Normal
+                && shortcutType != PageShortcutType.FetchData;
         }
 
         private static string GetFallbackLanguage()

@@ -49,7 +49,8 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Commerce.Extensions
                 TrackingRepository.AddSearch(
                     Language.GetLanguageCode(service.SearchLanguage),
                     service.SearchText,
-                    results.TotalHits == 0);
+                    results.TotalHits == 0,
+                    service.IndexName);
             }
 
             return new CatalogSearchResult<T>(results, hits);

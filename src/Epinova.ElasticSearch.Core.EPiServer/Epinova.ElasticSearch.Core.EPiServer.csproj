@@ -222,12 +222,18 @@
     <Compile Include="Providers\PageSearchProvider.cs" />
     <Compile Include="Providers\ProviderConstants.cs" />
     <Compile Include="Providers\SearchProviderBase.cs" />
+    <Compile Include="RoleNames.cs" />
     <Compile Include="Services\AutoSuggestRepository.cs" />
     <Compile Include="Services\BestBetsRepository.cs" />
     <Compile Include="Services\BoostingRepository.cs" />
     <Compile Include="Services\InspectorRepository.cs" />
     <Compile Include="Services\SynonymRepository.cs" />
     <Compile Include="Views\ElasticSearchAdmin\Admin\Index.generated.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Index.cshtml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\ElasticSearchAdmin\Tracking\Index.generated.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
       <DependentUpon>Index.cshtml</DependentUpon>
@@ -268,11 +274,6 @@
       <DependentUpon>Index.cshtml</DependentUpon>
     </Compile>
     <Compile Include="Views\ElasticSearchAdmin\Synonyms\Index.generated.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>Index.cshtml</DependentUpon>
-    </Compile>
-    <Compile Include="Views\ElasticSearchAdmin\Tracking\Index.generated.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
       <DependentUpon>Index.cshtml</DependentUpon>

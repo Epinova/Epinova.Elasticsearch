@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using Epinova.ElasticSearch.Core.Enums;
 using Epinova.ElasticSearch.Core.Models;
 using Epinova.ElasticSearch.Core.Models.Mapping;
@@ -41,7 +41,7 @@ namespace Epinova.ElasticSearch.Core.Utilities
 
         private static IndexMappingProperty SuggestMapping => new IndexMappingProperty { Type = "completion", Analyzer = "suggest" };
 
-        internal static readonly dynamic Fields = new { keyword = new { ignore_above = 256, type = JsonNames.Keyword } };
+        private static readonly dynamic Fields = new { keyword = new { ignore_above = 256, type = JsonNames.Keyword } };
 
         internal static string GetDisableDynamicMapping(string typeName)
         {
@@ -56,43 +56,80 @@ namespace Epinova.ElasticSearch.Core.Utilities
         {
             return new
             {
-                _all = new {analyzer = "snowball"},
                 properties = new
                 {
-                    Attachment = new
-                    {
-                        type = nameof(MappingType.Attachment).ToLower(),
-                        fields = new
-                        {
-                            content = new
-                            {
-                                type = nameof(MappingType.Text).ToLower(),
-                                term_vector = "with_positions_offsets",
-                                store = true
-                            }
-                        }
+                    Id = new { type = "long" },
+                    StartPublish = new { type = "date" },
+                    StopPublish = new { type = "date" },
+                    Created = new { type = "date" },
+                    Changed = new { type = "date" },
+                    Indexed = new { type = "date" },
+                    Name = new {
+                        type = nameof(MappingType.Text).ToLower(),
+                        fields = Fields
                     },
-                    Id = new { type = "long", include_in_all = false },
                     _bestbets = new {
                         type = nameof(MappingType.Text).ToLower(),
                         fields = Fields
                     },
-                    ParentLink = new { type = "long", include_in_all = false },
-                    Path = new { type = "long", include_in_all = false },
+                    ParentLink = new { type = "long" },
+                    Path = new { type = "long" },
                     Lang = new { type = nameof(MappingType.Text).ToLower() },
                     DidYouMean = new { type = nameof(MappingType.Text).ToLower(), analyzer = languageName + "_suggest", fields = new { raw = new { analyzer = "raw", type = nameof(MappingType.Text).ToLower() } } },
                     Suggest = SuggestMapping,
                     Type = new { type = nameof(MappingType.Text).ToLower(), analyzer = "raw" },
-                    Types = new { type = nameof(MappingType.Text).ToLower(), analyzer = "raw" }
+                    Types = new { type = nameof(MappingType.Text).ToLower(), analyzer = "raw" },
+                    _attachmentdata = new { type = nameof(MappingType.Text).ToLower() },
+                    attachment = GetAttachmentMapping(languageName)
                 }
             };
         }
 
+        private static dynamic GetAttachmentMapping(string languageName)
+        {
+            return new
+            {
+                properties = new
+                {
+                    content = new
+                    {
+                        type = nameof(MappingType.Text).ToLower(),
+                        term_vector = "with_positions_offsets",
+                        store = true,
+                        analyzer = languageName,
+                        fields = new
+                        {
+                            keyword = new
+                            {
+                                type = "keyword",
+                                ignore_above = 256
+                            }
+                        }
+                    },
+                    title = new
+                    {
+                        type = nameof(MappingType.Text).ToLower(),
+                    },
+                    language = new
+                    {
+                        type = nameof(MappingType.Text).ToLower(),
+                    },
+                    content_type = new
+                    {
+                        type = nameof(MappingType.Text).ToLower(),
+                    },
+                    content_length = new
+                    {
+                        type = nameof(MappingType.Integer).ToLower(),
+                    }
+                }
+            };
+        }
+        
         internal static dynamic GetCustomIndexMapping(string languageName)
         {
             return new
             {
-                _all = new { analyzer = "snowball" },
                 properties = new
                 {
                     _bestbets = new { type = nameof(MappingType.Text).ToLower() },

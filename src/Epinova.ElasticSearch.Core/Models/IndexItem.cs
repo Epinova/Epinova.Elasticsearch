@@ -15,8 +15,7 @@ namespace Epinova.ElasticSearch.Core.Models
         [JsonExtensionData]
         internal IDictionary<string, JToken> UnmappedFields;
 
-        [JsonProperty(DefaultFields.BestBets)]
-        public string[] BestBets { get; set; }
+        public string[] _bestbets { get; set; }
         public int Id { get; set; }
         public int ParentId { get; set; }
         public string Lang { get; set; }
@@ -25,9 +24,11 @@ namespace Epinova.ElasticSearch.Core.Models
         public DateTime Updated { get; set; }
         public string Type { get; set; }
         public string[] Types { get; set; }
-        public string Attachment { get; set; }
+        public string attachment { get; set; }
         public SuggestionItem Suggest { get; set; }
 
+        [JsonIgnore]
+        public string _attachmentdata { get; set; }
 
         public class SuggestionItem
         {

@@ -22,7 +22,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Controllers
         }
 
 
-        [Authorize(Roles = "ElasticsearchAdmins")]
+        [Authorize(Roles = RoleNames.ElasticsearchAdmins)]
         public ActionResult Index()
         {
             BoostingViewModel model = new BoostingViewModel();

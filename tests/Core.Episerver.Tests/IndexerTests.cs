@@ -72,10 +72,9 @@ namespace Core.Episerver.Tests
 
         [Theory]
         [InlineData(PageShortcutType.External)]
-        [InlineData(PageShortcutType.FetchData)]
         [InlineData(PageShortcutType.Inactive)]
         [InlineData(PageShortcutType.Shortcut)]
-        public void Update_SkipsShortcutTypesOtherThanNormal(PageShortcutType type)
+        public void Update_SkipsShortcutTypesOtherThanNormalAndFetchData(PageShortcutType type)
         {
             PageData page = Factory.GetPageData();
             page.LinkType = type;

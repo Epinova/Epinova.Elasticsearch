@@ -5,7 +5,10 @@
       "lenient": true,
       "operator": "or",
       "fields": [
-        "bar"
+        "bar",
+        "attachment.content",
+        "attachment.author",
+        "attachment.keywords"
       ]
     }
   }

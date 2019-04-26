@@ -44,7 +44,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Extensions
         private static readonly IElasticSearchSettings ElasticSearchSettings;
         private static readonly ITrackingRepository TrackingRepository;
 
-        private static readonly string[] binaryExtensions = new[]
+        private static readonly string[] BinaryExtensions = new[]
         {
             "jpg", "jpeg", "gif", "psd", "bmp", "ai", "webp", "tif", "tiff", "ico", "jif", "png", "xcf", "eps", "raw", "cr2", "pct", "bpg",
             "exe", "zip", "rar", "7z", "dll", "gz", "bin", "iso", "apk", "dmp", "msi",
@@ -87,16 +87,30 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Extensions
                 TrackingRepository.AddSearch(
                     Language.GetLanguageCode(service.SearchLanguage),
                     service.SearchText,
-                    results.TotalHits == 0);
+                    results.TotalHits == 0,
+                    GetIndexName(service));
             }
 
             return new ContentSearchResult<T>(results, hits);
         }
 
         public static ContentSearchResult<T> GetContentResults<T>(
+            this IElasticSearchService<T> service) where T : IContentData
+        {
+            return service.GetContentResults(false, null);
+        }
+
+        public static ContentSearchResult<T> GetContentResults<T>(
             this IElasticSearchService<T> service,
-            bool requirePageTemplate = false,
-            string[] providerNames = null) where T : IContentData
+            bool requirePageTemplate) where T : IContentData
+        {
+            return service.GetContentResults(requirePageTemplate, null);
+        }
+        
+        public static ContentSearchResult<T> GetContentResults<T>(
+            this IElasticSearchService<T> service,
+            bool requirePageTemplate,
+            string[] providerNames) where T : IContentData
         {
             SearchResult results = service.GetResults();
             var hits = new List<ContentSearchHit<T>>();
@@ -114,7 +128,38 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Extensions
                 TrackingRepository.AddSearch(
                     Language.GetLanguageCode(service.SearchLanguage),
                     service.SearchText,
-                    results.TotalHits == 0);
+                    results.TotalHits == 0,
+                    GetIndexName(service));
+            }
+
+            return new ContentSearchResult<T>(results, hits);
+        }
+
+        internal static ContentSearchResult<T> GetContentResults<T>(
+            this IElasticSearchService<T> service,
+            bool requirePageTemplate,
+            string[] providerNames,
+            bool enableHighlighting,
+            bool enableDidYouMean) where T : IContentData
+        {
+            SearchResult results = service.GetResults(enableHighlighting, enableDidYouMean);
+            var hits = new List<ContentSearchHit<T>>();
+
+            foreach (SearchHit hit in results.Hits)
+            {
+                if (ShouldAdd(hit, requirePageTemplate, out T content, providerNames))
+                    hits.Add(new ContentSearchHit<T>(content, hit.CustomProperties, hit.QueryScore, hit.Highlight));
+                else
+                    results.TotalHits--;
+            }
+
+            if (service.TrackSearch)
+            {
+                TrackingRepository.AddSearch(
+                    Language.GetLanguageCode(service.SearchLanguage),
+                    service.SearchText,
+                    results.TotalHits == 0,
+                    GetIndexName(service));
             }
 
             return new ContentSearchResult<T>(results, hits);
@@ -350,7 +395,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Extensions
                 return false;
 
             if (attachmentData != null)
-                dictionary.Add(DefaultFields.Attachment, attachmentData);
+                dictionary.Add(DefaultFields.AttachmentData, attachmentData);
 
             return true;
         }
@@ -555,8 +600,15 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Extensions
                 if (String.IsNullOrWhiteSpace(indexName))
                     indexName = ElasticSearchSettings.GetDefaultIndexName(language);
 
+                // Get mappings from server
                 mapping = Mapping.GetIndexMapping(typeof(IndexItem), language, indexName);
 
+                // Ignore special mappings
+                mapping.Properties.Remove(DefaultFields.AttachmentData);
+                mapping.Properties.Remove(DefaultFields.BestBets);            
+                mapping.Properties.Remove(DefaultFields.DidYouMean);
+                mapping.Properties.Remove(DefaultFields.Suggest);
+                
                 var jsonSettings = new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore };
                 oldJson = JsonConvert.SerializeObject(mapping, jsonSettings);
 
@@ -573,6 +625,12 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Extensions
                                      || (p.PropertyType == typeof(XhtmlString)
                                      && p.GetCustomAttributes(typeof(ExcludeFromSearchAttribute), true).Length == 0)
                     })
+                    .Where(p => p.Name != nameof(IndexItem.Type) 
+                                && p.Name != nameof(IndexItem._bestbets) 
+                                && p.Name != DefaultFields.DidYouMean
+                                && p.Name != DefaultFields.Suggest
+                                && p.Name != nameof(IndexItem.attachment) 
+                                && p.Name != nameof(IndexItem._attachmentdata))
                     .ToList();
 
                 // Get well-known and Stemmed property-names
@@ -814,7 +872,17 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Extensions
         internal static bool IsBinary(string fileExtension)
         {
             return !String.IsNullOrWhiteSpace(fileExtension)
-                && binaryExtensions.Contains(fileExtension.TrimStart('.').ToLowerInvariant());
+                && BinaryExtensions.Contains(fileExtension.TrimStart('.').ToLowerInvariant());
+        }
+
+        private static string GetIndexName<T>(IElasticSearchService<T> service)
+        {
+            if (!String.IsNullOrEmpty(service.IndexName))
+            {
+                return service.IndexName;
+            }
+
+            return ElasticSearchSettings.GetDefaultIndexName(Language.GetLanguageCode(service.SearchLanguage));
         }
     }
 }

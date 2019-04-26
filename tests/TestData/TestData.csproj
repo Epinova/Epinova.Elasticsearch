@@ -218,7 +218,6 @@
     <None Include="Json\SearchOfT_String.json" />
     <None Include="Json\Search_Term_Foo-Bar.json" />
     <None Include="Json\Search_Term_Foo.json" />
-    <None Include="Json\Search_Term_Foo_Facet_myField.json" />
     <None Include="Json\Search_With_Filter_123_Term_Foo_Bar.json" />
     <None Include="Json\Search_With_Filter_123_Term_Foo.json" />
     <None Include="Json\Search_With_Filter_678_Term_Bar.json" />

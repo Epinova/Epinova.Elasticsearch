@@ -13,6 +13,7 @@ namespace Epinova.ElasticSearch.Core.Models.Bulk
             Index = metadata.Index;
             Status = status.Status;
             Version = status.Version;
+            Error = metadata.Error;
         }
 
         public Operation Operation { get; set; }
@@ -24,7 +25,14 @@ namespace Epinova.ElasticSearch.Core.Models.Bulk
 
         public override string ToString()
         {
-            return $"Status: {Status}, Id: {Id}, Error: {Error?.Reason}, {Error?.CausedBy?.Type}, {Error?.CausedBy?.Reason}";
+            var result = $"Status: {Status}\nId: {Id}\nError: {Error?.Reason}";
+
+            if (Error?.Header?.Processor != null)
+            {
+                result += $"\nProcessor: {Error?.Header?.Processor}";
+            }
+
+            return result;
         }
     }
 }

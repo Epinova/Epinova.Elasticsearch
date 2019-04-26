@@ -26,22 +26,23 @@ namespace Epinova.ElasticSearch.Core.Services
         }
 
 
-        public void AddSearch(string languageId, string text, bool noHits)
+        public void AddSearch(string languageId, string text, bool noHits, string index)
         {
             text = text ?? String.Empty;
-            if (text.Length > 400)
-                text = text.Substring(0, 400);
+            if (text.Length > 200)
+                text = text.Substring(0, 200);
 
-            if (SearchExists(text, languageId))
+            if (SearchExists(text, languageId, index))
             {
                 string sql = $@"UPDATE [{Constants.TrackingTable}]
                     SET [Searches] = [Searches]+1
-                    WHERE [Query] = @query AND [Language] = @lang";
+                    WHERE [Query] = @query AND [Language] = @lang AND [IndexName] = @index";
 
                 var parameters = new Dictionary<string, object>
                 {
                     {"@query", text},
-                    {"@lang", languageId}
+                    {"@lang", languageId},
+                    {"@index", index}
                 };
 
                 DbHelper.ExecuteCommand(ConnectionString, sql, parameters);
@@ -49,84 +50,89 @@ namespace Epinova.ElasticSearch.Core.Services
             else
             {
                 string sql = $@"INSERT INTO 
-                    [{Constants.TrackingTable}] ([Query] ,[Searches], [NoHits], [Language])
-                    VALUES (@query, 1, @nohits, @lang)";
+                    [{Constants.TrackingTable}] ([Query] ,[Searches], [NoHits], [Language], [IndexName])
+                    VALUES (@query, 1, @nohits, @lang, @index)";
 
                 var parameters = new Dictionary<string, object>
                 {
                     {"@query", text},
                     {"@nohits", noHits ? 1 : 0},
-                    {"@lang", languageId}
+                    {"@lang", languageId},
+                    {"@index", index}
                 };
 
                 DbHelper.ExecuteCommand(ConnectionString, sql, parameters);
             }
         }
 
-        public void Clear(String languageId)
+        public void Clear(string languageId, string index)
         {
             string sql = $@"DELETE FROM [{Constants.TrackingTable}] 
-                WHERE Language = @lang";
+                WHERE Language = @lang AND [IndexName] = @index";
 
             var parameters = new Dictionary<string, object>
             {
-                {"@lang", languageId}
+                {"@lang", languageId},
+                {"@index", index}
             };
 
             DbHelper.ExecuteCommand(ConnectionString, sql, parameters);
         }
 
-        public IEnumerable<Tracking> GetSearches(string languageId)
+        public IEnumerable<Tracking> GetSearches(string languageId, string index)
         {
             string sql = $@"SELECT [Query], [Searches]
                 FROM [{Constants.TrackingTable}] 
-                WHERE Language = @lang";
+                WHERE Language = @lang AND [IndexName] = @index";
 
             var parameters = new Dictionary<string, object>
             {
-                {"@lang", languageId}
+                {"@lang", languageId},
+                {"@index", index}
             };
 
             var results = DbHelper.ExecuteReader(ConnectionString, sql, parameters);
 
             return results.Select(r => new Tracking
             {
-                Query = Convert.ToString(r["Query"]),
+                Query = Convert.ToString(r["Query"])?.Replace('\\', ' '),
                 Searches = Convert.ToInt64(r["Searches"])
             });
         }
 
-        public IEnumerable<Tracking> GetSearchesWithoutHits(string languageId)
+        public IEnumerable<Tracking> GetSearchesWithoutHits(string languageId, string index)
         {
             string sql = $@"SELECT [Query], [Searches] 
                 FROM [{Constants.TrackingTable}] 
-                WHERE Language = @lang AND NoHits=1";
+                WHERE Language = @lang AND NoHits=1 AND [IndexName] = @index";
 
             var parameters = new Dictionary<string, object>
             {
-                {"@lang", languageId}
+                {"@lang", languageId},
+                {"@index", index}
             };
 
             var results = DbHelper.ExecuteReader(ConnectionString, sql, parameters);
 
             return results.Select(r => new Tracking
             {
-                Query = Convert.ToString(r["Query"]),
+                Query = Convert.ToString(r["Query"])?.Replace('\\', ' '),
                 Searches = Convert.ToInt64(r["Searches"])
             });
         }
 
 
-        private bool SearchExists(string text, string languageId)
+        private bool SearchExists(string text, string languageId, string index)
         {
             string sql = $@"SELECT Query 
                 FROM [{Constants.TrackingTable}] 
-                WHERE Query = @query AND Language = @lang";
+                WHERE Query = @query AND Language = @lang AND [IndexName] = @index";
 
             var parameters = new Dictionary<string, object>
             {
                 {"@query", text},
-                {"@lang", languageId}
+                {"@lang", languageId},
+                {"@index", index}
             };
 
             var results = DbHelper.ExecuteReader(ConnectionString, sql, parameters);
