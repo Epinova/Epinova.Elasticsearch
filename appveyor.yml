@@ -29,6 +29,8 @@ build:
   publish_nuget: true
   verbosity: minimal
 test_script:
+- cmd: 'dir'
+- cmd: 'dir tests'
 - cmd: 'OpenCover.Console.exe -register:user -target:"%xunit20%\xunit.console.exe" -targetargs:"tests\Core.Tests\bin\Core.Tests.dll tests\Core.Episerver.Tests\bin\Core.Episerver.Tests.dll -noshadow -xml xunit.test.results.xml -appveyor" -output:%APPVEYOR_BUILD_FOLDER%\xunit.opencover.results.xml -coverbytest:*Tests.dll'
 cache:
   - packages -> **\packages.config
