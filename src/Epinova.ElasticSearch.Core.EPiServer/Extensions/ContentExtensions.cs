@@ -608,7 +608,8 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Extensions
                 mapping.Properties.Remove(DefaultFields.BestBets);            
                 mapping.Properties.Remove(DefaultFields.DidYouMean);
                 mapping.Properties.Remove(DefaultFields.Suggest);
-                
+                mapping.Properties.Remove(nameof(IndexItem.attachment));
+
                 var jsonSettings = new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore };
                 oldJson = JsonConvert.SerializeObject(mapping, jsonSettings);
 
