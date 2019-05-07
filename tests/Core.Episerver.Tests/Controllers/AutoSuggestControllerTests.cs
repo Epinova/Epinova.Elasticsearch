@@ -1,10 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Linq;
 using System.Web.Mvc;
+using Epinova.ElasticSearch.Core.Admin;
 using Epinova.ElasticSearch.Core.EPiServer.Contracts;
 using Epinova.ElasticSearch.Core.EPiServer.Controllers;
 using Epinova.ElasticSearch.Core.EPiServer.Models.ViewModels;
+using Epinova.ElasticSearch.Core.Models.Admin;
 using Epinova.ElasticSearch.Core.Settings;
 using EPiServer.DataAbstraction;
 using Moq;
@@ -29,10 +32,15 @@ namespace Core.Episerver.Tests.Controllers
                     new LanguageBranch(new CultureInfo("no"))
                 });
 
-            _controller = new ElasticAutoSuggestController(
-                languageBranchRepositoryMock.Object,
-                _autoSuggestRepositoryMock.Object,
+            var indexHelperMock = new Mock<Index>(
                 new Mock<IElasticSearchSettings>().Object);
+
+            indexHelperMock.Setup(m => m.GetIndices()).Returns(Enumerable.Empty<IndexInformation>());
+
+            _controller = new ElasticAutoSuggestController(
+                indexHelperMock.Object,
+                languageBranchRepositoryMock.Object,
+                _autoSuggestRepositoryMock.Object);
         }
 
         [Fact]

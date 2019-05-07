@@ -13,9 +13,17 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Controllers
         private readonly IAutoSuggestRepository _autoSuggestRepository;
 
         public ElasticAutoSuggestController(
-            ILanguageBranchRepository languageBranchRepository, 
+            ILanguageBranchRepository languageBranchRepository,
             IAutoSuggestRepository autoSuggestRepository,
             IElasticSearchSettings settings) : base(settings, languageBranchRepository)
+        {
+            _autoSuggestRepository = autoSuggestRepository;
+        }
+
+        internal ElasticAutoSuggestController(
+            Admin.Index indexHelper,
+            ILanguageBranchRepository languageBranchRepository,
+            IAutoSuggestRepository autoSuggestRepository) : base(indexHelper, languageBranchRepository)
         {
             _autoSuggestRepository = autoSuggestRepository;
         }

@@ -17,7 +17,6 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Controllers.Abstractions
         internal const string IndexParam = "index";
         internal const string LanguageParam = "languageId";
 
-        private readonly Admin.Index _indexHelper;
         private readonly ILanguageBranchRepository _languageBranchRepository;
 
         protected string CurrentIndex;
@@ -27,10 +26,9 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Controllers.Abstractions
             Admin.Index indexHelper,
             ILanguageBranchRepository languageBranchRepository)
         {
-            _indexHelper = indexHelper;
             _languageBranchRepository = languageBranchRepository;
 
-            Indices = GetIndices();
+            Indices = GetIndices(indexHelper);
             Languages = GetLanguages();
         }
 
@@ -56,6 +54,9 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Controllers.Abstractions
 
         protected string SwapLanguage(string indexName, string newLanguage)
         {
+            if (String.IsNullOrEmpty(indexName))
+                return null;
+
             var lang = indexName.ToLower().Split('-').Last();
             var nameWithoutLanguage = indexName.Substring(0, indexName.Length - lang.Length - 1);
             return $"{nameWithoutLanguage}-{newLanguage}";
@@ -86,9 +87,9 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Controllers.Abstractions
             UserInterfaceLanguage.Instance.SetCulture(EPiServerProfile.Current == null ? null: EPiServerProfile.Current.Language);
         }
 
-        private List<IndexInformation> GetIndices()
+        private List<IndexInformation> GetIndices(Admin.Index indexHelper)
         {
-            var indices = _indexHelper.GetIndices().ToList();
+            var indices = indexHelper.GetIndices().ToList();
 
             var config = ElasticSearchSection.GetConfiguration();
 

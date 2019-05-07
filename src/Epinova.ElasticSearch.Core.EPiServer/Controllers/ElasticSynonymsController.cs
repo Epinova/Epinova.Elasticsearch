@@ -24,6 +24,14 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Controllers
             _synonymRepository = synonymRepository;
         }
 
+        internal ElasticSynonymsController(
+            Admin.Index indexHelper,
+            ILanguageBranchRepository languageBranchRepository,
+            ISynonymRepository synonymRepository) : base(indexHelper, languageBranchRepository)
+        {
+            _synonymRepository = synonymRepository;
+        }
+
         [Authorize(Roles = RoleNames.ElasticsearchAdmins)]
         public ActionResult Index()
         {
