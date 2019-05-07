@@ -186,6 +186,7 @@
     <Compile Include="Extensions\TypeExtensionsTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Settings\Configuration\ElasticsearchSectionTests.cs" />
+    <Compile Include="Utilities\AnalyzersTests.cs" />
     <Compile Include="Utilities\ArrayHelperTests.cs" />
     <Compile Include="Utilities\HttpClientHelperTests.cs" />
     <Compile Include="Utilities\LanguageTests.cs" />
