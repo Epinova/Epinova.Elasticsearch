@@ -118,7 +118,7 @@ namespace Epinova.ElasticSearch.Core.Admin
         {
             var uri = _indexing.GetUri(_name, "_search") + "?size=0";
             dynamic model = new { hits = new { total = 0 } };
-            
+
             try
             {
                 string response = HttpClientHelper.GetString(new Uri(uri));

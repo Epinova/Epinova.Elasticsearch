@@ -88,19 +88,19 @@ namespace Epinova.ElasticSearch.Core.Models.Mapping
 
                 if (property.CopyTo == null || property.CopyTo.Length == 0)
                 {
-                    property.CopyTo = new[] {DefaultFields.DidYouMean};
+                    property.CopyTo = new[] { DefaultFields.DidYouMean };
                     IsDirty = true;
                 }
                 else if (!property.CopyTo.Contains(DefaultFields.DidYouMean))
                 {
-                    property.CopyTo = property.CopyTo.Concat(new[] {DefaultFields.DidYouMean}).ToArray();
+                    property.CopyTo = property.CopyTo.Concat(new[] { DefaultFields.DidYouMean }).ToArray();
                     IsDirty = true;
                 }
 
                 Properties[name].CopyTo = property.CopyTo;
             }
 
-            if(Properties[name].CopyTo != null)
+            if (Properties[name].CopyTo != null)
                 Logger.Debug("CopyTo: " + String.Join(", ", Properties[name].CopyTo));
         }
 

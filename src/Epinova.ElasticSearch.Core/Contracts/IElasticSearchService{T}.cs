@@ -15,7 +15,7 @@ namespace Epinova.ElasticSearch.Core.Contracts
         CultureInfo CurrentLanguage { get; }
         CultureInfo SearchLanguage { get; }
         int RootId { get; }
-        Type Type { get;  }
+        Type Type { get; }
         Type SearchType { get; set; }
         string SearchText { get; }
         string IndexName { get; }
@@ -232,7 +232,7 @@ namespace Epinova.ElasticSearch.Core.Contracts
         /// <param name="lessThanOrEqualTo">The max-value (optional)</param>
         /// <returns>The current <see cref="IElasticSearchService"/> instance</returns>
         IElasticSearchService<T> RangeInclusive(string fieldName, decimal greaterThanOrEqualTo, decimal? lessThanOrEqualTo = null);
-        
+
         /// <summary>
         /// Searches within a range
         /// </summary>

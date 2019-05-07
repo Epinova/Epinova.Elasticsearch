@@ -39,10 +39,10 @@ namespace Epinova.ElasticSearch.Core.Utilities
                     number_of_replicas = _settings.NumberOfReplicas > 0 ? _settings.NumberOfReplicas : 1
                 }
             };
-            
+
             string json = Serialization.Serialize(settings);
             byte[] data = Encoding.UTF8.GetBytes(json);
-            
+
             HttpClientHelper.Put(GetUri(indexName), data);
         }
 

@@ -15,14 +15,15 @@ namespace Epinova.ElasticSearch.Core.Models.Query
         public string Order => "score";
 
         [JsonProperty(JsonNames.PreTags)]
-        public string[] PreTags {
+        public string[] PreTags
+        {
             get
             {
                 string tag = Conventions.Indexing.HighlightTag;
                 if (String.IsNullOrEmpty(tag))
-                    return new [] { String.Empty };
+                    return new[] { String.Empty };
 
-                return new[] {$"<{tag}>"};
+                return new[] { $"<{tag}>" };
             }
         }
 
@@ -35,7 +36,7 @@ namespace Epinova.ElasticSearch.Core.Models.Query
                 if (String.IsNullOrEmpty(tag))
                     return new[] { String.Empty };
 
-                return new[] {$"</{tag}>"};
+                return new[] { $"</{tag}>" };
             }
         }
 
