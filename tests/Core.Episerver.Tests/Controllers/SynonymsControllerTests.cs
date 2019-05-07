@@ -13,6 +13,7 @@ using TestData;
 using Epinova.ElasticSearch.Core.Settings;
 using Epinova.ElasticSearch.Core.Admin;
 using Epinova.ElasticSearch.Core.Models.Admin;
+using System.Linq;
 
 namespace Core.Episerver.Tests.Controllers
 {
@@ -38,19 +39,15 @@ namespace Core.Episerver.Tests.Controllers
                     new LanguageBranch(new CultureInfo("no"))
                 });
 
-            var settingsMock = new Mock<IElasticSearchSettings>();
+            var indexHelperMock = new Mock<Index>(
+                new Mock<IElasticSearchSettings>().Object);
 
-            var indexMock = new Mock<Index>(settingsMock.Object, Factory.GetString());
-            indexMock
-                .Setup(m => m.GetIndices())
-                .Returns(new[] {
-                    new IndexInformation { Index = "" },
-                });
+            indexHelperMock.Setup(m => m.GetIndices()).Returns(Enumerable.Empty<IndexInformation>());
 
             _controller = new ElasticSynonymsController(
+                indexHelperMock.Object,
                 languageBranchRepositoryMock.Object,
-                _synonymRepositoryMock.Object,
-                settingsMock.Object);
+                _synonymRepositoryMock.Object);
         }
 
         [Theory]
