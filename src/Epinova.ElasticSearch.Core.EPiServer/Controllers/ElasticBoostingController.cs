@@ -24,7 +24,6 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Controllers
             _pageTypeRepository = pageTypeRepository;
         }
 
-
         [Authorize(Roles = RoleNames.ElasticsearchAdmins)]
         public ActionResult Index()
         {
@@ -54,10 +53,14 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Controllers
                     .ToList();
 
                 foreach (var boost in currentBoosting)
+                {
                     if (propsWithBoost.Any(p => p.TypeName == boost.Key))
+                    {
                         propsWithBoost.First(p => p.TypeName == boost.Key).Weight = boost.Value;
+                    }
+                }
 
-                if (propsWithBoost.Any())
+                if (propsWithBoost.Count > 0)
                     model.BoostingByType.Add(type.ModelType.GetTypeName(), propsWithBoost);
             }
 

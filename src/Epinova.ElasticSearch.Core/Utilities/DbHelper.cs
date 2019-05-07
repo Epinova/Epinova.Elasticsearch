@@ -26,7 +26,7 @@ namespace Epinova.ElasticSearch.Core.Utilities
                         command.Connection.Close();
 
                         var count = Convert.ToInt32(result);
-                            
+
                         if (count > 0)
                         {
                             Log.Debug($"Column '{schema}.{table}.{column}' exists");

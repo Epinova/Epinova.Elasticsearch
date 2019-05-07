@@ -106,7 +106,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Extensions
         {
             return service.GetContentResults(requirePageTemplate, null);
         }
-        
+
         public static ContentSearchResult<T> GetContentResults<T>(
             this IElasticSearchService<T> service,
             bool requirePageTemplate,
@@ -421,7 +421,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Extensions
             if (content is IVersionable versionable)
             {
                 dictionary.Add(DefaultFields.StartPublish, versionable.StartPublish);
-                dictionary.Add(DefaultFields.StopPublish, versionable.StopPublish.GetValueOrDefault(DateTime.MaxValue));
+                dictionary.Add(DefaultFields.StopPublish, versionable.StopPublish ?? DateTime.MaxValue);
             }
 
             if (content is IChangeTrackable trackable)
@@ -471,7 +471,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Extensions
 
             if (suggestions.Count > 0)
             {
-                IndexItem.SuggestionItem suggestionItems = new IndexItem.SuggestionItem();
+                var suggestionItems = new IndexItem.SuggestionItem();
 
                 foreach (Suggestion suggestion in suggestions)
                 {
@@ -495,7 +495,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Extensions
                             suggestProperties
                                 .Select(p =>
                                 {
-                                    object value = GetIndexValue(content, p);
+                                    var value = GetIndexValue(content, p);
                                     return value?.ToString();
                                 })
                                 .Where(p => p != null)
@@ -503,7 +503,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Extensions
                         .ToLowerInvariant()
                         .Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries)
                         .Select(v => v.Trim(trimChars))
-                        .Where(v => !String.IsNullOrWhiteSpace(v) && (!TextUtil.IsNumeric(v) & v.Length > 1))
+                        .Where(v => !String.IsNullOrWhiteSpace(v) && (!TextUtil.IsNumeric(v) && v.Length > 1))
                         .Distinct()
                         .ToArray();
                 }
@@ -562,7 +562,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Extensions
                 if (String.IsNullOrWhiteSpace(indexName))
                     indexName = ElasticSearchSettings.GetDefaultIndexName(language);
 
-                string uri = $"{ElasticSearchSettings.Host}/{indexName}/_mapping/{typeof(IndexItem).GetTypeName()}";
+                var uri = $"{ElasticSearchSettings.Host}/{indexName}/_mapping/{typeof(IndexItem).GetTypeName()}";
 
                 Logger.Debug("Update mapping:\n" + JToken.Parse(json).ToString(Formatting.Indented));
 
@@ -605,7 +605,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Extensions
 
                 // Ignore special mappings
                 mapping.Properties.Remove(DefaultFields.AttachmentData);
-                mapping.Properties.Remove(DefaultFields.BestBets);            
+                mapping.Properties.Remove(DefaultFields.BestBets);
                 mapping.Properties.Remove(DefaultFields.DidYouMean);
                 mapping.Properties.Remove(DefaultFields.Suggest);
                 mapping.Properties.Remove(nameof(IndexItem.attachment));
@@ -626,11 +626,11 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Extensions
                                      || (p.PropertyType == typeof(XhtmlString)
                                      && p.GetCustomAttributes(typeof(ExcludeFromSearchAttribute), true).Length == 0)
                     })
-                    .Where(p => p.Name != nameof(IndexItem.Type) 
-                                && p.Name != nameof(IndexItem._bestbets) 
+                    .Where(p => p.Name != nameof(IndexItem.Type)
+                                && p.Name != nameof(IndexItem._bestbets)
                                 && p.Name != DefaultFields.DidYouMean
                                 && p.Name != DefaultFields.Suggest
-                                && p.Name != nameof(IndexItem.attachment) 
+                                && p.Name != nameof(IndexItem.attachment)
                                 && p.Name != nameof(IndexItem._attachmentdata))
                     .ToList();
 

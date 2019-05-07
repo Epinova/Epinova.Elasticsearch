@@ -117,8 +117,8 @@ namespace Epinova.ElasticSearch.Core.Conventions
         public Indexing EnableSuggestions()
         {
             // Update existing registration of type?
-            if (Indexing.Suggestions.Any(s => s.Type == typeof (T)))
-                Indexing.Suggestions.Single(s => s.Type == typeof (T)).IncludeAllFields = true;
+            if (Indexing.Suggestions.Any(s => s.Type == typeof(T)))
+                Indexing.Suggestions.Single(s => s.Type == typeof(T)).IncludeAllFields = true;
             else
                 Indexing.Suggestions.Add(new Suggestion(typeof(T), true));
 
@@ -131,10 +131,10 @@ namespace Epinova.ElasticSearch.Core.Conventions
         /// </summary>
         public Indexing EnableSuggestions<TProperty>(params Expression<Func<T, TProperty>>[] fieldSelectors)
         {
-            if(fieldSelectors == null || !fieldSelectors.Any())
+            if (fieldSelectors == null || !fieldSelectors.Any())
                 return _instance;
 
-            foreach(var fieldSelector in fieldSelectors)
+            foreach (var fieldSelector in fieldSelectors)
             {
                 string fieldName = ElasticSearchService<T>.GetFieldInfo(fieldSelector).Item1;
 

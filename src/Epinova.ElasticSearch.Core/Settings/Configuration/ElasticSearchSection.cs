@@ -18,7 +18,7 @@ namespace Epinova.ElasticSearch.Core.Settings.Configuration
 
         public static ElasticSearchSection GetConfiguration()
         {
-            if(!HostingEnvironment.IsHosted)
+            if (!HostingEnvironment.IsHosted)
                 return new ElasticSearchSection();
 
             var section = WebConfigurationManager
@@ -102,7 +102,7 @@ namespace Epinova.ElasticSearch.Core.Settings.Configuration
             get => (int)this["clientTimeoutSeconds"];
             set => this["clientTimeoutSeconds"] = value;
         }
-        
+
         [ConfigurationProperty("shards", DefaultValue = 5, IsRequired = false)]
         [IntegerValidator(MinValue = 1, MaxValue = 1000)]
         public int NumberOfShards
@@ -110,7 +110,7 @@ namespace Epinova.ElasticSearch.Core.Settings.Configuration
             get => (int)this["shards"];
             set => this["shards"] = value;
         }
-        
+
         [ConfigurationProperty("replicas", DefaultValue = 1, IsRequired = false)]
         [IntegerValidator(MinValue = 1, MaxValue = 1000)]
         public int NumberOfReplicas
@@ -189,7 +189,7 @@ namespace Epinova.ElasticSearch.Core.Settings.Configuration
                 throw new ConfigurationErrorsException("Configuration Error. Custom indices must define a type");
 
             // Enumerate indices to trigger StringValidator
-            var indices= IndicesParsed.ToArray();
+            var indices = IndicesParsed.ToArray();
 
             var indexNames = indices.Select(i => i.Name);
             if (indexNames.Any(String.IsNullOrWhiteSpace))

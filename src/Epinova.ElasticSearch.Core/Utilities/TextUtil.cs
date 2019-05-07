@@ -15,7 +15,7 @@ namespace Epinova.ElasticSearch.Core.Utilities
 
         internal static string StripHtmlAndEntities(string input)
         {
-            if(input == null)
+            if (input == null)
                 return String.Empty;
 
             return Pattern.Replace(TextIndexer.StripHtml(input, Int32.MaxValue) ?? String.Empty, " ");

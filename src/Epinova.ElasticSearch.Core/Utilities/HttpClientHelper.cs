@@ -45,8 +45,8 @@ namespace Epinova.ElasticSearch.Core.Utilities
                 Client.DefaultRequestHeaders.Authorization = null;
             }
 
-            if(settings.ClientTimeoutSeconds > 0)
-                Client.Timeout =  TimeSpan.FromSeconds(settings.ClientTimeoutSeconds);
+            if (settings.ClientTimeoutSeconds > 0)
+                Client.Timeout = TimeSpan.FromSeconds(settings.ClientTimeoutSeconds);
         }
 
         internal static void Put(Uri uri, byte[] data = null)
@@ -133,7 +133,7 @@ namespace Epinova.ElasticSearch.Core.Utilities
 
         internal static string GetJson(Uri uri)
         {
-            HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Get, uri);
+            var request = new HttpRequestMessage(HttpMethod.Get, uri);
             request.Headers.Add("Accept", "application/json");
 
             HttpResponseMessage response = AsyncUtil.RunSync(() =>
@@ -230,8 +230,8 @@ namespace Epinova.ElasticSearch.Core.Utilities
         {
             if (!response.IsSuccessStatusCode)
             {
-                string error =AsyncUtil.RunSync(() =>
-                    response.Content.ReadAsStringAsync()
+                string error = AsyncUtil.RunSync(() =>
+                     response.Content.ReadAsStringAsync()
                 );
 
                 // Assume the response is json

@@ -20,7 +20,6 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Controllers
     {
         private readonly IContentLoader _contentLoader;
         private readonly IBestBetsRepository _bestBetsRepository;
-        private readonly ILanguageBranchRepository _languageBranchRepository;
 
         public ElasticBestBetsController(
             IContentLoader contentLoader,
@@ -30,7 +29,6 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Controllers
         {
             _contentLoader = contentLoader;
             _bestBetsRepository = bestBetsRepository;
-            _languageBranchRepository = languageBranchRepository;
         }
 
         [Authorize(Roles = RoleNames.ElasticsearchAdmins)]

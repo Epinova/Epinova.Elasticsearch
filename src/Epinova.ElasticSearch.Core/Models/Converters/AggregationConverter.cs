@@ -14,7 +14,7 @@ namespace Epinova.ElasticSearch.Core.Models.Converters
 
         public override bool CanConvert(Type objectType)
         {
-            return objectType  == typeof(Dictionary<string, Bucket>);
+            return objectType == typeof(Dictionary<string, Bucket>);
         }
 
         public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)

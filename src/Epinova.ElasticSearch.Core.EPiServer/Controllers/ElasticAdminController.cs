@@ -18,7 +18,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Controllers
     {
         private readonly ICoreIndexer _coreIndexer;
         private readonly IElasticSearchSettings _settings;
-        private static Health _healthHelper;
+        private readonly Health _healthHelper;
 
         public ElasticAdminController(
             ILanguageBranchRepository languageBranchRepository,
@@ -47,7 +47,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Controllers
             if (Core.Server.Info.Version.Major < 5)
                 throw new Exception("Elasticsearch version 5 or higher required");
 
-            ElasticSearchSection config = ElasticSearchSection.GetConfiguration();
+            var config = ElasticSearchSection.GetConfiguration();
 
             foreach (var lang in Languages)
             {
