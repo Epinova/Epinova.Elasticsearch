@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using EPiServer.Core;
 
 namespace Epinova.ElasticSearch.Core.EPiServer
@@ -13,7 +13,6 @@ namespace Epinova.ElasticSearch.Core.EPiServer
             Score = queryScore;
             Highlight = highlight;
         }
-
 
         public T Content { get; }
 

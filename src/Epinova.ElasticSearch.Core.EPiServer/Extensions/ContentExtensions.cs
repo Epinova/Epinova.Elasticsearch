@@ -471,7 +471,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Extensions
 
             if (suggestions.Count > 0)
             {
-                IndexItem.SuggestionItem suggestionItems = new IndexItem.SuggestionItem();
+                var suggestionItems = new IndexItem.SuggestionItem();
 
                 foreach (Suggestion suggestion in suggestions)
                 {
@@ -495,7 +495,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Extensions
                             suggestProperties
                                 .Select(p =>
                                 {
-                                    object value = GetIndexValue(content, p);
+                                    var value = GetIndexValue(content, p);
                                     return value?.ToString();
                                 })
                                 .Where(p => p != null)
@@ -562,7 +562,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Extensions
                 if (String.IsNullOrWhiteSpace(indexName))
                     indexName = ElasticSearchSettings.GetDefaultIndexName(language);
 
-                string uri = $"{ElasticSearchSettings.Host}/{indexName}/_mapping/{typeof(IndexItem).GetTypeName()}";
+                var uri = $"{ElasticSearchSettings.Host}/{indexName}/_mapping/{typeof(IndexItem).GetTypeName()}";
 
                 Logger.Debug("Update mapping:\n" + JToken.Parse(json).ToString(Formatting.Indented));
 

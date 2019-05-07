@@ -17,10 +17,9 @@ namespace Epinova.ElasticSearch.Core.Utilities
             _settings = settings;
         }
 
-
         public void DeleteIndex(string indexName)
         {
-            string uri = $"{_settings.Host}/{indexName}";
+            var uri = $"{_settings.Host}/{indexName}";
 
             Logger.Information("Deleting index '" + indexName + "'");
 
@@ -78,7 +77,7 @@ namespace Epinova.ElasticSearch.Core.Utilities
             type = type != null ? String.Concat("/", type) : null;
             endpoint = endpoint != null ? String.Concat("/", endpoint) : null;
 
-            string uri = $"{_settings.Host}/{indexName}{type}{endpoint}";
+            var uri = $"{_settings.Host}/{indexName}{type}{endpoint}";
 
             return new Uri(uri);
         }

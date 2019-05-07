@@ -17,12 +17,11 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Controllers
         private readonly IElasticSearchSettings _settings;
 
         public ElasticConsoleController(
-            ILanguageBranchRepository languageBranchRepository, 
+            ILanguageBranchRepository languageBranchRepository,
             IElasticSearchSettings settings) : base(settings, languageBranchRepository)
         {
             _settings = settings;
         }
-
 
         [Authorize(Roles = RoleNames.ElasticsearchAdmins)]
         [ValidateInput(false)]
@@ -70,7 +69,6 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Controllers
         {
             return GetJsonFromEndpoint(index, "settings");
         }
-
 
         private ActionResult GetJsonFromEndpoint(string index, string endpoint)
         {

@@ -10,7 +10,6 @@ namespace Epinova.ElasticSearch.Core
     {
         private readonly FilterGroupQuery _filterGroup;
 
-
         public FilterGroup(ElasticSearchService<T> service, string name)
         {
             if (!service.PostFilterGroups.ContainsKey(name))
@@ -19,13 +18,11 @@ namespace Epinova.ElasticSearch.Core
             _filterGroup = service.PostFilterGroups[name];
         }
 
-
         public string Name { get; set; }
 
         public object Value { get; set; }
 
         public Operator Operator { get; set; }
-
 
         public IFilterGroup<T> Or<TType>(Expression<Action<T>> fieldSelector, TType[] filterValues)
         {
