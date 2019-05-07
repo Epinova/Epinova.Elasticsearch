@@ -118,9 +118,9 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Controllers.Abstractions
                 .ToDictionary(x => x.LanguageID, x => x.Name);
         }
 
-        private List<IndexInformation> GetIndices()
+        private List<IndexInformation> GetIndices(Admin.Index indexHelper)
         {
-            var indices = _indexHelper.GetIndices().ToList();
+            var indices = indexHelper.GetIndices().ToList();
 
             var config = ElasticSearchSection.GetConfiguration();
 
