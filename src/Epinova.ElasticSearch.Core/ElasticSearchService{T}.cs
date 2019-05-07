@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Configuration;
 using System.Globalization;
@@ -284,6 +284,7 @@ namespace Epinova.ElasticSearch.Core
                 FromValue = FromValue,
                 SizeValue = SizeValue,
                 IsWildcard = IsWildcard,
+                TrackSearch = TrackSearch,
                 IndexName = IndexName
             };
         }
