@@ -22,7 +22,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Controllers.Abstractions
         protected string CurrentIndex;
         protected string CurrentLanguage;
 
-        protected internal ElasticSearchControllerBase(
+        protected ElasticSearchControllerBase(
             Admin.Index indexHelper,
             ILanguageBranchRepository languageBranchRepository)
         {
