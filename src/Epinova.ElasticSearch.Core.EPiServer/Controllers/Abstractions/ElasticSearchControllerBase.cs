@@ -84,7 +84,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Controllers.Abstractions
             base.Initialize(requestContext);
 
             SystemLanguage.Instance.SetCulture();
-            UserInterfaceLanguage.Instance.SetCulture(EPiServerProfile.Current == null ? null: EPiServerProfile.Current.Language);
+            UserInterfaceLanguage.Instance.SetCulture(EPiServerProfile.Current?.Language);
         }
 
         private List<IndexInformation> GetIndices(Admin.Index indexHelper)
