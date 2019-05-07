@@ -100,7 +100,7 @@ namespace Epinova.ElasticSearch.Core
             PostFilterGroups = new Dictionary<string, FilterGroupQuery>();
             _ranges = new List<RangeBase>();
             _engine = new SearchEngine(settings);
-            _builder = new QueryBuilder(SearchType, settings);
+            _builder = new QueryBuilder(settings);
             _excludedTypes = new List<Type>();
             ExcludedRoots = new Dictionary<int, bool>();
             _usePostfilters = true;
@@ -747,15 +747,13 @@ namespace Epinova.ElasticSearch.Core
 
                 case MemberExpression memberExpression:
                     {
-                        if (memberExpression.Member is FieldInfo fieldInfo)
+                        if (memberExpression.Member is FieldInfo fieldInfo
+                            && fieldInfo != null
+                            && memberExpression.Expression is ConstantExpression constantExpression)
                         {
-                            var constantExpression = memberExpression.Expression as ConstantExpression;
-                            if (fieldInfo != null && constantExpression != null)
-                            {
-                                fieldName = fieldInfo.GetValue(constantExpression.Value).ToString();
-                                fieldType = Mapping.GetMappingType(explicitType ?? constantExpression.Type);
-                                break;
-                            }
+                            fieldName = fieldInfo.GetValue(constantExpression.Value).ToString();
+                            fieldType = Mapping.GetMappingType(explicitType ?? constantExpression.Type);
+                            break;
                         }
 
                         MemberInfo memberInfo = memberExpression.Member;

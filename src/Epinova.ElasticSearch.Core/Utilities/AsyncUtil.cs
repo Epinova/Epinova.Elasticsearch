@@ -30,12 +30,11 @@ namespace Epinova.ElasticSearch.Core.Utilities
                 .GetResult();
 
         /// <summary>
-        /// Executes an async Task<T> method which has a T return type synchronously
-        /// USAGE: T result = AsyncUtil.RunSync(() => AsyncMethod<T>());
+        /// Executes an async Task&lt;T&gt; method which has a T return type synchronously
+        /// USAGE: T result = AsyncUtil.RunSync(() => AsyncMethod&lt;T&gt;());
         /// </summary>
         /// <typeparam name="TResult">Return Type</typeparam>
-        /// <param name="task">Task<T> method to execute</param>
-        /// <returns></returns>
+        /// <param name="task">Task&lt;T&gt; method to execute</param>
         public static TResult RunSync<TResult>(Func<Task<TResult>> task)
             => _taskFactory
                 .StartNew(task)

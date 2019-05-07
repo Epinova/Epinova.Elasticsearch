@@ -22,7 +22,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Controllers.Abstractions
         protected string CurrentIndex;
         protected string CurrentLanguage;
 
-        internal ElasticSearchControllerBase(
+        protected ElasticSearchControllerBase(
             Admin.Index indexHelper,
             ILanguageBranchRepository languageBranchRepository)
         {
@@ -84,7 +84,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Controllers.Abstractions
             base.Initialize(requestContext);
 
             SystemLanguage.Instance.SetCulture();
-            UserInterfaceLanguage.Instance.SetCulture(EPiServerProfile.Current == null ? null: EPiServerProfile.Current.Language);
+            UserInterfaceLanguage.Instance.SetCulture(EPiServerProfile.Current?.Language);
         }
 
         private List<IndexInformation> GetIndices(Admin.Index indexHelper)
@@ -103,7 +103,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Controllers.Abstractions
                     ? "[default]"
                     : Type.GetType(parsed.Type)?.Name;
 
-                indexInfo.DisplayName = parsed.DisplayName;
+                indexInfo.DisplayName = parsed?.DisplayName;
 
                 if (indexInfo.Index.Contains($"-{Constants.CommerceProviderName}".ToLowerInvariant()))
                     indexInfo.DisplayName += " Commerce";

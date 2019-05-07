@@ -60,7 +60,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Extensions
         {
             var settings = ServiceLocator.Current.GetInstance<IElasticSearchSettings>();
 
-            var builder = new QueryBuilder(service.SearchType, settings);
+            var builder = new QueryBuilder(settings);
 
             SuggestRequest request = builder.Suggest(new QuerySetup
             {

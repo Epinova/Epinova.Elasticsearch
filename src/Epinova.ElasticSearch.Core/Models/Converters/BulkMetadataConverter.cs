@@ -13,13 +13,13 @@ namespace Epinova.ElasticSearch.Core.Models.Converters
 
         public override bool CanConvert(Type objectType)
         {
-            return objectType == typeof (BulkMetadata);
+            return objectType == typeof(BulkMetadata);
         }
 
         public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
         {
             BulkMetadata bulk = value as BulkMetadata;
-            if(bulk == null)
+            if (bulk == null)
                 return;
 
             string name = Enum.GetName(typeof(Operation), bulk.Operation);

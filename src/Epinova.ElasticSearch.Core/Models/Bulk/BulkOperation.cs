@@ -14,6 +14,7 @@ namespace Epinova.ElasticSearch.Core.Models.Bulk
     {
         private static readonly ILogger Logger = LogManager.GetLogger(typeof(BulkOperation));
         private static readonly IElasticSearchSettings ElasticSearchSettings = ServiceLocator.Current.GetInstance<IElasticSearchSettings>();
+
         private static readonly NumberFormatInfo DotSeparatorFormat = new NumberFormatInfo
         {
             NumberGroupSeparator = String.Empty,
@@ -42,7 +43,6 @@ namespace Epinova.ElasticSearch.Core.Models.Bulk
             dataType = dataType ?? data.GetType();
 
             id = GetId(id, dataType, data);
-
 
             // If we have no Types, this is a custom object and we must extract the properties from the data-object.
             // Standard IndexItems will already have needed data created by AsIndexItem
@@ -130,7 +130,6 @@ namespace Epinova.ElasticSearch.Core.Models.Bulk
 
             Data = data;
         }
-
 
         private string GetId(string id, Type dataType, object data)
         {

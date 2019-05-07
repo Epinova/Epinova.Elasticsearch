@@ -28,7 +28,7 @@ namespace Epinova.ElasticSearch.Core.Models.Converters
 
         public override bool CanConvert(Type objectType)
         {
-            return objectType == typeof (BulkResultItem);
+            return objectType == typeof(BulkResultItem);
         }
 
         public override bool CanWrite => false;
