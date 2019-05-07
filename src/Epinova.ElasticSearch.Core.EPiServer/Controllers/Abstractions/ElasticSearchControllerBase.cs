@@ -103,7 +103,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Controllers.Abstractions
                     ? "[default]"
                     : Type.GetType(parsed.Type)?.Name;
 
-                indexInfo.DisplayName = parsed.DisplayName;
+                indexInfo.DisplayName = parsed?.DisplayName;
 
                 if (indexInfo.Index.Contains($"-{Constants.CommerceProviderName}".ToLowerInvariant()))
                     indexInfo.DisplayName += " Commerce";
