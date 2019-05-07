@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Web.Mvc;
 using Epinova.ElasticSearch.Core.Admin;
@@ -17,7 +16,6 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Controllers
 {
     public class ElasticAdminController : ElasticSearchControllerBase
     {
-        private readonly ILanguageBranchRepository _languageBranchRepository;
         private readonly ICoreIndexer _coreIndexer;
         private readonly IElasticSearchSettings _settings;
         private static Health _healthHelper;
@@ -25,9 +23,8 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Controllers
         public ElasticAdminController(
             ILanguageBranchRepository languageBranchRepository,
             ICoreIndexer coreIndexer,
-            IElasticSearchSettings settings)
+            IElasticSearchSettings settings) : base(settings, languageBranchRepository)
         {
-            _languageBranchRepository = languageBranchRepository;
             _coreIndexer = coreIndexer;
             _settings = settings;
             _healthHelper = new Health(settings);
@@ -39,23 +36,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Controllers
             HealthInformation clusterHealth = _healthHelper.GetClusterHealth();
             Node[] nodeInfo = _healthHelper.GetNodeInfo();
 
-            var indexHelper = new Index(_settings);
-
-            var allIndices = indexHelper.GetIndices();
-
-            ElasticSearchSection config = ElasticSearchSection.GetConfiguration();
-
-            foreach (var index in allIndices)
-            {
-                var parsed = config.IndicesParsed.FirstOrDefault(i =>
-                    index.Index.StartsWith(i.Name, StringComparison.InvariantCultureIgnoreCase));
-
-                index.Type = String.IsNullOrWhiteSpace(parsed?.Type)
-                    ? "[default]"
-                    : Type.GetType(parsed.Type)?.Name;
-            }
-
-            var adminViewModel = new AdminViewModel(clusterHealth, allIndices.OrderBy(i => i.Type), nodeInfo);
+            var adminViewModel = new AdminViewModel(clusterHealth, Indices.OrderBy(i => i.Type), nodeInfo);
 
             return View("~/Views/ElasticSearchAdmin/Admin/Index.cshtml", adminViewModel);
         }
@@ -68,15 +49,11 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Controllers
 
             ElasticSearchSection config = ElasticSearchSection.GetConfiguration();
 
-            IEnumerable<string> languages = _languageBranchRepository
-                .ListEnabled()
-                .Select(lang => lang.LanguageID);
-
-            foreach (string lang in languages)
+            foreach (var lang in Languages)
             {
                 foreach (IndexConfiguration indexConfig in config.IndicesParsed)
                 {
-                    var indexName = _settings.GetCustomIndexName(indexConfig.Name, lang);
+                    var indexName = _settings.GetCustomIndexName(indexConfig.Name, lang.Key);
                     Type indexType = GetIndexType(indexConfig, config);
 
                     var index = new Index(_settings, indexName);
@@ -91,12 +68,12 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Controllers
 
                     if (IsCustomType(indexType))
                     {
-                        _coreIndexer.UpdateMapping(indexType, indexType, indexName, lang, true);
+                        _coreIndexer.UpdateMapping(indexType, indexType, indexName, lang.Key, true);
                         index.WaitForStatus();
                     }
                     else if(_settings.CommerceEnabled)
                     {
-                        indexName = _settings.GetCustomIndexName($"{indexConfig.Name}-{Constants.CommerceProviderName}", lang);
+                        indexName = _settings.GetCustomIndexName($"{indexConfig.Name}-{Constants.CommerceProviderName}", lang.Key);
                         index = new Index(_settings, indexName);
                         if (!index.Exists)
                         {
