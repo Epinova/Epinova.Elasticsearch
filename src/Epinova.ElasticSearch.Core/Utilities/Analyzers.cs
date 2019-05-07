@@ -6,6 +6,35 @@ namespace Epinova.ElasticSearch.Core.Utilities
 {
     internal static class Analyzers
     {
+        internal static dynamic GetAnalyzerSettings(string languageCode, string synonymsFilePath)
+        {
+            string languageName = Language.GetLanguageAnalyzer(languageCode);
+
+            dynamic synonymSettings = new { type = "synonym", synonyms = new[] { "example_from,example_to" } };
+            if (!String.IsNullOrWhiteSpace(synonymsFilePath))
+            {
+                synonymSettings = new { type = "synonym", synonyms_path = languageCode + "_" + synonymsFilePath };
+            }
+
+            var stemmerLanguage = languageName;
+            if (languageName == "french" || languageName == "german")
+                stemmerLanguage = "light_" + stemmerLanguage;
+
+            return new
+            {
+                settings = new
+                {
+                    analysis = new
+                    {
+                        filter = CreateFilter(languageName, synonymSettings, stemmerLanguage),
+                        char_filter = analysisCharFilter,
+                        analyzer = CreateAnalyzer(languageName),
+                        tokenizer = triGramTokenizer
+                    }
+                }
+            };
+        }
+
         private static readonly dynamic shingleFilter = new
         {
             type = "shingle",
@@ -50,147 +79,118 @@ namespace Epinova.ElasticSearch.Core.Utilities
             };
         }
 
-        internal static dynamic GetAnalyzerSettings(string languageCode, string synonymsFilePath)
+        private static dynamic CreateFilter(string languageName, dynamic synonymSettings, string stemmerLanguage)
         {
-            string languageName = Language.GetLanguageAnalyzer(languageCode);
+            var filter = new ExpandoObject();
+            var dict = (IDictionary<string, object>)filter;
 
-            dynamic synonymSettings = new { type = "synonym", synonyms = new[] { "example_from,example_to" } };
-            if (!String.IsNullOrWhiteSpace(synonymsFilePath))
+            dict.Add("shingle_filter", shingleFilter);
+
+            if (languageName == "french")
             {
-                synonymSettings = new { type = "synonym", synonyms_path = languageCode + "_" + synonymsFilePath };
+                dict.Add("french_elision", new { type = "elision", articles_case = true, articles = new[] { "l", "m", "t", "qu", "n", "s", "j", "d", "c", "jusqu", "quoiqu", "lorsqu", "puisqu" } });
             }
 
-            var stemmerLanguage = languageName;
-            if (languageName == "french" || languageName == "german")
-                stemmerLanguage = "light_" + stemmerLanguage;
-
-            IEnumerable<string> CreateAnalyzerFilter()
+            if (languageName == "english")
             {
-                if (languageName == "french")
-                    yield return "french_elision";
+                dict.Add("light_english_stemmer", new { type = "stemmer", language = "light_english" });
+                dict.Add("english_possessive_stemmer", new { type = "stemmer", language = "possessive_english" });
+            }
 
-                yield return "lowercase";
+            dict.Add(languageName + "_stop", new { type = "stop", stopwords = "_" + languageName + "_" });
+            dict.Add(languageName + "_stemmer", new { type = "stemmer", language = stemmerLanguage });
+            dict.Add(languageName + "_synonym_filter", synonymSettings);
 
-                if (languageName == "english")
-                    yield return "english_possessive_stemmer";
+            return filter;
+        }
 
-                yield return languageName + "_stop";
+        private static IEnumerable<string> CreateSuggestFilter(string languageName)
+        {
+            yield return "lowercase";
 
-                if (languageName == "german")
-                    yield return "german_normalization";
-
-                yield return languageName + "_synonym_filter";
+            if (languageName == "english")
+            {
+                yield return "english_possessive_stemmer";
+                yield return "light_english_stemmer";
+            }
+            else
+            {
                 yield return languageName + "_stemmer";
             }
 
-            IEnumerable<string> CreateSimpleAnalyzerFilter()
-            {
-                if (languageName == "french")
-                    yield return "french_elision";
+            yield return languageName + "_stop";
+            yield return "shingle_filter";
+        }
 
-                yield return "lowercase";
-                yield return languageName + "_stop";
-
-                if (languageName == "german")
-                    yield return "german_normalization";
-
-                yield return languageName + "_synonym_filter";
-            }
-
-            dynamic CreateAnalyzer()
-            {
-                var analyzer = new ExpandoObject();
-                var dict = (IDictionary<string, object>)analyzer;
-
-                dict.Add(languageName, new
-                {
-                    filter = CreateAnalyzerFilter(),
-                    char_filter = analyzerCharFilter,
-                    tokenizer = "standard"
-                });
-
-                dict.Add("raw", new
-                {
-                    filter = new[] { "lowercase", "asciifolding" },
-                    type = "custom",
-                    tokenizer = "keyword"
-                });
-
-                dict.Add("suggest", GetSuggestAnalyzer(languageName));
-
-                dict.Add(languageName + "_simple", CreateSimpleAnalyzer());
-
-                dict.Add(languageName + "_suggest", new { filter = CreateSuggestFilter(), type = "custom", tokenizer = "standard" });
-
-                return analyzer;
-            }
-
-            dynamic CreateSimpleAnalyzer()
-            {
-                return new
-                {
-                    filter = CreateSimpleAnalyzerFilter(),
-                    char_filter = analyzerCharFilter,
-                    tokenizer = "standard"
-                };
-            }
-
-            IEnumerable<string> CreateSuggestFilter()
-            {
-                yield return "lowercase";
-
-                if (languageName == "english")
-                {
-                    yield return "english_possessive_stemmer";
-                    yield return "light_english_stemmer";
-                }
-                else
-                {
-                    yield return languageName + "_stemmer";
-                }
-
-                yield return languageName + "_stop";
-                yield return "shingle_filter";
-            }
-
-            dynamic CreateFilter()
-            {
-                var filter = new ExpandoObject();
-                var dict = (IDictionary<string, object>)filter;
-
-                dict.Add("shingle_filter", shingleFilter);
-
-                if (languageName == "french")
-                {
-                    dict.Add("french_elision", new { type = "elision", articles_case = true, articles = new[] { "l", "m", "t", "qu", "n", "s", "j", "d", "c", "jusqu", "quoiqu", "lorsqu", "puisqu" }});
-                }
-
-                if (languageName == "english")
-                {
-                    dict.Add("light_english_stemmer", new { type = "stemmer", language = "light_english" });
-                    dict.Add("english_possessive_stemmer", new { type = "stemmer", language = "possessive_english" });
-                }
-
-                dict.Add(languageName + "_stop", new { type = "stop", stopwords = "_" + languageName + "_" });
-                dict.Add(languageName + "_stemmer", new { type = "stemmer", language = stemmerLanguage });
-                dict.Add(languageName + "_synonym_filter", synonymSettings);
-
-                return filter;
-            }
-
+        private static dynamic CreateSimpleAnalyzer(string languageName)
+        {
             return new
             {
-                settings = new
-                {
-                    analysis = new
-                    {
-                        filter = CreateFilter(),
-                        char_filter = analysisCharFilter,
-                        analyzer = CreateAnalyzer(),
-                        tokenizer = triGramTokenizer
-                    }
-                }
+                filter = CreateSimpleAnalyzerFilter(languageName),
+                char_filter = analyzerCharFilter,
+                tokenizer = "standard"
             };
+        }
+
+        private static dynamic CreateAnalyzer(string languageName)
+        {
+            var analyzer = new ExpandoObject();
+            var dict = (IDictionary<string, object>)analyzer;
+
+            dict.Add(languageName, new
+            {
+                filter = CreateAnalyzerFilter(languageName),
+                char_filter = analyzerCharFilter,
+                tokenizer = "standard"
+            });
+
+            dict.Add("raw", new
+            {
+                filter = new[] { "lowercase", "asciifolding" },
+                type = "custom",
+                tokenizer = "keyword"
+            });
+
+            dict.Add("suggest", GetSuggestAnalyzer(languageName));
+
+            dict.Add(languageName + "_simple", CreateSimpleAnalyzer(languageName));
+
+            dict.Add(languageName + "_suggest", new { filter = CreateSuggestFilter(languageName), type = "custom", tokenizer = "standard" });
+
+            return analyzer;
+        }
+
+        private static IEnumerable<string> CreateSimpleAnalyzerFilter(string languageName)
+        {
+            if (languageName == "french")
+                yield return "french_elision";
+
+            yield return "lowercase";
+            yield return languageName + "_stop";
+
+            if (languageName == "german")
+                yield return "german_normalization";
+
+            yield return languageName + "_synonym_filter";
+        }
+
+        private static IEnumerable<string> CreateAnalyzerFilter(string languageName)
+        {
+            if (languageName == "french")
+                yield return "french_elision";
+
+            yield return "lowercase";
+
+            if (languageName == "english")
+                yield return "english_possessive_stemmer";
+
+            yield return languageName + "_stop";
+
+            if (languageName == "german")
+                yield return "german_normalization";
+
+            yield return languageName + "_synonym_filter";
+            yield return languageName + "_stemmer";
         }
     }
 }
