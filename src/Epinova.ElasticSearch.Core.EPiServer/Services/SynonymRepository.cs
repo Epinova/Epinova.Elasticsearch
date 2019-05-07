@@ -98,6 +98,24 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Services
             indexing.Open(index);
         }
 
+        public string GetSynonymsFilePath(string languageId, string index)
+        {
+            if (String.IsNullOrWhiteSpace(index))
+                index = _settings.GetDefaultIndexName(languageId);
+
+            var indexing = new Indexing(_settings);
+
+            if (!indexing.IndexExists(index))
+                return null;
+
+            var json = HttpClientHelper.GetString(indexing.GetUri(index, "_settings"));
+
+            var jpath = $"{index}.settings.index.analysis.filter.{Language.GetLanguageAnalyzer(languageId)}_synonym_filter.synonyms_path";
+
+            JContainer settings = JsonConvert.DeserializeObject<JContainer>(json);
+            return settings.SelectToken(jpath)?.ToString();
+        }
+
         public List<Synonym> GetSynonyms(string languageId, string index)
         {
             var synonyms = new List<Synonym>();
