@@ -7,6 +7,7 @@ using Epinova.ElasticSearch.Core.Models;
 using Epinova.ElasticSearch.Core.Models.Admin;
 using Epinova.ElasticSearch.Core.Models.Serialization;
 using Epinova.ElasticSearch.Core.Settings;
+using Epinova.ElasticSearch.Core.Settings.Configuration;
 using Epinova.ElasticSearch.Core.Utilities;
 using EPiServer.Logging;
 using Newtonsoft.Json;
@@ -17,6 +18,7 @@ namespace Epinova.ElasticSearch.Core.Admin
     public class Index
     {
         private readonly string _name;
+        private readonly string _nameWithoutLanguage;
         private readonly string _language;
         private readonly Indexing _indexing;
         private static readonly ILogger Logger = LogManager.GetLogger(typeof(Index));
@@ -29,6 +31,7 @@ namespace Epinova.ElasticSearch.Core.Admin
 
             _name = name.ToLower();
             _language = _name.Split('-').Last();
+            _nameWithoutLanguage = _name.Substring(0, _name.Length - _language.Length - 1);
         }
 
         internal Index(IElasticSearchSettings settings)
@@ -110,7 +113,7 @@ namespace Epinova.ElasticSearch.Core.Admin
                 return false;
             }
         }
-        
+
         internal int GetDocumentCount()
         {
             var uri = _indexing.GetUri(_name, "_search") + "?size=0";
@@ -144,12 +147,7 @@ namespace Epinova.ElasticSearch.Core.Admin
 
             _indexing.Close(_name);
 
-            CreateTriGramTokenizer();
-            CreateRawAnalyzer();
-            CreateShingleFilter();
-            CreateSynonymSettings();
-            CreateSuggestAnalyzer();
-            CreateShingleSettings();
+            CreateAnalyzerSettings();
 
             _indexing.Open(_name);
 
@@ -225,6 +223,21 @@ namespace Epinova.ElasticSearch.Core.Admin
             HttpClientHelper.Put(uri, data);
         }
 
+        private void CreateAnalyzerSettings()
+        {
+            var config = ElasticSearchSection.GetConfiguration();
+            var indexConfig = config.IndicesParsed.FirstOrDefault(i => i.Name == _nameWithoutLanguage);
+
+            string json = Serialization.Serialize(Analyzers.GetAnalyzerSettings(_language, indexConfig?.SynonymsFile));
+            byte[] data = Encoding.UTF8.GetBytes(json);
+            var uri = _indexing.GetUri(_name, "_settings");
+
+            Logger.Information($"Creating analyzer settings. Language: {_name}");
+            Logger.Information(JToken.Parse(json).ToString(Formatting.Indented));
+
+            HttpClientHelper.Put(uri, data);
+        }
+
         private void CreateAttachmentPipeline()
         {
             string json = Serialization.Serialize(Pipelines.Attachment.Definition);
@@ -232,97 +245,6 @@ namespace Epinova.ElasticSearch.Core.Admin
             var uri = new Uri($"{_settings.Host}/_ingest/pipeline/{Pipelines.Attachment.Name}");
 
             Logger.Information("Creating Attachment Pipeline");
-            Logger.Information(JToken.Parse(json).ToString(Formatting.Indented));
-
-            HttpClientHelper.Put(uri, data);
-        }
-
-        private void CreateTriGramTokenizer()
-        {
-            string json = Serialization.Serialize(Analyzers.TriGramTokenizer);
-            byte[] data = Encoding.UTF8.GetBytes(json);
-            var uri = _indexing.GetUri(_name, "_settings");
-
-            Logger.Information("Adding tri-gram tokenizer");
-            Logger.Information(JToken.Parse(json).ToString(Formatting.Indented));
-
-            HttpClientHelper.Put(uri, data);
-        }
-
-        private void CreateShingleFilter()
-        {
-            string json = Serialization.Serialize(Analyzers.Shingle);
-            byte[] data = Encoding.UTF8.GetBytes(json);
-            var uri = _indexing.GetUri(_name, "_settings");
-
-            Logger.Information("Adding Shingle filter");
-            Logger.Information(JToken.Parse(json).ToString(Formatting.Indented));
-
-            HttpClientHelper.Put(uri, data);
-        }
-
-        private void CreateRawAnalyzer()
-        {
-            string json = Serialization.Serialize(Analyzers.Raw);
-            byte[] data = Encoding.UTF8.GetBytes(json);
-            var uri = _indexing.GetUri(_name, "_settings");
-            HttpClientHelper.Put(uri, data);
-
-            Logger.Information($"Adding raw analyzer:\n{JToken.Parse(json).ToString(Formatting.Indented)}");
-        }
-
-        private void CreateSuggestAnalyzer()
-        {
-            string json = Serialization.Serialize(Analyzers.GetSuggestAnalyzer(Language.GetLanguageAnalyzer(_language)));
-            byte[] data = Encoding.UTF8.GetBytes(json);
-            var uri = _indexing.GetUri(_name, "_settings");
-
-            Logger.Information("Adding Suggest analyzer");
-            Logger.Information(JToken.Parse(json).ToString(Formatting.Indented));
-
-            HttpClientHelper.Put(uri, data);
-        }
-
-        private void CreateSynonymSettings()
-        {
-            string languageName = Language.GetLanguageAnalyzer(_language);
-
-            if (languageName == null || !Analyzers.List.ContainsKey(languageName))
-            {
-                Logger.Warning($"No analyzer with synonyms found for '{languageName}'");
-                return;
-            }
-
-            KeyValuePair<string, dynamic> analyzer = Analyzers.List.First(a => a.Key == languageName);
-
-            string json = Serialization.Serialize(analyzer.Value);
-            byte[] data = Encoding.UTF8.GetBytes(json);
-            var uri = _indexing.GetUri(_name, "_settings");
-
-            Logger.Information("Adding analyzer with synonyms");
-            Logger.Information(JToken.Parse(json).ToString(Formatting.Indented));
-
-            HttpClientHelper.Put(uri, data);
-        }
-
-        private void CreateShingleSettings()
-        {
-            string languageName = Language.GetLanguageAnalyzer(_language);
-            string key = languageName + "_suggest";
-
-            if (languageName == null || !Analyzers.List.ContainsKey(key))
-            {
-                Logger.Warning($"No shingle analyzer found for '{languageName}'");
-                return;
-            }
-
-            KeyValuePair<string, dynamic> analyzer = Analyzers.List.First(a => a.Key == key);
-
-            string json = Serialization.Serialize(analyzer.Value);
-            byte[] data = Encoding.UTF8.GetBytes(json);
-            var uri = _indexing.GetUri(_name, "_settings");
-
-            Logger.Information("Adding shingle settings");
             Logger.Information(JToken.Parse(json).ToString(Formatting.Indented));
 
             HttpClientHelper.Put(uri, data);
