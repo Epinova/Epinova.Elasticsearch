@@ -284,6 +284,7 @@ namespace Epinova.ElasticSearch.Core
                 FromValue = FromValue,
                 SizeValue = SizeValue,
                 IsWildcard = IsWildcard,
+                TrackSearch = TrackSearch,
                 IndexName = IndexName
             };
         }
