@@ -90,6 +90,7 @@
         <delete>Delete</delete>
         <addnew>Add</addnew>
         <confirmDelete>Delete synonym?</confirmDelete>
+        <synonymfilenotice>A synonym file is in use</synonymfilenotice>
         <newsynonym>New synonym</newsynonym>
         <existingsynonyms>Existing synonyms</existingsynonyms>
       </synonyms>

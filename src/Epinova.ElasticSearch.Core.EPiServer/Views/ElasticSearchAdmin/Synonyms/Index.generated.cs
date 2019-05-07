@@ -29,6 +29,7 @@ namespace ASP
     using System.Web.WebPages;
     using Epinova.ElasticSearch.Core.EPiServer.Extensions;
     using Epinova.ElasticSearch.Core.EPiServer.Models.ViewModels;
+    using Epinova.ElasticSearch.Core.Models.Admin;
     using EPiServer;
     using EPiServer.Core;
     using EPiServer.Editor;
@@ -126,39 +127,34 @@ WriteLiteral(" data-dojo-props=\"");
 
 WriteLiteral("\"");
 
-WriteLiteral(">\r\n                <div");
-
-WriteLiteral(" class=\"epi-padding-small\"");
-
 WriteLiteral(">\r\n");
 
-                    
-                     if (ViewBag.Indices != null)
-                    {
-                        using (Html.BeginForm("Index", "ElasticSynonyms"))
-                        {
+                
+                 if (lang.HasSynonymsFile)
+                {
 
-WriteLiteral("                            <input");
+WriteLiteral("                    <div");
 
-WriteLiteral(" type=\"hidden\"");
+WriteLiteral(" data-dojo-attach-point=\"notificationBarNode\"");
 
-WriteLiteral(" name=\"LanguageId\"");
+WriteLiteral(" class=\"epi-notificationBar dijitVisible\"");
 
-WriteAttribute("value", Tuple.Create(" value=\"", 1663), Tuple.Create("\"", 1687)
-, Tuple.Create(Tuple.Create("", 1671), Tuple.Create<System.Object, System.Int32>(lang.LanguageId
-, 1671), false)
-);
+WriteLiteral(">\r\n                        <div");
 
-WriteLiteral(" />\r\n");
+WriteLiteral(" class=\"epi-notificationBarItem\"");
 
-WriteLiteral("                            <h2>");
+WriteLiteral(">\r\n                            <div");
 
-                           Write(Html.TranslateWithPathRaw("index", localizationPath));
+WriteLiteral(" class=\"epi-notificationBarText\"");
 
-WriteLiteral("</h2>\r\n");
+WriteLiteral(">\r\n                                <p>");
 
-WriteLiteral("                            <p>\r\n                                <label>\r\n       " +
-"                             <select");
+                              Write(Html.TranslateWithPath("synonymfilenotice", localizationPath));
+
+WriteLiteral("</p>\r\n                            </div>\r\n                        </div>\r\n       " +
+"             </div>\r\n");
+
+                }
 
 WriteLiteral(" data-dojo-type=\"dijit/form/Select\"");
 
