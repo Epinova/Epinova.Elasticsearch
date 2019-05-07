@@ -92,6 +92,7 @@
         <confirmDelete>Delete synonym?</confirmDelete>
         <synonymfilenotice>A synonym file is in use</synonymfilenotice>
         <newsynonym>New synonym</newsynonym>
+        <newsynonyminfo>For many-to-one use a comma-separated list of words in the From-field (does not support two-way).</newsynonyminfo>
         <existingsynonyms>Existing synonyms</existingsynonyms>
       </synonyms>
       <autosuggest>
@@ -145,6 +146,7 @@
         <heading>Indices</heading>
         <health>Health</health>
         <index>Index</index>
+        <displayName>Name</displayName>
         <pri>Priority</pri>
         <pristoresize>Data Size (priority)</pristoresize>
         <tokenizer>Tokenizer</tokenizer>

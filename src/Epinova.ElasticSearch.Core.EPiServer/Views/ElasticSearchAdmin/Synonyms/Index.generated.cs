@@ -116,9 +116,9 @@ WriteLiteral("            <div");
 
 WriteLiteral(" data-dojo-type=\"dijit/layout/ContentPane\"");
 
-WriteAttribute("title", Tuple.Create(" title=\"", 1254), Tuple.Create("\"", 1280)
-, Tuple.Create(Tuple.Create("", 1262), Tuple.Create<System.Object, System.Int32>(lang.LanguageName
-, 1262), false)
+WriteAttribute("title", Tuple.Create(" title=\"", 1302), Tuple.Create("\"", 1328)
+, Tuple.Create(Tuple.Create("", 1310), Tuple.Create<System.Object, System.Int32>(lang.LanguageName
+, 1310), false)
 );
 
 WriteLiteral(" data-dojo-props=\"");
@@ -156,52 +156,67 @@ WriteLiteral("</p>\r\n                            </div>\r\n                    
 
                 }
 
-WriteLiteral(" data-dojo-type=\"dijit/form/Select\"");
+WriteLiteral("\r\n                <div");
 
-WriteLiteral(" name=\"index\"");
+WriteLiteral(" class=\"epi-padding-small\"");
 
 WriteLiteral(">\r\n");
 
-                                        
-                                         foreach (string index in ViewBag.Indices)
-                                        {
+                    
+                     if (lang.Indices.Count > 1)
+                    {
 
-WriteLiteral("                                            <option");
+WriteLiteral("                        <div");
 
-WriteAttribute("value", Tuple.Create(" value=\"", 2131), Tuple.Create("\"", 2145)
-, Tuple.Create(Tuple.Create("", 2139), Tuple.Create<System.Object, System.Int32>(index
-, 2139), false)
-);
+WriteLiteral(" class=\"epi-groupedButtonContainer\"");
 
-WriteAttribute("selected", Tuple.Create(" selected=\"", 2146), Tuple.Create("\"", 2210)
-, Tuple.Create(Tuple.Create("", 2157), Tuple.Create<System.Object, System.Int32>(ViewBag.SelectedIndex == index ? "selected" : null
-, 2157), false)
+WriteLiteral(">\r\n                            <h2>");
+
+                           Write(Html.TranslateWithPathRaw("index", localizationPath));
+
+WriteLiteral("</h2>\r\n\r\n");
+
+                            
+                             foreach (var index in lang.Indices)
+                            {
+                                var indexName = $"{index.Key}-{lang.LanguageId}";
+                                if (indexName == ViewBag.SelectedIndex)
+                                {
+
+WriteLiteral("                                    <span>");
+
+                                     Write(index.Value);
+
+WriteLiteral("</span>\r\n");
+
+                                }
+                                else
+                                {
+
+WriteLiteral("                                    <a");
+
+WriteLiteral(" class=\"epi-visibleLink\"");
+
+WriteAttribute("href", Tuple.Create(" href=\"", 2748), Tuple.Create("\"", 2800)
+, Tuple.Create(Tuple.Create("", 2755), Tuple.Create("?index=", 2755), true)
+, Tuple.Create(Tuple.Create("", 2762), Tuple.Create<System.Object, System.Int32>(indexName
+, 2762), false)
+, Tuple.Create(Tuple.Create("", 2772), Tuple.Create("&languageId=", 2772), true)
+                  , Tuple.Create(Tuple.Create("", 2784), Tuple.Create<System.Object, System.Int32>(lang.LanguageId
+, 2784), false)
 );
 
 WriteLiteral(">");
 
-                                                                                                                               Write(index);
+                                                                                                               Write(index.Value);
 
-WriteLiteral("</option>\r\n");
+WriteLiteral("</a>\r\n");
 
-                                        }
+                                }
+                            }
 
-WriteLiteral("                                    </select>\r\n                                </" +
-"label>\r\n                                <button");
+WriteLiteral("                        </div>\r\n");
 
-WriteLiteral(" data-dojo-type=\"dijit/form/Button\"");
-
-WriteLiteral(" type=\"submit\"");
-
-WriteLiteral(" class=\"epi-primary\"");
-
-WriteLiteral(">");
-
-                                                                                                        Write(Html.TranslateWithPathRaw("show", localizationPath));
-
-WriteLiteral("</button>\r\n                            </p>\r\n");
-
-                        }
                     }
 
 WriteLiteral("\r\n");
@@ -216,9 +231,9 @@ WriteLiteral(" type=\"hidden\"");
 
 WriteLiteral(" name=\"Index\"");
 
-WriteAttribute("value", Tuple.Create(" value=\"", 2770), Tuple.Create("\"", 2800)
-, Tuple.Create(Tuple.Create("", 2778), Tuple.Create<System.Object, System.Int32>(ViewBag.SelectedIndex
-, 2778), false)
+WriteAttribute("value", Tuple.Create(" value=\"", 3094), Tuple.Create("\"", 3117)
+, Tuple.Create(Tuple.Create("", 3102), Tuple.Create<System.Object, System.Int32>(lang.IndexName
+, 3102), false)
 );
 
 WriteLiteral(" />\r\n");
@@ -229,9 +244,9 @@ WriteLiteral(" type=\"hidden\"");
 
 WriteLiteral(" name=\"Analyzer\"");
 
-WriteAttribute("value", Tuple.Create(" value=\"", 2866), Tuple.Create("\"", 2888)
-, Tuple.Create(Tuple.Create("", 2874), Tuple.Create<System.Object, System.Int32>(lang.Analyzer
-, 2874), false)
+WriteAttribute("value", Tuple.Create(" value=\"", 3183), Tuple.Create("\"", 3205)
+, Tuple.Create(Tuple.Create("", 3191), Tuple.Create<System.Object, System.Int32>(lang.Analyzer
+, 3191), false)
 );
 
 WriteLiteral(" />\r\n");
@@ -242,9 +257,9 @@ WriteLiteral(" type=\"hidden\"");
 
 WriteLiteral(" name=\"LanguageId\"");
 
-WriteAttribute("value", Tuple.Create(" value=\"", 2956), Tuple.Create("\"", 2980)
-, Tuple.Create(Tuple.Create("", 2964), Tuple.Create<System.Object, System.Int32>(lang.LanguageId
-, 2964), false)
+WriteAttribute("value", Tuple.Create(" value=\"", 3273), Tuple.Create("\"", 3297)
+, Tuple.Create(Tuple.Create("", 3281), Tuple.Create<System.Object, System.Int32>(lang.LanguageId
+, 3281), false)
 );
 
 WriteLiteral(" />\r\n");
@@ -263,11 +278,17 @@ WriteLiteral(" data-dojo-type=\"dijit/form/ValidationTextBox\"");
 
 WriteLiteral(" name=\"from\"");
 
+WriteAttribute("id", Tuple.Create(" id=\"", 3516), Tuple.Create("\"", 3542)
+, Tuple.Create(Tuple.Create("", 3521), Tuple.Create("from_", 3521), true)
+                      , Tuple.Create(Tuple.Create("", 3526), Tuple.Create<System.Object, System.Int32>(lang.LanguageId
+, 3526), false)
+);
+
 WriteLiteral(" data-dojo-props=\"placeholder:\'");
 
-                                                                                                                      Write(Html.TranslateWithPathRaw("from", localizationPath));
+                                                                                                                                                 Write(Html.TranslateWithPathRaw("from", localizationPath));
 
-WriteLiteral("\',required:true\"");
+WriteLiteral("\',required:true,intermediateChanges:true\"");
 
 WriteLiteral(" />\r\n                            <input");
 
@@ -309,6 +330,12 @@ WriteLiteral(">");
 
 WriteLiteral("</button>\r\n                        </p>\r\n");
 
+WriteLiteral("                        <p><em><small>");
+
+                                 Write(Html.TranslateWithPath("newsynonyminfo", localizationPath));
+
+WriteLiteral("</small></em></p>\r\n");
+
 
 
 WriteLiteral("                        <h2>");
@@ -319,10 +346,10 @@ WriteLiteral("</h2>\r\n");
 
 WriteLiteral("                        <div");
 
-WriteAttribute("id", Tuple.Create(" id=\"", 3986), Tuple.Create("\"", 4022)
-, Tuple.Create(Tuple.Create("", 3991), Tuple.Create<System.Object, System.Int32>(lang.LanguageId
-, 3991), false)
-, Tuple.Create(Tuple.Create("", 4009), Tuple.Create("-synonymsGrid", 4009), true)
+WriteAttribute("id", Tuple.Create(" id=\"", 4471), Tuple.Create("\"", 4507)
+, Tuple.Create(Tuple.Create("", 4476), Tuple.Create<System.Object, System.Int32>(lang.LanguageId
+, 4476), false)
+, Tuple.Create(Tuple.Create("", 4494), Tuple.Create("-synonymsGrid", 4494), true)
 );
 
 WriteLiteral("></div>\r\n");
@@ -360,6 +387,10 @@ WriteLiteral("\",\r\n                            twoway: {\r\n                  
 
 WriteLiteral(@""",
                                 renderCell: function (object, value, node) {
+                                    if (object.multi) {
+                                        return null;
+                                    }
+
                                     new CheckBox({
                                         name: ""twoway"",
                                         checked: object.twoway,
@@ -395,7 +426,7 @@ WriteLiteral("&languageId=\" + object.lang + \"&analyzer=");
 
                                                                                                                                                                                    Write(lang.Analyzer);
 
-WriteLiteral(@"&from="" + object.from + ""&to="" + object.to + ""&twoway="" + object.twoway;
+WriteLiteral(@"&from="" + object.from + ""&to="" + object.to + ""&twoway="" + object.twoway + ""&multiword="" + object.multi;
                                                 }
                                             }
                                         })
@@ -427,6 +458,10 @@ WriteLiteral("\",\r\n                                    to: \"");
 WriteLiteral("\",\r\n                                    twoway: ");
 
                                        Write(synonym.TwoWay.ToString().ToLower());
+
+WriteLiteral(",\r\n                                    multi: ");
+
+                                      Write(synonym.MultiWord.ToString().ToLower());
 
 WriteLiteral(",\r\n                                    lang: \"");
 
