@@ -4,14 +4,21 @@ namespace Epinova.ElasticSearch.Core.Settings.Configuration
 {
     public class IndexConfiguration : ConfigurationElement
     {
-        internal const string InvalidCharacters = "~!#$%^&* ()[]{};'\"|\\.:";
+        internal const string NameInvalidCharacters = "~!#$%^&* ()[]{};'\"|\\.:";
 
         [ConfigurationProperty("name", IsRequired = true, IsKey = true)]
-        [StringValidator(InvalidCharacters = InvalidCharacters)]
+        [StringValidator(InvalidCharacters = NameInvalidCharacters)]
         public string Name
         {
             get => (string)this["name"];
             set => this["name"] = value;
+        }
+
+        [ConfigurationProperty("displayName", IsRequired = true)]
+        public string DisplayName
+        {
+            get => (string)this["displayName"];
+            set => this["displayName"] = value;
         }
 
         [ConfigurationProperty("synonymsFile", IsRequired = false)]

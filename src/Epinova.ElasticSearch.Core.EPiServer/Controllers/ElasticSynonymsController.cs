@@ -36,8 +36,14 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Controllers
             List<Synonym> synonyms = _synonymRepository.GetSynonyms(languageId, index);
             synonyms.RemoveAll(s =>
             {
-                string synonymFrom = synonym.From + (synonym.TwoWay ? null : "=>" + synonym.From);
-                return s.From == synonymFrom && s.To == synonym.To && s.TwoWay == synonym.TwoWay;
+                string synonymFrom = String.Join(",", synonym.From
+                    .Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries)
+                    .Select(w => w.Trim()));
+
+                if(!s.TwoWay && !s.MultiWord)
+                    synonymFrom += "=>" + synonymFrom;
+
+                return s.From == synonymFrom && s.To == synonym.To && s.TwoWay == synonym.TwoWay && s.MultiWord == synonym.MultiWord;
             });
 
             _synonymRepository.SetSynonyms(languageId, analyzer, synonyms, index);
@@ -53,8 +59,20 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Controllers
             {
                 List<Synonym> synonyms = _synonymRepository.GetSynonyms(languageId, index);
 
-                if (!synonym.TwoWay)
+                var fromWords = synonym.From
+                    .Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries)
+                    .Select(s => s.Trim())
+                    .ToArray();
+
+                if (fromWords.Length > 1)
+                {
+                    synonym.MultiWord = true;
+                    synonym.From = String.Join(",", fromWords);
+                }
+                else if (!synonym.TwoWay)
+                {
                     synonym.From += "=>" + synonym.From;
+                }
 
                 synonyms.Add(synonym);
 
@@ -90,7 +108,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Controllers
                                 key = key.Split(new[] { "=>" }, StringSplitOptions.None)[0].Trim();
 
                             var fromDisplay = String.Join(", ", key.Split(','));
-                            return new Synonym { From = fromDisplay, To = s.To, TwoWay = s.TwoWay };
+                            return new Synonym { From = fromDisplay, To = s.To, TwoWay = s.TwoWay, MultiWord = s.MultiWord };
                         })
                         .ToList()
                 });

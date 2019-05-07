@@ -28,25 +28,29 @@ namespace Epinova.ElasticSearch.Core.Conventions
 
             var config = ElasticSearchSection.GetConfiguration();
 
-            var indexList = config.IndicesParsed.Select(i => i.Name).ToList();
+            var indexList = config.IndicesParsed.ToList();
 
             if (settings.CommerceEnabled)
             {
-                indexList.Add($"{settings.Index}-{Constants.CommerceProviderName}".ToLower());
+                indexList.Add(new IndexConfiguration
+                {
+                    Name = $"{settings.Index}-{Constants.CommerceProviderName}".ToLower(),
+                    DisplayName = "Commerce"
+                });
             }
 
             foreach (var index in indexList)
             {
-                Logger.Information($"Setup BestBets for index '{index}'");
+                Logger.Information($"Setup BestBets for index '{index.Name}'");
                 foreach (var languageId in languageIds)
                 {
                     Logger.Information($"Language '{languageId}'");
-                    var indexName = index + "-" + languageId;
+                    var indexName = index.Name + "-" + languageId;
                     var bestBets = repository.GetBestBets(languageId, indexName).ToList();
                     BestBets.TryAdd(indexName, bestBets);
                     Logger.Information($"BestBets:\n{String.Join("\n", bestBets.Select(b => b.Phrase + " => " + b.Id))}");
                 }
-            }
+}
         }
     }
 }

@@ -49,7 +49,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Services
             indexing.Close(index);
 
             string[] synonymPairs = synonymsToAdd
-                .Select(s => String.Concat(s.From, ",", s.To))
+                .Select(s => String.Concat(s.From, s.MultiWord ? "=>" : ",", s.To))
                 .ToArray();
 
             if (synonymPairs.Length == 0)
@@ -161,10 +161,22 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Services
                 if(String.IsNullOrWhiteSpace(synonym))
                     continue;
 
+                var arrowPos = synonym.IndexOf("=>");
+                var firstCommaPos = synonym.IndexOf(',');
+                var isMultiword = arrowPos > firstCommaPos;
+                var splitToken = new[] { isMultiword ? "=>" : "," };
+
                 Logger.Debug("Synonym: " + synonym);
-                var pair = synonym.Split(',');
+
+                var pair = synonym.Split(splitToken, StringSplitOptions.None);
                 if(pair.Length > 1)
-                    synonyms.Add(new Synonym {From = pair[0], To = pair[1], TwoWay = !pair[0].Contains("=>")});
+                    synonyms.Add(new Synonym
+                    {
+                        From = pair[0],
+                        To = pair[1],
+                        TwoWay = !isMultiword && !pair[0].Contains("=>"),
+                        MultiWord = isMultiword
+                    });
             }
 
             return synonyms;
