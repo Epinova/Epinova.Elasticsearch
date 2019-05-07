@@ -14,74 +14,20 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Controllers
 {
     public class ElasticSynonymsController : ElasticSearchControllerBase
     {
-        private readonly ILanguageBranchRepository _languageBranchRepository;
         private readonly ISynonymRepository _synonymRepository;
-        private readonly Admin.Index _indexHelper;
-
-        internal ElasticSynonymsController(
-            ISynonymRepository synonymRepository,
-            ILanguageBranchRepository languageBranchRepository,
-            Admin.Index indexHelper)
-        {
-            _synonymRepository = synonymRepository;
-            _languageBranchRepository = languageBranchRepository;
-            _indexHelper = indexHelper;
-        }
 
         public ElasticSynonymsController(
-            ISynonymRepository synonymRepository,
             ILanguageBranchRepository languageBranchRepository,
-            IElasticSearchSettings settings)
-                : this(
-                      synonymRepository,
-                      languageBranchRepository,
-                      new Admin.Index(settings))
+            ISynonymRepository synonymRepository,
+            IElasticSearchSettings settings) : base(settings, languageBranchRepository)
         {
+            _synonymRepository = synonymRepository;
         }
 
-
         [Authorize(Roles = RoleNames.ElasticsearchAdmins)]
-        public ActionResult Index(string index = null, string languageId = null)
+        public ActionResult Index()
         {
-            var languages = _languageBranchRepository.ListEnabled()
-                .Select(lang => new { lang.LanguageID, lang.Name })
-                .ToArray();
-
-            var indices = _indexHelper.GetIndices()
-                .Select(i => i.Index).ToList();
-
-            if (String.IsNullOrWhiteSpace(index) || !indices.Contains(index))
-                index = indices.FirstOrDefault();
-
-            ViewBag.Indices = indices.Count > 1 ? indices : null;
-            ViewBag.SelectedIndex = index;
-
-            var model = new SynonymsViewModel(languageId);
-
-            foreach (var language in languages)
-            {
-                var name = language.Name;
-                name = String.Concat(name.Substring(0, 1).ToUpper(), name.Substring(1));
-
-                model.SynonymsByLanguage.Add(new LanguageSynonyms
-                {
-                    Analyzer = Language.GetLanguageAnalyzer(language.LanguageID),
-                    LanguageName = name,
-                    LanguageId = language.LanguageID,
-                    Synonyms = _synonymRepository.GetSynonyms(language.LanguageID, index)
-                        .Select(s =>
-                        {
-                            var key = s.From;
-                            if (key.Contains("=>"))
-                                key = key.Split(new[] { "=>" }, StringSplitOptions.None)[0].Trim();
-
-                            return new Synonym { From = key, To = s.To, TwoWay = s.TwoWay};
-                        })
-                        .ToList()
-                });
-            }
-
-            return View("~/Views/ElasticSearchAdmin/Synonyms/Index.cshtml", model);
+            return View("~/Views/ElasticSearchAdmin/Synonyms/Index.cshtml", GetModel());
         }
 
         [Authorize(Roles = RoleNames.ElasticsearchAdmins)]
@@ -116,6 +62,41 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Controllers
             }
 
             return RedirectToAction("Index", new { index, languageId });
+        }
+
+        private SynonymsViewModel GetModel()
+        {
+            var model = new SynonymsViewModel(CurrentLanguage);
+
+            foreach (var language in Languages)
+            {
+                var name = language.Value;
+                name = String.Concat(name.Substring(0, 1).ToUpper(), name.Substring(1));
+                var indexName = SwapLanguage(CurrentIndex, language.Key);
+
+                model.SynonymsByLanguage.Add(new LanguageSynonyms
+                {
+                    Analyzer = Language.GetLanguageAnalyzer(language.Key),
+                    LanguageName = name,
+                    LanguageId = language.Key,
+                    IndexName = indexName,
+                    Indices = UniqueIndices,
+                    HasSynonymsFile = !String.IsNullOrWhiteSpace(_synonymRepository.GetSynonymsFilePath(language.Key, indexName)),
+                    Synonyms = _synonymRepository.GetSynonyms(language.Key, CurrentIndex)
+                        .Select(s =>
+                        {
+                            var key = s.From;
+                            if (key.Contains("=>"))
+                                key = key.Split(new[] { "=>" }, StringSplitOptions.None)[0].Trim();
+
+                            var fromDisplay = String.Join(", ", key.Split(','));
+                            return new Synonym { From = fromDisplay, To = s.To, TwoWay = s.TwoWay };
+                        })
+                        .ToList()
+                });
+            }
+
+            return model;
         }
     }
 }

@@ -6,6 +6,7 @@ using System.Web.Mvc;
 using Epinova.ElasticSearch.Core.EPiServer.Controllers.Abstractions;
 using Epinova.ElasticSearch.Core.Settings;
 using Epinova.ElasticSearch.Core.Utilities;
+using EPiServer.DataAbstraction;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
@@ -15,7 +16,9 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Controllers
     {
         private readonly IElasticSearchSettings _settings;
 
-        public ElasticConsoleController(IElasticSearchSettings settings)
+        public ElasticConsoleController(
+            ILanguageBranchRepository languageBranchRepository, 
+            IElasticSearchSettings settings) : base(settings, languageBranchRepository)
         {
             _settings = settings;
         }
