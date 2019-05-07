@@ -39,7 +39,7 @@ namespace Epinova.ElasticSearch.Core.Settings
                 {
                     _commerceEnabled = false;
                 }
-                
+
                 return _commerceEnabled.Value;
             }
         }
@@ -58,9 +58,9 @@ namespace Epinova.ElasticSearch.Core.Settings
         public long DocumentMaxSize => _configuration.Files.ParsedMaxsize;
 
         public int BulkSize => _configuration.Bulksize;
-        
+
         public int NumberOfShards => _configuration.NumberOfShards;
-        
+
         public int NumberOfReplicas => _configuration.NumberOfReplicas;
 
         public int ProviderMaxResults => _configuration.ProviderMaxResults;
@@ -85,7 +85,7 @@ namespace Epinova.ElasticSearch.Core.Settings
 
         public string GetCustomIndexName(string index, string language)
         {
-            if(String.IsNullOrWhiteSpace(index))
+            if (String.IsNullOrWhiteSpace(index))
                 throw new InvalidOperationException("IndexInformation is null");
 
             if (String.IsNullOrWhiteSpace(language))

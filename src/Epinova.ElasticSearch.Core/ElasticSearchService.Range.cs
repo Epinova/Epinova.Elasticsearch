@@ -12,8 +12,8 @@ namespace Epinova.ElasticSearch.Core
         private readonly List<RangeBase> _ranges;
 
         public IElasticSearchService<T> Range(
-            string fieldName, 
-            int greaterThan, 
+            string fieldName,
+            int greaterThan,
             int lessThan)
         {
             return CreateIntegerRange(fieldName, greaterThan, lessThan);
@@ -93,8 +93,8 @@ namespace Epinova.ElasticSearch.Core
 
 
         public IElasticSearchService<T> RangeInclusive(
-            string fieldName, 
-            int greaterThanOrEqualTo, 
+            string fieldName,
+            int greaterThanOrEqualTo,
             int lessThanOrEqualTo)
         {
             return CreateIntegerRange(fieldName, greaterThanOrEqualTo, lessThanOrEqualTo, true);

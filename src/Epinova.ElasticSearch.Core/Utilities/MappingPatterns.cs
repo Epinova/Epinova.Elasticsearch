@@ -64,11 +64,13 @@ namespace Epinova.ElasticSearch.Core.Utilities
                     Created = new { type = "date" },
                     Changed = new { type = "date" },
                     Indexed = new { type = "date" },
-                    Name = new {
+                    Name = new
+                    {
                         type = nameof(MappingType.Text).ToLower(),
                         fields = Fields
                     },
-                    _bestbets = new {
+                    _bestbets = new
+                    {
                         type = nameof(MappingType.Text).ToLower(),
                         fields = Fields
                     },
@@ -125,7 +127,7 @@ namespace Epinova.ElasticSearch.Core.Utilities
                 }
             };
         }
-        
+
         internal static dynamic GetCustomIndexMapping(string languageName)
         {
             return new

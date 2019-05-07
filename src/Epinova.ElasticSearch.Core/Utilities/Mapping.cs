@@ -32,7 +32,7 @@ namespace Epinova.ElasticSearch.Core.Utilities
 
         internal static MappingType GetMappingType(Type type)
         {
-            if(type == typeof(IntegerRange))
+            if (type == typeof(IntegerRange))
                 return MappingType.Integer_Range;
 
             if (type.IsEnum)
@@ -122,7 +122,7 @@ namespace Epinova.ElasticSearch.Core.Utilities
         /// </summary>
         internal static IndexMapping GetIndexMapping(Type type, string language, string index)
         {
-            if(String.IsNullOrEmpty(index))
+            if (String.IsNullOrEmpty(index))
                 index = ElasticSearchSettings.GetDefaultIndexName(language);
 
             string typeName = type.GetTypeName();

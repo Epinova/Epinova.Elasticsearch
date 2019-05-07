@@ -69,7 +69,7 @@ namespace Epinova.ElasticSearch.Core.Models.Mapping
             if (ReferenceEquals(null, obj)) return false;
             if (ReferenceEquals(this, obj)) return true;
             if (obj.GetType() != GetType()) return false;
-            return Equals((IndexMappingProperty) obj);
+            return Equals((IndexMappingProperty)obj);
         }
 
         protected bool Equals(IndexMappingProperty other)

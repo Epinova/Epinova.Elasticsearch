@@ -28,16 +28,15 @@ namespace Epinova.ElasticSearch.Core.Engine
         private readonly IBoostingRepository _boostingRepository;
         private readonly IElasticSearchSettings _settings;
         private static readonly string[] ExcludedFields = { DefaultFields.Suggest };
-        private Type _searchType;
         private string[] _mappedFields;
+
         private readonly string[] _searchableFieldTypes = {
             nameof(MappingType.Text).ToLower(),
             nameof(MappingType.Attachment).ToLower()
         };
 
-        public QueryBuilder(Type searchType, IElasticSearchSettings settings)
+        public QueryBuilder(IElasticSearchSettings settings)
         {
-            _searchType = searchType;
             _settings = settings;
             ServiceLocator.Current.TryGetExistingInstance(out _boostingRepository);
         }
@@ -115,8 +114,6 @@ namespace Epinova.ElasticSearch.Core.Engine
 
         private RequestBase SearchInternal(QuerySetup setup)
         {
-            _searchType = setup.SearchType;
-
             setup.SearchText.EnsureNotNull("searchText");
 
             if (setup.From > 10000 || setup.Size > 10000)
@@ -169,7 +166,7 @@ namespace Epinova.ElasticSearch.Core.Engine
                         setup.Analyzer));
 
                 // Boost phrase matches if multiple words
-                if(request.Query.SearchText?.IndexOf(" ", StringComparison.OrdinalIgnoreCase) > 0)
+                if (request.Query.SearchText?.IndexOf(" ", StringComparison.OrdinalIgnoreCase) > 0)
                 {
                     request.Query.Bool.Should.Add(
                         new MatchMulti(
@@ -189,7 +186,7 @@ namespace Epinova.ElasticSearch.Core.Engine
             SetupFilters(setup, request);
 
             // Highlighting
-            if(setup.UseHighlight)
+            if (setup.UseHighlight)
             {
                 request.Highlight = new Highlight
                 {
@@ -255,9 +252,9 @@ namespace Epinova.ElasticSearch.Core.Engine
 
         private static void AppendDefaultFilters(QueryBase query, Type type)
         {
-            if(type.GetInheritancHierarchy().Contains(typeof(IVersionable)))
+            if (type.GetInheritancHierarchy().Contains(typeof(IVersionable)))
             {
-                var stopPublishFilter = new Range<DateTime>(DefaultFields.StopPublish, true) {RangeSetting = {Gte = DateTime.Now}};
+                var stopPublishFilter = new Range<DateTime>(DefaultFields.StopPublish, true) { RangeSetting = { Gte = DateTime.Now } };
                 query.Bool.Filter.Add(stopPublishFilter);
             }
         }
@@ -308,7 +305,7 @@ namespace Epinova.ElasticSearch.Core.Engine
             if (setup.UseBestBets && !String.IsNullOrWhiteSpace(request.Query.SearchText))
             {
                 IEnumerable<string> terms = request.Query.SearchText
-                    .Split(new[] {' '}, StringSplitOptions.RemoveEmptyEntries)
+                    .Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries)
                     .Select(t => t.Trim().Trim('*'));
 
                 var key = setup.IndexName ?? _settings.GetDefaultIndexName(Language.GetLanguageCode(setup.Language));
@@ -378,7 +375,7 @@ namespace Epinova.ElasticSearch.Core.Engine
 
                             if (ArrayHelper.IsArrayCandidate(filter.Value.GetType()))
                             {
-                                foreach (object value in (IEnumerable)ArrayHelper.ToArray(filter.Value))
+                                foreach (var value in (IEnumerable)ArrayHelper.ToArray(filter.Value))
                                 {
                                     boolQuery.Should.Add(Term.FromFilter(filter, value));
                                 }
@@ -454,7 +451,6 @@ namespace Epinova.ElasticSearch.Core.Engine
             request.Query.Bool.Filter.Add(filterQuery);
 
             AppendDefaultFilters(request.Query, setup.Type);
-
 
             if (request.Query.Bool.Should.Count > 1 && request.Query.Bool.Must.Count == 0)
                 request.Query.Bool.MinimumNumberShouldMatch = 1;

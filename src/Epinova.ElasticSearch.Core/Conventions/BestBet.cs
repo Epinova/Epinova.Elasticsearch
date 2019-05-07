@@ -27,7 +27,7 @@ namespace Epinova.ElasticSearch.Core.Conventions
 
         internal string[] Terms => String.IsNullOrWhiteSpace(Phrase)
             ? new string[0]
-            : Phrase.Split(new[] {' '}, StringSplitOptions.RemoveEmptyEntries)
+            : Phrase.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries)
                 .Select(t => t.Trim())
                 .ToArray();
     }

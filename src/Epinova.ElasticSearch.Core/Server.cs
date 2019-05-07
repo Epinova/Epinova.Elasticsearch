@@ -41,7 +41,7 @@ namespace Epinova.ElasticSearch.Core
 
         private static string GetHost()
         {
-            if(_settings == null)
+            if (_settings == null)
                 _settings = ServiceLocator.Current.GetInstance<IElasticSearchSettings>();
 
             return _settings.Host;
