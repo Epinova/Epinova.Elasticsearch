@@ -204,6 +204,7 @@
                 <text>
                 {
                     index:     "@index.Index",
+                    display:   "@index.DisplayName",
                     health:    "@index.HealthColor",
                     status:    "@index.Status",
                     type:      "@index.Type",
@@ -218,6 +219,7 @@
 
         var indexCols = {
             index: "@IndexString("Index")",
+            display: "@IndexString("displayName")",
             health: {
                 label: "@IndexString("Health")",
                 renderCell: function (object, value, node) {

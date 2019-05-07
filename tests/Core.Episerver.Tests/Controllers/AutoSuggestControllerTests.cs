@@ -5,6 +5,7 @@ using System.Web.Mvc;
 using Epinova.ElasticSearch.Core.EPiServer.Contracts;
 using Epinova.ElasticSearch.Core.EPiServer.Controllers;
 using Epinova.ElasticSearch.Core.EPiServer.Models.ViewModels;
+using Epinova.ElasticSearch.Core.Settings;
 using EPiServer.DataAbstraction;
 using Moq;
 using Xunit;
@@ -30,7 +31,8 @@ namespace Core.Episerver.Tests.Controllers
 
             _controller = new ElasticAutoSuggestController(
                 languageBranchRepositoryMock.Object,
-                _autoSuggestRepositoryMock.Object);
+                _autoSuggestRepositoryMock.Object,
+                new Mock<IElasticSearchSettings>().Object);
         }
 
         [Fact]

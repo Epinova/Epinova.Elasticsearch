@@ -488,6 +488,10 @@ WriteLiteral("\r\n                {\r\n                    index:     \"");
 
                            Write(index.Index);
 
+WriteLiteral("\",\r\n                    display:   \"");
+
+                           Write(index.DisplayName);
+
 WriteLiteral("\",\r\n                    health:    \"");
 
                            Write(index.HealthColor);
@@ -529,6 +533,10 @@ WriteLiteral("\r\n");
 WriteLiteral("        ];\r\n\r\n        var indexCols = {\r\n            index: \"");
 
                Write(IndexString("Index"));
+
+WriteLiteral("\",\r\n            display: \"");
+
+                 Write(IndexString("displayName"));
 
 WriteLiteral("\",\r\n            health: {\r\n                label: \"");
 

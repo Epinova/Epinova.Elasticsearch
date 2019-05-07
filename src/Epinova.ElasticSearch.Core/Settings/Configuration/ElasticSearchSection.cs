@@ -189,9 +189,15 @@ namespace Epinova.ElasticSearch.Core.Settings.Configuration
                 throw new ConfigurationErrorsException("Configuration Error. Custom indices must define a type");
 
             // Enumerate indices to trigger StringValidator
-            string[] indexNames = IndicesParsed.Select(i => i.Name).ToArray();
+            var indices= IndicesParsed.ToArray();
+
+            var indexNames = indices.Select(i => i.Name);
             if (indexNames.Any(String.IsNullOrWhiteSpace))
                 throw new ConfigurationErrorsException("Configuration Error. Index name cannot be empty");
+
+            var displayNames = indices.Select(i => i.DisplayName);
+            if (displayNames.Any(String.IsNullOrWhiteSpace))
+                throw new ConfigurationErrorsException("Configuration Error. Index display name cannot be empty");
         }
     }
 }
