@@ -50,7 +50,7 @@ namespace Epinova.ElasticSearch.Core.Conventions
                     BestBets.TryAdd(indexName, bestBets);
                     Logger.Information($"BestBets:\n{String.Join("\n", bestBets.Select(b => b.Phrase + " => " + b.Id))}");
                 }
-            }
+}
         }
     }
 }

@@ -40,7 +40,8 @@ namespace Core.Episerver.Tests.Controllers
             _controller = new ElasticAutoSuggestController(
                 indexHelperMock.Object,
                 languageBranchRepositoryMock.Object,
-                _autoSuggestRepositoryMock.Object);
+                _autoSuggestRepositoryMock.Object,
+                new Mock<IElasticSearchSettings>().Object);
         }
 
         [Fact]
