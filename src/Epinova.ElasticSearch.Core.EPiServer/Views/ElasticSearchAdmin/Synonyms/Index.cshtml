@@ -2,6 +2,7 @@
 @using System.Web.Mvc.Html
 @using Epinova.ElasticSearch.Core.EPiServer.Extensions
 @using Epinova.ElasticSearch.Core.EPiServer.Models.ViewModels
+@using Epinova.ElasticSearch.Core.Models.Admin
 
 @model SynonymsViewModel
 
@@ -47,6 +48,17 @@
         @foreach (LanguageSynonyms lang in Model.SynonymsByLanguage)
         {
             <div data-dojo-type="dijit/layout/ContentPane" title="@lang.LanguageName" data-dojo-props="@(lang.LanguageId == Model.CurrentLanguage ? "selected:true" : null)">
+                @if (lang.HasSynonymsFile)
+                {
+                    <div data-dojo-attach-point="notificationBarNode" class="epi-notificationBar dijitVisible">
+                        <div class="epi-notificationBarItem">
+                            <div class="epi-notificationBarText">
+                                <p>@Html.TranslateWithPath("synonymfilenotice", localizationPath)</p>
+                            </div>
+                        </div>
+                    </div>
+                }
+
                 <div class="epi-padding-small">
                     @if (ViewBag.Indices != null)
                     {

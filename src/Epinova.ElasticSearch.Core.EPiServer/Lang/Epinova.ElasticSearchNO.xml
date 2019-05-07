@@ -91,6 +91,7 @@
         <delete>Slett</delete>
         <addnew>Legg til</addnew>
         <confirmDelete>Slette synonym?</confirmDelete>
+        <synonymfilenotice>Synonym-fil er i bruk</synonymfilenotice>
         <newsynonym>Nytt synonym</newsynonym>
         <existingsynonyms>Eksisterende synonymer</existingsynonyms>
       </synonyms>

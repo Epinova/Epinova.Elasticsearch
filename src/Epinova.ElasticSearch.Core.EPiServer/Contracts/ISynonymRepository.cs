@@ -7,5 +7,6 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Contracts
     {
         void SetSynonyms(string languageId, string analyzer, List<Synonym> synonymsToAdd, string index);
         List<Synonym> GetSynonyms(string languageId, string index);
+        string GetSynonymsFilePath(string languageId, string index);
     }
 }
