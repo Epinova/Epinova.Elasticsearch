@@ -4,6 +4,7 @@ using Epinova.ElasticSearch.Core.Contracts;
 using Epinova.ElasticSearch.Core.EPiServer.Controllers.Abstractions;
 using Epinova.ElasticSearch.Core.EPiServer.Models;
 using Epinova.ElasticSearch.Core.Extensions;
+using Epinova.ElasticSearch.Core.Settings;
 using EPiServer.DataAbstraction;
 
 namespace Epinova.ElasticSearch.Core.EPiServer.Controllers
@@ -14,8 +15,10 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Controllers
         private readonly IContentTypeRepository _pageTypeRepository;
 
         public ElasticBoostingController(
+            ILanguageBranchRepository languageBranchRepository,
             IBoostingRepository boostingRepository,
-            IContentTypeRepository pageTypeRepository)
+            IContentTypeRepository pageTypeRepository,
+            IElasticSearchSettings settings) : base(settings, languageBranchRepository)
         {
             _boostingRepository = boostingRepository;
             _pageTypeRepository = pageTypeRepository;
