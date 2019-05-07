@@ -747,14 +747,13 @@ namespace Epinova.ElasticSearch.Core
 
                 case MemberExpression memberExpression:
                     {
-                        if (memberExpression.Member is FieldInfo fieldInfo)
+                        if (memberExpression.Member is FieldInfo fieldInfo
+                            && fieldInfo != null
+                            && memberExpression.Expression is ConstantExpression constantExpression)
                         {
-                            if (fieldInfo != null && memberExpression.Expression is ConstantExpression constantExpression)
-                            {
-                                fieldName = fieldInfo.GetValue(constantExpression.Value).ToString();
-                                fieldType = Mapping.GetMappingType(explicitType ?? constantExpression.Type);
-                                break;
-                            }
+                            fieldName = fieldInfo.GetValue(constantExpression.Value).ToString();
+                            fieldType = Mapping.GetMappingType(explicitType ?? constantExpression.Type);
+                            break;
                         }
 
                         MemberInfo memberInfo = memberExpression.Member;

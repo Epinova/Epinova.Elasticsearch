@@ -133,7 +133,7 @@ namespace Epinova.ElasticSearch.Core.Utilities
 
         internal static string GetJson(Uri uri)
         {
-            HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Get, uri);
+            var request = new HttpRequestMessage(HttpMethod.Get, uri);
             request.Headers.Add("Accept", "application/json");
 
             HttpResponseMessage response = AsyncUtil.RunSync(() =>

@@ -192,7 +192,7 @@ namespace Epinova.ElasticSearch.Core
             var jsonSettings = new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore };
             string json = JsonConvert.SerializeObject(request, jsonSettings);
             byte[] data = Encoding.UTF8.GetBytes(json);
-            string uri = $"{_settings.Host}/{indexName}/{indexType.GetTypeName()}/{id}/_update";
+            var uri = $"{_settings.Host}/{indexName}/{indexType.GetTypeName()}/{id}/_update";
 
             Logger.Information($"Clearing BestBets for id '{id}'");
 
@@ -214,7 +214,7 @@ namespace Epinova.ElasticSearch.Core
             var jsonSettings = new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore };
             string json = JsonConvert.SerializeObject(request, jsonSettings);
             byte[] data = Encoding.UTF8.GetBytes(json);
-            string uri = $"{_settings.Host}/{indexName}/{indexType.GetTypeName()}/{id}/_update";
+            var uri = $"{_settings.Host}/{indexName}/{indexType.GetTypeName()}/{id}/_update";
 
             Logger.Information("Update BestBets:\n" + JToken.Parse(json).ToString(Formatting.Indented));
 
@@ -356,7 +356,7 @@ namespace Epinova.ElasticSearch.Core
                 var jsonSettings = new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore };
                 string json = JsonConvert.SerializeObject(mapping, jsonSettings);
                 byte[] data = Encoding.UTF8.GetBytes(json);
-                string uri = $"{_settings.Host}/{index}/_mapping/{indexType.GetTypeName()}";
+                var uri = $"{_settings.Host}/{index}/_mapping/{indexType.GetTypeName()}";
 
                 Logger.Information("Update mapping:\n" + JToken.Parse(json).ToString(Formatting.Indented));
 

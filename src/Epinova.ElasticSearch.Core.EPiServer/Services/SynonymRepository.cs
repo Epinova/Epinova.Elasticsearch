@@ -24,17 +24,14 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Services
     {
         private static readonly ILogger Logger = LogManager.GetLogger(typeof(SynonymRepository));
         private readonly IBlobFactory _blobFactory;
-        private readonly IContentLoader _contentLoader;
         private readonly IContentRepository _contentRepository;
         private readonly IElasticSearchSettings _settings;
 
         public SynonymRepository(
-            IContentLoader contentLoader,
             IContentRepository contentRepository,
             IBlobFactory blobFactory,
             IElasticSearchSettings settings)
         {
-            _contentLoader = contentLoader;
             _contentRepository = contentRepository;
             _blobFactory = blobFactory;
             _settings = settings;
@@ -170,6 +167,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Services
 
                 var pair = synonym.Split(splitToken, StringSplitOptions.None);
                 if(pair.Length > 1)
+                {
                     synonyms.Add(new Synonym
                     {
                         From = pair[0],
@@ -177,6 +175,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Services
                         TwoWay = !isMultiword && !pair[0].Contains("=>"),
                         MultiWord = isMultiword
                     });
+                }
             }
 
             return synonyms;
@@ -186,7 +185,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Services
         {
             ContentReference backupFolder = GetBackupFolder().ContentLink;
 
-            SynonymBackupFile backupFile = _contentLoader
+            SynonymBackupFile backupFile = _contentRepository
                 .GetChildren<SynonymBackupFile>(backupFolder)
                 .FirstOrDefault(s => s.Name.Equals(name, StringComparison.OrdinalIgnoreCase));
 
@@ -222,7 +221,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Services
             contentFile.Name = name;
             contentFile.BinaryData = blob;
 
-            var backupRef = _contentRepository.Save(contentFile, SaveAction.Publish, AccessLevel.NoAccess);
+            _contentRepository.Save(contentFile, SaveAction.Publish, AccessLevel.NoAccess);
 
             if(Logger.IsDebugEnabled())
             {
@@ -243,7 +242,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Services
         {
             var parent = ContentReference.RootPage;
 
-            var backupFolder = _contentLoader.GetChildren<SynonymBackupFileFolder>(parent).FirstOrDefault();
+            var backupFolder = _contentRepository.GetChildren<SynonymBackupFileFolder>(parent).FirstOrDefault();
             if (backupFolder == null)
             {
                 backupFolder = _contentRepository.GetDefault<SynonymBackupFileFolder>(parent);
