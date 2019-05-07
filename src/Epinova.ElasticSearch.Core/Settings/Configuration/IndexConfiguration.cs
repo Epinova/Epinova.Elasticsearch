@@ -14,6 +14,13 @@ namespace Epinova.ElasticSearch.Core.Settings.Configuration
             set => this["name"] = value;
         }
 
+        [ConfigurationProperty("synonymsFile", IsRequired = false)]
+        public string SynonymsFile
+        {
+            get => (string)this["synonymsFile"];
+            set => this["synonymsFile"] = value;
+        }
+
         [ConfigurationProperty("default", DefaultValue = false, IsRequired = false)]
         public bool Default
         {
