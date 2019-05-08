@@ -229,6 +229,8 @@ namespace Epinova.ElasticSearch.Core.Engine
             var fields = setup.SourceFields.ToList();
             fields.AddRange(setup.SearchFields);
 
+            fields.AddRange(Conventions.Indexing.CustomProperties.Select(c => c.Name));
+
             fields.Add(DefaultFields.Id);
             fields.Add(DefaultFields.Indexed);
             fields.Add(DefaultFields.ParentLink);
@@ -516,11 +518,14 @@ namespace Epinova.ElasticSearch.Core.Engine
 
             foreach (KeyValuePair<string, MappingType> field in sortedFields)
             {
-                if (field.Value == MappingType.Text)
+                var key = field.Key;
+
+                if (field.Value == MappingType.Text && !key.EndsWith(Models.Constants.KeywordSuffix))
                 {
-                    var raw = String.Concat(field.Key, Models.Constants.KeywordSuffix);
-                    aggregations.Add(raw, new Bucket(raw));
+                    key += Models.Constants.KeywordSuffix;
                 }
+
+                aggregations.Add(key, new Bucket(key));
             }
 
             return aggregations;

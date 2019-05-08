@@ -1,6 +1,7 @@
 # Changelog
 
 #### 11.6.1
+* Support for `IDictionary<string, object>` properties.
 * Delete all function in index administration GUI
 
 #### 11.6

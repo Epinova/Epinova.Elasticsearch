@@ -35,6 +35,9 @@ namespace Epinova.ElasticSearch.Core.Utilities
             if (type == typeof(IntegerRange))
                 return MappingType.Integer_Range;
 
+            if (ArrayHelper.IsDictionary(type))
+                return MappingType.Object;
+
             if (type.IsEnum)
                 return MappingType.Integer;
 
