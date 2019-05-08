@@ -14,6 +14,7 @@
         Double,
         Boolean,
         Date,
-        Integer_Range
+        Integer_Range,
+        Object
     }
 }

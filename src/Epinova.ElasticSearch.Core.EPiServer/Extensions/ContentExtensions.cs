@@ -33,6 +33,7 @@ using Indexing = Epinova.ElasticSearch.Core.Conventions.Indexing;
 using Castle.DynamicProxy;
 using Epinova.ElasticSearch.Core.EPiServer.Providers;
 using EPiServer.DataAccess.Internal;
+using Epinova.ElasticSearch.Core.Models.Properties;
 
 namespace Epinova.ElasticSearch.Core.EPiServer.Extensions
 {
@@ -311,6 +312,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Extensions
                     object value;
                     Type returnType = property.Getter.Method.ReturnType;
                     bool isArrayCandidate = ArrayHelper.IsArrayCandidate(returnType);
+                    bool isDictionary = ArrayHelper.IsDictionary(returnType);
 
                     // Set returnType to underlying type for nullable value-types
                     if (returnType.IsValueType && returnType.IsGenericType && returnType.GenericTypeArguments.Length > 0)
@@ -323,6 +325,10 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Extensions
                         value = returnType == typeof(bool)
                             ? SerializeValue(property.Getter.DynamicInvoke(content))
                             : SerializeValue(property.Getter.DynamicInvoke());
+                    }
+                    else if (isDictionary)
+                    {
+                        value = ArrayHelper.ToDictionary(property.Getter.DynamicInvoke(content));
                     }
                     else if (isArrayCandidate)
                     {
@@ -344,7 +350,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Extensions
 
                     if (value != null)
                     {
-                        if (!isArrayCandidate)
+                        if (!isArrayCandidate && !isDictionary)
                         {
                             Logger.Debug($"Changing type of value '{value}' to '{returnType.Name}'");
                             value = Convert.ChangeType(value, returnType, CultureInfo.InvariantCulture);

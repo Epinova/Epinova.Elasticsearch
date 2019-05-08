@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using EPiServer.Logging;
-using Epinova.ElasticSearch.Core.Utilities;
 using Newtonsoft.Json;
 using Epinova.ElasticSearch.Core.Enums;
 
@@ -77,6 +76,12 @@ namespace Epinova.ElasticSearch.Core.Models.Mapping
                         IgnoreAbove = 256,
                         Type = JsonNames.Keyword
                     };
+                }
+                else if (property.Type == nameof(MappingType.Object).ToLower())
+                {
+                    Logger.Debug("Type is Object");
+                    property.Dynamic = true;
+                    property.Properties = new Dictionary<string, object>();
                 }
 
                 Properties[name].Type = property.Type;
