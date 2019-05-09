@@ -102,6 +102,20 @@
 
 <h1>@IndexString("heading")</h1>
 <div id="indexGrid"></div>
+
+@if (Model.AllIndexes.Any())
+{
+        using (Html.BeginForm("DeleteAll", "ElasticAdmin"))
+        {
+            <div class="epi-paddingVertical-small epi-alignRight">
+                <button data-dojo-type="dijit/form/Button" 
+                        type="submit" 
+                        class="epi-danger" 
+                        onclick="return confirm('@IndexString("confirmDeleteAll")');">@IndexString("deleteAll")</button>
+            </div>
+        }
+}
+
 <br /><br />
 
 

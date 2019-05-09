@@ -1,5 +1,8 @@
 # Changelog
 
+#### 11.6.1
+* Delete all function in index administration GUI
+
 #### 11.6
 * ES 6 support
 * Replace Attachment Mapper with Ingest plugin

@@ -114,6 +114,20 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Controllers
             return RedirectToAction("Index");
         }
 
+        [HttpPost]
+        [Authorize(Roles = RoleNames.ElasticsearchAdmins)]
+        public ActionResult DeleteAll()
+        {
+            var indexing = new Indexing(_settings);
+
+            foreach (var index in Indices)
+            {
+                indexing.DeleteIndex(index.Index);
+            }
+
+            return RedirectToAction("Index");
+        }
+
         [Authorize(Roles = RoleNames.ElasticsearchAdmins)]
         public ActionResult ChangeTokenizer(string indexName, string tokenizer)
         {

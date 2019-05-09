@@ -141,7 +141,9 @@
         <addorupdateindexesbutton>Opprett/oppdater</addorupdateindexesbutton>
         <addnewindexinfo>Bruker navn fra konfigurasjon.</addnewindexinfo>
         <confirmDelete>Er du sikker på at du vil slette denne indeksen?</confirmDelete>
+        <confirmDeleteAll>Er du sikker på at du vil slette alle indekser?</confirmDeleteAll>
         <delete>Slett</delete>
+        <deleteAll>Slett alle</deleteAll>
         <docscount>Dokumenter</docscount>
         <docsdeleted>Slettet</docsdeleted>
         <heading>Indekser</heading>
