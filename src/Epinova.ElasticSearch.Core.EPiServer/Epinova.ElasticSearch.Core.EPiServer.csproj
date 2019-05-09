@@ -366,8 +366,8 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>REM IKKE SJEKK INN DETTE
-copy /y $(TargetDir)Epinova.ElasticSearch* C:\Users\espen.lonnkvist\source\repos\EpiserverSite4\EpiserverSite4\bin\</PostBuildEvent>
+    <PostBuildEvent>
+	</PostBuildEvent>
   </PropertyGroup>
   <Target Name="AfterBuild">
     <CallTarget Targets="ZipModule" Condition=" '$(Configuration)' == 'Release' " />
