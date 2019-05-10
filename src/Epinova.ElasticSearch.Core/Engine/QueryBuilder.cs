@@ -223,7 +223,13 @@ namespace Epinova.ElasticSearch.Core.Engine
 
         private void SetupSourceFields(QueryRequest request, QuerySetup setup)
         {
-            var fields = request.SourceFields?.ToList() ?? new List<string>();
+            if (setup.SourceFields == null)
+            {
+                request.SourceFields = null;
+                return;
+            }
+
+            var fields = setup.SourceFields.ToList();
             fields.AddRange(setup.SearchFields);
 
             fields.Add(DefaultFields.Id);
