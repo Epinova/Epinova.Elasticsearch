@@ -26,7 +26,6 @@ namespace Epinova.ElasticSearch.Core.Models
             UsePostfilters = true;
         }
 
-
         public Type Type { get; set; }
         public CultureInfo Language { get; set; }
         public List<string> SearchFields { get; set; }
@@ -55,7 +54,7 @@ namespace Epinova.ElasticSearch.Core.Models
         public Dictionary<string, FilterGroupQuery> FilterGroups { get; set; }
         public Type SearchType { get; set; }
         public List<RangeBase> Ranges { get; set; }
-        public string[] ReturnFields { get; set; }
+        public string[] SourceFields { get; set; }
         public string FuzzyLength { get; set; }
         public string IndexName { get; set; }
         public List<Gauss> Gauss { get; set; }
