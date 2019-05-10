@@ -16,7 +16,7 @@ namespace Epinova.ElasticSearch.Core.Admin
             _settings = settings;
         }
 
-        public HealthInformation GetClusterHealth()
+        public virtual HealthInformation GetClusterHealth()
         {
             string uri = $"{_settings.Host}/_cat/health?format=json";
             string json = HttpClientHelper.GetJson(new Uri(uri));
@@ -29,7 +29,7 @@ namespace Epinova.ElasticSearch.Core.Admin
             return JsonConvert.DeserializeObject<HealthInformation[]>(json).FirstOrDefault();
         }
 
-        public Node[] GetNodeInfo()
+        public virtual Node[] GetNodeInfo()
         {
             string ipField = Server.Info.Version.Major >= 5 ? "http" : "i";
             string uri = $"{_settings.Host}/_cat/nodes?format=json&h=m,v,{ipField},d,rc,rm,u,n";

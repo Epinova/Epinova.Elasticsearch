@@ -169,8 +169,10 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Controllers\ElasticAdminControllerTests.cs" />
     <Compile Include="Controllers\AutoSuggestControllerTests.cs" />
     <Compile Include="Controllers\IndexerControllerTests.cs" />
+    <Compile Include="Controllers\Abstractions\ElasticSearchControllerBaseTests.cs" />
     <Compile Include="Controllers\SynonymsControllerTests.cs" />
     <Compile Include="Extensions\ContentExtensionsTests.cs" />
     <Compile Include="Extensions\TypeExtensionsTests.cs" />
