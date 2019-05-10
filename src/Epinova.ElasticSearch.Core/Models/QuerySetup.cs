@@ -26,7 +26,6 @@ namespace Epinova.ElasticSearch.Core.Models
             UsePostfilters = true;
         }
 
-
         public Type Type { get; set; }
         public CultureInfo Language { get; set; }
         public List<string> SearchFields { get; set; }
