@@ -46,7 +46,7 @@ namespace TestData
             return result;
         }
 
-        public static ServiceLocationMock SetupServiceLocator(string testHost = null, string username = null, string password = null)
+        public static ServiceLocationMock SetupServiceLocator(string testHost = null, string username = null, string password = null, int timeout = 0)
         {
             ServiceLocationMock result = new ServiceLocationMock
             {
@@ -81,6 +81,8 @@ namespace TestData
                 settings.Setup(m => m.Username).Returns(username);
             if(password != null)
                 settings.Setup(m => m.Password).Returns(password);
+            if(timeout > 0)
+                settings.Setup(m => m.ClientTimeoutSeconds).Returns(timeout);
             settings.Setup(m => m.EnableFileIndexing).Returns(true);
             settings.Setup(m => m.IgnoreXhtmlStringContentFragments).Returns(false);
             settings.Setup(m => m.Index).Returns(ElasticFixtureSettings.IndexName);
