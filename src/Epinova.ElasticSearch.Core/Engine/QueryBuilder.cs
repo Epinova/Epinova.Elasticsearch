@@ -220,7 +220,13 @@ namespace Epinova.ElasticSearch.Core.Engine
 
         private void SetupSourceFields(QueryRequest request, QuerySetup setup)
         {
-            var fields = request.SourceFields?.ToList() ?? new List<string>();
+            if (setup.SourceFields == null)
+            {
+                request.SourceFields = null;
+                return;
+            }
+
+            var fields = setup.SourceFields.ToList();
             fields.AddRange(setup.SearchFields);
 
             fields.AddRange(Conventions.Indexing.CustomProperties.Select(c => c.Name));
@@ -238,6 +244,10 @@ namespace Epinova.ElasticSearch.Core.Engine
             fields.Add(DefaultFields.Changed);
 
             fields.Remove(DefaultFields.BestBets);
+            fields.Remove(DefaultFields.AttachmentAuthor);
+            fields.Remove(DefaultFields.AttachmentContent);
+            fields.Remove(DefaultFields.AttachmentData);
+            fields.Remove(DefaultFields.AttachmentKeywords);
 
             request.SourceFields = fields.Distinct().OrderBy(f => f).ToArray();
         }

@@ -329,7 +329,7 @@ namespace Epinova.ElasticSearch.Core
             query.EnableDidYouMean = false;
 
             // Always return all fields for custom objects
-            query.ReturnFields = null;
+            query.SourceFields = null;
 
             return await GetCustomResultsAsync<T>(query, cancellationToken);
         }
@@ -339,7 +339,7 @@ namespace Epinova.ElasticSearch.Core
             QuerySetup query = CreateQuery();
 
             // Always return all fields for custom objects
-            query.ReturnFields = null;
+            query.SourceFields = null;
 
             return GetCustomResults<T>(query);
         }
@@ -377,7 +377,7 @@ namespace Epinova.ElasticSearch.Core
                 Size = SizeValue,
                 RootId = RootId,
                 IsWildcard = IsWildcard,
-                ReturnFields = fields,
+                SourceFields = fields,
                 SearchType = SearchType,
                 SortFields = SortFields,
                 UseBestBets = EnableBestBets,
