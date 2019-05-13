@@ -2,7 +2,8 @@
 
 #### 11.6.1
 * Support for `IDictionary<string, object>` properties.
-* Delete all function in index administration GUI
+* Delete-all function in index administration GUI
+* Support for synonyms from file
 
 #### 11.6
 * ES 6 support
