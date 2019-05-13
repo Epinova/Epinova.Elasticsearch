@@ -245,6 +245,10 @@ namespace Epinova.ElasticSearch.Core.Engine
             fields.Add(DefaultFields.Changed);
 
             fields.Remove(DefaultFields.BestBets);
+            fields.Remove(DefaultFields.AttachmentAuthor);
+            fields.Remove(DefaultFields.AttachmentContent);
+            fields.Remove(DefaultFields.AttachmentData);
+            fields.Remove(DefaultFields.AttachmentKeywords);
 
             request.SourceFields = fields.Distinct().OrderBy(f => f).ToArray();
         }
