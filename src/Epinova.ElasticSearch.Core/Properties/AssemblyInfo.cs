@@ -14,6 +14,7 @@ using System.Runtime.InteropServices;
 [assembly: Guid("0818a108-083d-438b-9183-aef12733618f")]
 [assembly: AssemblyVersion("11.6.0.0")]
 [assembly: AssemblyFileVersion("11.6.0.0")]
+[assembly: AssemblyInformationalVersion("11.6.0.0")]
 [assembly: InternalsVisibleTo("Epinova.ElasticSearch.Core.EPiServer")]
 [assembly: InternalsVisibleTo("Epinova.ElasticSearch.Core.EPiServer.Commerce")]
 [assembly: InternalsVisibleTo("Core.EPiServer.Tests")]
