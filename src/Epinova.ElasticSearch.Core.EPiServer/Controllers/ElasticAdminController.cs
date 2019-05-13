@@ -30,6 +30,18 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Controllers
             _healthHelper = new Health(settings);
         }
 
+        internal ElasticAdminController(
+            ILanguageBranchRepository languageBranchRepository,
+            ICoreIndexer coreIndexer,
+            IElasticSearchSettings settings,
+            Index indexHelper,
+            Health health) : base(indexHelper, languageBranchRepository)
+        {
+            _coreIndexer = coreIndexer;
+            _settings = settings;
+            _healthHelper = health;
+        }
+
         [Authorize(Roles = RoleNames.ElasticsearchAdmins)]
         public ActionResult Index()
         {
@@ -89,27 +101,25 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Controllers
             return RedirectToAction("Index");
         }
 
-        private static bool IsCustomType(Type indexType)
-        {
-            return indexType != null && indexType != typeof(IndexItem);
-        }
-
-        private static Type GetIndexType(IndexConfiguration index, ElasticSearchSection config)
-        {
-            if(index.Default || config.IndicesParsed.Length == 1)
-                return typeof(IndexItem);
-
-            if (String.IsNullOrWhiteSpace(index.Type))
-                return null;
-
-            return Type.GetType(index.Type, false, true);
-        }
-
         [Authorize(Roles = RoleNames.ElasticsearchAdmins)]
         public ActionResult DeleteIndex(string indexName)
         {
             var indexing = new Indexing(_settings);
             indexing.DeleteIndex(indexName);
+
+            return RedirectToAction("Index");
+        }
+
+        [HttpPost]
+        [Authorize(Roles = RoleNames.ElasticsearchAdmins)]
+        public ActionResult DeleteAll()
+        {
+            var indexing = new Indexing(_settings);
+
+            foreach (var index in Indices)
+            {
+                indexing.DeleteIndex(index.Index);
+            }
 
             return RedirectToAction("Index");
         }
@@ -127,6 +137,22 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Controllers
             index.WaitForStatus();
 
             return RedirectToAction("Index");
+        }
+
+        private static bool IsCustomType(Type indexType)
+        {
+            return indexType != null && indexType != typeof(IndexItem);
+        }
+
+        private static Type GetIndexType(IndexConfiguration index, ElasticSearchSection config)
+        {
+            if (index.Default || config.IndicesParsed.Length == 1)
+                return typeof(IndexItem);
+
+            if (String.IsNullOrWhiteSpace(index.Type))
+                return null;
+
+            return Type.GetType(index.Type, false, true);
         }
     }
 }

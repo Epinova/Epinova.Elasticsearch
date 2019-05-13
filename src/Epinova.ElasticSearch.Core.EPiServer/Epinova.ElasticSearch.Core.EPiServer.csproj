@@ -367,7 +367,7 @@
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
     <PropertyGroup>
     <PostBuildEvent>
-    </PostBuildEvent>
+	</PostBuildEvent>
   </PropertyGroup>
   <Target Name="AfterBuild">
     <CallTarget Targets="ZipModule" Condition=" '$(Configuration)' == 'Release' " />

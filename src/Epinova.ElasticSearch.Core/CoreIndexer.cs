@@ -252,17 +252,9 @@ namespace Epinova.ElasticSearch.Core
                 {
                     p.Name,
                     Type = p.PropertyType,
-                    Analyzable = ((p.PropertyType == typeof(string) || p.PropertyType == typeof(string[]))
-                                && (p.GetCustomAttributes(typeof(StemAttribute)).Any() || WellKnownProperties.Analyze
-                                     .Select(w => w.ToLower())
-                                     .Contains(p.Name.ToLower())))
-                                || (p.PropertyType == typeof(XhtmlString)
-                                && p.GetCustomAttributes(typeof(ExcludeFromSearchAttribute), true).Length == 0)
+                    Analyzable = IsAnalyzable(p)
                 })
-                .Where(p => p.Name != nameof(IndexItem.Type)
-                            && p.Name != nameof(IndexItem._bestbets)
-                            && p.Name != nameof(IndexItem.attachment)
-                            && p.Name != nameof(IndexItem._attachmentdata))
+                .Where(p => IsValidName(p.Name))
                 .ToList();
 
             // Custom properties marked for stemming
@@ -365,6 +357,24 @@ namespace Epinova.ElasticSearch.Core
             catch (Exception ex)
             {
                 Logger.Error($"Failed to update mapping: {ex.Message}", ex);
+            }
+
+            bool IsAnalyzable(PropertyInfo p)
+            {
+                return ((p.PropertyType == typeof(string) || p.PropertyType == typeof(string[]))
+                    && (p.GetCustomAttributes(typeof(StemAttribute)).Any() || WellKnownProperties.Analyze
+                            .Select(w => w.ToLower())
+                            .Contains(p.Name.ToLower())))
+                    || (p.PropertyType == typeof(XhtmlString)
+                    && p.GetCustomAttributes(typeof(ExcludeFromSearchAttribute), true).Length == 0);
+            }
+
+            bool IsValidName(string name)
+            {
+                return name != nameof(IndexItem.Type)
+                    && name != nameof(IndexItem._bestbets)
+                    && name != nameof(IndexItem.attachment)
+                    && name != nameof(IndexItem._attachmentdata);
             }
         }
 

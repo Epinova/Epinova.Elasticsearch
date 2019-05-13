@@ -151,7 +151,7 @@ namespace Epinova.ElasticSearch.Core.Engine
 
             if (hits?.HitArray != null && hits.HitArray.Length > 0)
             {
-                searchResult.Hits = hits.HitArray.Select(Map);
+                searchResult.Hits = hits.HitArray.Select(Map).ToArray();
                 searchResult.TotalHits = hits.Total;
                 searchResult.Took = results.RootObject.Took;
             }
@@ -184,9 +184,17 @@ namespace Epinova.ElasticSearch.Core.Engine
                     break;
 
                 // Array value
-                if (unmappedField.Children().Any())
+                if (unmappedField.Type == JTokenType.Array && unmappedField.Children().Any())
                 {
                     searchHit.CustomProperties[property.Name] = unmappedField.Children().Cast<JValue>().Select(v => v.Value).ToArray();
+                    continue;
+                }
+
+                // Dictionary 
+                if (unmappedField.Type == JTokenType.Object && unmappedField.Children().OfType<JProperty>().Any())
+                {
+                    //searchHit.CustomProperties[property.Name] = unmappedField.Children().Cast<JProperty>().ToArray();
+                    searchHit.CustomProperties[property.Name] = JObject.FromObject(unmappedField).ToObject<IDictionary<string, object>>();
                     continue;
                 }
 

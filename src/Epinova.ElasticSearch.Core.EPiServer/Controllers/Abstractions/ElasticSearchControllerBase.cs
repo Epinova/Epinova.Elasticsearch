@@ -42,8 +42,8 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Controllers.Abstractions
         protected override void OnActionExecuting(ActionExecutingContext filterContext)
         {
             base.OnActionExecuting(filterContext);
-            CurrentLanguage = Request.QueryString[LanguageParam] ?? Languages.First().Key;
-            CurrentIndex = Request.QueryString[IndexParam] ?? Indices.FirstOrDefault(i => i.Index.EndsWith($"-{CurrentLanguage}"))?.Index;
+            CurrentLanguage = Request?.QueryString[LanguageParam] ?? Languages.First().Key;
+            CurrentIndex = Request?.QueryString[IndexParam] ?? Indices.FirstOrDefault(i => i.Index.EndsWith($"-{CurrentLanguage}"))?.Index;
         }
 
         protected override void OnResultExecuting(ResultExecutingContext filterContext)
