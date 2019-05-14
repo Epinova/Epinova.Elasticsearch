@@ -117,36 +117,5 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Controllers.Abstractions
             return _languageBranchRepository.ListEnabled()
                 .ToDictionary(x => x.LanguageID, x => x.Name);
         }
-
-        private List<IndexInformation> GetIndices(Admin.Index indexHelper)
-        {
-            var indices = indexHelper.GetIndices().ToList();
-
-            var config = ElasticSearchSection.GetConfiguration();
-
-            foreach (var indexInfo in indices)
-            {
-                var parsed = config.IndicesParsed
-                    .OrderByDescending(i => i.Name.Length)
-                    .FirstOrDefault(i => indexInfo.Index.StartsWith(i.Name, StringComparison.InvariantCultureIgnoreCase));
-
-                indexInfo.Type = String.IsNullOrWhiteSpace(parsed?.Type)
-                    ? "[default]"
-                    : Type.GetType(parsed.Type)?.Name;
-
-                indexInfo.DisplayName = parsed?.DisplayName;
-
-                if (indexInfo.Index.Contains($"-{Constants.CommerceProviderName}".ToLowerInvariant()))
-                    indexInfo.DisplayName += " Commerce";
-            }
-
-            return indices;
-        }
-
-        private Dictionary<string, string> GetLanguages()
-        {
-            return _languageBranchRepository.ListEnabled()
-                .ToDictionary(x => x.LanguageID, x => x.Name);
-        }
     }
 }
