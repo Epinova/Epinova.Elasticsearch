@@ -204,18 +204,30 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Contracts
             if (stopPublish != default && stopPublish < DateTime.Now)
                 return true;
 
+            if(IsPageWithInvalidLinkType(content))
+                return true;
+
+            return false;
+        }
+
+        private static bool IsPageWithInvalidLinkType(IContent content)
+        {
+            if (!(content is PageData))
+                return false;
+
             var linkType = content.GetType().GetProperty("LinkType");
             if (linkType == null)
-                return false;
+                return true;
 
             var linkTypeValue = linkType.GetValue(content);
             if (linkTypeValue == null)
-                return false;
+                return true;
 
             var shortcutType = (PageShortcutType)linkTypeValue;
+            if(shortcutType != PageShortcutType.Normal && shortcutType != PageShortcutType.FetchData)
+                return true;
 
-            return shortcutType != PageShortcutType.Normal
-                && shortcutType != PageShortcutType.FetchData;
+            return false;
         }
 
         private static string GetFallbackLanguage()
