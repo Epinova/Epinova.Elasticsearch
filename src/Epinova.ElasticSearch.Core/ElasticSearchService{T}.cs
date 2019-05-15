@@ -289,21 +289,21 @@ namespace Epinova.ElasticSearch.Core
             };
         }
 
-        public SearchResult GetResults(bool enableHighlighting = true, bool enableDidYouMean = true, params string[] fields)
+        public SearchResult GetResults(bool enableHighlighting = true, bool enableDidYouMean = true, bool applyDefaultFilters = true, params string[] fields)
         {
-            QuerySetup query = CreateQuery(fields);
+            QuerySetup query = CreateQuery(applyDefaultFilters, fields);
             query.EnableDidYouMean = enableDidYouMean;
             query.EnableHighlighting = enableHighlighting;
 
             return GetResults(query);
         }
 
-        public virtual SearchResult GetResults(int from, int size, bool enableHighlighting = true, bool enableDidYouMean = true, params string[] fields)
+        public virtual SearchResult GetResults(int from, int size, bool enableHighlighting = true, bool enableDidYouMean = true, bool applyDefaultFilters = true, params string[] fields)
         {
             FromValue = from;
             SizeValue = size;
 
-            return GetResults(enableHighlighting, enableDidYouMean, fields);
+            return GetResults(enableHighlighting, enableDidYouMean, applyDefaultFilters, fields);
         }
 
         public async Task<SearchResult> GetResultsAsync(params string[] fields)
@@ -313,7 +313,7 @@ namespace Epinova.ElasticSearch.Core
 
         public async Task<SearchResult> GetResultsAsync(CancellationToken cancellationToken, params string[] fields)
         {
-            QuerySetup query = CreateQuery(fields);
+            QuerySetup query = CreateQuery(true, fields);
 
             return await GetResultsAsync(query, cancellationToken).ConfigureAwait(false);
         }
@@ -325,7 +325,7 @@ namespace Epinova.ElasticSearch.Core
 
         public async Task<CustomSearchResult<T>> GetCustomResultsAsync(CancellationToken cancellationToken)
         {
-            QuerySetup query = CreateQuery();
+            QuerySetup query = CreateQuery(true);
             query.EnableDidYouMean = false;
 
             // Always return all fields for custom objects
@@ -336,7 +336,7 @@ namespace Epinova.ElasticSearch.Core
 
         public CustomSearchResult<T> GetCustomResults()
         {
-            QuerySetup query = CreateQuery();
+            QuerySetup query = CreateQuery(false);
 
             // Always return all fields for custom objects
             query.SourceFields = null;
@@ -344,10 +344,11 @@ namespace Epinova.ElasticSearch.Core
             return GetCustomResults<T>(query);
         }
 
-        private QuerySetup CreateQuery(params string[] fields)
+        private QuerySetup CreateQuery(bool applyDefaultFilters, params string[] fields)
         {
             return new QuerySetup
             {
+                ApplyDefaultFilters = applyDefaultFilters,
                 Analyzer = Analyzer,
                 BoostAncestors = BoostAncestors,
                 BoostFields = BoostFields,

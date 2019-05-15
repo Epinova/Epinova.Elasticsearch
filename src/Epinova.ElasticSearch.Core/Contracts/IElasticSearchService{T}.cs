@@ -439,7 +439,7 @@ namespace Epinova.ElasticSearch.Core.Contracts
         /// <param name="enableDidYouMean">Include DidYouMean in query</param>
         /// <param name="enableHighlighting">Enable highlighting</param>
         /// <returns>An instance of <see cref="SearchResult"/></returns>
-        SearchResult GetResults(bool enableHighlighting = true, bool enableDidYouMean = true, params string[] fields);
+        SearchResult GetResults(bool enableHighlighting = true, bool enableDidYouMean = true, bool applyDefaultFilters = true, params string[] fields);
 
         /// <summary>
         /// Materializes the search query and returns the results, 
@@ -469,7 +469,7 @@ namespace Epinova.ElasticSearch.Core.Contracts
         /// <param name="enableDidYouMean">Include DidYouMean in query</param>
         /// <param name="enableHighlighting">Enable highlighting</param>
         /// <returns>An instance of <see cref="SearchResult"/></returns>
-        SearchResult GetResults(int from, int size, bool enableHighlighting = true, bool enableDidYouMean = true, params string[] fields);
+        SearchResult GetResults(int from, int size, bool enableHighlighting = true, bool enableDidYouMean = true, bool applyDefaultFilters = true, params string[] fields);
 
         /// <summary>
         /// Materializes the search query and returns the results.
