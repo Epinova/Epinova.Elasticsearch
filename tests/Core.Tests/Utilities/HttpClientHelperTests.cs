@@ -7,15 +7,22 @@ using Xunit;
 
 namespace Core.Tests.Utilities
 {
-    public class HttpClientHelperTests
+    [Collection(nameof(ServiceLocatiorCollection))]
+    public class HttpClientHelperTests : IClassFixture<ServiceLocatorFixture>
     {
         private const string Password = "bar";
         private const string Username = "foo";
         private const int Timeout = 42;
 
-        public HttpClientHelperTests()
+        public HttpClientHelperTests(ServiceLocatorFixture fixture)
         {
-            Factory.SetupServiceLocator(null, Username, Password, Timeout);
+            fixture.ServiceLocationMock.SettingsMock
+                .Setup(m => m.Username).Returns(Username);
+            fixture.ServiceLocationMock.SettingsMock
+                .Setup(m => m.Password).Returns(Password);
+            fixture.ServiceLocationMock.SettingsMock
+                .Setup(m => m.ClientTimeoutSeconds).Returns(Timeout);
+
             HttpClientHelper.Initialize();
         }
 
@@ -34,9 +41,6 @@ namespace Core.Tests.Utilities
         [Fact]
         public void TimeoutIsSet_SetsTimeout()
         {
-            Factory.SetupServiceLocator(timeout: Timeout);
-
-            HttpClientHelper.Initialize();
             TimeSpan result = HttpClientHelper.Client.Timeout;
 
             Assert.Equal(TimeSpan.FromSeconds(Timeout), result);

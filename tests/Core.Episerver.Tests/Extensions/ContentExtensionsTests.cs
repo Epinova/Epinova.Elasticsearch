@@ -8,7 +8,8 @@ using Epinova.ElasticSearch.Core.EPiServer.Extensions;
 
 namespace Core.Episerver.Tests.Extensions
 {
-    public class ContentExtensionsTests
+    [Collection(nameof(ServiceLocatiorCollection))]
+    public class ContentExtensionsTests : IClassFixture<ServiceLocatorFixture>
     {
         private readonly IContent _content;
 
@@ -18,8 +19,6 @@ namespace Core.Episerver.Tests.Extensions
                 id: 100,
                 parentId: 200,
                 language: new CultureInfo("no"));
-
-            Factory.SetupServiceLocator();
 
             _content.ContentLink = new ContentReference(100);
             _content.ParentLink = new ContentReference(200);

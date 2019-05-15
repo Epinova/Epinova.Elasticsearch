@@ -11,13 +11,15 @@ using Xunit;
 
 namespace Core.Tests.Engine
 {
-    public class SearchEngineTests : IDisposable
+    [Collection(nameof(ServiceLocatiorCollection))]
+    public class SearchEngineTests : IDisposable, IClassFixture<ServiceLocatorFixture>
     {
+        private readonly ServiceLocatorFixture _fixture;
         private TestableSearchEngine _engine;
 
-        public SearchEngineTests()
+        public SearchEngineTests(ServiceLocatorFixture fixture)
         {
-            Factory.SetupServiceLocator();
+            _fixture = fixture;
         }
 
         public void Dispose()
@@ -27,7 +29,7 @@ namespace Core.Tests.Engine
 
         private void SetupEngineMock(string jsonFile)
         {
-            _engine = new TestableSearchEngine(jsonFile);
+            _engine = new TestableSearchEngine(jsonFile, _fixture.ServiceLocationMock.SettingsMock.Object);
         }
 
         [Fact]
