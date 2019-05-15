@@ -113,42 +113,23 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Extensions
             bool requirePageTemplate,
             string[] providerNames) where T : IContentData
         {
-            SearchResult results = service.GetResults();
-            var hits = new List<ContentSearchHit<T>>();
-
-            foreach (SearchHit hit in results.Hits)
-            {
-                if (ShouldAdd(hit, requirePageTemplate, out T content, providerNames))
-                    hits.Add(new ContentSearchHit<T>(content, hit.CustomProperties, hit.QueryScore, hit.Highlight));
-                else
-                    results.TotalHits--;
-            }
-
-            if (service.TrackSearch)
-            {
-                TrackingRepository.AddSearch(
-                    Language.GetLanguageCode(service.SearchLanguage),
-                    service.SearchText,
-                    results.TotalHits == 0,
-                    GetIndexName(service));
-            }
-
-            return new ContentSearchResult<T>(results, hits);
+            return service.GetContentResults(requirePageTemplate, false, providerNames, true, true);
         }
 
-        internal static ContentSearchResult<T> GetContentResults<T>(
+        public static ContentSearchResult<T> GetContentResults<T>(
             this IElasticSearchService<T> service,
             bool requirePageTemplate,
+            bool ignoreFilters,
             string[] providerNames,
             bool enableHighlighting,
             bool enableDidYouMean) where T : IContentData
         {
-            SearchResult results = service.GetResults(enableHighlighting, enableDidYouMean);
+            SearchResult results = service.GetResults(enableHighlighting, enableDidYouMean, applyDefaultFilters: !ignoreFilters);
             var hits = new List<ContentSearchHit<T>>();
 
             foreach (SearchHit hit in results.Hits)
             {
-                if (ShouldAdd(hit, requirePageTemplate, out T content, providerNames))
+                if (ShouldAdd(hit, requirePageTemplate, out T content, providerNames, ignoreFilters))
                     hits.Add(new ContentSearchHit<T>(content, hit.CustomProperties, hit.QueryScore, hit.Highlight));
                 else
                     results.TotalHits--;
@@ -170,14 +151,14 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Extensions
         {
             return await Task.Run(() =>
             {
-                if (!ShouldAdd(hit, requirePageTemplate, out T content, providerNames))
+                if (!ShouldAdd(hit, requirePageTemplate, out T content, providerNames, false))
                     return null;
 
                 return new ContentSearchHit<T>(content, hit.CustomProperties, hit.QueryScore, hit.Highlight);
             }).ConfigureAwait(false);
         }
 
-        internal static bool ShouldAdd<T>(this SearchHit hit, bool requirePageTemplate, out T content, string[] providerNames)
+        internal static bool ShouldAdd<T>(this SearchHit hit, bool requirePageTemplate, out T content, string[] providerNames, bool ignoreFilters)
             where T : IContentData
         {
             if (providerNames?.Any() != true)
@@ -198,7 +179,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Extensions
                 content = GetContentForProviders<T>(hit, providerNames);
             }
 
-            return content != null && !ShouldFilter(content as IContent, requirePageTemplate);
+            return content != null && !ShouldFilter(content as IContent, requirePageTemplate, ignoreFilters);
         }
 
         private static T GetContentForProviders<T>(SearchHit hit, string[] providerNames) where T : IContentData
@@ -225,10 +206,13 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Extensions
             return default;
         }
 
-        private static bool ShouldFilter(IContent content, bool requirePageTemplate)
+        private static bool ShouldFilter(IContent content, bool requirePageTemplate, bool ignoreFilters)
         {
             if (content == null)
                 return true;
+
+            if (ignoreFilters)
+                return false;
 
             if (Indexer.ShouldHideFromSearch(content))
                 return true;

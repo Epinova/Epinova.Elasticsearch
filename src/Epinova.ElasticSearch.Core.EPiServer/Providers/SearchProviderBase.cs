@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
-using System.Web;
 using Epinova.ElasticSearch.Core.Contracts;
 using Epinova.ElasticSearch.Core.EPiServer.Extensions;
 using Epinova.ElasticSearch.Core.Settings;
@@ -81,8 +80,9 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Providers
                 if (searchRootId != 0)
                 {
                     IElasticSearchService<TContentData> searchQuery = CreateQuery(query, language, searchRootId);
+
                     ContentSearchResult<TContentData> contentSearchResult =
-                        searchQuery.GetContentResults(false, GetProviderKeys());
+                        searchQuery.GetContentResults(false, true, GetProviderKeys(), false, false);
 
                     contentSearchHits.AddRange(contentSearchResult.Hits);
                 }
