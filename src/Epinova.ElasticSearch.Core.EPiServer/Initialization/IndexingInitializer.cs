@@ -4,7 +4,6 @@ using Epinova.ElasticSearch.Core.EPiServer.Models;
 using EPiServer.Core;
 using EPiServer.Framework;
 using EPiServer.Framework.Initialization;
-using EPiServer.ServiceLocation;
 
 namespace Epinova.ElasticSearch.Core.EPiServer.Initialization
 {
@@ -17,10 +16,12 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Initialization
             Indexing.Instance.ExcludeType<SynonymBackupFile>();
             Indexing.Instance.ExcludeType<SynonymBackupFileFolder>();
 
-            IContentEvents events = ServiceLocator.Current.GetInstance<IContentEvents>();
+            IContentEvents events = context.Locate.Advanced.GetInstance<IContentEvents>();
+
             events.PublishedContent += IndexingEvents.UpdateIndex;
             events.DeletingContent += IndexingEvents.DeleteFromIndex;
             events.MovedContent += IndexingEvents.UpdateIndex;
+            events.SavedContent += IndexingEvents.UpdateIndex;
 
             //INFO: Might be useful later for re-indexing upon ACL changes
             //IContentSecurityRepository contentSecurityRepository = ServiceLocator.Current.GetInstance<IContentSecurityRepository>();
