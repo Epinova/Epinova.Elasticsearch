@@ -1,5 +1,5 @@
 ﻿using System;
-using Epinova.ElasticSearch.Core.EPiServer.Contracts;
+using Epinova.ElasticSearch.Core.EPiServer;
 using Epinova.ElasticSearch.Core.EPiServer.Enums;
 using EPiServer.Core;
 using Moq;
