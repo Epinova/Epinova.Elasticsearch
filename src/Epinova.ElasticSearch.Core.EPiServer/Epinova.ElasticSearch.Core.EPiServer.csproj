@@ -185,7 +185,7 @@
     <Compile Include="ContentSearchResult.cs" />
     <Compile Include="Contracts\IAutoSuggestRepository.cs" />
     <Compile Include="Contracts\IIndexer.cs" />
-    <Compile Include="Contracts\Indexer.cs" />
+    <Compile Include="Indexer.cs" />
     <Compile Include="Contracts\ISynonymRepository.cs" />
     <Compile Include="Controllers\Abstractions\ElasticSearchControllerBase.cs" />
     <Compile Include="Controllers\ElasticAdminController.cs" />
@@ -365,9 +365,9 @@
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-    <PropertyGroup>
+  <PropertyGroup>
     <PostBuildEvent>
-	</PostBuildEvent>
+    </PostBuildEvent>
   </PropertyGroup>
   <Target Name="AfterBuild">
     <CallTarget Targets="ZipModule" Condition=" '$(Configuration)' == 'Release' " />

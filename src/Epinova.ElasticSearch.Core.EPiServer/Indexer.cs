@@ -16,8 +16,9 @@ using Epinova.ElasticSearch.Core.Settings;
 using EPiServer;
 using EPiServer.Core;
 using EPiServer.ServiceLocation;
+using Epinova.ElasticSearch.Core.EPiServer.Contracts;
 
-namespace Epinova.ElasticSearch.Core.EPiServer.Contracts
+namespace Epinova.ElasticSearch.Core.EPiServer
 {
     [ServiceConfiguration(typeof(IIndexer))]
     internal class Indexer : IIndexer
@@ -199,10 +200,6 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Contracts
             if (deleted)
                 return true;
 
-            DateTime stopPublish = GetEpiserverDateTimeProperty(content.Property["PageStopPublish"]);
-            if (stopPublish != default && stopPublish < DateTime.Now)
-                return true;
-
             if(IsPageWithInvalidLinkType(content))
                 return true;
 
@@ -260,14 +257,6 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Contracts
             return Indexing.ExcludedTypes
                 .Any(type => (type.IsClass && typeToCheck.IsSubclassOf(type))
                     || (type.IsInterface && type.IsAssignableFrom(typeToCheck)));
-        }
-
-        private static DateTime GetEpiserverDateTimeProperty(PropertyData content)
-        {
-            if (!(content is PropertyDate property) || property.Value == null)
-                return default;
-
-            return ((DateTime?)property.Value).GetValueOrDefault();
         }
 
         private static bool GetEpiserverBoolProperty(PropertyData content)
