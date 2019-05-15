@@ -10,6 +10,7 @@ namespace Epinova.ElasticSearch.Core.Settings.Configuration
     public class ElasticSearchSection : ConfigurationSection
     {
         private static readonly string[] ValidSizeSuffixes = { "kb", "mb", "gb" };
+
         private static readonly char[] ValidSizeChars =
         {
             '0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
@@ -145,7 +146,6 @@ namespace Epinova.ElasticSearch.Core.Settings.Configuration
             set => base["contentSelector"] = value;
         }
 
-
         internal bool IsValidSizeString(string size)
         {
             if (String.IsNullOrWhiteSpace(size))
@@ -177,14 +177,11 @@ namespace Epinova.ElasticSearch.Core.Settings.Configuration
         internal void ValidateIndices()
         {
             if (IndicesParsed.Length == 0)
-                throw new ConfigurationErrorsException(
-                    "Configuration Error. You must add at least one index to the <indices> node");
+                throw new ConfigurationErrorsException("Configuration Error. You must add at least one index to the <indices> node");
             if (IndicesParsed.Length > 1 && !IndicesParsed.Any(i => i.Default))
-                throw new ConfigurationErrorsException(
-                    "Configuration Error. One index must be set as default when adding multiple indices");
+                throw new ConfigurationErrorsException("Configuration Error. One index must be set as default when adding multiple indices");
             if (Indices.Count > 1 && IndicesParsed.Count(i => i.Default) > 1)
                 throw new ConfigurationErrorsException("Configuration Error. Only one index can be set as default");
-
             if (Indices.Count > 1 && IndicesParsed.Count(i => String.IsNullOrWhiteSpace(i.Type)) > 1)
                 throw new ConfigurationErrorsException("Configuration Error. Custom indices must define a type");
 

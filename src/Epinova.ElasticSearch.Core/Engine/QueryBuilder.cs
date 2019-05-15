@@ -38,7 +38,7 @@ namespace Epinova.ElasticSearch.Core.Engine
         public QueryBuilder(IElasticSearchSettings settings)
         {
             _settings = settings;
-            ServiceLocator.Current.TryGetExistingInstance(out _boostingRepository);
+            ServiceLocator.Current?.TryGetExistingInstance(out _boostingRepository);
         }
 
         /// <summary>
@@ -312,7 +312,7 @@ namespace Epinova.ElasticSearch.Core.Engine
 
                 var key = setup.IndexName ?? _settings.GetDefaultIndexName(Language.GetLanguageCode(setup.Language));
 
-                if (!Conventions.Indexing.BestBets.TryGetValue(key, out var bestBetsForLanguage))
+                if (!Conventions.Indexing.BestBets.TryGetValue(key, out List<BestBet> bestBetsForLanguage))
                     return;
 
                 IEnumerable<BestBet> bestBets = bestBetsForLanguage
@@ -348,7 +348,7 @@ namespace Epinova.ElasticSearch.Core.Engine
             // Filter on type
             if (setup.Type != null)
             {
-                var term = CreateTerm(new Filter(DefaultFields.Types, setup.Type.GetTypeName().ToLower(), null, false, Operator.And));
+                Term term = CreateTerm(new Filter(DefaultFields.Types, setup.Type.GetTypeName().ToLower(), null, false, Operator.And));
                 filterQuery.Bool.Must.Add(term);
             }
 
@@ -393,7 +393,7 @@ namespace Epinova.ElasticSearch.Core.Engine
 
                             if (ArrayHelper.IsArrayCandidate(filter.Value.GetType()))
                             {
-                                foreach (object value in (IEnumerable)ArrayHelper.ToArray(filter.Value))
+                                foreach (var value in (IEnumerable)ArrayHelper.ToArray(filter.Value))
                                 {
                                     boolQuery.Must.Add(Term.FromFilter(filter, value));
                                 }
@@ -560,7 +560,7 @@ namespace Epinova.ElasticSearch.Core.Engine
             if (_boostingRepository == null)
                 return boost;
 
-            List<Boost> boostingFromDb = _boostingRepository.GetByType(type)
+            var boostingFromDb = _boostingRepository.GetByType(type)
                 .Select(p => new Boost
                 {
                     FieldName = p.Key,
@@ -569,7 +569,7 @@ namespace Epinova.ElasticSearch.Core.Engine
                 .ToList();
 
             // Editorial entries has presedence
-            foreach (var dbBoost in boostingFromDb)
+            foreach (Boost dbBoost in boostingFromDb)
             {
                 if (boost.Any(b => b.FieldName == dbBoost.FieldName))
                 {

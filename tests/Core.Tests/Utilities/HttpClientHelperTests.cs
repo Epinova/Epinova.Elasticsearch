@@ -24,7 +24,7 @@ namespace Core.Tests.Utilities
         {
             AuthenticationHeaderValue result = HttpClientHelper.Client.DefaultRequestHeaders.Authorization;
 
-            string expectedParam = Convert.ToBase64String(Encoding.UTF8.GetBytes(Username + ":" + Password));
+            var expectedParam = Convert.ToBase64String(Encoding.UTF8.GetBytes(Username + ":" + Password));
             const string expectedScheme = "Basic";
 
             Assert.Equal(expectedScheme, result.Scheme);

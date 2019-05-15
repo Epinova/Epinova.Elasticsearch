@@ -94,7 +94,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Plugin
                     if (IsStopped) return "Aborted by user";
 
                     var contents = GetDescendentContents(contentReferences.Take(_settings.BulkSize).ToList(), languages);
-                    
+
                     contents.RemoveAll(Indexer.ShouldHideFromSearch);
                     contents.RemoveAll(Indexer.IsExludedType);
 

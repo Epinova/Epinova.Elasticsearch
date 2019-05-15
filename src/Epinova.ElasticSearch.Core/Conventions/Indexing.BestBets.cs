@@ -19,9 +19,15 @@ namespace Epinova.ElasticSearch.Core.Conventions
         {
             BestBets = new ConcurrentDictionary<string, List<BestBet>>();
 
-            var repository = ServiceLocator.Current.GetInstance<IBestBetsRepository>();
-            var settings = ServiceLocator.Current.GetInstance<IElasticSearchSettings>();
-            var languageBranchRepository = ServiceLocator.Current.GetInstance<ILanguageBranchRepository>();
+            var repository = ServiceLocator.Current?.GetInstance<IBestBetsRepository>();
+            var settings = ServiceLocator.Current?.GetInstance<IElasticSearchSettings>();
+            var languageBranchRepository = ServiceLocator.Current?.GetInstance<ILanguageBranchRepository>();
+
+            if (repository == null || settings == null || languageBranchRepository == null)
+            {
+                // Probably in test-context
+                return;
+            }
 
             var languageIds = languageBranchRepository.ListEnabled()
                 .Select(lang => lang.LanguageID);
@@ -39,7 +45,7 @@ namespace Epinova.ElasticSearch.Core.Conventions
                 });
             }
 
-            foreach (var index in indexList)
+            foreach (IndexConfiguration index in indexList)
             {
                 Logger.Information($"Setup BestBets for index '{index.Name}'");
                 foreach (var languageId in languageIds)
