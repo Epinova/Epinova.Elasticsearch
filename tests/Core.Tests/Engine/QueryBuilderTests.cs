@@ -16,6 +16,7 @@ using Xunit.Abstractions;
 
 namespace Core.Tests.Engine
 {
+    [Collection(nameof(ServiceLocatiorCollection))]
     public class QueryBuilderTests
     {
         private readonly ITestOutputHelper _console;
@@ -23,8 +24,6 @@ namespace Core.Tests.Engine
         public QueryBuilderTests(ITestOutputHelper console)
         {
             _console = console;
-            SetupServiceLocator();
-
             _language = new CultureInfo("en-US");
             _builder = new QueryBuilder(null);
             _builder.SetMappedFields(new[] { "bar" });

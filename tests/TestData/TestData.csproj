@@ -183,6 +183,7 @@
   <ItemGroup>
     <Compile Include="ComplexType.cs" />
     <Compile Include="ElasticFixtureSettings.cs" />
+    <Compile Include="ServiceLocatorFixture.cs" />
     <Compile Include="ServiceLocationMock.cs" />
     <Compile Include="TestableContentFragment.cs" />
     <Compile Include="TestBlock.cs" />

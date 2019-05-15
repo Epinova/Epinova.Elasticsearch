@@ -7,13 +7,9 @@ using Xunit;
 
 namespace Core.Tests.Utilities
 {
+    [Collection(nameof(ServiceLocatiorCollection))]
     public class LanguageTests
     {
-        public LanguageTests()
-        {
-            Factory.SetupServiceLocator();
-        }
-
         [Theory]
         [InlineData("da", "da")]
         [InlineData("da-DK", "da")]

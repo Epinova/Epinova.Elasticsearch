@@ -5,12 +5,11 @@ using Xunit;
 
 namespace Core.Tests.Conventions
 {
+    [Collection(nameof(ServiceLocatiorCollection))]
     public class IndexingTests
     {
         public IndexingTests()
         {
-            Factory.SetupServiceLocator();
-
             Indexing.Extensions.Clear();
         }
 
