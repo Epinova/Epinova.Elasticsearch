@@ -452,7 +452,8 @@ namespace Epinova.ElasticSearch.Core.Engine
 
             request.Query.Bool.Filter.Add(filterQuery);
 
-            AppendDefaultFilters(request.Query, setup.Type);
+            if(setup.ApplyDefaultFilters)
+                AppendDefaultFilters(request.Query, setup.Type);
 
             if (request.Query.Bool.Should.Count > 1 && request.Query.Bool.Must.Count == 0)
                 request.Query.Bool.MinimumNumberShouldMatch = 1;
