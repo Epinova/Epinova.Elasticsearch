@@ -22,13 +22,9 @@ namespace TestData
             _suggestions = suggestions;
         }
 
-
         public override string[] GetSuggestions(SuggestRequest request, CultureInfo culture, string indexName = null)
         {
-            if (_suggestions == null)
-                return base.GetSuggestions(request, culture, indexName);
-
-            return _suggestions;
+            return _suggestions ?? base.GetSuggestions(request, culture, indexName);
         }
 
         public override JsonReader GetResponse(RequestBase request, string endpoint, out string rawJsonResult)

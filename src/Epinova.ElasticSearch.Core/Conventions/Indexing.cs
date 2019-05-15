@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
-using EPiServer.Logging;
+﻿using EPiServer.Logging;
 
 namespace Epinova.ElasticSearch.Core.Conventions
 {
@@ -15,16 +12,10 @@ namespace Epinova.ElasticSearch.Core.Conventions
 
         private Indexing()
         {
-            SearchableProperties = new ConcurrentDictionary<Type, string[]>();
-            HighlightFragmentSize = 150;
-            HighlightTag = "mark";
         }
 
         static Indexing()
         {
-            CustomProperties = new List<CustomProperty>();
-            SuggestionList = new List<Suggestion>();
-
             SetupBestBets();
         }
 

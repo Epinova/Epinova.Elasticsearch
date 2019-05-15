@@ -47,7 +47,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Contracts
 
         public BulkBatchResult BulkUpdate(IEnumerable<IContent> contents, Action<string> logger, string indexName = null)
         {
-            List<IContent> contentList = contents.ToList();
+            var contentList = contents.ToList();
             logger = logger ?? delegate { };
             var before = contentList.Count;
 
@@ -111,9 +111,8 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Contracts
 
             var status = Update(root, indexName);
             var descendents = _contentLoader.GetDescendents(root.ContentLink);
-            var contents = _contentLoader.GetItems(descendents, language);
 
-            foreach (var content in contents)
+            foreach (var content in _contentLoader.GetItems(descendents, language))
             {
                 var childStatus = Update(content, indexName);
 
@@ -139,7 +138,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Contracts
 
             if (IsExludedByRoot(content))
                 return IndexingStatus.ExcludedByConvention;
-            
+
             _coreIndexer.Update(content.ContentLink.ToReferenceWithoutVersion().ToString(), content.AsIndexItem(), indexName, typeof(IndexItem));
 
             return IndexingStatus.Ok;
@@ -192,11 +191,11 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Contracts
                 return true;
 
             // Common property in Epinova template
-            bool hideFromSearch = GetEpiserverBoolProperty(content.Property["HideFromSearch"]);
+            var hideFromSearch = GetEpiserverBoolProperty(content.Property["HideFromSearch"]);
             if (hideFromSearch)
                 return true;
 
-            bool deleted = GetEpiserverBoolProperty(content.Property["PageDeleted"]);
+            var deleted = GetEpiserverBoolProperty(content.Property["PageDeleted"]);
             if (deleted)
                 return true;
 

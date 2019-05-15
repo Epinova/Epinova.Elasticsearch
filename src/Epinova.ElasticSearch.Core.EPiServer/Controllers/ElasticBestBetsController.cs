@@ -97,9 +97,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Controllers
 
         private IEnumerable<BestBet> GetBestBetsForLanguage(string language, string index)
         {
-            var bestBets = _bestBetsRepository.GetBestBets(language, index);
-
-            foreach (BestBet bestBet in bestBets)
+            foreach (BestBet bestBet in _bestBetsRepository.GetBestBets(language, index))
             {
                 var contentLink = new ContentReference(Convert.ToInt32(ContentReference.Parse(bestBet.Id).ID), bestBet.Provider);
                 if (_contentLoader.TryGet(contentLink, out IContent content))

@@ -118,7 +118,7 @@ namespace Core.Tests.Engine
         public void Query_ReturnsCustomProperties()
         {
             SetupEngineMock("Results_With_Custom_Properties.json");
-            DateTime date = DateTime.Parse("2015-03-31T23:01:04.2493062+02:00");
+            var date = DateTime.Parse("2015-03-31T23:01:04.2493062+02:00");
             const string text = "Lorem text";
             const double dec1 = 42.1;
             const long lng1 = 42;

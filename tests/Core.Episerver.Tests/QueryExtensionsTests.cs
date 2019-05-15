@@ -30,7 +30,6 @@ namespace Core.Episerver.Tests
             Assert.Equal(42, instance.RootId);
         }
 
-
         [Fact]
         public void Exclude_UsesContentReferenceId()
         {
@@ -38,7 +37,6 @@ namespace Core.Episerver.Tests
             _serviceStub.Exclude(contentLink);
             Assert.Contains(42, _serviceStub.ExcludedRoots.Keys);
         }
-
 
         [Fact]
         public void Exclude_UsesContentId()
@@ -51,7 +49,6 @@ namespace Core.Episerver.Tests
             _serviceStub.Exclude(contentMock.Object);
             Assert.Contains(42, _serviceStub.ExcludedRoots.Keys);
         }
-
 
         [Fact]
         public void BoostByAncestor_UsesContentReferenceId()

@@ -114,7 +114,7 @@ namespace TestData
 
         public static string GetString(int size = 20)
         {
-            string instance = Guid.NewGuid().ToString("N");
+            var instance = Guid.NewGuid().ToString("N");
 
             while (instance.Length < size)
                 instance += Guid.NewGuid().ToString("N");
@@ -126,7 +126,7 @@ namespace TestData
         {
             string instance = String.Empty;
 
-            for (int i = 0; i < words; i++)
+            for (var i = 0; i < words; i++)
                 instance += GetString(Random.Next(3, 8)) + " ";
 
             return instance.Trim();
@@ -152,12 +152,12 @@ namespace TestData
 
         public static int GetInteger(int start = 1, int count = 1337)
         {
-            return Enumerable.Range(start, count).OrderBy(n => Guid.NewGuid()).First();
+            return Enumerable.Range(start, count).OrderBy(_ => Guid.NewGuid()).First();
         }
 
         public static TemplateResolver GetTemplateResolver(bool hasTemplate = true)
         {
-            Mock<TemplateResolver> templateResolver = new Mock<TemplateResolver>();
+            var templateResolver = new Mock<TemplateResolver>();
 
             templateResolver
                 .Setup(
@@ -192,7 +192,7 @@ namespace TestData
             int parentId = 0,
             CultureInfo language = null) where T : PageData
         {
-            Mock<ISecurityDescriptor> securityDescriptor = new Mock<ISecurityDescriptor>();
+            var securityDescriptor = new Mock<ISecurityDescriptor>();
             securityDescriptor.Setup(m => m.HasAccess(It.IsAny<IPrincipal>(), It.IsAny<AccessLevel>())).Returns(userHasAccess);
 
             if (language == null)
@@ -201,8 +201,8 @@ namespace TestData
             PageReference pageLink = id > 0 ? new PageReference(id) : GetPageReference();
             PageReference parentLink = parentId > 0 ? new PageReference(parentId) : GetPageReference();
 
-            Guid pageGuid = Guid.NewGuid();
-            Mock<T> instance = new Mock<T>();
+            var pageGuid = Guid.NewGuid();
+            var instance = new Mock<T>();
             instance.SetupAllProperties();
             instance.Setup(m => m.VisibleInMenu).Returns(visibleInMenu);
             instance.Setup(m => m.Status).Returns(isPublished ? VersionStatus.Published : VersionStatus.NotCreated);
@@ -255,10 +255,10 @@ namespace TestData
         {
             PageReference pageLink = GetPageReference();
             PageReference parentLink = GetPageReference();
-            Guid pageGuid = Guid.NewGuid();
-            FileBlob blob = new FileBlob(new Uri("foo://bar.com/"), GetFilePath("Media", name + "." + ext));
+            var pageGuid = Guid.NewGuid();
+            var blob = new FileBlob(new Uri("foo://bar.com/"), GetFilePath("Media", name + "." + ext));
 
-            Mock<TestMedia> instance = new Mock<TestMedia>();
+            var instance = new Mock<TestMedia>();
             instance.SetupAllProperties();
             instance.Setup(m => m.BinaryData).Returns(blob);
             instance.Setup(m => m.Name).Returns(GetString(5) + "." + ext);
@@ -274,21 +274,24 @@ namespace TestData
             if (s == null)
                 return null;
 
-            Mock<IStringFragment> fragmentMock = new Mock<IStringFragment>();
+            var fragmentMock = new Mock<IStringFragment>();
             fragmentMock.SetupAllProperties();
             fragmentMock.Setup(m => m.ToString()).Returns(s);
             fragmentMock.Setup(m => m.GetViewFormat()).Returns(s);
 
-            Mock<XhtmlString> xhtmlStringMock = new Mock<XhtmlString>();
-            StringFragmentCollection fragments = new StringFragmentCollection();
+            var xhtmlStringMock = new Mock<XhtmlString>();
+            var fragments = new StringFragmentCollection();
             if (!String.IsNullOrWhiteSpace(s))
                 fragments.Add(fragmentMock.Object);
 
-            if(additionalFragments != null && additionalFragments.Length > 0)
+            if (additionalFragments?.Length > 0)
+            {
                 foreach (IStringFragment fragment in additionalFragments)
+                {
                     fragments.Add(fragment);
+                }
+            }
 
-            //xhtmlStringMock.Setup(m => m.FragmentParser).Returns(new Mock<Injected<IFragmentParser>>().Object);
             xhtmlStringMock.Setup(m => m.Fragments).Returns(fragments);
             xhtmlStringMock.Setup(m => m.ToString()).Returns(s);
             xhtmlStringMock.Setup(m => m.ToHtmlString()).Returns(s);
@@ -305,7 +308,7 @@ namespace TestData
             return Path.Combine(jsonDir, filename);
         }
 
-        public static bool ArrayEquals<T1, T2>(IEnumerable<T1> arr1, IEnumerable<T2> arr2) //where T : struct
+        public static bool ArrayEquals<T1, T2>(IEnumerable<T1> arr1, IEnumerable<T2> arr2)
         {
             var obj1 = arr1.Select(x => x as object);
             var obj2 = arr2.Select(x => x as object);

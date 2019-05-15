@@ -24,7 +24,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Commerce.Extensions
 
         private static string GetIndexName(CultureInfo searchLanguage)
         {
-            return $"{ElasticSearchSettings.Index}-{Core.Constants.CommerceProviderName}-{Language.GetLanguageCode(searchLanguage)}";
+            return $"{ElasticSearchSettings.Index}-{Constants.CommerceProviderName}-{Language.GetLanguageCode(searchLanguage)}";
         }
 
         public static CatalogSearchResult<T> GetCatalogResults<T>(this IElasticSearchService<T> service)

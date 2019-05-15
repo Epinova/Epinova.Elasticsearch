@@ -27,11 +27,6 @@ namespace Epinova.ElasticSearch.Core.Engine
         private static readonly ILogger Logger = LogManager.GetLogger(typeof(SearchEngine));
         private static IElasticSearchSettings _elasticSearchSettings;
 
-        internal SearchEngine()
-        {
-            _elasticSearchSettings = ServiceLocator.Current.GetInstance<IElasticSearchSettings>();
-        }
-
         internal SearchEngine(IElasticSearchSettings settings)
         {
             _elasticSearchSettings = settings;
@@ -49,7 +44,7 @@ namespace Epinova.ElasticSearch.Core.Engine
             if (query == null)
                 return new SearchResult();
 
-            EsRootObject results = await GetRawResultsAsync<EsRootObject>(query, Language.GetLanguageCode(culture), cancellationToken, indexName);
+            EsRootObject results = await GetRawResultsAsync<EsRootObject>(query, Language.GetLanguageCode(culture), cancellationToken, indexName).ConfigureAwait(false);
             if (results == null)
                 return new SearchResult();
 
@@ -215,7 +210,7 @@ namespace Epinova.ElasticSearch.Core.Engine
 
             var uri = $"{_elasticSearchSettings.Host}/{indexName}/_search";
 
-            JsonReader response = GetResponse(query, uri, out string rawJsonResult);
+            JsonReader response = GetResponse(query, uri, out var rawJsonResult);
 
             var serializer = new JsonSerializer
             {
@@ -244,7 +239,7 @@ namespace Epinova.ElasticSearch.Core.Engine
 
             var uri = $"{_elasticSearchSettings.Host}/{indexName}/_search";
 
-            JsonReader response = await GetResponseAsync(query, uri, cancellationToken);
+            JsonReader response = await GetResponseAsync(query, uri, cancellationToken).ConfigureAwait(false);
 
             var serializer = new JsonSerializer
             {
@@ -307,7 +302,7 @@ namespace Epinova.ElasticSearch.Core.Engine
             try
             {
                 var data = Encoding.UTF8.GetBytes(request.ToString());
-                byte[] returnData = await HttpClientHelper.PostAsync(new Uri(endpoint), data, cancellationToken);
+                var returnData = await HttpClientHelper.PostAsync(new Uri(endpoint), data, cancellationToken);
                 if (returnData == null)
                     throw new Exception("Failed to POST to " + endpoint);
 
@@ -334,11 +329,11 @@ namespace Epinova.ElasticSearch.Core.Engine
             try
             {
                 var data = Encoding.UTF8.GetBytes(request.ToString());
-                byte[] returnData = HttpClientHelper.Post(new Uri(endpoint), data);
+                var returnData = HttpClientHelper.Post(new Uri(endpoint), data);
                 if (returnData == null)
                     throw new Exception("Failed to POST to " + endpoint);
 
-                string response = Encoding.UTF8.GetString(returnData);
+                var response = Encoding.UTF8.GetString(returnData);
 
                 rawJsonResult = response;
 

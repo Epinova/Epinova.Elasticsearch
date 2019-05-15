@@ -1,11 +1,11 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
 namespace Epinova.ElasticSearch.Core.Conventions
 {
     public sealed partial class Indexing
     {
-        internal static int HighlightFragmentSize { get; private set; }
-        internal static string HighlightTag { get; private set; }
+        internal static int HighlightFragmentSize { get; private set; } = 150;
+        internal static string HighlightTag { get; private set; } = "mark";
 
         /// <summary>
         /// Sets how many characters the highlighted excerpt should return
@@ -16,7 +16,6 @@ namespace Epinova.ElasticSearch.Core.Conventions
             HighlightFragmentSize = size;
         }
 
-
         /// <summary>
         /// Sets the html-element to use on highlighted words
         /// <para>Defaults to "mark"</para>
@@ -26,7 +25,6 @@ namespace Epinova.ElasticSearch.Core.Conventions
         {
             HighlightTag = tag;
         }
-
 
         internal static List<string> Highlights { get; } = new List<string>();
     }

@@ -24,7 +24,6 @@ namespace Core.Tests.Conventions
 
         private class MockHandler : DelegatingHandler
         {
-
         }
     }
 }
