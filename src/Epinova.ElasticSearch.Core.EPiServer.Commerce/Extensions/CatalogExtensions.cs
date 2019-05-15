@@ -38,7 +38,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Commerce.Extensions
 
             foreach (SearchHit hit in results.Hits)
             {
-                if (hit.ShouldAdd(false, out T content, new[] { ProviderConstants.CatalogProviderKey }))
+                if (hit.ShouldAdd(false, out T content, new[] { ProviderConstants.CatalogProviderKey }, false))
                     hits.Add(new CatalogSearchHit<T>(content, hit.CustomProperties, hit.QueryScore, hit.Highlight));
                 else
                     results.TotalHits--;
