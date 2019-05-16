@@ -144,8 +144,6 @@ namespace Core.Episerver.Tests
             TestMedia media = Factory.GetMediaData("foo", "jpg");
             TestPage page = Factory.GetTestPage();
 
-            Indexer.FormsUploadNamespace = "TestData.ITestPage";
-
             var assetHelperMock = new Mock<ContentAssetHelper>();
             assetHelperMock
                 .Setup(m => m.GetAssetOwner(media.ContentLink))

@@ -17,18 +17,14 @@ namespace Epinova.ElasticSearch.Core.Utilities
     internal static class HttpClientHelper
     {
         private static readonly ILogger Logger = LogManager.GetLogger(typeof(HttpClientHelper));
-        internal static readonly HttpClient Client;
+        internal static readonly HttpClient Client = SetupClient();
 
-        static HttpClientHelper()
+        private static HttpClient SetupClient()
         {
-            Client = MessageHandler.Handler != null ?
-                new HttpClient(MessageHandler.Handler) :
-                new HttpClient();
-            Initialize();
-        }
+            var client = MessageHandler.Handler != null
+                ? new HttpClient(MessageHandler.Handler)
+                : new HttpClient();
 
-        internal static void Initialize()
-        {
             IElasticSearchSettings settings = ServiceLocator.Current.GetInstance<IElasticSearchSettings>();
 
             if (!String.IsNullOrEmpty(settings.Username)
@@ -37,16 +33,18 @@ namespace Epinova.ElasticSearch.Core.Utilities
                 var credentials = Encoding.ASCII.GetBytes(
                     String.Concat(settings.Username, ":", settings.Password));
 
-                Client.DefaultRequestHeaders.Authorization =
+                client.DefaultRequestHeaders.Authorization =
                     new AuthenticationHeaderValue("Basic", Convert.ToBase64String(credentials));
             }
             else
             {
-                Client.DefaultRequestHeaders.Authorization = null;
+                client.DefaultRequestHeaders.Authorization = null;
             }
 
             if (settings.ClientTimeoutSeconds > 0)
-                Client.Timeout = TimeSpan.FromSeconds(settings.ClientTimeoutSeconds);
+                client.Timeout = TimeSpan.FromSeconds(settings.ClientTimeoutSeconds);
+
+            return client;
         }
 
         internal static void Put(Uri uri, byte[] data = null)
@@ -70,7 +68,7 @@ namespace Epinova.ElasticSearch.Core.Utilities
 
         internal static async Task PutAsync(Uri uri, byte[] data = null)
         {
-            await PutAsync(uri, data, CancellationToken.None);
+            await PutAsync(uri, data, CancellationToken.None).ConfigureAwait(false);
         }
 
         internal static async Task PutAsync(Uri uri, byte[] data, CancellationToken cancellationToken)

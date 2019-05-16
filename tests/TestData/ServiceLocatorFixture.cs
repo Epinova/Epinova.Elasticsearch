@@ -3,7 +3,7 @@ using EPiServer.ServiceLocation;
 
 namespace TestData
 {
-    public class ServiceLocatorFixture : IDisposable
+    public sealed class ServiceLocatorFixture : IDisposable
     {
         public ServiceLocatorFixture()
         {

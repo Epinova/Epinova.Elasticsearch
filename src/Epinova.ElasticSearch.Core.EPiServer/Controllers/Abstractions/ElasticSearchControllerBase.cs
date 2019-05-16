@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using System.Web.Mvc;
 using System.Web.Routing;
 using Epinova.ElasticSearch.Core.Models.Admin;
@@ -103,10 +104,12 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Controllers.Abstractions
                     ? "[default]"
                     : Type.GetType(parsed.Type)?.Name;
 
-                indexInfo.DisplayName = parsed?.DisplayName;
+                var displayName = new StringBuilder(parsed?.DisplayName);
 
                 if (indexInfo.Index.Contains($"-{Constants.CommerceProviderName}".ToLowerInvariant()))
-                    indexInfo.DisplayName += " Commerce";
+                    displayName.Append(" Commerce");
+
+                indexInfo.DisplayName = displayName.ToString();
             }
 
             return indices;

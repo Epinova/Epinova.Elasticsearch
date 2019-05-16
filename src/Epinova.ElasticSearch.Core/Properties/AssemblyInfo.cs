@@ -20,6 +20,4 @@ using System.Runtime.InteropServices;
 [assembly: InternalsVisibleTo("Core.EPiServer.Tests")]
 [assembly: InternalsVisibleTo("Core.Tests")]
 [assembly: InternalsVisibleTo("TestData")]
-[assembly: InternalsVisibleTo("Epi11demo")]
-[assembly: InternalsVisibleTo("Integration.Tests")]
 [assembly: InternalsVisibleTo("DynamicProxyGenAssembly2")]

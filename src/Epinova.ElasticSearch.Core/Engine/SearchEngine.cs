@@ -25,11 +25,11 @@ namespace Epinova.ElasticSearch.Core.Engine
     internal class SearchEngine
     {
         private static readonly ILogger Logger = LogManager.GetLogger(typeof(SearchEngine));
-        private static IElasticSearchSettings _elasticSearchSettings;
+        private readonly IElasticSearchSettings _settings;
 
         internal SearchEngine(IElasticSearchSettings settings)
         {
-            _elasticSearchSettings = settings;
+            _settings = settings;
         }
 
         /// <summary>
@@ -158,15 +158,9 @@ namespace Epinova.ElasticSearch.Core.Engine
         {
             var searchHit = new SearchHit(hit);
 
-            CustomProperty[] customPropertiesForType =
-                hit.Source?.Types != null
-                    ? Conventions.Indexing.CustomProperties.Where(c => hit.Source.Types.Contains(c.OwnerType.GetTypeName())).ToArray()
-                    : Enumerable.Empty<CustomProperty>().ToArray();
+            CustomProperty[] customPropertiesForType = GetCustomPropertiesForType(hit);
 
-            if (customPropertiesForType.Length == 0)
-                return searchHit;
-
-            if (hit.Source?.UnmappedFields == null || !hit.Source.UnmappedFields.Any(u => customPropertiesForType.Any(c => c.Name == u.Key)))
+            if (!IsValidCustomProperty())
                 return searchHit;
 
             foreach (CustomProperty property in customPropertiesForType)
@@ -175,18 +169,17 @@ namespace Epinova.ElasticSearch.Core.Engine
                     continue;
 
                 JToken unmappedField = hit.Source.UnmappedFields[property.Name];
+
                 if (unmappedField == null)
                     break;
 
-                // Array value
-                if (unmappedField.Type == JTokenType.Array && unmappedField.Children().Any())
+                if (IsArrayValue(unmappedField))
                 {
                     searchHit.CustomProperties[property.Name] = unmappedField.Children().Cast<JValue>().Select(v => v.Value).ToArray();
                     continue;
                 }
 
-                // Dictionary 
-                if (unmappedField.Type == JTokenType.Object && unmappedField.Children().OfType<JProperty>().Any())
+                if (IsDictionaryValue(unmappedField))
                 {
                     searchHit.CustomProperties[property.Name] = JObject.FromObject(unmappedField).ToObject<IDictionary<string, object>>();
                     continue;
@@ -197,17 +190,36 @@ namespace Epinova.ElasticSearch.Core.Engine
             }
 
             return searchHit;
+
+            bool IsValidCustomProperty()
+            {
+                return customPropertiesForType.Length > 0
+                    && hit.Source?.UnmappedFields != null
+                    && hit.Source.UnmappedFields.Any(u => customPropertiesForType.Any(c => c.Name == u.Key));
+            }
+
+            bool IsArrayValue(JToken field)
+            {
+                return field.Type == JTokenType.Array
+                    && field.Children().Any();
+            }
+
+            bool IsDictionaryValue(JToken field)
+            {
+                return field.Type == JTokenType.Object 
+                    && field.Children().OfType<JProperty>().Any();
+            }
         }
 
         public RawResults<TRoot> GetRawResults<TRoot>(RequestBase query, string language, string indexName = null)
         {
             if (indexName == null)
-                indexName = _elasticSearchSettings.GetDefaultIndexName(language);
+                indexName = _settings.GetDefaultIndexName(language);
 
             Logger.Information($"Index:\n{indexName}\n");
             Logger.Information($"Query:\n{query?.ToString(Formatting.Indented)}\n");
 
-            var uri = $"{_elasticSearchSettings.Host}/{indexName}/_search";
+            var uri = $"{_settings.Host}/{indexName}/_search";
 
             JsonReader response = GetResponse(query, uri, out var rawJsonResult);
 
@@ -231,12 +243,12 @@ namespace Epinova.ElasticSearch.Core.Engine
         public async Task<TRoot> GetRawResultsAsync<TRoot>(RequestBase query, string language, CancellationToken cancellationToken, string indexName = null)
         {
             if (indexName == null)
-                indexName = _elasticSearchSettings.GetDefaultIndexName(language);
+                indexName = _settings.GetDefaultIndexName(language);
 
             Logger.Information($"Index:\n{indexName}\n");
             Logger.Information($"Query:\n{query?.ToString(Formatting.Indented)}\n");
 
-            var uri = $"{_elasticSearchSettings.Host}/{indexName}/_search";
+            var uri = $"{_settings.Host}/{indexName}/_search";
 
             JsonReader response = await GetResponseAsync(query, uri, cancellationToken).ConfigureAwait(false);
 
@@ -272,9 +284,9 @@ namespace Epinova.ElasticSearch.Core.Engine
         public virtual string[] GetSuggestions(SuggestRequest request, CultureInfo culture, string indexName = null)
         {
             if (indexName == null)
-                indexName = _elasticSearchSettings.GetDefaultIndexName(Language.GetLanguageCode(culture));
+                indexName = _settings.GetDefaultIndexName(Language.GetLanguageCode(culture));
 
-            var endpoint = $"{_elasticSearchSettings.Host}/{indexName}/_search";
+            var endpoint = $"{_settings.Host}/{indexName}/_search";
 
             Logger.Information($"GetSuggestions query:\nGET {endpoint}\n{request?.ToString(Formatting.Indented)}\n");
 
@@ -303,7 +315,7 @@ namespace Epinova.ElasticSearch.Core.Engine
                 var data = Encoding.UTF8.GetBytes(request.ToString());
                 var returnData = await HttpClientHelper.PostAsync(new Uri(endpoint), data, cancellationToken);
                 if (returnData == null)
-                    throw new Exception("Failed to POST to " + endpoint);
+                    throw new InvalidOperationException("Failed to POST to " + endpoint);
 
                 string response = Encoding.UTF8.GetString(returnData);
                 Logger.Debug("GetResponse response:\n" + JToken.Parse(response).ToString(Formatting.Indented));
@@ -330,7 +342,7 @@ namespace Epinova.ElasticSearch.Core.Engine
                 var data = Encoding.UTF8.GetBytes(request.ToString());
                 var returnData = HttpClientHelper.Post(new Uri(endpoint), data);
                 if (returnData == null)
-                    throw new Exception("Failed to POST to " + endpoint);
+                    throw new InvalidOperationException("Failed to POST to " + endpoint);
 
                 var response = Encoding.UTF8.GetString(returnData);
 
@@ -365,6 +377,13 @@ namespace Epinova.ElasticSearch.Core.Engine
             {
                 Logger.Error("Could not read error-response");
             }
+        }
+
+        private static CustomProperty[] GetCustomPropertiesForType(Hit hit)
+        {
+            return hit.Source?.Types != null
+                ? Conventions.Indexing.CustomProperties.Where(c => hit.Source.Types.Contains(c.OwnerType.GetTypeName())).ToArray()
+                : Enumerable.Empty<CustomProperty>().ToArray();
         }
     }
 }

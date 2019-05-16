@@ -37,7 +37,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Services
             _settings = settings;
         }
 
-        public void SetSynonyms(string languageId, string analyzer, List<Synonym> synonymsToAdd, string index = null)
+        public void SetSynonyms(string languageId, string analyzer, List<Synonym> synonymsToAdd, string index)
         {
             if(String.IsNullOrWhiteSpace(index))
                 index = _settings.GetDefaultIndexName(languageId);
@@ -134,7 +134,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Services
             string[] parsedSynonyms;
             if (synonymPairs?.Any(s => s.ToString() != "example_from,example_to") == true)
             {
-                parsedSynonyms = synonymPairs.ToArray().Select(s => s.ToString()).ToArray();
+                parsedSynonyms = synonymPairs.Select(s => s.ToString()).ToArray();
             }
             else
             {

@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using Epinova.ElasticSearch.Core.Enums;
 using Epinova.ElasticSearch.Core.Models.Converters;
+using Epinova.ElasticSearch.Core.Utilities;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
@@ -12,6 +13,9 @@ namespace Epinova.ElasticSearch.Core.Models.Query
 
         public QueryRequest(QuerySetup querySetup)
         {
+            querySetup.SearchText.EnsureNotNull(nameof(querySetup.SearchText));
+            Query.SearchText = querySetup.SearchText.ToLower();
+
             _sortFields = querySetup.SortFields;
             From = querySetup.From;
             Size = querySetup.Size;

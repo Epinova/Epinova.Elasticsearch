@@ -6,8 +6,6 @@ using System.Text;
 using Epinova.ElasticSearch.Core.Contracts;
 using Epinova.ElasticSearch.Core.Conventions;
 using Epinova.ElasticSearch.Core.EPiServer.Models;
-using Epinova.ElasticSearch.Core.Models;
-using Epinova.ElasticSearch.Core.Settings;
 using EPiServer;
 using EPiServer.Core;
 using EPiServer.DataAccess;
@@ -27,24 +25,20 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Services
         private static readonly ILogger Logger = LogManager.GetLogger(typeof(BestBetsRepository));
         private readonly IBlobFactory _blobFactory;
         private readonly ICoreIndexer _coreIndexer;
-        private readonly IElasticSearchSettings _settings;
         private readonly IContentRepository _contentRepository;
         private readonly UrlResolver _urlResolver;
 
         public BestBetsRepository(
-            IElasticSearchSettings settings,
             IContentRepository contentRepository,
             UrlResolver urlResolver,
             IBlobFactory blobFactory,
             ICoreIndexer coreIndexer)
         {
-            _settings = settings;
             _contentRepository = contentRepository;
             _urlResolver = urlResolver;
             _blobFactory = blobFactory;
             _coreIndexer = coreIndexer;
         }
-
 
         public void AddBestBet(string languageId, string phrase, ContentReference contentLink, string index, Type type)
         {
@@ -155,7 +149,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Services
             contentFile.BinaryData = blob;
             contentFile.LanguageId = languageId;
 
-            ContentReference current = _contentRepository.Save(contentFile, SaveAction.Publish, AccessLevel.NoAccess);
+            _contentRepository.Save(contentFile, SaveAction.Publish, AccessLevel.NoAccess);
             UpdateIndex(bestBetsToAdd, index, type);
         }
 

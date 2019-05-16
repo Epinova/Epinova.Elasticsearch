@@ -26,7 +26,6 @@ namespace Core.Tests.Settings.Configuration
             _section = mockSection.Object;
         }
 
-
         [Theory]
         [InlineData("1")]
         [InlineData("42")]
@@ -181,7 +180,6 @@ namespace Core.Tests.Settings.Configuration
                 })
             );
         }
-
 
         private static IEnumerable<object[]> GetIndexNameInvalidCharacters()
         {

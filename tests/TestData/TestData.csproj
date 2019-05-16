@@ -188,6 +188,7 @@
     <Compile Include="TestableContentFragment.cs" />
     <Compile Include="TestBlock.cs" />
     <Compile Include="TestMedia.cs" />
+    <Compile Include="FakeIFileUploadElementBlock.cs" />
     <Compile Include="TestPage.cs" />
     <Compile Include="Factory.cs" />
     <Compile Include="Inheritance.cs" />

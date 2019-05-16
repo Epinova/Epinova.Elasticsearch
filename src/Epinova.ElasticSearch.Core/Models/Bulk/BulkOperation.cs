@@ -7,6 +7,7 @@ using Epinova.ElasticSearch.Core.Settings;
 using Epinova.ElasticSearch.Core.Utilities;
 using EPiServer.ServiceLocation;
 using System.Globalization;
+using System.Reflection;
 
 namespace Epinova.ElasticSearch.Core.Models.Bulk
 {
@@ -55,52 +56,9 @@ namespace Epinova.ElasticSearch.Core.Models.Bulk
                 {
                     try
                     {
-                        var value = property.GetValue(data);
-                        if (value == null)
-                            continue;
-
-                        if (property.PropertyType == typeof(bool) || property.PropertyType == typeof(bool?))
-                        {
-                            value = (bool)value;
-                        }
-                        else if (property.PropertyType.IsEnum)
-                        {
-                            value = (int)value;
-                        }
-                        else if (value is DateTime)
-                        {
-                            // Don't ToString or anything funky here
-                        }
-                        else if (value is decimal dec)
-                        {
-                            value = dec.ToString(DotSeparatorFormat);
-                        }
-                        else if (value is double dbl)
-                        {
-                            value = dbl.ToString(DotSeparatorFormat);
-                        }
-                        else if (value is float flt)
-                        {
-                            value = flt.ToString(DotSeparatorFormat);
-                        }
-                        else if (ArrayHelper.IsArrayCandidate(property))
-                        {
-                            value = ArrayHelper.ToArray(value);
-                        }
-                        else if (Utilities.Mapping.IsNumericType(property.PropertyType))
-                        {
-                            value = value.ToString().Trim('\"');
-                        }
-                        else if (property.PropertyType.IsValueType || property.PropertyType.IsPrimitive)
-                        {
-                            value = value.ToString().Trim('\"');
-                        }
-                        else
-                        {
-                            value = value.ToString().Trim('\"');
-                        }
-
-                        dictionary[property.Name] = value;
+                        var value = GetPropertyValue(data, property);
+                        if (value != null)
+                            dictionary[property.Name] = value;
                     }
                     catch (Exception ex)
                     {
@@ -113,6 +71,7 @@ namespace Epinova.ElasticSearch.Core.Models.Bulk
                 {
                     dictionary.Add(DefaultFields.Type, dataType.GetTypeName());
                 }
+
                 data = indexItem;
             }
 
@@ -129,6 +88,55 @@ namespace Epinova.ElasticSearch.Core.Models.Bulk
             };
 
             Data = data;
+        }
+
+        private static object GetPropertyValue(object data, PropertyInfo property)
+        {
+            var value = property.GetValue(data);
+            if (value == null)
+                return null;
+
+            if (property.PropertyType == typeof(bool) || property.PropertyType == typeof(bool?))
+            {
+                return (bool)value;
+            }
+            else if (property.PropertyType.IsEnum)
+            {
+                return (int)value;
+            }
+            else if (value is DateTime)
+            {
+                // Don't ToString or anything funky here
+                return value;
+            }
+            else if (value is decimal dec)
+            {
+                return dec.ToString(DotSeparatorFormat);
+            }
+            else if (value is double dbl)
+            {
+                return dbl.ToString(DotSeparatorFormat);
+            }
+            else if (value is float flt)
+            {
+                return flt.ToString(DotSeparatorFormat);
+            }
+            else if (ArrayHelper.IsArrayCandidate(property))
+            {
+                return ArrayHelper.ToArray(value);
+            }
+            else if (Utilities.Mapping.IsNumericType(property.PropertyType))
+            {
+                return value.ToString().Trim('\"');
+            }
+            else if (property.PropertyType.IsValueType || property.PropertyType.IsPrimitive)
+            {
+                return value.ToString().Trim('\"');
+            }
+            else
+            {
+                return value.ToString().Trim('\"');
+            }
         }
 
         private string GetId(string id, Type dataType, object data)

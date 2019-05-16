@@ -72,6 +72,8 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Events
                 Logger.Debug("Create-event, do nothing");
                 return;
             }
+
+            Logger.Information($"Event was not handled. Action {saveArgs.Action}, transition {saveArgs.Transition.CurrentStatus}=>{saveArgs.Transition.NextStatus}");
         }
     }
 }

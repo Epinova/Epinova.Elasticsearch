@@ -17,5 +17,4 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyInformationalVersion("11.6.0.0")]
 [assembly: InternalsVisibleTo("Epinova.ElasticSearch.Core.EPiServer.Commerce")]
 [assembly: InternalsVisibleTo("Core.EPiServer.Tests")]
-[assembly: InternalsVisibleTo("Integration.Tests")]
 [assembly: InternalsVisibleTo("DynamicProxyGenAssembly2")]

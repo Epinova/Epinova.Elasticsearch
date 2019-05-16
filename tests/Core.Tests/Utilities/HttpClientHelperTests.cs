@@ -22,8 +22,6 @@ namespace Core.Tests.Utilities
                 .Setup(m => m.Password).Returns(Password);
             fixture.ServiceLocationMock.SettingsMock
                 .Setup(m => m.ClientTimeoutSeconds).Returns(Timeout);
-
-            HttpClientHelper.Initialize();
         }
 
         [Fact]
