@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Linq;
 
 namespace Epinova.ElasticSearch.Core.Utilities
 {
@@ -8,27 +7,27 @@ namespace Epinova.ElasticSearch.Core.Utilities
         internal static void EnsureNotNull(this string instance, string message = null)
         {
             if (instance == null)
-                throw new NullReferenceException(message);
+                throw new ArgumentNullException(message);
         }
 
         internal static void EnsureNotNull(this object instance, string message = null)
         {
             if (instance == null)
-                throw new NullReferenceException(message);
+                throw new ArgumentNullException(message);
         }
 
         private static void EnsureNotNull(this string[] instance, string message = null)
         {
             if (instance == null)
-                throw new NullReferenceException(message);
+                throw new ArgumentNullException(message);
         }
 
         internal static void EnsureNotNullOrEmpty(this string[] instance, string message = null)
         {
             instance.EnsureNotNull();
 
-            if (!instance.Any())
-                throw new ArgumentException(message);
+            if (instance.Length == 0)
+                throw new ArgumentNullException(message);
         }
     }
 }

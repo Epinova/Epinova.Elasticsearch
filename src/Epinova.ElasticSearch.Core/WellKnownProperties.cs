@@ -4,13 +4,8 @@ namespace Epinova.ElasticSearch.Core
 {
     public static class WellKnownProperties
     {
-        static WellKnownProperties()
-        {
-            Analyze = new List<string>(AutoAnalyze);
-            Highlight = Analyze.ToArray();
-        }
-
-        public static readonly List<string> Analyze;
+        public static readonly List<string> Analyze = new List<string>(AutoAnalyze);
+        public static readonly string[] Highlight = Analyze.ToArray();
 
         public static readonly string[] AutoAnalyze =
         {
@@ -20,7 +15,6 @@ namespace Epinova.ElasticSearch.Core
             "Description"
         };
 
-        public static readonly string[] Highlight;
 
         public static readonly string[] IgnoreDidYouMean =
         {

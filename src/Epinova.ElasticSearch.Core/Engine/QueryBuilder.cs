@@ -316,7 +316,7 @@ namespace Epinova.ElasticSearch.Core.Engine
                     return;
 
                 IEnumerable<BestBet> bestBets = bestBetsForLanguage
-                    .Where(b => b.Terms.Any(t => terms.Contains(t)));
+                    .Where(b => b.GetTerms().Any(t => terms.Contains(t)));
 
                 request.Query.Bool.Should.AddRange(
                     bestBets.Select(_ =>

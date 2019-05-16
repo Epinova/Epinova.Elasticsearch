@@ -32,8 +32,7 @@ namespace Epinova.ElasticSearch.Core.Utilities
 
         internal static string GetLanguageCode(CultureInfo cultureInfo)
         {
-            //INFO: This returns "nb" for norwegian EPiServer-language
-            //return cultureInfo.TwoLetterISOLanguageName;
+            //INFO: This returns "nb" for norwegian EPiServer-language: cultureInfo.TwoLetterISOLanguageName;
 
             if (CultureInfo.InvariantCulture.Equals(cultureInfo))
                 return "*";

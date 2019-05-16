@@ -71,7 +71,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Services
         {
             return GetBestBets(languageId, index)
                 .Where(b => b.Id == contentId.ToString())
-                .SelectMany(b => b.Terms);
+                .SelectMany(b => b.GetTerms());
         }
 
         public IEnumerable<BestBet> GetBestBets(string languageId, string index)
@@ -171,7 +171,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Services
                 .Select(x => new
                 {
                     Id = x.Key,
-                    Terms = x.SelectMany(z => z.Terms).ToArray()
+                    Terms = x.SelectMany(z => z.GetTerms()).ToArray()
                 });
 
             foreach (var item in termsById)

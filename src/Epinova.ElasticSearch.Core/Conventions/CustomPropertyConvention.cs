@@ -59,7 +59,7 @@ namespace Epinova.ElasticSearch.Core.Conventions
 
             if (!String.IsNullOrEmpty(fieldName))
             {
-                //TODO: Is compile needed?
+                //Is compile needed?
                 Func<T, TProperty> getter = fieldSelector.Compile();
 
                 Indexing.CustomProperties.Add(new CustomProperty(fieldName, getter, typeof(T)));
