@@ -13,11 +13,12 @@ namespace Epinova.ElasticSearch.Core.Conventions
 {
     public sealed partial class Indexing
     {
-        internal static ConcurrentDictionary<string, List<BestBet>> BestBets;
+        internal static readonly ConcurrentDictionary<string, List<BestBet>> BestBets
+            = new ConcurrentDictionary<string, List<BestBet>>();
 
         internal static void SetupBestBets()
         {
-            BestBets = new ConcurrentDictionary<string, List<BestBet>>();
+            BestBets.Clear();
 
             var repository = ServiceLocator.Current?.GetInstance<IBestBetsRepository>();
             var settings = ServiceLocator.Current?.GetInstance<IElasticSearchSettings>();

@@ -188,7 +188,6 @@ namespace Epinova.ElasticSearch.Core.Engine
                 // Dictionary 
                 if (unmappedField.Type == JTokenType.Object && unmappedField.Children().OfType<JProperty>().Any())
                 {
-                    //searchHit.CustomProperties[property.Name] = unmappedField.Children().Cast<JProperty>().ToArray();
                     searchHit.CustomProperties[property.Name] = JObject.FromObject(unmappedField).ToObject<IDictionary<string, object>>();
                     continue;
                 }

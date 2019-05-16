@@ -64,7 +64,7 @@ namespace Epinova.ElasticSearch.Core
                     operation.MetaData.Index = operation.MetaData.IndexCandidate;
 
                 if (operation.MetaData.Index == null)
-                    throw new Exception("Index missing");
+                    throw new InvalidOperationException("Index missing");
             });
 
             var indexes = operationList
@@ -421,7 +421,7 @@ namespace Epinova.ElasticSearch.Core
         {
             var indexing = new Indexing(_settings);
             if (!indexing.IndexExists(indexName))
-                throw new Exception("Index '" + indexName + "' not found");
+                throw new InvalidOperationException("Index '" + indexName + "' not found");
 
             Logger.Information("PerformUpdate: Id=" + id + ", Type=" + objectType.Name + ", Index=" + indexName);
 
