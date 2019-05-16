@@ -114,17 +114,9 @@ namespace Epinova.ElasticSearch.Core.Engine
 
         private RequestBase SearchInternal(QuerySetup setup)
         {
-            setup.SearchText.EnsureNotNull("searchText");
-
-            if (setup.From > 10000 || setup.Size > 10000)
-            {
-                throw new ArgumentOutOfRangeException(nameof(setup),
-                    "From (skip) and size (take) must be less than or equal to: 10000. If you really must, this limit can be set by changing the [index.max_result_window] index level parameter");
-            }
+            CheckSize(setup);
 
             var request = new QueryRequest(setup);
-
-            request.Query.SearchText = setup.SearchText.ToLower();
 
             if (setup.SearchFields.Count == 0)
                 setup.SearchFields.AddRange(GetMappedFields(Language.GetLanguageCode(setup.Language), setup.IndexName));
@@ -203,7 +195,7 @@ namespace Epinova.ElasticSearch.Core.Engine
             // function_score. Must be the last operation in this method.
             // Cannot use Gauss and ScriptScore simultaneously
             if (setup.ScriptScore != null && setup.Gauss.Count > 0)
-                throw new Exception("Cannot use Gauss and ScriptScore simultaneously");
+                throw new InvalidOperationException("Cannot use Gauss and ScriptScore simultaneously");
 
             if (setup.ScriptScore != null)
             {
@@ -216,6 +208,15 @@ namespace Epinova.ElasticSearch.Core.Engine
             }
 
             return request;
+        }
+
+        private void CheckSize(in QuerySetup setup)
+        {
+            if (setup.From > 10000 || setup.Size > 10000)
+            {
+                throw new ArgumentOutOfRangeException(nameof(setup),
+                    "From (skip) and size (take) must be less than or equal to 10000 according to default [index.max_result_window] setting.");
+            }
         }
 
         private void SetupSourceFields(QueryRequest request, QuerySetup setup)
@@ -485,7 +486,7 @@ namespace Epinova.ElasticSearch.Core.Engine
         {
             object settings = new { fragment_size = Conventions.Indexing.HighlightFragmentSize };
 
-            var fields = WellKnownProperties.Highlight.ToDictionary(x => x, _ => settings);
+            var fields = WellKnownProperties.Analyze.ToDictionary(x => x, _ => settings);
 
             Conventions.Indexing.Highlights.ToList().ForEach(h =>
             {

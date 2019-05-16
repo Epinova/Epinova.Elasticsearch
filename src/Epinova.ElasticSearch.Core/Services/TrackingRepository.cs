@@ -13,18 +13,7 @@ namespace Epinova.ElasticSearch.Core.Services
     [ServiceConfiguration(ServiceType = typeof(ITrackingRepository), Lifecycle = ServiceInstanceScope.Transient)]
     public class TrackingRepository : ITrackingRepository
     {
-        private static readonly string ConnectionString;
-
-        static TrackingRepository()
-        {
-            var config = ElasticSearchSection.GetConfiguration();
-            string connectionStringName = String.IsNullOrWhiteSpace(config.TrackingConnectionStringName)
-                    ? "EPiServerDB"
-                    : config.TrackingConnectionStringName;
-
-            ConnectionString = ConfigurationManager.ConnectionStrings?[connectionStringName]?.ConnectionString;
-        }
-
+        private static readonly string ConnectionString = GetConnectionString();
 
         public void AddSearch(string languageId, string text, bool noHits, string index)
         {
@@ -121,7 +110,6 @@ namespace Epinova.ElasticSearch.Core.Services
             });
         }
 
-
         private bool SearchExists(string text, string languageId, string index)
         {
             string sql = $@"SELECT Query 
@@ -137,7 +125,17 @@ namespace Epinova.ElasticSearch.Core.Services
 
             var results = DbHelper.ExecuteReader(ConnectionString, sql, parameters);
 
-            return results.Any();
+            return results.Count > 0;
+        }
+
+        private static string GetConnectionString()
+        {
+            var config = ElasticSearchSection.GetConfiguration();
+            var connectionStringName = String.IsNullOrWhiteSpace(config.TrackingConnectionStringName)
+                    ? "EPiServerDB"
+                    : config.TrackingConnectionStringName;
+
+            return ConfigurationManager.ConnectionStrings?[connectionStringName]?.ConnectionString;
         }
     }
 }

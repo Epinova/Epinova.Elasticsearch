@@ -23,7 +23,6 @@ namespace Epinova.ElasticSearch.Core.Conventions
             _instance = instance;
         }
 
-
         /// <summary>
         /// Include a custom property when indexing this type. 
         /// The name of the property will be the same as the property/method in the <paramref name="fieldSelector"/> parameter.  
@@ -45,7 +44,6 @@ namespace Epinova.ElasticSearch.Core.Conventions
 
             return IncludeField(fieldName, fieldSelector, stem);
         }
-
 
         /// <summary>
         /// Include a custom property when indexing this type. 
@@ -71,7 +69,6 @@ namespace Epinova.ElasticSearch.Core.Conventions
             return _instance;
         }
 
-
         /// <summary>
         /// Apply stemming for field <paramref name="fieldSelector"/> 
         /// </summary>
@@ -89,14 +86,13 @@ namespace Epinova.ElasticSearch.Core.Conventions
             return _instance;
         }
 
-
         /// <summary>
         /// Enables highlighting on the supplied field(s).
         /// Fields named MainIntro, MainBody and Description are included by default
         /// </summary>
         public Indexing EnableHighlighting<TProperty>(params Expression<Func<T, TProperty>>[] fieldSelectors)
         {
-            if (fieldSelectors == null || !fieldSelectors.Any())
+            if (fieldSelectors == null || fieldSelectors.Length == 0)
                 return _instance;
 
             foreach (var fieldSelector in fieldSelectors)
@@ -109,7 +105,6 @@ namespace Epinova.ElasticSearch.Core.Conventions
 
             return _instance;
         }
-
 
         /// <summary>
         /// Adds suggestions for all properties of {T}, except those hidden by convention of configuration
@@ -125,13 +120,12 @@ namespace Epinova.ElasticSearch.Core.Conventions
             return _instance;
         }
 
-
         /// <summary>
         /// Adds suggestions for supplied properties of {T}, except those hidden by convention of configuration
         /// </summary>
         public Indexing EnableSuggestions<TProperty>(params Expression<Func<T, TProperty>>[] fieldSelectors)
         {
-            if (fieldSelectors == null || !fieldSelectors.Any())
+            if (fieldSelectors == null || fieldSelectors.Length == 0)
                 return _instance;
 
             foreach (var fieldSelector in fieldSelectors)
@@ -140,7 +134,9 @@ namespace Epinova.ElasticSearch.Core.Conventions
 
                 // Update existing registration of type?
                 if (Indexing.Suggestions.Any(s => s.Type == typeof(T)))
+                {
                     Indexing.Suggestions.Single(s => s.Type == typeof(T)).InputFields.Add(fieldName);
+                }
                 else
                 {
                     Suggestion suggestion = new Suggestion(typeof(T));

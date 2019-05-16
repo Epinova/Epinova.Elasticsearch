@@ -10,7 +10,7 @@ namespace Epinova.ElasticSearch.Core.Utilities
     public class Indexing
     {
         private static readonly ILogger Logger = LogManager.GetLogger(typeof(Indexing));
-        private static IElasticSearchSettings _settings;
+        private readonly IElasticSearchSettings _settings;
 
         public Indexing(IElasticSearchSettings settings)
         {

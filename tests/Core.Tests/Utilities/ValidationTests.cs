@@ -9,12 +9,9 @@ namespace Core.Tests.Utilities
         [Fact]
         public void EnsureNotNull_NullValue_Throws()
         {
-            string instance = null;
+            const string instance = null;
 
-            Assert.Throws<NullReferenceException>(() =>
-            {
-                instance.EnsureNotNull();
-            });
+            Assert.Throws<ArgumentNullException>(() => instance.EnsureNotNull());
         }
 
         [Fact]
@@ -30,10 +27,7 @@ namespace Core.Tests.Utilities
         {
             string[] instance = null;
 
-            Assert.Throws<NullReferenceException>(() =>
-            {
-                instance.EnsureNotNullOrEmpty();
-            });
+            Assert.Throws<ArgumentNullException>(() => instance.EnsureNotNullOrEmpty());
         }
 
         [Fact]
@@ -41,10 +35,7 @@ namespace Core.Tests.Utilities
         {
             var instance = new string[0];
 
-            Assert.Throws<ArgumentException>(() =>
-            {
-                instance.EnsureNotNullOrEmpty();
-            });
+            Assert.Throws<ArgumentNullException>(() => instance.EnsureNotNullOrEmpty());
         }
 
         [Fact]

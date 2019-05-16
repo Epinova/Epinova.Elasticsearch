@@ -13,14 +13,8 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Commerce.Extensions
 {
     public static class CatalogExtensions
     {
-        private static readonly ITrackingRepository TrackingRepository;
-        private static readonly IElasticSearchSettings ElasticSearchSettings;
-
-        static CatalogExtensions()
-        {
-            TrackingRepository = ServiceLocator.Current.GetInstance<ITrackingRepository>();
-            ElasticSearchSettings = ServiceLocator.Current.GetInstance<IElasticSearchSettings>();
-        }
+        private static readonly ITrackingRepository TrackingRepository = ServiceLocator.Current.GetInstance<ITrackingRepository>();
+        private static readonly IElasticSearchSettings ElasticSearchSettings = ServiceLocator.Current.GetInstance<IElasticSearchSettings>();
 
         private static string GetIndexName(CultureInfo searchLanguage)
         {

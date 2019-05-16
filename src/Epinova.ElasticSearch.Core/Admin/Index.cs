@@ -22,7 +22,7 @@ namespace Epinova.ElasticSearch.Core.Admin
         private readonly string _language;
         private readonly Indexing _indexing;
         private static readonly ILogger Logger = LogManager.GetLogger(typeof(Index));
-        private static IElasticSearchSettings _settings;
+        private readonly IElasticSearchSettings _settings;
 
         public Index(IElasticSearchSettings settings, string name) : this(settings)
         {
@@ -42,8 +42,8 @@ namespace Epinova.ElasticSearch.Core.Admin
 
         public virtual IEnumerable<IndexInformation> GetIndices()
         {
-            string uri = $"{_settings.Host}/_cat/indices?format=json";
-            string json = HttpClientHelper.GetJson(new Uri(uri));
+            var uri = $"{_settings.Host}/_cat/indices?format=json";
+            var json = HttpClientHelper.GetJson(new Uri(uri));
 
             var serializerSettings = new JsonSerializerSettings
             {
@@ -72,8 +72,7 @@ namespace Epinova.ElasticSearch.Core.Admin
                 return String.Empty;
 
             var json = HttpClientHelper.GetString(_indexing.GetUri(_name, "_settings"));
-
-            string languageAnalyzer = Language.GetLanguageAnalyzer(_settings.GetLanguage(_name));
+            var languageAnalyzer = Language.GetLanguageAnalyzer(_settings.GetLanguage(_name));
 
             if (String.IsNullOrWhiteSpace(languageAnalyzer))
                 return String.Empty;
@@ -97,15 +96,15 @@ namespace Epinova.ElasticSearch.Core.Admin
 
             try
             {
-                string response = HttpClientHelper.GetString(new Uri(uri));
+                var response = HttpClientHelper.GetString(new Uri(uri));
 
                 IndexStatus indexStatus = JsonConvert.DeserializeObject<IndexStatus>(response);
 
-                bool success = !indexStatus.TimedOut && status.Contains(indexStatus.Status);
+                var isSuccess = !indexStatus.TimedOut && status.Contains(indexStatus.Status);
 
-                Logger.Debug($"Success: {success}. Timeout: {indexStatus.TimedOut}. Status: {indexStatus.Status}");
+                Logger.Debug($"Success: {isSuccess}. Timeout: {indexStatus.TimedOut}. Status: {indexStatus.Status}");
 
-                return success;
+                return isSuccess;
             }
             catch (Exception ex)
             {
@@ -121,7 +120,7 @@ namespace Epinova.ElasticSearch.Core.Admin
 
             try
             {
-                string response = HttpClientHelper.GetString(new Uri(uri));
+                var response = HttpClientHelper.GetString(new Uri(uri));
                 var result = JsonConvert.DeserializeAnonymousType(response, model);
                 return result.hits.total;
             }
@@ -134,7 +133,7 @@ namespace Epinova.ElasticSearch.Core.Admin
 
         internal void Initialize(Type type)
         {
-            string typeName = type?.FullName ?? "Unknown/Custom";
+            var typeName = type?.FullName ?? "Unknown/Custom";
 
             Logger.Information($"Initializing index. Type: {typeName}. Name: {_name}. Language: {_language}");
 
@@ -162,9 +161,9 @@ namespace Epinova.ElasticSearch.Core.Admin
 
         internal void DisableDynamicMapping(Type indexType)
         {
-            string typeName = indexType.GetTypeName();
-            string json = MappingPatterns.GetDisableDynamicMapping(typeName);
-            byte[] data = Encoding.UTF8.GetBytes(json);
+            var typeName = indexType.GetTypeName();
+            var json = MappingPatterns.GetDisableDynamicMapping(typeName);
+            var data = Encoding.UTF8.GetBytes(json);
             var uri = _indexing.GetUri(_name, "_mapping", typeName);
 
             Logger.Information($"Disable dynamic mapping for {typeName}");
@@ -177,8 +176,8 @@ namespace Epinova.ElasticSearch.Core.Admin
         internal void ChangeTokenizer(string tokenizer)
         {
             dynamic body = MappingPatterns.GetTokenizerTemplate(_settings.GetLanguage(_name), tokenizer);
-            string json = Serialization.Serialize(body);
-            byte[] data = Encoding.UTF8.GetBytes(json);
+            var json = Serialization.Serialize(body);
+            var data = Encoding.UTF8.GetBytes(json);
             var uri = _indexing.GetUri(_name, "_settings");
             HttpClientHelper.Put(uri, data);
 
@@ -188,7 +187,7 @@ namespace Epinova.ElasticSearch.Core.Admin
         private void CreateCustomMappings(Type type)
         {
             string json = Serialization.Serialize(MappingPatterns.GetCustomIndexMapping(Language.GetLanguageAnalyzer(_language)));
-            byte[] data = Encoding.UTF8.GetBytes(json);
+            var data = Encoding.UTF8.GetBytes(json);
             var uri = _indexing.GetUri(_name, "_mapping", type.GetTypeName());
 
             Logger.Information($"Creating custom mappings. Language: {_language}");
@@ -201,7 +200,7 @@ namespace Epinova.ElasticSearch.Core.Admin
         private void CreateStandardMappings()
         {
             string json = Serialization.Serialize(MappingPatterns.GetStandardIndexMapping(Language.GetLanguageAnalyzer(_language)));
-            byte[] data = Encoding.UTF8.GetBytes(json);
+            var data = Encoding.UTF8.GetBytes(json);
             var uri = _indexing.GetUri(_name, "_mapping", typeof(IndexItem).GetTypeName());
 
             Logger.Information($"Creating standard mappings. Language: {_language}");
@@ -214,7 +213,7 @@ namespace Epinova.ElasticSearch.Core.Admin
         private void CreateStandardSettings()
         {
             string json = Serialization.Serialize(MappingPatterns.DefaultSettings);
-            byte[] data = Encoding.UTF8.GetBytes(json);
+            var data = Encoding.UTF8.GetBytes(json);
             var uri = _indexing.GetUri(_name, "_settings");
 
             Logger.Information($"Creating standard settings. Language: {_name}");
@@ -229,7 +228,7 @@ namespace Epinova.ElasticSearch.Core.Admin
             var indexConfig = config.IndicesParsed.FirstOrDefault(i => i.Name == _nameWithoutLanguage);
 
             string json = Serialization.Serialize(Analyzers.GetAnalyzerSettings(_language, indexConfig?.SynonymsFile));
-            byte[] data = Encoding.UTF8.GetBytes(json);
+            var data = Encoding.UTF8.GetBytes(json);
             var uri = _indexing.GetUri(_name, "_settings");
 
             Logger.Information($"Creating analyzer settings. Language: {_name}");
@@ -241,7 +240,7 @@ namespace Epinova.ElasticSearch.Core.Admin
         private void CreateAttachmentPipeline()
         {
             string json = Serialization.Serialize(Pipelines.Attachment.Definition);
-            byte[] data = Encoding.UTF8.GetBytes(json);
+            var data = Encoding.UTF8.GetBytes(json);
             var uri = new Uri($"{_settings.Host}/_ingest/pipeline/{Pipelines.Attachment.Name}");
 
             Logger.Information("Creating Attachment Pipeline");
@@ -253,8 +252,8 @@ namespace Epinova.ElasticSearch.Core.Admin
         private void EnableClosing()
         {
             dynamic body = MappingPatterns.IndexClosing;
-            string json = Serialization.Serialize(body);
-            byte[] data = Encoding.UTF8.GetBytes(json);
+            var json = Serialization.Serialize(body);
+            var data = Encoding.UTF8.GetBytes(json);
 
             var uri = new Uri(String.Concat(_settings.Host.TrimEnd('/'), "/_cluster/settings"));
             HttpClientHelper.Put(uri, data);
@@ -262,7 +261,7 @@ namespace Epinova.ElasticSearch.Core.Admin
             Logger.Information($"Enabling cluster index closing:\n{json}");
         }
 
-        private static bool MatchName(IndexInformation i)
+        private bool MatchName(IndexInformation i)
         {
             foreach (string indexName in _settings.Indices)
             {

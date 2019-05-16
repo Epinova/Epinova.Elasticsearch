@@ -14,7 +14,6 @@ namespace Epinova.ElasticSearch.Core.Conventions
             Provider = contentLink.ProviderName;
         }
 
-
         public string Id { get; }
 
         public string Provider { get; }

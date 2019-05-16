@@ -16,7 +16,6 @@ namespace Epinova.ElasticSearch.Core.Models.Mapping
             Properties = new Dictionary<string, IndexMappingProperty>();
         }
 
-
         [JsonIgnore]
         public bool IsDirty { get; private set; }
 

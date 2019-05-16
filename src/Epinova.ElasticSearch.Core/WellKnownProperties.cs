@@ -2,12 +2,9 @@
 
 namespace Epinova.ElasticSearch.Core
 {
-    public static class WellKnownProperties
+    internal static class WellKnownProperties
     {
-        public static readonly List<string> Analyze = new List<string>(AutoAnalyze);
-        public static readonly string[] Highlight = Analyze.ToArray();
-
-        public static readonly string[] AutoAnalyze =
+        internal static readonly string[] AutoAnalyze =
         {
             DefaultFields.AttachmentContent,
             "MainIntro",
@@ -15,8 +12,9 @@ namespace Epinova.ElasticSearch.Core
             "Description"
         };
 
+        internal static readonly List<string> Analyze = new List<string>(AutoAnalyze);
 
-        public static readonly string[] IgnoreDidYouMean =
+        internal static readonly string[] IgnoreDidYouMean =
         {
             DefaultFields.AttachmentData,
             DefaultFields.Changed,
@@ -32,7 +30,7 @@ namespace Epinova.ElasticSearch.Core
             DefaultFields.Types
         };
 
-        public static readonly string[] IgnoreAnalyzer =
+        internal static readonly string[] IgnoreAnalyzer =
         {
             DefaultFields.Id,
             DefaultFields.BestBets,
@@ -47,7 +45,7 @@ namespace Epinova.ElasticSearch.Core
             DefaultFields.AttachmentData,
         };
 
-        public static readonly string[] Ignore =
+        internal static readonly string[] Ignore =
         {
             "CreatedBy",
             "ChangedBy",

@@ -25,10 +25,6 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Initialization
             VirtualPathFactoryManager.RegisterVirtualPathFactory(engine);
         }
 
-        public void Preload(string[] parameters)
-        {
-        }
-
         public void Uninitialize(InitializationEngine context)
         {
         }

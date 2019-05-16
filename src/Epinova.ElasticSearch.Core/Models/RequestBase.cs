@@ -1,5 +1,4 @@
-﻿using Epinova.ElasticSearch.Core.Models.Query;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 
 namespace Epinova.ElasticSearch.Core.Models
 {
@@ -16,24 +15,20 @@ namespace Epinova.ElasticSearch.Core.Models
         [JsonIgnore]
         public bool IsPartOfFilteredQuery { get; set; }
 
-
         public bool ShouldSerializeFilter()
         {
             return IsPartOfFilteredQuery;
         }
 
-
-        public bool ShouldSerializeFrom()
+        public virtual bool ShouldSerializeFrom()
         {
-            return IsPartOfFilteredQuery == false && GetType() != typeof(SuggestRequest);
+            return !IsPartOfFilteredQuery;
         }
 
-
-        public bool ShouldSerializeSize()
+        public virtual bool ShouldSerializeSize()
         {
-            return IsPartOfFilteredQuery == false && GetType() != typeof(SuggestRequest);
+            return !IsPartOfFilteredQuery;
         }
-
 
         public string ToString(Formatting formatting)
         {
@@ -46,7 +41,6 @@ namespace Epinova.ElasticSearch.Core.Models
                     ReferenceLoopHandling = ReferenceLoopHandling.Ignore
                 });
         }
-
 
         public override string ToString()
         {

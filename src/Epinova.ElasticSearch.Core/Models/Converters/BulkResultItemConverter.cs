@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Linq;
 using Epinova.ElasticSearch.Core.Models.Bulk;
 using Newtonsoft.Json;
@@ -12,12 +12,12 @@ namespace Epinova.ElasticSearch.Core.Models.Converters
         {
             JObject jo = JObject.Load(reader);
 
-            string operationRaw = jo.Properties().ToList().First().Name;
+            string operationRaw = jo.Properties().First().Name;
 
             BulkMetadataBase metadata = jo[operationRaw].ToObject<BulkMetadataBase>();
             BulkResultItemStatus status = jo[operationRaw].ToObject<BulkResultItemStatus>();
 
-            BulkResultItem item = new BulkResultItem();
+            var item = new BulkResultItem();
             item.Populate(metadata, status);
 
             Enum.TryParse(operationRaw, true, out Operation operation);

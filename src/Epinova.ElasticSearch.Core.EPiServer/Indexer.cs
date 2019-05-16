@@ -25,12 +25,12 @@ namespace Epinova.ElasticSearch.Core.EPiServer
     {
         private const string FallbackLanguage = "en";
         private static readonly ILogger Logger = LogManager.GetLogger(typeof(Indexer));
-        private static ICoreIndexer _coreIndexer;
+        private readonly ICoreIndexer _coreIndexer;
         private readonly IContentLoader _contentLoader;
         private readonly IElasticSearchSettings _elasticSearchSettings;
 
         // Avoid dependency on Episerver.Forms for this simple functionallity
-        internal static string FormsUploadNamespace = "EPiServer.Forms.Core.IFileUploadElementBlock";
+        internal const string FormsUploadNamespace = "EPiServer.Forms.Core.IFileUploadElementBlock";
 
         internal void SetContentPathGetter(Func<ContentReference, int[]> func)
         {
@@ -93,14 +93,14 @@ namespace Epinova.ElasticSearch.Core.EPiServer
             _coreIndexer.Delete(contentLink.ToReferenceWithoutVersion().ToString(), language, typeof(IndexItem), indexName);
         }
 
-        public void Delete(IContent content, string indexName)
+        public void Delete(IContent content, string indexName = null)
         {
             indexName = GetIndexname(content.ContentLink, indexName, GetLanguage(content));
 
             _coreIndexer.Delete(content.ContentLink.ToReferenceWithoutVersion().ToString(), GetLanguage(content), typeof(IndexItem), indexName);
         }
 
-        public IndexingStatus UpdateStructure(IContent root, string indexName)
+        public IndexingStatus UpdateStructure(IContent root, string indexName = null)
         {
             var language = CultureInfo.CurrentCulture;
             if (root is ILocale locale && locale.Language != null && !CultureInfo.InvariantCulture.Equals(locale.Language))
@@ -273,7 +273,9 @@ namespace Epinova.ElasticSearch.Core.EPiServer
             if (owner == null)
                 return false;
 
-            return owner.GetType().GetInterfaces().Select(i => i.FullName).Contains(FormsUploadNamespace);
+            return owner.GetType().GetInterfaces()
+                .Select(i => i.FullName)
+                .Contains(FormsUploadNamespace);
         }
 
         private string GetIndexname(ContentReference contentLink, string indexName, string language)

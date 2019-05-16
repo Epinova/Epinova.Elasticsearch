@@ -16,10 +16,12 @@ namespace Core.Tests.Engine
     {
         private readonly ServiceLocatorFixture _fixture;
         private TestableSearchEngine _engine;
+        private QueryRequest _dummyQuery;
 
         public SearchEngineTests(ServiceLocatorFixture fixture)
         {
             _fixture = fixture;
+            _dummyQuery = new QueryRequest(new QuerySetup { SearchText = "foo" });
         }
 
         public void Dispose()
@@ -67,7 +69,7 @@ namespace Core.Tests.Engine
         {
             SetupEngineMock("I_Dont_Exists.json");
 
-            SearchResult result = _engine.Query(new QueryRequest(new QuerySetup()), CultureInfo.InvariantCulture);
+            SearchResult result = _engine.Query(_dummyQuery, CultureInfo.InvariantCulture);
 
             Assert.NotNull(result);
         }
@@ -77,7 +79,7 @@ namespace Core.Tests.Engine
         {
             SetupEngineMock("Results_No_Hits.json");
 
-            SearchResult result = _engine.Query(new QueryRequest(new QuerySetup()), CultureInfo.InvariantCulture);
+            SearchResult result = _engine.Query(_dummyQuery, CultureInfo.InvariantCulture);
 
             Assert.Equal(0, result.Hits.Count());
         }
@@ -87,7 +89,7 @@ namespace Core.Tests.Engine
         {
             SetupEngineMock("Results_No_Hits.json");
 
-            SearchResult result = _engine.Query(new QueryRequest(new QuerySetup()), CultureInfo.InvariantCulture);
+            SearchResult result = _engine.Query(_dummyQuery, CultureInfo.InvariantCulture);
 
             Assert.Equal(0, result.Facets.Length);
         }
@@ -99,7 +101,7 @@ namespace Core.Tests.Engine
         {
             SetupEngineMock(jsonFile);
 
-            SearchResult result = _engine.Query(new QueryRequest(new QuerySetup()), CultureInfo.InvariantCulture);
+            SearchResult result = _engine.Query(_dummyQuery, CultureInfo.InvariantCulture);
 
             Assert.NotEmpty(result.Hits);
         }
@@ -111,7 +113,7 @@ namespace Core.Tests.Engine
         {
             SetupEngineMock(jsonFile);
 
-            SearchResult result = _engine.Query(new QueryRequest(new QuerySetup()), CultureInfo.InvariantCulture);
+            SearchResult result = _engine.Query(_dummyQuery, CultureInfo.InvariantCulture);
 
             Assert.NotEmpty(result.Facets);
         }
@@ -135,7 +137,7 @@ namespace Core.Tests.Engine
                 .ForType<TestPage>().IncludeField("Array1", _ => arr1)
                 .ForType<TestPage>().IncludeField("Array2", _ => arr2);
 
-            SearchResult result = _engine.Query(new QueryRequest(new QuerySetup()), CultureInfo.InvariantCulture);
+            SearchResult result = _engine.Query(_dummyQuery, CultureInfo.InvariantCulture);
 
             Assert.Equal(date, result.Hits.First().CustomProperties["Date"]);
             Assert.Equal(text, result.Hits.First().CustomProperties["Text"]);
@@ -160,7 +162,7 @@ namespace Core.Tests.Engine
                 .ForType<TestPage>().IncludeField<object>("Array1", _ => null)
                 .ForType<TestPage>().IncludeField<object>("Array2", _ => null);
 
-            SearchResult result = _engine.Query(new QueryRequest(new QuerySetup()), CultureInfo.InvariantCulture);
+            SearchResult result = _engine.Query(_dummyQuery, CultureInfo.InvariantCulture);
 
             // Materialize ienumerable
             SearchHit[] hits = result.Hits.ToArray();

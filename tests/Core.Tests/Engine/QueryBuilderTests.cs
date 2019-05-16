@@ -172,7 +172,7 @@ namespace Core.Tests.Engine
 
             setup.Gauss.Add(new Gauss());
 
-            Exception exception = Assert.Throws<Exception>(() => _builder.Search(setup));
+            Exception exception = Assert.Throws<InvalidOperationException>(() => _builder.Search(setup));
 
             Assert.Equal("Cannot use Gauss and ScriptScore simultaneously", exception.Message);
         }

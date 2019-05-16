@@ -128,7 +128,7 @@ namespace Epinova.ElasticSearch.Core.Settings.Configuration
             set => base["indices"] = value;
         }
 
-        public IndexConfiguration[] IndicesParsed => Indices.OfType<IndexConfiguration>().ToArray();
+        public IEnumerable<IndexConfiguration> IndicesParsed => Indices.OfType<IndexConfiguration>();
 
         [ConfigurationProperty("files", IsDefaultCollection = false)]
         [ConfigurationCollection(typeof(FilesCollection))]
@@ -176,9 +176,9 @@ namespace Epinova.ElasticSearch.Core.Settings.Configuration
 
         internal void ValidateIndices()
         {
-            if (IndicesParsed.Length == 0)
+            if (!IndicesParsed.Any())
                 throw new ConfigurationErrorsException("Configuration Error. You must add at least one index to the <indices> node");
-            if (IndicesParsed.Length > 1 && !IndicesParsed.Any(i => i.Default))
+            if (IndicesParsed.Count() > 1 && !IndicesParsed.Any(i => i.Default))
                 throw new ConfigurationErrorsException("Configuration Error. One index must be set as default when adding multiple indices");
             if (Indices.Count > 1 && IndicesParsed.Count(i => i.Default) > 1)
                 throw new ConfigurationErrorsException("Configuration Error. Only one index can be set as default");
