@@ -1,8 +1,10 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using Epinova.ElasticSearch.Core.EPiServer;
 using Epinova.ElasticSearch.Core.EPiServer.Enums;
+using Epinova.ElasticSearch.Core.Models.Bulk;
 using EPiServer.Core;
 using Moq;
 using TestData;
@@ -244,6 +246,28 @@ namespace Core.Episerver.Tests
             IndexingStatus result = _indexer.Update(media);
 
             Assert.Equal(IndexingStatus.HideFromSearchProperty, result);
+        }
+
+        [Fact]
+        public void BulkUpdate_CallsCoreBulk()
+        {
+            var batch = new[]
+            {
+                Factory.GetTestPage(),
+                Factory.GetTestPage(),
+                Factory.GetTestPage()
+            };
+
+            _fixture.ServiceLocationMock.CoreIndexerMock.Reset();
+
+            _fixture.ServiceLocationMock.SettingsMock
+                .Setup(m => m.GetDefaultIndexName(It.IsAny<string>()))
+                .Returns("test");
+
+            var result = _indexer.BulkUpdate(batch, null, null);
+
+            _fixture.ServiceLocationMock.CoreIndexerMock
+                .Verify(m => m.Bulk(It.IsAny<IEnumerable<BulkOperation>>(), It.IsAny<Action<string>>()), Times.Once);
         }
     }
 }
