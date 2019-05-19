@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Globalization;
+using System.Linq;
 using Epinova.ElasticSearch.Core.EPiServer;
 using Epinova.ElasticSearch.Core.EPiServer.Enums;
 using EPiServer.Core;
@@ -25,6 +27,34 @@ namespace Core.Episerver.Tests
         }
 
         [Fact]
+        public void Delete_ContentReference_CallsCoreDelete()
+        {
+            var contentLink = Factory.GetPageReference();
+
+            _fixture.ServiceLocationMock.CoreIndexerMock.Reset();
+
+            _indexer.Delete(contentLink);
+
+            _fixture.ServiceLocationMock.CoreIndexerMock.Verify(
+                m => m.Delete(contentLink.ID.ToString(), It.IsAny<string>(), It.IsAny<Type>(), It.IsAny<string>()),
+                Times.Once());
+        }
+
+        [Fact]
+        public void Delete_IConent_CallsCoreDelete()
+        {
+            var page = Factory.GetPageData();
+
+            _fixture.ServiceLocationMock.CoreIndexerMock.Reset();
+
+            _indexer.Delete(page, "test");
+
+            _fixture.ServiceLocationMock.CoreIndexerMock.Verify(
+                m => m.Delete(page.ContentLink.ID.ToString(), It.IsAny<string>(), It.IsAny<Type>(), It.IsAny<string>()),
+                Times.Once());
+        }
+
+        [Fact]
         public void Update_TypeDecoratedWithExcludeAttribute_IsNotIndexed()
         {
             var excludedType = new TypeWithExcludeAttribute();
@@ -36,6 +66,34 @@ namespace Core.Episerver.Tests
             _fixture.ServiceLocationMock.CoreIndexerMock.Verify(
                 m => m.Update(It.IsAny<string>(), It.IsAny<object>(), It.IsAny<string>(), null),
                 Times.Never());
+
+            Assert.Equal(IndexingStatus.ExcludedByConvention, result);
+        }
+
+        [Fact]
+        public void Update_ContentExcludedByRoot_IsNotIndexed()
+        {
+            var id = Factory.GetInteger();
+
+            Epinova.ElasticSearch.Core.Conventions.Indexing.Instance.ExcludeRoot(id);
+
+            var page = Factory.GetPageData(id: id);
+
+            IndexingStatus result = _indexer.Update(page);
+
+            Assert.Equal(IndexingStatus.ExcludedByConvention, result);
+        }
+
+        [Fact]
+        public void Update_ContentWithParentExcludedByRoot_IsNotIndexed()
+        {
+            var parentId = Factory.GetInteger();
+
+            Epinova.ElasticSearch.Core.Conventions.Indexing.Instance.ExcludeRoot(parentId);
+
+            var page = Factory.GetTestPage(parentId: parentId);
+
+            IndexingStatus result = _indexer.Update(page);
 
             Assert.Equal(IndexingStatus.ExcludedByConvention, result);
         }
@@ -125,7 +183,7 @@ namespace Core.Episerver.Tests
         [Fact]
         public void Update_HasDeletedStatus_IsExcluded()
         {
-            TestPage page = Factory.GetTestPage();
+            var page = Factory.GetTestPage();
             page.Property["PageDeleted"] = new PropertyBoolean { Value = true };
 
             _fixture.ServiceLocationMock.CoreIndexerMock.Reset();
@@ -136,6 +194,36 @@ namespace Core.Episerver.Tests
 
             _fixture.ServiceLocationMock.CoreIndexerMock.Verify(m => m.Update(It.IsAny<string>(), It.IsAny<object>(), It.IsAny<string>(), It.IsAny<Type>()),
                 Times.Never);
+        }
+
+        [Fact]
+        public void UpdateStructure_UpdatesSelfAndChildren()
+        {
+            var page = Factory.GetPageData();
+            var children = new[]
+            {
+                Factory.GetPageData(),
+                Factory.GetPageData(),
+                Factory.GetPageData()
+            };
+            var childrenLinks = children.Select(x => x.ContentLink).ToArray();
+
+            _fixture.ServiceLocationMock.ContentLoaderMock
+                .Setup(m => m.GetDescendents(page.ContentLink))
+                .Returns(childrenLinks);
+
+            _fixture.ServiceLocationMock.ContentLoaderMock
+                .Setup(m => m.GetItems(childrenLinks, It.IsAny<CultureInfo>()))
+                .Returns(children);
+
+            _fixture.ServiceLocationMock.CoreIndexerMock.Reset();
+
+            IndexingStatus result = _indexer.UpdateStructure(page);
+
+            _fixture.ServiceLocationMock.CoreIndexerMock.Verify(m => m.Update(page.ContentLink.ID.ToString(), It.IsAny<object>(), It.IsAny<string>(), It.IsAny<Type>()), Times.Once);
+            _fixture.ServiceLocationMock.CoreIndexerMock.Verify(m => m.Update(childrenLinks[0].ID.ToString(), It.IsAny<object>(), It.IsAny<string>(), It.IsAny<Type>()), Times.Once);
+            _fixture.ServiceLocationMock.CoreIndexerMock.Verify(m => m.Update(childrenLinks[1].ID.ToString(), It.IsAny<object>(), It.IsAny<string>(), It.IsAny<Type>()), Times.Once);
+            _fixture.ServiceLocationMock.CoreIndexerMock.Verify(m => m.Update(childrenLinks[2].ID.ToString(), It.IsAny<object>(), It.IsAny<string>(), It.IsAny<Type>()), Times.Once);
         }
 
         [Fact]
