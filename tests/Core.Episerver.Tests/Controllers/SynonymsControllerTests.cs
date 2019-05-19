@@ -54,7 +54,7 @@ namespace Core.Episerver.Tests.Controllers
         [InlineData("omg", "lol", false)]
         public void Add_ValidInput_CallsRepository(string from, string to, bool twoway)
         {
-            _fixture.ServiceLocationMock.SynonymRepositoryMock.ResetCalls();
+            _fixture.ServiceLocationMock.SynonymRepositoryMock.Invocations.Clear();
 
            _controller.Add(new Synonym{From = from, To = to, TwoWay = twoway}, "", "", "");
 

@@ -33,7 +33,7 @@ namespace Core.Episerver.Tests
         {
             var contentLink = Factory.GetPageReference();
 
-            _fixture.ServiceLocationMock.CoreIndexerMock.Reset();
+            _fixture.ServiceLocationMock.CoreIndexerMock.Invocations.Clear();
 
             _indexer.Delete(contentLink);
 
@@ -47,7 +47,7 @@ namespace Core.Episerver.Tests
         {
             var page = Factory.GetPageData();
 
-            _fixture.ServiceLocationMock.CoreIndexerMock.Reset();
+            _fixture.ServiceLocationMock.CoreIndexerMock.Invocations.Clear();
 
             _indexer.Delete(page, "test");
 
@@ -61,7 +61,7 @@ namespace Core.Episerver.Tests
         {
             var excludedType = new TypeWithExcludeAttribute();
 
-            _fixture.ServiceLocationMock.CoreIndexerMock.Reset();
+            _fixture.ServiceLocationMock.CoreIndexerMock.Invocations.Clear();
 
             IndexingStatus result = _indexer.Update(excludedType);
 
@@ -105,7 +105,7 @@ namespace Core.Episerver.Tests
         {
             var hiddenType = new TypeWithHideFromSearchProperty();
 
-            _fixture.ServiceLocationMock.CoreIndexerMock.Reset();
+            _fixture.ServiceLocationMock.CoreIndexerMock.Invocations.Clear();
 
             IndexingStatus result = _indexer.Update(hiddenType);
 
@@ -124,7 +124,7 @@ namespace Core.Episerver.Tests
                 ContentLink = new ContentReference(123)
             };
 
-            _fixture.ServiceLocationMock.CoreIndexerMock.Reset();
+            _fixture.ServiceLocationMock.CoreIndexerMock.Invocations.Clear();
 
             _indexer.Update(hiddenType);
 
@@ -141,7 +141,7 @@ namespace Core.Episerver.Tests
             PageData page = Factory.GetPageData();
             page.LinkType = type;
 
-            _fixture.ServiceLocationMock.CoreIndexerMock.Reset();
+            _fixture.ServiceLocationMock.CoreIndexerMock.Invocations.Clear();
 
             IndexingStatus result = _indexer.Update(page);
 
@@ -156,7 +156,7 @@ namespace Core.Episerver.Tests
         {
             TestPage page = Factory.GetTestPage();
 
-            _fixture.ServiceLocationMock.CoreIndexerMock.Reset();
+            _fixture.ServiceLocationMock.CoreIndexerMock.Invocations.Clear();
 
             IndexingStatus result = _indexer.Update(page);
 
@@ -172,7 +172,7 @@ namespace Core.Episerver.Tests
             TestPage page = Factory.GetTestPage();
             page.Property["HidefromSearch"] = new PropertyBoolean { Value = true };
 
-            _fixture.ServiceLocationMock.CoreIndexerMock.Reset();
+            _fixture.ServiceLocationMock.CoreIndexerMock.Invocations.Clear();
 
             IndexingStatus result = _indexer.Update(page);
 
@@ -188,7 +188,7 @@ namespace Core.Episerver.Tests
             var page = Factory.GetTestPage();
             page.Property["PageDeleted"] = new PropertyBoolean { Value = true };
 
-            _fixture.ServiceLocationMock.CoreIndexerMock.Reset();
+            _fixture.ServiceLocationMock.CoreIndexerMock.Invocations.Clear();
 
             IndexingStatus result = _indexer.Update(page);
 
@@ -218,7 +218,7 @@ namespace Core.Episerver.Tests
                 .Setup(m => m.GetItems(childrenLinks, It.IsAny<CultureInfo>()))
                 .Returns(children);
 
-            _fixture.ServiceLocationMock.CoreIndexerMock.Reset();
+            _fixture.ServiceLocationMock.CoreIndexerMock.Invocations.Clear();
 
             IndexingStatus result = _indexer.UpdateStructure(page);
 
@@ -258,7 +258,7 @@ namespace Core.Episerver.Tests
                 Factory.GetTestPage()
             };
 
-            _fixture.ServiceLocationMock.CoreIndexerMock.Reset();
+            _fixture.ServiceLocationMock.CoreIndexerMock.Invocations.Clear();
 
             _fixture.ServiceLocationMock.SettingsMock
                 .Setup(m => m.GetDefaultIndexName(It.IsAny<string>()))
