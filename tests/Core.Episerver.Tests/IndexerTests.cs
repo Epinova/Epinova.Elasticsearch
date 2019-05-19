@@ -16,7 +16,6 @@ namespace Core.Episerver.Tests
     public class IndexerTests : IClassFixture<ServiceLocatorFixture>
     {
         private readonly Indexer _indexer;
-
         private readonly ServiceLocatorFixture _fixture;
 
         public IndexerTests(ServiceLocatorFixture fixture)
@@ -258,11 +257,11 @@ namespace Core.Episerver.Tests
                 Factory.GetTestPage()
             };
 
-            _fixture.ServiceLocationMock.CoreIndexerMock.Invocations.Clear();
-
             _fixture.ServiceLocationMock.SettingsMock
                 .Setup(m => m.GetDefaultIndexName(It.IsAny<string>()))
                 .Returns("test");
+
+            _fixture.ServiceLocationMock.CoreIndexerMock.Invocations.Clear();
 
             var result = _indexer.BulkUpdate(batch, null, null);
 

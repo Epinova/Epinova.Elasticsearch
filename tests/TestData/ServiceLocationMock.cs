@@ -18,6 +18,7 @@ namespace TestData
         public Mock<ISynonymRepository> SynonymRepositoryMock { get; set; }
         public Mock<IContentLoader> ContentLoaderMock { get; set; }
         public Mock<IElasticSearchSettings> SettingsMock { get; set; }
+        public Mock<IElasticSearchService<IContent>> ServiceMock { get; set; }
         public Mock<ILanguageBranchRepository> LanguageBranchRepositoryMock { get; set; }
         public Mock<IPublishedStateAssessor> StateAssesorMock { get; set; }
         public ITemplateResolver TemplateResolver { get; set; }

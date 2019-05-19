@@ -184,6 +184,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Admin\HealthTests.cs" />
+    <Compile Include="Admin\IndexTests.cs" />
+    <Compile Include="BulkOperationTests.cs" />
     <Compile Include="Conventions\IndexingTests.cs" />
     <Compile Include="Conventions\MessageHandlerTests.cs" />
     <Compile Include="ElasticSearchServiceTests.cs" />

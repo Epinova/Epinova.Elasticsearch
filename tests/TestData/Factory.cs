@@ -81,6 +81,7 @@ namespace TestData
             result.IndexerMock = new Mock<IIndexer>();
             result.CoreIndexerMock = new Mock<ICoreIndexer>();
             result.ContentLoaderMock = new Mock<IContentLoader>();
+            result.ServiceMock = new Mock<IElasticSearchService<IContent>>();
 
             result.ServiceLocatorMock.Setup(m => m.GetInstance<ILanguageBranchRepository>()).Returns(languageMock.Object);
             result.ServiceLocatorMock.Setup(m => m.GetInstance<IContentLoader>()).Returns(result.ContentLoaderMock.Object);
