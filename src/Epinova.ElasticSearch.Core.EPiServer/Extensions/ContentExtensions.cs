@@ -775,7 +775,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Extensions
                         }
                     }
 
-                    return indexText;
+                    return indexText.ToString();
                 }
 
                 if (p.PropertyType.IsEnum)
