@@ -33,5 +33,34 @@ namespace Core.Tests.Utilities
 
             Assert.True(result);
         }
+
+        [Fact]
+        public void StripHtml_RemovesTags()
+        {
+            var instance = "<p><span>some text</span></p>";
+            var result = TextUtil.StripHtml(instance);
+
+            Assert.Contains("some text", result);
+        }
+
+        [Fact]
+        public void StripHtml_DoesNotRemoveEntities()
+        {
+            var instance = "<p><span>some text &amp; more</span></p>";
+            var result = TextUtil.StripHtml(instance);
+
+            Assert.Contains("&amp;", result);
+            Assert.DoesNotContain("text & more", result);
+        }
+
+        [Fact]
+        public void StripHtmlAndEntities_RemovesTagsAndEntities()
+        {
+            var instance = "<p><span>some text &amp; stuff</span></p>";
+            var result = TextUtil.StripHtmlAndEntities(instance);
+
+            Assert.DoesNotContain("&amp;", result);
+            Assert.DoesNotContain("<span>", result);
+        }
     }
 }
