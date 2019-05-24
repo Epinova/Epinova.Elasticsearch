@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Text.RegularExpressions;
 using EPiServer.Core.Html;
 
@@ -19,6 +19,14 @@ namespace Epinova.ElasticSearch.Core.Utilities
                 return String.Empty;
 
             return Pattern.Replace(TextIndexer.StripHtml(input, Int32.MaxValue) ?? String.Empty, " ");
+        }
+
+        internal static string StripHtml(string input)
+        {
+            if(input == null)
+                return String.Empty;
+
+            return TextIndexer.StripHtml(input, Int32.MaxValue) ?? String.Empty;
         }
     }
 }

@@ -744,7 +744,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Extensions
                 if (value is XhtmlString xhtml)
                 {
                     isString = true;
-                    var indexText = new StringBuilder(TextUtil.StripHtmlAndEntities(value.ToString()));
+                    var indexText = new StringBuilder(TextUtil.StripHtml(value.ToString()));
 
                     IPrincipal principal = HostingEnvironment.IsHosted
                         ? PrincipalInfo.AnonymousPrincipal
