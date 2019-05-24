@@ -8,8 +8,6 @@ environment:
   sonarcloudproj: Epinova_Epinova.Elasticsearch
   sonarcloudkey:
     secure: 0VvcxYCPLglmyB87e5B1vRk0nHq8KUX0ND/qLkCs1RaGULzo1Q+XPHOZgioTbEPZ
-init:
-- cmd: nuget sources add -Name Episerver -Source http://nuget.episerver.com/feed/packages.svc/
 assembly_info:
   patch: true
   file: '**\AssemblyInfo.*'
