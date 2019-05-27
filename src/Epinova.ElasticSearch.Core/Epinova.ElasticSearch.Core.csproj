@@ -253,6 +253,7 @@
     <Compile Include="Models\JsonNames.cs" />
     <Compile Include="Models\Mapping\IndexMapping.cs" />
     <Compile Include="Models\Mapping\IndexMappingProperty.cs" />
+    <Compile Include="Models\Properties\GeoPoint.cs" />
     <Compile Include="Models\Properties\IntegerRange.cs" />
     <Compile Include="Models\Query\AggregationTerms.cs" />
     <Compile Include="Models\Query\BestBetsRequest.cs" />
