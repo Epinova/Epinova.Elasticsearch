@@ -10,10 +10,10 @@ namespace Epinova.ElasticSearch.Core.Models.Properties
     /// </summary>
     public class GeoPoint : IProperty
     {
-        public GeoPoint(double lat, double lng)
+        public GeoPoint(double lat, double lon)
         {
             Lat = lat;
-            Lng = lng;
+            Lon = lon;
         }
 
         public GeoPoint()
@@ -23,38 +23,38 @@ namespace Epinova.ElasticSearch.Core.Models.Properties
         [JsonProperty(JsonNames.Lat)]
         public double Lat { get; set; }
 
-        [JsonProperty(JsonNames.Lng)]
-        public double Lng { get; set; }
+        [JsonProperty(JsonNames.Lon)]
+        public double Lon { get; set; }
 
-        public override string ToString() => $"{Lat},{Lng}";
+        public override string ToString() => $"{Lat},{Lon}";
 
         /// <summary>
-        /// Parse a lat-lng string as a <see cref="GeoPoint" />. 
+        /// Parse a lat-lon string as a <see cref="GeoPoint" />. 
         /// </summary>
-        /// <param name="latlng">The coordinates expressed as "lat,lng"</param>
+        /// <param name="latlon">The coordinates expressed as "lat,lon"</param>
         /// <returns>A new instance of <see cref="GeoPoint"/> or null in case of invalid input</returns>
-        public static GeoPoint Parse(string latlng)
+        public static GeoPoint Parse(string latlon)
         {
-            if (latlng == null || latlng.IndexOf(",") < 1)
+            if (latlon == null || latlon.IndexOf(",") < 1)
             {
                 return null;
             }
 
-            var segments = latlng.Split(',');
+            var segments = latlon.Split(',');
 
             if (segments.Length != 2
                 || !Double.TryParse(segments[0], NumberStyles.Float, CultureInfo.InvariantCulture, out var lat)
-                || !Double.TryParse(segments[1], NumberStyles.Float, CultureInfo.InvariantCulture, out var lng))
+                || !Double.TryParse(segments[1], NumberStyles.Float, CultureInfo.InvariantCulture, out var lon))
             {
                 return null;
             }
 
-            if(lat > 90 || lat < -90 || lng > 180 || lng < -180)
+            if(lat > 90 || lat < -90 || lon > 180 || lon < -180)
             {
                 return null;
             }
 
-            return new GeoPoint(lat, lng);
+            return new GeoPoint(lat, lon);
         }
     }
 }

@@ -43,7 +43,7 @@
         public const string Like = "like";
         public const string Lte = "lte";
         public const string Lat = "lat";
-        public const string Lng = "lng";
+        public const string Lon = "lon";
         public const string LuceneVersion = "lucene_version";
         public const string MappingIndex = "index";
         public const string Match = "match";
