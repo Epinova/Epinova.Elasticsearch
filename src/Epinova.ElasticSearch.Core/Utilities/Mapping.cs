@@ -35,6 +35,9 @@ namespace Epinova.ElasticSearch.Core.Utilities
             if(type == typeof(IntegerRange))
                 return MappingType.Integer_Range;
 
+            if (type == typeof(GeoPoint))
+                return MappingType.Geo_Point;
+
             if (type.IsEnum)
                 return MappingType.Integer;
 
