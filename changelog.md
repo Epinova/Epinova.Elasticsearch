@@ -1,5 +1,8 @@
 # Changelog
 
+#### 11.6.x
+* Geo point filtering
+
 #### 11.6
 * ES 6 support
 * Replace Attachment Mapper with Ingest plugin
