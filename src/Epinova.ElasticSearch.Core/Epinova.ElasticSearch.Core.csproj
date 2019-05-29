@@ -210,6 +210,7 @@
     <Compile Include="CoreIndexer.cs" />
     <Compile Include="DefaultFields.cs" />
     <Compile Include="ElasticSearchService.cs" />
+    <Compile Include="ElasticSearchService.GeoPoint.cs" />
     <Compile Include="ElasticSearchService.Range.cs" />
     <Compile Include="ElasticSearchService{T}.cs" />
     <Compile Include="Engine\QueryBuilder.cs" />
