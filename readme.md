@@ -3,7 +3,6 @@
 ![Tests](https://img.shields.io/appveyor/tests/Epinova_AppVeyor_Team/epinova-elasticsearch.svg)
 
 
-
 # Introduction
 
 A search plugin for Episerver CMS and Commerce
