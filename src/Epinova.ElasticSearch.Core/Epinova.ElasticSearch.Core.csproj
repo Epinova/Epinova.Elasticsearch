@@ -239,9 +239,12 @@
     <Compile Include="Models\Bulk\Operation.cs" />
     <Compile Include="Models\Constants.cs" />
     <Compile Include="Models\Converters\AggregationConverter.cs" />
+    <Compile Include="Models\Converters\GeoPolygonConverter.cs" />
+    <Compile Include="Models\Converters\GeoDistanceConverter.cs" />
     <Compile Include="Models\Converters\BucketConverter.cs" />
     <Compile Include="Models\Converters\BulkMetadataConverter.cs" />
     <Compile Include="Models\Converters\BulkResultItemConverter.cs" />
+    <Compile Include="Models\Converters\GeoBoundingBoxConverter.cs" />
     <Compile Include="Models\Converters\RangeConverter.cs" />
     <Compile Include="Models\Converters\TermConverter.cs" />
     <Compile Include="Models\CustomSearchHit.cs" />
