@@ -46,7 +46,7 @@ for:
 
   init:
   - ps: >-
-      Update-AppveyorBuild -Version "$env:APPVEYOR_BUILD_VERSION-$env:APPVEYOR_REPO_BRANCH"
+      Update-AppveyorBuild -Version "$env:APPVEYOR_BUILD_VERSION-$env:APPVEYOR_REPO_BRANCH";
       if ($LastExitCode -ne 0) { $host.SetShouldExit($LastExitCode)  }
 
   deploy:
