@@ -6,6 +6,7 @@
         public const string Analyzer = "analyzer";
         public const string Bool = "bool";
         public const string Boost = "boost";
+        public const string BottomRight = "bottom_right";
         public const string Buckets = "buckets";
         public const string Cause = "caused_by";
         public const string ClusterName = "cluster_name";
@@ -14,6 +15,7 @@
         public const string Content = "content";
         public const string CopyTo = "copy_to";
         public const string DidYouMean = "dym";
+        public const string Distance = "distance";
         public const string Doc = "doc";
         public const string DocCount = "doc_count";
         public const string Error = "error";
@@ -26,6 +28,9 @@
         public const string FunctionScore = "function_score";
         public const string Fuzziness = "fuzziness";
         public const string Gauss = "gauss";
+        public const string GeoBoundingBox = "geo_bounding_box";
+        public const string GeoDistance = "geo_distance";
+        public const string GeoPolygon = "geo_polygon";
         public const string Gte = "gte";
         public const string Highlight = "highlight";
         public const string Hits = "hits";
@@ -68,6 +73,7 @@
         public const string PreTags = "pre_tags";
         public const string Phrase = "phrase";
         public const string PluginVersion = "version";
+        public const string Points = "points";
         public const string Properties = "properties";
         public const string Query = "query";
         public const string Range = "range";
@@ -92,6 +98,7 @@
         public const string TermVector = "term_vector";
         public const string Text = "text";
         public const string TimedOut = "timed_out";
+        public const string TopLeft = "top_left";
         public const string Total = "total";
         public const string Type = "type";
         public const string Version = "_version";
