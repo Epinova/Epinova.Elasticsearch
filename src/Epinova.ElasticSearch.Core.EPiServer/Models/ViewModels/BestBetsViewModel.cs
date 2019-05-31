@@ -17,7 +17,6 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Models.ViewModels
         {
         }
 
-
         public List<ContentReference> SelectorRoots { get; }
             = new List<ContentReference> { SiteDefinition.Current.StartPage };
 

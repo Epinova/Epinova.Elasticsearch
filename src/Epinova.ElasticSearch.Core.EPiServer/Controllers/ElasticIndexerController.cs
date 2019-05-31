@@ -25,7 +25,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Controllers
         }
 
         [HttpPost]
-        [Authorize(Roles = "ElasticsearchEditors")]
+        [Authorize(Roles = RoleNames.ElasticsearchEditors)]
         public JsonResult UpdateItem(string id, bool recursive = false)
         {
             try

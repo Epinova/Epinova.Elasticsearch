@@ -13,35 +13,46 @@ namespace Epinova.ElasticSearch.Core.Conventions
 {
     public sealed partial class Indexing
     {
-        internal static ConcurrentDictionary<string, List<BestBet>> BestBets;
+        internal static readonly ConcurrentDictionary<string, List<BestBet>> BestBets
+            = new ConcurrentDictionary<string, List<BestBet>>();
 
         internal static void SetupBestBets()
         {
-            BestBets = new ConcurrentDictionary<string, List<BestBet>>();
+            BestBets.Clear();
 
-            var repository = ServiceLocator.Current.GetInstance<IBestBetsRepository>();
-            var settings = ServiceLocator.Current.GetInstance<IElasticSearchSettings>();
-            var languageBranchRepository = ServiceLocator.Current.GetInstance<ILanguageBranchRepository>();
+            var repository = ServiceLocator.Current?.GetInstance<IBestBetsRepository>();
+            var settings = ServiceLocator.Current?.GetInstance<IElasticSearchSettings>();
+            var languageBranchRepository = ServiceLocator.Current?.GetInstance<ILanguageBranchRepository>();
+
+            if (repository == null || settings == null || languageBranchRepository == null)
+            {
+                // Probably in test-context
+                return;
+            }
 
             var languageIds = languageBranchRepository.ListEnabled()
                 .Select(lang => lang.LanguageID);
 
             var config = ElasticSearchSection.GetConfiguration();
 
-            var indexList = config.IndicesParsed.Select(i => i.Name).ToList();
+            var indexList = config.IndicesParsed.ToList();
 
             if (settings.CommerceEnabled)
             {
-                indexList.Add($"{settings.Index}-{Constants.CommerceProviderName}".ToLower());
+                indexList.Add(new IndexConfiguration
+                {
+                    Name = $"{settings.Index}-{Constants.CommerceProviderName}".ToLower(),
+                    DisplayName = "Commerce"
+                });
             }
 
-            foreach (var index in indexList)
+            foreach (IndexConfiguration index in indexList)
             {
-                Logger.Information($"Setup BestBets for index '{index}'");
+                Logger.Information($"Setup BestBets for index '{index.Name}'");
                 foreach (var languageId in languageIds)
                 {
                     Logger.Information($"Language '{languageId}'");
-                    var indexName = index + "-" + languageId;
+                    var indexName = index.Name + "-" + languageId;
                     var bestBets = repository.GetBestBets(languageId, indexName).ToList();
                     BestBets.TryAdd(indexName, bestBets);
                     Logger.Information($"BestBets:\n{String.Join("\n", bestBets.Select(b => b.Phrase + " => " + b.Id))}");

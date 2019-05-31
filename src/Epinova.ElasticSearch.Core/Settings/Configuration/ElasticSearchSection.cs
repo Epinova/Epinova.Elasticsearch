@@ -10,6 +10,7 @@ namespace Epinova.ElasticSearch.Core.Settings.Configuration
     public class ElasticSearchSection : ConfigurationSection
     {
         private static readonly string[] ValidSizeSuffixes = { "kb", "mb", "gb" };
+
         private static readonly char[] ValidSizeChars =
         {
             '0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
@@ -18,7 +19,7 @@ namespace Epinova.ElasticSearch.Core.Settings.Configuration
 
         public static ElasticSearchSection GetConfiguration()
         {
-            if(!HostingEnvironment.IsHosted)
+            if (!HostingEnvironment.IsHosted)
                 return new ElasticSearchSection();
 
             var section = WebConfigurationManager
@@ -102,7 +103,7 @@ namespace Epinova.ElasticSearch.Core.Settings.Configuration
             get => (int)this["clientTimeoutSeconds"];
             set => this["clientTimeoutSeconds"] = value;
         }
-        
+
         [ConfigurationProperty("shards", DefaultValue = 5, IsRequired = false)]
         [IntegerValidator(MinValue = 1, MaxValue = 1000)]
         public int NumberOfShards
@@ -110,7 +111,7 @@ namespace Epinova.ElasticSearch.Core.Settings.Configuration
             get => (int)this["shards"];
             set => this["shards"] = value;
         }
-        
+
         [ConfigurationProperty("replicas", DefaultValue = 1, IsRequired = false)]
         [IntegerValidator(MinValue = 1, MaxValue = 1000)]
         public int NumberOfReplicas
@@ -127,7 +128,7 @@ namespace Epinova.ElasticSearch.Core.Settings.Configuration
             set => base["indices"] = value;
         }
 
-        public IndexConfiguration[] IndicesParsed => Indices.OfType<IndexConfiguration>().ToArray();
+        public IEnumerable<IndexConfiguration> IndicesParsed => Indices.OfType<IndexConfiguration>();
 
         [ConfigurationProperty("files", IsDefaultCollection = false)]
         [ConfigurationCollection(typeof(FilesCollection))]
@@ -144,7 +145,6 @@ namespace Epinova.ElasticSearch.Core.Settings.Configuration
             get => (ContentSelectorCollection)base["contentSelector"];
             set => base["contentSelector"] = value;
         }
-
 
         internal bool IsValidSizeString(string size)
         {
@@ -176,22 +176,25 @@ namespace Epinova.ElasticSearch.Core.Settings.Configuration
 
         internal void ValidateIndices()
         {
-            if (IndicesParsed.Length == 0)
-                throw new ConfigurationErrorsException(
-                    "Configuration Error. You must add at least one index to the <indices> node");
-            if (IndicesParsed.Length > 1 && !IndicesParsed.Any(i => i.Default))
-                throw new ConfigurationErrorsException(
-                    "Configuration Error. One index must be set as default when adding multiple indices");
+            if (!IndicesParsed.Any())
+                throw new ConfigurationErrorsException("Configuration Error. You must add at least one index to the <indices> node");
+            if (IndicesParsed.Count() > 1 && !IndicesParsed.Any(i => i.Default))
+                throw new ConfigurationErrorsException("Configuration Error. One index must be set as default when adding multiple indices");
             if (Indices.Count > 1 && IndicesParsed.Count(i => i.Default) > 1)
                 throw new ConfigurationErrorsException("Configuration Error. Only one index can be set as default");
-
             if (Indices.Count > 1 && IndicesParsed.Count(i => String.IsNullOrWhiteSpace(i.Type)) > 1)
                 throw new ConfigurationErrorsException("Configuration Error. Custom indices must define a type");
 
             // Enumerate indices to trigger StringValidator
-            string[] indexNames = IndicesParsed.Select(i => i.Name).ToArray();
+            var indices = IndicesParsed.ToArray();
+
+            var indexNames = indices.Select(i => i.Name);
             if (indexNames.Any(String.IsNullOrWhiteSpace))
                 throw new ConfigurationErrorsException("Configuration Error. Index name cannot be empty");
+
+            var displayNames = indices.Select(i => i.DisplayName);
+            if (displayNames.Any(String.IsNullOrWhiteSpace))
+                throw new ConfigurationErrorsException("Configuration Error. Index display name cannot be empty");
         }
     }
 }

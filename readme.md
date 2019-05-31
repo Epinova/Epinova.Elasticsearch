@@ -3,7 +3,6 @@
 ![Tests](https://img.shields.io/appveyor/tests/Epinova_AppVeyor_Team/epinova-elasticsearch.svg)
 
 
-
 # Introduction
 
 A search plugin for Episerver CMS and Commerce
@@ -514,6 +513,55 @@ public class ArticlePage : StandardPage
     public IntegerRange MyRange => new IntegerRange(From, To);
 }
 ```
+
+# Dictionary properties
+If a property is of type `IDictionary<string, object>` and marked '[Searchable]', it will be indexed as an 'object' in Elasticsearch.  
+This is useful in scenarios where you have dynamic key-value data which must be indexed, like from PIM-systems.  
+
+Standard property approach:
+
+```
+public class ProductPage
+{
+    [Searchable]
+    public IDictionary<string, object> Metadata { get; set; }
+}
+```
+
+The data itself will not be returned, but you can query it and make facets:
+
+```csharp
+SearchResult result = service
+   .Search<ProductPage>("bacon")
+   .InField(x => x.Metadata + ".SomeKey")
+   .FacetsFor(x => x.Metadata + ".SomeKey")
+   .GetResults();
+```
+
+Custom properties:
+
+```csharp
+public static class SearchConfig
+{
+    public static void Init()
+    {
+        Epinova.ElasticSearch.Core.Conventions.Indexing.Instance
+            .ForType<ProductPage>().IncludeField("Metadata", x => x.GetPimDataDictionary());
+    }
+}
+```
+
+This approach returns the data:
+
+```csharp
+SearchResult result = service
+   .Search<ProductPage>("bacon")
+   .GetResults();
+
+var hit = result.Hits.First();
+var dict = hit.Custom["Metadata"] as IDictionary<string, object>
+```
+
 
 
 &nbsp;

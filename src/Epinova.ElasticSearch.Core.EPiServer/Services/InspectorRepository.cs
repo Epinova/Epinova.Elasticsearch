@@ -19,7 +19,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Services
     public class InspectorRepository : IInspectorRepository
     {
         private readonly IElasticSearchSettings _elasticSearchSettings;
-        private static IContentTypeRepository _contentTypeRepository;
+        private readonly IContentTypeRepository _contentTypeRepository;
 
         internal InspectorRepository()
         {
@@ -130,7 +130,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Services
             return query;
         }
 
-        private static TypeCount ToTypeCount(JToken instance)
+        private TypeCount ToTypeCount(JToken instance)
         {
             TypeCount typeCount = new TypeCount
             {

@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using EPiServer.Logging;
-using Epinova.ElasticSearch.Core.Utilities;
 using Newtonsoft.Json;
 using Epinova.ElasticSearch.Core.Enums;
 
@@ -16,7 +15,6 @@ namespace Epinova.ElasticSearch.Core.Models.Mapping
         {
             Properties = new Dictionary<string, IndexMappingProperty>();
         }
-
 
         [JsonIgnore]
         public bool IsDirty { get; private set; }
@@ -78,6 +76,12 @@ namespace Epinova.ElasticSearch.Core.Models.Mapping
                         Type = JsonNames.Keyword
                     };
                 }
+                else if (property.Type == nameof(MappingType.Object).ToLower())
+                {
+                    Logger.Debug("Type is Object");
+                    property.Dynamic = true;
+                    property.Properties = new Dictionary<string, object>();
+                }
 
                 Properties[name].Type = property.Type;
             }
@@ -88,19 +92,19 @@ namespace Epinova.ElasticSearch.Core.Models.Mapping
 
                 if (property.CopyTo == null || property.CopyTo.Length == 0)
                 {
-                    property.CopyTo = new[] {DefaultFields.DidYouMean};
+                    property.CopyTo = new[] { DefaultFields.DidYouMean };
                     IsDirty = true;
                 }
                 else if (!property.CopyTo.Contains(DefaultFields.DidYouMean))
                 {
-                    property.CopyTo = property.CopyTo.Concat(new[] {DefaultFields.DidYouMean}).ToArray();
+                    property.CopyTo = property.CopyTo.Concat(new[] { DefaultFields.DidYouMean }).ToArray();
                     IsDirty = true;
                 }
 
                 Properties[name].CopyTo = property.CopyTo;
             }
 
-            if(Properties[name].CopyTo != null)
+            if (Properties[name].CopyTo != null)
                 Logger.Debug("CopyTo: " + String.Join(", ", Properties[name].CopyTo));
         }
 

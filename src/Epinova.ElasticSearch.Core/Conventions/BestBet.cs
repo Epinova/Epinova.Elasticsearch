@@ -14,7 +14,6 @@ namespace Epinova.ElasticSearch.Core.Conventions
             Provider = contentLink.ProviderName;
         }
 
-
         public string Id { get; }
 
         public string Provider { get; }
@@ -25,10 +24,13 @@ namespace Epinova.ElasticSearch.Core.Conventions
 
         public string Phrase { get; }
 
-        internal string[] Terms => String.IsNullOrWhiteSpace(Phrase)
-            ? new string[0]
-            : Phrase.Split(new[] {' '}, StringSplitOptions.RemoveEmptyEntries)
-                .Select(t => t.Trim())
-                .ToArray();
+        internal string[] GetTerms()
+        {
+            return String.IsNullOrWhiteSpace(Phrase)
+                ? new string[0]
+                : Phrase.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries)
+                    .Select(t => t.Trim())
+                    .ToArray();
+        }
     }
 }

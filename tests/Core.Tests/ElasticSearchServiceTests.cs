@@ -10,13 +10,13 @@ using Xunit;
 
 namespace Core.Tests
 {
+    [Collection(nameof(ServiceLocatiorCollection))]
     public class ElasticSearchServiceTests
     {
         private readonly ElasticSearchService<ComplexType> _service;
 
         public ElasticSearchServiceTests()
         {
-            Factory.SetupServiceLocator();
             _service = new ElasticSearchService<ComplexType>();
         }
 

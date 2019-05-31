@@ -101,7 +101,7 @@ namespace Epinova.ElasticSearch.Core
             PostFilterGroups = new Dictionary<string, FilterGroupQuery>();
             _ranges = new List<RangeBase>();
             _engine = new SearchEngine(settings);
-            _builder = new QueryBuilder(SearchType, settings);
+            _builder = new QueryBuilder(settings);
             _excludedTypes = new List<Type>();
             ExcludedRoots = new Dictionary<int, bool>();
             _usePostfilters = true;
@@ -285,58 +285,59 @@ namespace Epinova.ElasticSearch.Core
                 FromValue = FromValue,
                 SizeValue = SizeValue,
                 IsWildcard = IsWildcard,
+                TrackSearch = TrackSearch,
                 IndexName = IndexName
             };
         }
 
-        public SearchResult GetResults(bool enableHighlighting = true, bool enableDidYouMean = true, params string[] fields)
+        public SearchResult GetResults(bool enableHighlighting = true, bool enableDidYouMean = true, bool applyDefaultFilters = true, params string[] fields)
         {
-            QuerySetup query = CreateQuery(fields);
+            QuerySetup query = CreateQuery(applyDefaultFilters, fields);
             query.EnableDidYouMean = enableDidYouMean;
             query.EnableHighlighting = enableHighlighting;
 
             return GetResults(query);
         }
 
-        public virtual SearchResult GetResults(int from, int size, bool enableHighlighting = true, bool enableDidYouMean = true, params string[] fields)
+        public virtual SearchResult GetResults(int from, int size, bool enableHighlighting = true, bool enableDidYouMean = true, bool applyDefaultFilters = true, params string[] fields)
         {
             FromValue = from;
             SizeValue = size;
 
-            return GetResults(enableHighlighting, enableDidYouMean, fields);
+            return GetResults(enableHighlighting, enableDidYouMean, applyDefaultFilters, fields);
         }
 
         public async Task<SearchResult> GetResultsAsync(params string[] fields)
         {
-            return await GetResultsAsync(CancellationToken.None, fields);
+            return await GetResultsAsync(CancellationToken.None, fields).ConfigureAwait(false);
         }
 
         public async Task<SearchResult> GetResultsAsync(CancellationToken cancellationToken, params string[] fields)
         {
-            QuerySetup query = CreateQuery(fields);
+            QuerySetup query = CreateQuery(true, fields);
 
-            return await GetResultsAsync(query, cancellationToken);
+            return await GetResultsAsync(query, cancellationToken).ConfigureAwait(false);
         }
 
         public async Task<CustomSearchResult<T>> GetCustomResultsAsync()
         {
-            return await GetCustomResultsAsync(CancellationToken.None);
+            return await GetCustomResultsAsync(CancellationToken.None).ConfigureAwait(false);
         }
 
         public async Task<CustomSearchResult<T>> GetCustomResultsAsync(CancellationToken cancellationToken)
         {
-            QuerySetup query = CreateQuery();
+            QuerySetup query = CreateQuery(true);
             query.EnableDidYouMean = false;
 
             // Always return all fields for custom objects
             query.SourceFields = null;
 
-            return await GetCustomResultsAsync<T>(query, cancellationToken);
+            return await GetCustomResultsAsync<T>(query, cancellationToken).ConfigureAwait(false);
         }
 
         public CustomSearchResult<T> GetCustomResults()
         {
-            QuerySetup query = CreateQuery();
+            QuerySetup query = CreateQuery(false);
 
             // Always return all fields for custom objects
             query.SourceFields = null;
@@ -344,10 +345,11 @@ namespace Epinova.ElasticSearch.Core
             return GetCustomResults<T>(query);
         }
 
-        private QuerySetup CreateQuery(params string[] fields)
+        private QuerySetup CreateQuery(bool applyDefaultFilters, params string[] fields)
         {
             return new QuerySetup
             {
+                ApplyDefaultFilters = applyDefaultFilters,
                 Analyzer = Analyzer,
                 BoostAncestors = BoostAncestors,
                 BoostFields = BoostFields,
@@ -730,7 +732,7 @@ namespace Epinova.ElasticSearch.Core
         internal async Task<SearchResult> GetResultsAsync(QuerySetup querySetup, CancellationToken cancellationToken)
         {
             RequestBase request = _builder.TypedSearch(querySetup);
-            return await _engine.QueryAsync(request, querySetup.Language, cancellationToken, IndexName);
+            return await _engine.QueryAsync(request, querySetup.Language, cancellationToken, IndexName).ConfigureAwait(false);
         }
 
         internal SearchResult GetResults(QuerySetup querySetup)
@@ -745,7 +747,7 @@ namespace Epinova.ElasticSearch.Core
         internal async Task<CustomSearchResult<T>> GetCustomResultsAsync<T>(QuerySetup querySetup, CancellationToken cancellationToken)
         {
             RequestBase request = _builder.TypedSearch(querySetup);
-            return await _engine.CustomQueryAsync<T>(request, querySetup.Language, cancellationToken, IndexName);
+            return await _engine.CustomQueryAsync<T>(request, querySetup.Language, cancellationToken, IndexName).ConfigureAwait(false);
         }
 
         internal CustomSearchResult<T> GetCustomResults<T>(QuerySetup querySetup)
@@ -789,15 +791,13 @@ namespace Epinova.ElasticSearch.Core
 
                 case MemberExpression memberExpression:
                     {
-                        if (memberExpression.Member is FieldInfo fieldInfo)
+                        if (memberExpression.Member is FieldInfo fieldInfo
+                            && fieldInfo != null
+                            && memberExpression.Expression is ConstantExpression constantExpression)
                         {
-                            var constantExpression = memberExpression.Expression as ConstantExpression;
-                            if (fieldInfo != null && constantExpression != null)
-                            {
-                                fieldName = fieldInfo.GetValue(constantExpression.Value).ToString();
-                                fieldType = Mapping.GetMappingType(explicitType ?? constantExpression.Type);
-                                break;
-                            }
+                            fieldName = fieldInfo.GetValue(constantExpression.Value).ToString();
+                            fieldType = Mapping.GetMappingType(explicitType ?? constantExpression.Type);
+                            break;
                         }
 
                         MemberInfo memberInfo = memberExpression.Member;

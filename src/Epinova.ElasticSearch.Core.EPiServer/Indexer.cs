@@ -16,20 +16,21 @@ using Epinova.ElasticSearch.Core.Settings;
 using EPiServer;
 using EPiServer.Core;
 using EPiServer.ServiceLocation;
+using Epinova.ElasticSearch.Core.EPiServer.Contracts;
 
-namespace Epinova.ElasticSearch.Core.EPiServer.Contracts
+namespace Epinova.ElasticSearch.Core.EPiServer
 {
     [ServiceConfiguration(typeof(IIndexer))]
     internal class Indexer : IIndexer
     {
         private const string FallbackLanguage = "en";
         private static readonly ILogger Logger = LogManager.GetLogger(typeof(Indexer));
-        private static ICoreIndexer _coreIndexer;
+        private readonly ICoreIndexer _coreIndexer;
         private readonly IContentLoader _contentLoader;
         private readonly IElasticSearchSettings _elasticSearchSettings;
 
         // Avoid dependency on Episerver.Forms for this simple functionallity
-        internal static string FormsUploadNamespace = "EPiServer.Forms.Core.IFileUploadElementBlock";
+        internal const string FormsUploadNamespace = "EPiServer.Forms.Core.IFileUploadElementBlock";
 
         internal void SetContentPathGetter(Func<ContentReference, int[]> func)
         {
@@ -47,7 +48,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Contracts
 
         public BulkBatchResult BulkUpdate(IEnumerable<IContent> contents, Action<string> logger, string indexName = null)
         {
-            List<IContent> contentList = contents.ToList();
+            var contentList = contents.ToList();
             logger = logger ?? delegate { };
             var before = contentList.Count;
 
@@ -92,14 +93,14 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Contracts
             _coreIndexer.Delete(contentLink.ToReferenceWithoutVersion().ToString(), language, typeof(IndexItem), indexName);
         }
 
-        public void Delete(IContent content, string indexName)
+        public void Delete(IContent content, string indexName = null)
         {
             indexName = GetIndexname(content.ContentLink, indexName, GetLanguage(content));
 
             _coreIndexer.Delete(content.ContentLink.ToReferenceWithoutVersion().ToString(), GetLanguage(content), typeof(IndexItem), indexName);
         }
 
-        public IndexingStatus UpdateStructure(IContent root, string indexName)
+        public IndexingStatus UpdateStructure(IContent root, string indexName = null)
         {
             var language = CultureInfo.CurrentCulture;
             if (root is ILocale locale && locale.Language != null && !CultureInfo.InvariantCulture.Equals(locale.Language))
@@ -111,9 +112,8 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Contracts
 
             var status = Update(root, indexName);
             var descendents = _contentLoader.GetDescendents(root.ContentLink);
-            var contents = _contentLoader.GetItems(descendents, language);
 
-            foreach (var content in contents)
+            foreach (var content in _contentLoader.GetItems(descendents, language))
             {
                 var childStatus = Update(content, indexName);
 
@@ -139,7 +139,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Contracts
 
             if (IsExludedByRoot(content))
                 return IndexingStatus.ExcludedByConvention;
-            
+
             _coreIndexer.Update(content.ContentLink.ToReferenceWithoutVersion().ToString(), content.AsIndexItem(), indexName, typeof(IndexItem));
 
             return IndexingStatus.Ok;
@@ -192,16 +192,12 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Contracts
                 return true;
 
             // Common property in Epinova template
-            bool hideFromSearch = GetEpiserverBoolProperty(content.Property["HideFromSearch"]);
+            var hideFromSearch = GetEpiserverBoolProperty(content.Property["HideFromSearch"]);
             if (hideFromSearch)
                 return true;
 
-            bool deleted = GetEpiserverBoolProperty(content.Property["PageDeleted"]);
+            var deleted = GetEpiserverBoolProperty(content.Property["PageDeleted"]);
             if (deleted)
-                return true;
-
-            DateTime stopPublish = GetEpiserverDateTimeProperty(content.Property["PageStopPublish"]);
-            if (stopPublish != default && stopPublish < DateTime.Now)
                 return true;
 
             if(IsPageWithInvalidLinkType(content))
@@ -263,14 +259,6 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Contracts
                     || (type.IsInterface && type.IsAssignableFrom(typeToCheck)));
         }
 
-        private static DateTime GetEpiserverDateTimeProperty(PropertyData content)
-        {
-            if (!(content is PropertyDate property) || property.Value == null)
-                return default;
-
-            return ((DateTime?)property.Value).GetValueOrDefault();
-        }
-
         private static bool GetEpiserverBoolProperty(PropertyData content)
         {
             return content is PropertyBoolean property && property.Boolean.GetValueOrDefault(false);
@@ -285,7 +273,9 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Contracts
             if (owner == null)
                 return false;
 
-            return owner.GetType().GetInterfaces().Select(i => i.FullName).Contains(FormsUploadNamespace);
+            return owner.GetType().GetInterfaces()
+                .Select(i => i.FullName)
+                .Contains(FormsUploadNamespace);
         }
 
         private string GetIndexname(ContentReference contentLink, string indexName, string language)

@@ -17,18 +17,14 @@ namespace Epinova.ElasticSearch.Core.Utilities
     internal static class HttpClientHelper
     {
         private static readonly ILogger Logger = LogManager.GetLogger(typeof(HttpClientHelper));
-        internal static readonly HttpClient Client;
+        internal static readonly HttpClient Client = SetupClient();
 
-        static HttpClientHelper()
+        private static HttpClient SetupClient()
         {
-            Client = MessageHandler.Handler != null ?
-                new HttpClient(MessageHandler.Handler) :
-                new HttpClient();
-            Initialize();
-        }
+            var client = MessageHandler.Handler != null
+                ? new HttpClient(MessageHandler.Handler)
+                : new HttpClient();
 
-        internal static void Initialize()
-        {
             IElasticSearchSettings settings = ServiceLocator.Current.GetInstance<IElasticSearchSettings>();
 
             if (!String.IsNullOrEmpty(settings.Username)
@@ -37,16 +33,18 @@ namespace Epinova.ElasticSearch.Core.Utilities
                 var credentials = Encoding.ASCII.GetBytes(
                     String.Concat(settings.Username, ":", settings.Password));
 
-                Client.DefaultRequestHeaders.Authorization =
+                client.DefaultRequestHeaders.Authorization =
                     new AuthenticationHeaderValue("Basic", Convert.ToBase64String(credentials));
             }
             else
             {
-                Client.DefaultRequestHeaders.Authorization = null;
+                client.DefaultRequestHeaders.Authorization = null;
             }
 
-            if(settings.ClientTimeoutSeconds > 0)
-                Client.Timeout =  TimeSpan.FromSeconds(settings.ClientTimeoutSeconds);
+            if (settings.ClientTimeoutSeconds > 0)
+                client.Timeout = TimeSpan.FromSeconds(settings.ClientTimeoutSeconds);
+
+            return client;
         }
 
         internal static void Put(Uri uri, byte[] data = null)
@@ -56,11 +54,9 @@ namespace Epinova.ElasticSearch.Core.Utilities
 
             try
             {
-                HttpResponseMessage response = Client
-                    .PutAsync(uri, JsonContent(data))
-                    .ConfigureAwait(false)
-                    .GetAwaiter()
-                    .GetResult();
+                HttpResponseMessage response = AsyncUtil.RunSync(() =>
+                    Client.PutAsync(uri, JsonContent(data))
+                );
 
                 LogErrorIfNotSuccess(response);
             }
@@ -72,7 +68,7 @@ namespace Epinova.ElasticSearch.Core.Utilities
 
         internal static async Task PutAsync(Uri uri, byte[] data = null)
         {
-            await PutAsync(uri, data, CancellationToken.None);
+            await PutAsync(uri, data, CancellationToken.None).ConfigureAwait(false);
         }
 
         internal static async Task PutAsync(Uri uri, byte[] data, CancellationToken cancellationToken)
@@ -98,19 +94,15 @@ namespace Epinova.ElasticSearch.Core.Utilities
 
             try
             {
-                HttpResponseMessage response = Client
-                    .PostAsync(uri, JsonContent(data))
-                    .ConfigureAwait(false)
-                    .GetAwaiter()
-                    .GetResult();
+                HttpResponseMessage response = AsyncUtil.RunSync(() =>
+                      Client.PostAsync(uri, JsonContent(data))
+                );
 
                 LogErrorIfNotSuccess(response);
 
-                return response.Content
-                    .ReadAsByteArrayAsync()
-                    .ConfigureAwait(false)
-                    .GetAwaiter()
-                    .GetResult();
+                return AsyncUtil.RunSync(() =>
+                      response.Content.ReadAsByteArrayAsync()
+                );
             }
             catch (Exception ex)
             {
@@ -139,29 +131,27 @@ namespace Epinova.ElasticSearch.Core.Utilities
 
         internal static string GetJson(Uri uri)
         {
-            HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Get, uri);
+            var request = new HttpRequestMessage(HttpMethod.Get, uri);
             request.Headers.Add("Accept", "application/json");
 
-            HttpResponseMessage response = Client
-                .SendAsync(request)
-                .ConfigureAwait(false)
-                .GetAwaiter()
-                .GetResult();
+            HttpResponseMessage response = AsyncUtil.RunSync(() =>
+                Client.SendAsync(request)
+            );
 
             response.EnsureSuccessStatusCode();
 
-            return response.Content.ReadAsStringAsync().GetAwaiter().GetResult();
+            return AsyncUtil.RunSync(() =>
+                response.Content.ReadAsStringAsync()
+            );
         }
 
         internal static string GetString(Uri uri)
         {
             Logger.Debug($"Uri: {uri}");
 
-            return Client
-                .GetStringAsync(uri)
-                .ConfigureAwait(false)
-                .GetAwaiter()
-                .GetResult();
+            return AsyncUtil.RunSync(() =>
+                Client.GetStringAsync(uri)
+            );
         }
 
         internal static async Task<string> GetStringAsync(Uri uri)
@@ -177,11 +167,9 @@ namespace Epinova.ElasticSearch.Core.Utilities
 
             try
             {
-                HttpResponseMessage response = Client
-                    .SendAsync(new HttpRequestMessage(HttpMethod.Head, uri))
-                    .ConfigureAwait(false)
-                    .GetAwaiter()
-                    .GetResult();
+                HttpResponseMessage response = AsyncUtil.RunSync(() =>
+                    Client.SendAsync(new HttpRequestMessage(HttpMethod.Head, uri))
+                );
 
                 HttpStatusCode statusCode = response.StatusCode;
                 Logger.Debug($"Status: {statusCode}");
@@ -217,11 +205,10 @@ namespace Epinova.ElasticSearch.Core.Utilities
         internal static bool Delete(Uri uri)
         {
             Logger.Debug($"Uri: {uri}");
-            HttpResponseMessage response = Client
-                .DeleteAsync(uri)
-                .ConfigureAwait(false)
-                .GetAwaiter()
-                .GetResult();
+
+            HttpResponseMessage response = AsyncUtil.RunSync(() =>
+                Client.DeleteAsync(uri)
+            );
 
             HttpStatusCode statusCode = response.StatusCode;
             Logger.Debug($"Status: {statusCode}");
@@ -241,11 +228,9 @@ namespace Epinova.ElasticSearch.Core.Utilities
         {
             if (!response.IsSuccessStatusCode)
             {
-                string error = response.Content
-                    .ReadAsStringAsync()
-                    .ConfigureAwait(false)
-                    .GetAwaiter()
-                    .GetResult();
+                string error = AsyncUtil.RunSync(() =>
+                     response.Content.ReadAsStringAsync()
+                );
 
                 // Assume the response is json
                 try

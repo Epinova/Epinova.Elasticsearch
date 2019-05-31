@@ -18,6 +18,7 @@
         public const string Distance = "distance";
         public const string Doc = "doc";
         public const string DocCount = "doc_count";
+        public const string Dynamic = "dynamic";
         public const string Error = "error";
         public const string Field = "field";
         public const string FieldData = "fielddata";

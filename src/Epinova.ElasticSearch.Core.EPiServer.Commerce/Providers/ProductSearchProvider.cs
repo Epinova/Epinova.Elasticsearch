@@ -12,8 +12,10 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Commerce.Providers
     [SearchProvider]
     public class ProductSearchProvider : SearchProviderBase<IContent, IContent, ContentType>
     {
+#pragma warning disable RCS1170 // Use read-only auto-implemented property.
         private static Injected<DefaultContentProvider> DefaultContentProvider { get; set; }
         private static Injected<ReferenceConverter> ReferenceConverter { get; set; }
+#pragma warning restore RCS1170 // Use read-only auto-implemented property.
 
         public ProductSearchProvider() : base("product")
         {

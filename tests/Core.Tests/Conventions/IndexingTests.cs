@@ -5,15 +5,13 @@ using Xunit;
 
 namespace Core.Tests.Conventions
 {
+    [Collection(nameof(ServiceLocatiorCollection))]
     public class IndexingTests
     {
         public IndexingTests()
         {
-            Factory.SetupServiceLocator();
-
             Indexing.Extensions.Clear();
         }
-
 
         [Theory]
         [InlineData("")]
@@ -23,7 +21,7 @@ namespace Core.Tests.Conventions
         {
             Indexing.Instance.IncludeFileType(type);
 
-            int result = Indexing.IncludedFileExtensions.Length;
+            var result = Indexing.IncludedFileExtensions.Length;
 
             Assert.Equal(0, result);
         }
@@ -33,7 +31,7 @@ namespace Core.Tests.Conventions
         {
             Indexing.Instance.IncludeFileType("pdf");
 
-            int result = Indexing.IncludedFileExtensions.Length;
+            var result = Indexing.IncludedFileExtensions.Length;
 
             Assert.True(result > 0);
         }
@@ -51,10 +49,10 @@ namespace Core.Tests.Conventions
         [Fact]
         public void ExcludeRoot_AddsToCollection()
         {
-            int rootId = Factory.GetInteger();
+            var rootId = Factory.GetInteger();
             Indexing.Instance.ExcludeRoot(rootId);
 
-            int[] result = Indexing.ExcludedRoots;
+            var result = Indexing.ExcludedRoots;
 
             Assert.Contains(rootId, result);
         }

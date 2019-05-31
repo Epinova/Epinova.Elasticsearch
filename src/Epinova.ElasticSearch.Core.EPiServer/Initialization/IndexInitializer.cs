@@ -140,9 +140,5 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Initialization
 
             return types;
         }
-
-        public void Preload(string[] parameters)
-        {
-        }
     }
 }

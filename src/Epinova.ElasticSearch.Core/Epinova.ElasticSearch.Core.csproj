@@ -255,6 +255,7 @@
     <Compile Include="Models\FacetHit.cs" />
     <Compile Include="Models\Filter.cs" />
     <Compile Include="Models\FilterGroupQuery.cs" />
+    <Compile Include="Models\IndexableProperty.cs" />
     <Compile Include="Models\IndexItem.cs" />
     <Compile Include="Models\InspectItem.cs" />
     <Compile Include="Models\JsonNames.cs" />
@@ -303,6 +304,7 @@
     <Compile Include="Models\RequestBase.cs" />
     <Compile Include="Models\SearchHit.cs" />
     <Compile Include="Models\SearchResult.cs" />
+    <Compile Include="Models\SearchResultBase.cs" />
     <Compile Include="Models\Serialization\Aggregation.cs" />
     <Compile Include="Models\Serialization\DidYouMeanHit.cs" />
     <Compile Include="Models\Serialization\DidYouMeanOption.cs" />
@@ -329,6 +331,7 @@
     <Compile Include="Settings\Configuration\IndicesCollection.cs" />
     <Compile Include="Settings\ElasticSearchSettings.cs" />
     <Compile Include="Settings\IElasticSearchSettings.cs" />
+    <Compile Include="Utilities\AsyncUtil.cs" />
     <Compile Include="Utilities\Analyzers.cs" />
     <Compile Include="Utilities\ArrayHelper.cs" />
     <Compile Include="Utilities\DbHelper.cs" />

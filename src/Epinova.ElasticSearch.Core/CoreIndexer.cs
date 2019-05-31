@@ -64,7 +64,7 @@ namespace Epinova.ElasticSearch.Core
                     operation.MetaData.Index = operation.MetaData.IndexCandidate;
 
                 if (operation.MetaData.Index == null)
-                    throw new Exception("Index missing");
+                    throw new InvalidOperationException("Index missing");
             });
 
             var indexes = operationList
@@ -107,7 +107,7 @@ namespace Epinova.ElasticSearch.Core
                     }
 
                     var payload = sb.ToString();
-                    
+
                     if (Logger.IsDebugEnabled())
                     {
                         var debugJson = $"[{String.Join(",", payload.Split('\n'))}]";
@@ -190,9 +190,9 @@ namespace Epinova.ElasticSearch.Core
         {
             var request = new BestBetsRequest(new string[0]);
             var jsonSettings = new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore };
-            string json = JsonConvert.SerializeObject(request, jsonSettings);
-            byte[] data = Encoding.UTF8.GetBytes(json);
-            string uri = $"{_settings.Host}/{indexName}/{indexType.GetTypeName()}/{id}/_update";
+            var json = JsonConvert.SerializeObject(request, jsonSettings);
+            var data = Encoding.UTF8.GetBytes(json);
+            var uri = $"{_settings.Host}/{indexName}/{indexType.GetTypeName()}/{id}/_update";
 
             Logger.Information($"Clearing BestBets for id '{id}'");
 
@@ -212,9 +212,9 @@ namespace Epinova.ElasticSearch.Core
 
             var request = new BestBetsRequest(terms);
             var jsonSettings = new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore };
-            string json = JsonConvert.SerializeObject(request, jsonSettings);
-            byte[] data = Encoding.UTF8.GetBytes(json);
-            string uri = $"{_settings.Host}/{indexName}/{indexType.GetTypeName()}/{id}/_update";
+            var json = JsonConvert.SerializeObject(request, jsonSettings);
+            var data = Encoding.UTF8.GetBytes(json);
+            var uri = $"{_settings.Host}/{indexName}/{indexType.GetTypeName()}/{id}/_update";
 
             Logger.Information("Update BestBets:\n" + JToken.Parse(json).ToString(Formatting.Indented));
 
@@ -245,35 +245,8 @@ namespace Epinova.ElasticSearch.Core
                 type = type.BaseType;
 
             language = language ?? _settings.GetLanguage(index);
+            List<IndexableProperty> indexableProperties = GetIndexableProperties(type, optIn);
 
-            // Get indexable properties (string, XhtmlString, [Searchable(true)]) 
-            var indexableProperties = type.GetIndexableProps(optIn)
-                .Select(p => new
-                {
-                    p.Name,
-                    Type = p.PropertyType,
-                    Analyzable = ((p.PropertyType == typeof(string) || p.PropertyType == typeof(string[]))
-                                && (p.GetCustomAttributes(typeof(StemAttribute)).Any() || WellKnownProperties.Analyze
-                                     .Select(w => w.ToLower())
-                                     .Contains(p.Name.ToLower())))
-                                || (p.PropertyType == typeof(XhtmlString)
-                                && p.GetCustomAttributes(typeof(ExcludeFromSearchAttribute), true).Length == 0)
-                })
-                .Where(p => p.Name != nameof(IndexItem.Type) 
-                            && p.Name != nameof(IndexItem._bestbets) 
-                            && p.Name != nameof(IndexItem.attachment) 
-                            && p.Name != nameof(IndexItem._attachmentdata))
-                .ToList();
-
-            // Custom properties marked for stemming
-            indexableProperties.AddRange(Conventions.Indexing.CustomProperties
-                .Select(c => new
-                {
-                    c.Name,
-                    c.Type,
-                    Analyzable = WellKnownProperties.Analyze.Select(w => w.ToLower()).Contains(c.Name.ToLower())
-                }));
-                
             Logger.Information("IndexableProperties for " + type?.Name + ": " + String.Join(", ", indexableProperties.Select(p => p.Name)));
 
             // Get existing mapping
@@ -281,10 +254,10 @@ namespace Epinova.ElasticSearch.Core
 
             // Ignore special mappings
             mapping.Properties.Remove(DefaultFields.AttachmentData);
-            mapping.Properties.Remove(DefaultFields.BestBets);            
+            mapping.Properties.Remove(DefaultFields.BestBets);
             mapping.Properties.Remove(DefaultFields.DidYouMean);
             mapping.Properties.Remove(DefaultFields.Suggest);
-            
+
             try
             {
                 foreach (var prop in indexableProperties)
@@ -354,9 +327,9 @@ namespace Epinova.ElasticSearch.Core
                 }
 
                 var jsonSettings = new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore };
-                string json = JsonConvert.SerializeObject(mapping, jsonSettings);
-                byte[] data = Encoding.UTF8.GetBytes(json);
-                string uri = $"{_settings.Host}/{index}/_mapping/{indexType.GetTypeName()}";
+                var json = JsonConvert.SerializeObject(mapping, jsonSettings);
+                var data = Encoding.UTF8.GetBytes(json);
+                var uri = $"{_settings.Host}/{index}/_mapping/{indexType.GetTypeName()}";
 
                 Logger.Information("Update mapping:\n" + JToken.Parse(json).ToString(Formatting.Indented));
 
@@ -394,6 +367,49 @@ namespace Epinova.ElasticSearch.Core
             HttpClientHelper.GetString(new Uri(endpointUri));
         }
 
+        private static List<IndexableProperty> GetIndexableProperties(Type type, bool optIn)
+        {
+            // string, XhtmlString, [Searchable(true)]
+            var props = type.GetIndexableProps(optIn)
+                .Select(p => new IndexableProperty
+                {
+                    Name = p.Name,
+                    Type = p.PropertyType,
+                    Analyzable = IsAnalyzable(p)
+                })
+                .Where(p => IsValidName(p.Name))
+                .ToList();
+
+            // Custom properties marked for stemming
+            props.AddRange(Conventions.Indexing.CustomProperties
+                .Select(c => new IndexableProperty
+                {
+                    Name = c.Name,
+                    Type = c.Type,
+                    Analyzable = WellKnownProperties.Analyze.Select(w => w.ToLower()).Contains(c.Name.ToLower())
+                }));
+
+            return props;
+
+            bool IsAnalyzable(PropertyInfo p)
+            {
+                return ((p.PropertyType == typeof(string) || p.PropertyType == typeof(string[]))
+                    && (p.GetCustomAttributes(typeof(StemAttribute)).Any() || WellKnownProperties.Analyze
+                            .Select(w => w.ToLower())
+                            .Contains(p.Name.ToLower())))
+                    || (p.PropertyType == typeof(XhtmlString)
+                    && p.GetCustomAttributes(typeof(ExcludeFromSearchAttribute), true).Length == 0);
+            }
+
+            bool IsValidName(string name)
+            {
+                return name != nameof(IndexItem.Type)
+                    && name != nameof(IndexItem._bestbets)
+                    && name != nameof(IndexItem.attachment)
+                    && name != nameof(IndexItem._attachmentdata);
+            }
+        }
+
         private static JsonSerializer GetSerializer()
         {
             var serializer = new JsonSerializer
@@ -411,7 +427,7 @@ namespace Epinova.ElasticSearch.Core
         {
             var indexing = new Indexing(_settings);
             if (!indexing.IndexExists(indexName))
-                throw new Exception("Index '" + indexName + "' not found");
+                throw new InvalidOperationException("Index '" + indexName + "' not found");
 
             Logger.Information("PerformUpdate: Id=" + id + ", Type=" + objectType.Name + ", Index=" + indexName);
 
@@ -428,8 +444,8 @@ namespace Epinova.ElasticSearch.Core
                 BeforeUpdateItem(new IndexItemEventArgs { Item = objectToUpdate, Type = objectType });
             }
 
-            string json = Serialization.Serialize(objectToUpdate);
-            byte[] data = Encoding.UTF8.GetBytes(json);
+            var json = Serialization.Serialize(objectToUpdate);
+            var data = Encoding.UTF8.GetBytes(json);
 
             HttpClientHelper.Put(new Uri(endpointUri), data);
 

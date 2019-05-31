@@ -24,23 +24,20 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Services
     {
         private static readonly ILogger Logger = LogManager.GetLogger(typeof(SynonymRepository));
         private readonly IBlobFactory _blobFactory;
-        private readonly IContentLoader _contentLoader;
         private readonly IContentRepository _contentRepository;
         private readonly IElasticSearchSettings _settings;
 
         public SynonymRepository(
-            IContentLoader contentLoader,
             IContentRepository contentRepository,
             IBlobFactory blobFactory,
             IElasticSearchSettings settings)
         {
-            _contentLoader = contentLoader;
             _contentRepository = contentRepository;
             _blobFactory = blobFactory;
             _settings = settings;
         }
 
-        public void SetSynonyms(string languageId, string analyzer, List<Synonym> synonymsToAdd, string index = null)
+        public void SetSynonyms(string languageId, string analyzer, List<Synonym> synonymsToAdd, string index)
         {
             if(String.IsNullOrWhiteSpace(index))
                 index = _settings.GetDefaultIndexName(languageId);
@@ -49,7 +46,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Services
             indexing.Close(index);
 
             string[] synonymPairs = synonymsToAdd
-                .Select(s => String.Concat(s.From, ",", s.To))
+                .Select(s => String.Concat(s.From, s.MultiWord ? "=>" : ",", s.To))
                 .ToArray();
 
             if (synonymPairs.Length == 0)
@@ -98,6 +95,24 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Services
             indexing.Open(index);
         }
 
+        public string GetSynonymsFilePath(string languageId, string index)
+        {
+            if (String.IsNullOrWhiteSpace(index))
+                index = _settings.GetDefaultIndexName(languageId);
+
+            var indexing = new Indexing(_settings);
+
+            if (!indexing.IndexExists(index))
+                return null;
+
+            var json = HttpClientHelper.GetString(indexing.GetUri(index, "_settings"));
+
+            var jpath = $"{index}.settings.index.analysis.filter.{Language.GetLanguageAnalyzer(languageId)}_synonym_filter.synonyms_path";
+
+            JContainer settings = JsonConvert.DeserializeObject<JContainer>(json);
+            return settings.SelectToken(jpath)?.ToString();
+        }
+
         public List<Synonym> GetSynonyms(string languageId, string index)
         {
             var synonyms = new List<Synonym>();
@@ -119,7 +134,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Services
             string[] parsedSynonyms;
             if (synonymPairs?.Any(s => s.ToString() != "example_from,example_to") == true)
             {
-                parsedSynonyms = synonymPairs.ToArray().Select(s => s.ToString()).ToArray();
+                parsedSynonyms = synonymPairs.Select(s => s.ToString()).ToArray();
             }
             else
             {
@@ -143,10 +158,24 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Services
                 if(String.IsNullOrWhiteSpace(synonym))
                     continue;
 
+                var arrowPos = synonym.IndexOf("=>");
+                var firstCommaPos = synonym.IndexOf(',');
+                var isMultiword = arrowPos > firstCommaPos;
+                var splitToken = new[] { isMultiword ? "=>" : "," };
+
                 Logger.Debug("Synonym: " + synonym);
-                var pair = synonym.Split(',');
+
+                var pair = synonym.Split(splitToken, StringSplitOptions.None);
                 if(pair.Length > 1)
-                    synonyms.Add(new Synonym {From = pair[0], To = pair[1], TwoWay = !pair[0].Contains("=>")});
+                {
+                    synonyms.Add(new Synonym
+                    {
+                        From = pair[0],
+                        To = pair[1],
+                        TwoWay = !isMultiword && !pair[0].Contains("=>"),
+                        MultiWord = isMultiword
+                    });
+                }
             }
 
             return synonyms;
@@ -156,7 +185,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Services
         {
             ContentReference backupFolder = GetBackupFolder().ContentLink;
 
-            SynonymBackupFile backupFile = _contentLoader
+            SynonymBackupFile backupFile = _contentRepository
                 .GetChildren<SynonymBackupFile>(backupFolder)
                 .FirstOrDefault(s => s.Name.Equals(name, StringComparison.OrdinalIgnoreCase));
 
@@ -192,7 +221,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Services
             contentFile.Name = name;
             contentFile.BinaryData = blob;
 
-            var backupRef = _contentRepository.Save(contentFile, SaveAction.Publish, AccessLevel.NoAccess);
+            _contentRepository.Save(contentFile, SaveAction.Publish, AccessLevel.NoAccess);
 
             if(Logger.IsDebugEnabled())
             {
@@ -213,7 +242,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Services
         {
             var parent = ContentReference.RootPage;
 
-            var backupFolder = _contentLoader.GetChildren<SynonymBackupFileFolder>(parent).FirstOrDefault();
+            var backupFolder = _contentRepository.GetChildren<SynonymBackupFileFolder>(parent).FirstOrDefault();
             if (backupFolder == null)
             {
                 backupFolder = _contentRepository.GetDefault<SynonymBackupFileFolder>(parent);

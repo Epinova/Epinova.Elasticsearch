@@ -13,7 +13,7 @@ namespace Epinova.ElasticSearch.Core.Models.Converters
 
         public override bool CanConvert(Type objectType)
         {
-            return objectType  == typeof(Bucket);
+            return objectType == typeof(Bucket);
         }
 
         public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)

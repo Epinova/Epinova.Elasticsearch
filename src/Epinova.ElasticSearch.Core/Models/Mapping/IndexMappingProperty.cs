@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Newtonsoft.Json;
 
@@ -26,6 +27,12 @@ namespace Epinova.ElasticSearch.Core.Models.Mapping
 
         [JsonProperty(JsonNames.MappingIndex, Order = 200)]
         public string Index { get; set; }
+
+        [JsonProperty(JsonNames.Properties)]
+        public Dictionary<string, object> Properties { get; set; }
+
+        [JsonProperty(JsonNames.Dynamic)]
+        public bool? Dynamic { get; set; }
 
         public override string ToString()
         {
@@ -69,7 +76,7 @@ namespace Epinova.ElasticSearch.Core.Models.Mapping
             if (ReferenceEquals(null, obj)) return false;
             if (ReferenceEquals(this, obj)) return true;
             if (obj.GetType() != GetType()) return false;
-            return Equals((IndexMappingProperty) obj);
+            return Equals((IndexMappingProperty)obj);
         }
 
         protected bool Equals(IndexMappingProperty other)

@@ -15,7 +15,7 @@ namespace Epinova.ElasticSearch.Core.Contracts
         CultureInfo CurrentLanguage { get; }
         CultureInfo SearchLanguage { get; }
         int RootId { get; }
-        Type Type { get;  }
+        Type Type { get; }
         Type SearchType { get; set; }
         string SearchText { get; }
         string IndexName { get; }
@@ -232,7 +232,7 @@ namespace Epinova.ElasticSearch.Core.Contracts
         /// <param name="lessThanOrEqualTo">The max-value (optional)</param>
         /// <returns>The current <see cref="IElasticSearchService"/> instance</returns>
         IElasticSearchService<T> RangeInclusive(string fieldName, decimal greaterThanOrEqualTo, decimal? lessThanOrEqualTo = null);
-        
+
         /// <summary>
         /// Searches within a range
         /// </summary>
@@ -465,11 +465,12 @@ namespace Epinova.ElasticSearch.Core.Contracts
         /// Materializes the search query and returns the results, 
         /// with the source fields in <paramref name="fields"/>
         /// </summary>
-        /// <param name="fields">Return these source fields</param>
-        /// <param name="enableDidYouMean">Include DidYouMean in query</param>
         /// <param name="enableHighlighting">Enable highlighting</param>
+        /// <param name="enableDidYouMean">Include DidYouMean in query</param>
+        /// <param name="applyDefaultFilters">Apply default filters, such as StopPublish</param>
+        /// <param name="fields">Return these source fields</param>
         /// <returns>An instance of <see cref="SearchResult"/></returns>
-        SearchResult GetResults(bool enableHighlighting = true, bool enableDidYouMean = true, params string[] fields);
+        SearchResult GetResults(bool enableHighlighting = true, bool enableDidYouMean = true, bool applyDefaultFilters = true, params string[] fields);
 
         /// <summary>
         /// Materializes the search query and returns the results, 
@@ -495,11 +496,12 @@ namespace Epinova.ElasticSearch.Core.Contracts
         /// </summary>
         /// <param name="from">Skips this number of hits</param>
         /// <param name="size">How many hits to return</param>        
-        /// <param name="fields">Return these source fields</param>
-        /// <param name="enableDidYouMean">Include DidYouMean in query</param>
         /// <param name="enableHighlighting">Enable highlighting</param>
+        /// <param name="enableDidYouMean">Include DidYouMean in query</param>
+        /// <param name="applyDefaultFilters">Apply default filters, such as StopPublish</param>
+        /// <param name="fields">Return these source fields</param>
         /// <returns>An instance of <see cref="SearchResult"/></returns>
-        SearchResult GetResults(int from, int size, bool enableHighlighting = true, bool enableDidYouMean = true, params string[] fields);
+        SearchResult GetResults(int from, int size, bool enableHighlighting = true, bool enableDidYouMean = true, bool applyDefaultFilters = true, params string[] fields);
 
         /// <summary>
         /// Materializes the search query and returns the results.

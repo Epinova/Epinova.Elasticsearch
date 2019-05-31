@@ -16,6 +16,7 @@ using Xunit.Abstractions;
 
 namespace Core.Tests.Engine
 {
+    [Collection(nameof(ServiceLocatiorCollection))]
     public class QueryBuilderTests
     {
         private readonly ITestOutputHelper _console;
@@ -23,19 +24,15 @@ namespace Core.Tests.Engine
         public QueryBuilderTests(ITestOutputHelper console)
         {
             _console = console;
-            SetupServiceLocator();
-
             _language = new CultureInfo("en-US");
-            _builder = new QueryBuilder(typeof(object), null);
+            _builder = new QueryBuilder(null);
             _builder.SetMappedFields(new[] { "bar" });
 
             Epinova.ElasticSearch.Core.Conventions.Indexing.Roots.Clear();
         }
 
-
         private readonly QueryBuilder _builder;
         private readonly CultureInfo _language;
-
 
         private static string Serialize(object data)
         {
@@ -43,7 +40,6 @@ namespace Core.Tests.Engine
                 Formatting.Indented,
                 new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore });
         }
-
 
         [Fact]
         public void Search_ExcludeField_AddsMustNotMatch()
@@ -67,11 +63,10 @@ namespace Core.Tests.Engine
             Assert.Equal(typeof(ComplexType).GetTypeName().ToLower(), match);
         }
 
-
         [Fact]
         public void Search_ExcludeMultipleFields_AddsMustNotMatches()
         {
-            var builder = new QueryBuilder(typeof(object), null);
+            var builder = new QueryBuilder(null);
             builder.SetMappedFields(new[] { "bar" });
 
             var request = (QueryRequest)builder.Search(new QuerySetup
@@ -94,7 +89,6 @@ namespace Core.Tests.Engine
             Assert.True(match.Contains(typeof(TypeWithBoosting).GetTypeName().ToLower()));
         }
 
-
         [Fact]
         public void Search_BoostedFields_AddsShouldMatch()
         {
@@ -114,12 +108,11 @@ namespace Core.Tests.Engine
                 request.Query.Bool.Should
                     .OfType<MatchWithBoost>()
                     .FirstOrDefault(s =>
-                        s.Match[field].Value<byte>(JsonNames.Boost) == weight &&
-                        s.Match[field].Value<string>(JsonNames.Query) == field );
+                        s.Match[field].Value<byte>(JsonNames.Boost) == weight
+                        && s.Match[field].Value<string>(JsonNames.Query) == field);
 
             Assert.NotNull(match);
         }
-
 
         [Theory]
         [InlineData("Search_Term_Foo.json", "Foo")]
@@ -137,7 +130,6 @@ namespace Core.Tests.Engine
             Assert.Contains(expected, result);
         }
 
-
         [Theory]
         [InlineData("Search_With_Filter_123_Term_Foo.json", 123, "Foo")]
         [InlineData("Search_With_Filter_678_Term_Bar.json", 678, "Bar")]
@@ -146,7 +138,7 @@ namespace Core.Tests.Engine
         {
             var expected = RemoveWhitespace(GetJsonTestData(testFile));
 
-            var builder = new QueryBuilder(typeof(object), null);
+            var builder = new QueryBuilder(null);
             builder.SetMappedFields(new[] { "bar" });
 
             var result = RemoveWhitespace(Serialize(builder.Search(new QuerySetup
@@ -161,7 +153,6 @@ namespace Core.Tests.Engine
 
             Assert.Contains(expected, result);
         }
-
 
         [Fact]
         public void Search_GaussAndScriptScore_Throws()
@@ -181,11 +172,10 @@ namespace Core.Tests.Engine
 
             setup.Gauss.Add(new Gauss());
 
-            Exception exception = Assert.Throws<Exception>(() => { _builder.Search(setup); });
+            Exception exception = Assert.Throws<InvalidOperationException>(() => _builder.Search(setup));
 
             Assert.Equal("Cannot use Gauss and ScriptScore simultaneously", exception.Message);
         }
-
 
         [Fact]
         public void Search_Decay_ReturnsExpectedJson()
@@ -193,7 +183,7 @@ namespace Core.Tests.Engine
             const string expected1 = "function_score";
             const string expected2 = "\"gauss\":{\"foo\":{\"scale\":\"1337s\",\"offset\":\"42s\"}}";
 
-            var builder = new QueryBuilder(typeof(object), null);
+            var builder = new QueryBuilder(null);
             builder.SetMappedFields(new[] { "bar" });
 
             var querySetup = new QuerySetup
@@ -215,14 +205,13 @@ namespace Core.Tests.Engine
             Assert.Contains(expected2, result);
         }
 
-
         [Fact]
         public void Search_NoDecay_ReturnsExpectedJson()
         {
             const string expected1 = "function_score";
             const string expected2 = "\"gauss\":{";
 
-            var builder = new QueryBuilder(typeof(object), null);
+            var builder = new QueryBuilder(null);
             builder.SetMappedFields(new[] { "bar" });
 
             var querySetup = new QuerySetup
@@ -237,14 +226,13 @@ namespace Core.Tests.Engine
             Assert.DoesNotContain(expected2, result);
         }
 
-
         [Fact]
         public void Search_ScriptScore_ReturnsExpectedJson()
         {
             const string expected1 = "function_score";
             const string expected2 = "\"script_score\":{\"script\":{\"lang\":\"painless\",\"source\":\"_score*2\"}}";
 
-            var builder = new QueryBuilder(typeof(object), null);
+            var builder = new QueryBuilder(null);
             builder.SetMappedFields(new[] { "bar" });
 
             var querySetup = new QuerySetup
@@ -267,14 +255,13 @@ namespace Core.Tests.Engine
             Assert.Contains(expected2, result);
         }
 
-
         [Fact]
         public void Search_NoScriptScore_ReturnsExpectedJson()
         {
             const string expected1 = "function_score";
             const string expected2 = "\"script_score\":{";
 
-            var builder = new QueryBuilder(typeof(object), null);
+            var builder = new QueryBuilder(null);
             builder.SetMappedFields(new[] { "bar" });
 
             var querySetup = new QuerySetup
@@ -289,7 +276,6 @@ namespace Core.Tests.Engine
             Assert.DoesNotContain(expected2, result);
         }
 
-
         [Fact]
         public void Search_SizeOver10k_Throws()
         {
@@ -300,12 +286,8 @@ namespace Core.Tests.Engine
                 Language = CultureInfo.CurrentCulture
             };
 
-            Assert.Throws<ArgumentOutOfRangeException>(() =>
-            {
-                _builder.Search(setup);
-            });
+            Assert.Throws<ArgumentOutOfRangeException>(() => _builder.Search(setup));
         }
-
 
         [Fact]
         public void Search_FromOver10k_Throws()
@@ -317,12 +299,8 @@ namespace Core.Tests.Engine
                 Language = CultureInfo.CurrentCulture
             };
 
-            Assert.Throws<ArgumentOutOfRangeException>(() =>
-            {
-                _builder.Search(setup);
-            });
+            Assert.Throws<ArgumentOutOfRangeException>(() => _builder.Search(setup));
         }
-
 
         [Fact]
         public void GetBoosting_TypeWithBoostAttribute_ReturnsAtLeastOneItem()
@@ -333,7 +311,6 @@ namespace Core.Tests.Engine
             Assert.True(boosting.Count > 0);
         }
 
-
         [Fact]
         public void GetBoosting_TypeWithoutBoostAttribute_ReturnsNoItems()
         {
@@ -343,7 +320,6 @@ namespace Core.Tests.Engine
 
             Assert.Empty(boosting);
         }
-
 
         [Fact]
         public void Search_WithOperatorAnd_ReturnsExpectedJson()
@@ -358,7 +334,6 @@ namespace Core.Tests.Engine
             Assert.Contains("\"operator\": \"and\"", result);
         }
 
-
         [Fact]
         public void Search_WithOperatorOr_ReturnsExpectedJson()
         {
@@ -371,7 +346,6 @@ namespace Core.Tests.Engine
 
             Assert.Contains("\"operator\": \"or\"", result);
         }
-
 
         [Fact]
         public void TypedSearch_Object_ReturnsExpectedJson()
@@ -387,7 +361,6 @@ namespace Core.Tests.Engine
 
             Assert.Contains(json, result);
         }
-
 
         [Fact]
         public void TypedSearch_String_ReturnsExpectedJson()

@@ -91,7 +91,9 @@
         <delete>Slett</delete>
         <addnew>Legg til</addnew>
         <confirmDelete>Slette synonym?</confirmDelete>
+        <synonymfilenotice>Synonym-fil er i bruk</synonymfilenotice>
         <newsynonym>Nytt synonym</newsynonym>
+        <newsynonyminfo>For mange-til-en benytt kommaseparert liste med ord i Fra-feltet (støtter ikke toveis).</newsynonyminfo>
         <existingsynonyms>Eksisterende synonymer</existingsynonyms>
       </synonyms>
       <autosuggest>
@@ -139,12 +141,15 @@
         <addorupdateindexesbutton>Opprett/oppdater</addorupdateindexesbutton>
         <addnewindexinfo>Bruker navn fra konfigurasjon.</addnewindexinfo>
         <confirmDelete>Er du sikker på at du vil slette denne indeksen?</confirmDelete>
+        <confirmDeleteAll>Er du sikker på at du vil slette alle indekser?</confirmDeleteAll>
         <delete>Slett</delete>
+        <deleteAll>Slett alle</deleteAll>
         <docscount>Dokumenter</docscount>
         <docsdeleted>Slettet</docsdeleted>
         <heading>Indekser</heading>
         <health>Helse</health>
         <index>Indeks</index>
+        <displayName>Navn</displayName>
         <pri>Prioritet</pri>
         <pristoresize>Prioritet datastørrelse</pristoresize>
         <tokenizer>Tokenizer</tokenizer>

@@ -26,7 +26,6 @@ namespace Core.Tests.Settings.Configuration
             _section = mockSection.Object;
         }
 
-
         [Theory]
         [InlineData("1")]
         [InlineData("42")]
@@ -121,6 +120,20 @@ namespace Core.Tests.Settings.Configuration
         }
 
         [Theory]
+        [InlineData(null)]
+        [InlineData("")]
+        [InlineData("\n")]
+        public void ValidateIndices_EmptyDisplayName_Throws(string displayName)
+        {
+            _section.Indices.Add(new IndexConfiguration { Name = "foo", DisplayName = displayName });
+
+            var exception = Assert.Throws<ConfigurationErrorsException>(() =>
+                _section.ValidateIndices());
+
+            Assert.Equal("Configuration Error. Index display name cannot be empty", exception.Message);
+        }
+
+        [Theory]
         [MemberData(nameof(GetIndexNameInvalidCharacters))]
         public void ValidateIndices_InvalidCharInName_Throws(char character)
         {
@@ -168,10 +181,9 @@ namespace Core.Tests.Settings.Configuration
             );
         }
 
-
         private static IEnumerable<object[]> GetIndexNameInvalidCharacters()
         {
-            foreach (char c in IndexConfiguration.InvalidCharacters)
+            foreach (char c in IndexConfiguration.NameInvalidCharacters)
                 yield return new object[] { c };
         }
 

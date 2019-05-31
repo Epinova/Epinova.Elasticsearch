@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
-using System.Web;
 using Epinova.ElasticSearch.Core.Contracts;
 using Epinova.ElasticSearch.Core.EPiServer.Extensions;
 using Epinova.ElasticSearch.Core.Settings;
@@ -30,13 +29,13 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Providers
         private readonly string _categoryKey;
         protected string IndexName;
 
-        private static Injected<LocalizationService> _localizationServiceHelper;
         protected readonly IElasticSearchService<TSearchType> _elasticSearchService;
         protected readonly IElasticSearchSettings _elasticSearchSettings = ServiceLocator.Current.GetInstance<IElasticSearchSettings>();
+        protected readonly LocalizationService _localizationService = ServiceLocator.Current.GetInstance<LocalizationService>();
 
         protected SearchProviderBase(string categoryKey)
             : base(
-                _localizationServiceHelper.Service,
+                ServiceLocator.Current.GetInstance<LocalizationService>(),
                 ServiceLocator.Current.GetInstance<ISiteDefinitionResolver>(),
                 ServiceLocator.Current.GetInstance<IContentTypeRepository<TContentType>>(),
                 ServiceLocator.Current.GetInstance<EditUrlResolver>(),
@@ -54,7 +53,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Providers
 
         protected string AreaName { private get; set; }
 
-        public override string Category => _localizationServiceHelper.Service.GetString("/epinovaelasticsearch/providers/" + _categoryKey);
+        public override string Category => _localizationService.GetString("/epinovaelasticsearch/providers/" + _categoryKey);
 
         protected string IconClass { private get; set; }
 
@@ -72,17 +71,17 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Providers
 
             foreach (string searchRoot in query.SearchRoots)
             {
-                if(!Int32.TryParse(searchRoot, out int searchRootId))
+                if (!Int32.TryParse(searchRoot, out int searchRootId) && searchRoot.Contains("__"))
                 {
-                    if (searchRoot.Contains("__"))
-                        Int32.TryParse(searchRoot.Split(new[] { "__" }, StringSplitOptions.None)[0], out searchRootId);
+                    Int32.TryParse(searchRoot.Split(new[] { "__" }, StringSplitOptions.None)[0], out searchRootId);
                 }
 
                 if (searchRootId != 0)
                 {
                     IElasticSearchService<TContentData> searchQuery = CreateQuery(query, language, searchRootId);
+
                     ContentSearchResult<TContentData> contentSearchResult =
-                        searchQuery.GetContentResults(false, GetProviderKeys());
+                        searchQuery.GetContentResults(false, true, GetProviderKeys(), false, false);
 
                     contentSearchHits.AddRange(contentSearchResult.Hits);
                 }

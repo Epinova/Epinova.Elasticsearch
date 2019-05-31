@@ -15,13 +15,15 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Controllers
         private readonly IInspectorRepository _inspectorRepository;
         private readonly ILanguageBranchRepository _languageBranchRepository;
 
-        public ElasticIndexInspectorController(IElasticSearchSettings elasticSearchSettings, IInspectorRepository inspectorRepository, ILanguageBranchRepository languageBranchRepository)
+        public ElasticIndexInspectorController(
+            IElasticSearchSettings settings,
+            IInspectorRepository inspectorRepository,
+            ILanguageBranchRepository languageBranchRepository) : base(settings, languageBranchRepository)
         {
-            _elasticSearchSettings = elasticSearchSettings;
+            _elasticSearchSettings = settings;
             _inspectorRepository = inspectorRepository;
             _languageBranchRepository = languageBranchRepository;
         }
-
 
         [Authorize(Roles = RoleNames.ElasticsearchAdmins)]
         public ActionResult Index(InspectViewModel model)

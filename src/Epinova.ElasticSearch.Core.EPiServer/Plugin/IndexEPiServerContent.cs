@@ -72,14 +72,14 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Plugin
 
                 if (!IndicesExists(languages))
                 {
-                    throw new Exception("One or more indices is missing, please create them.");
+                    throw new InvalidOperationException("One or more indices is missing, please create them.");
                 }
 
                 if (!Server.Plugins.Any(p => p.Component.Equals("ingest-attachment")))
                 {
-                    throw new Exception("Plugin 'ingest-attachment' is missing, please install it.");
+                    throw new InvalidOperationException("Plugin 'ingest-attachment' is missing, please install it.");
                 }
-                
+
                 var contentReferences = GetContentReferences();
 
                 logMessage = $"Retrieved {contentReferences.Count} ContentReference items from the following languages: {String.Join(", ", languages.Select(l => l.LanguageID))}";
@@ -94,7 +94,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Plugin
                     if (IsStopped) return "Aborted by user";
 
                     var contents = GetDescendentContents(contentReferences.Take(_settings.BulkSize).ToList(), languages);
-                    
+
                     contents.RemoveAll(Indexer.ShouldHideFromSearch);
                     contents.RemoveAll(Indexer.IsExludedType);
 
@@ -116,7 +116,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Plugin
                         })
                         .Distinct()
                         .ToArray();
-                    
+
                     UpdateMappings(languages, uniqueTypes);
                 }
 
@@ -142,29 +142,30 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Plugin
                 // If we re-throw here, stacktrace won't be displayed
             }
 
-            var finished = $"Processed {results.Batches.Count} batches of {_settings.BulkSize} items, for a total of {results.Batches.Sum(b => b.Items.Length)} items to Elasticsearch index.";
+            var finishedBuilder = new StringBuilder($"Processed {results.Batches.Count} batches of {_settings.BulkSize} items, for a total of {results.Batches.Sum(b => b.Items.Length)} items to Elasticsearch index.");
 
             for (var i = 1; i <= results.Batches.Count; i++)
             {
                 if (results.Batches[i - 1].Errors)
                 {
-                    var message = $" Batch {i} failed. Details: \n";
+                    var messageBuilder = new StringBuilder($" Batch {i} failed. Details: \n");
 
                     foreach (var item in results.Batches[i - 1].Items.Where(item => item.Status >= 400))
                     {
-                        message += item.ToString();
+                        messageBuilder.AppendLine(item.ToString());
                     }
 
-                    finished += message;
+                    var message = messageBuilder.ToString();
+                    finishedBuilder.AppendLine(message);
                     _logger.Warning(message);
                 }
             }
 
-            finalStatus.Insert(0, finished.Replace("\n", "<br/>"));
+            finalStatus.Insert(0, finishedBuilder.ToString().Replace("\n", "<br/>"));
             OnStatusChanged(finalStatus.ToString());
 
             _logger.Information(skippedReason.ToString());
-            _logger.Information(finished);
+            _logger.Information(finishedBuilder.ToString());
 
             finalStatus.AppendLine(skippedReason.ToString().Replace("\n", "<br/>"));
 
@@ -188,7 +189,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Plugin
 
             return contentItems;
         }
-        
+
         //TODO: Review the need for this
         protected virtual List<IContent> GetContentToIndex(IEnumerable<IContent> contentItems)
         {

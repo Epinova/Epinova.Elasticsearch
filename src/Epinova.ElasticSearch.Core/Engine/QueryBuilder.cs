@@ -29,18 +29,17 @@ namespace Epinova.ElasticSearch.Core.Engine
         private readonly IBoostingRepository _boostingRepository;
         private readonly IElasticSearchSettings _settings;
         private static readonly string[] ExcludedFields = { DefaultFields.Suggest };
-        private Type _searchType;
         private string[] _mappedFields;
+
         private readonly string[] _searchableFieldTypes = {
             nameof(MappingType.Text).ToLower(),
             nameof(MappingType.Attachment).ToLower()
         };
 
-        public QueryBuilder(Type searchType, IElasticSearchSettings settings)
+        public QueryBuilder(IElasticSearchSettings settings)
         {
-            _searchType = searchType;
             _settings = settings;
-            ServiceLocator.Current.TryGetExistingInstance(out _boostingRepository);
+            ServiceLocator.Current?.TryGetExistingInstance(out _boostingRepository);
         }
 
         /// <summary>
@@ -116,19 +115,9 @@ namespace Epinova.ElasticSearch.Core.Engine
 
         private RequestBase SearchInternal(QuerySetup setup)
         {
-            _searchType = setup.SearchType;
-
-            setup.SearchText.EnsureNotNull("searchText");
-
-            if (setup.From > 10000 || setup.Size > 10000)
-            {
-                throw new ArgumentOutOfRangeException(nameof(setup),
-                    "From (skip) and size (take) must be less than or equal to: 10000. If you really must, this limit can be set by changing the [index.max_result_window] index level parameter");
-            }
+            CheckSize(setup);
 
             var request = new QueryRequest(setup);
-
-            request.Query.SearchText = setup.SearchText.ToLower();
 
             if (setup.SearchFields.Count == 0)
                 setup.SearchFields.AddRange(GetMappedFields(Language.GetLanguageCode(setup.Language), setup.IndexName));
@@ -170,7 +159,7 @@ namespace Epinova.ElasticSearch.Core.Engine
                         setup.Analyzer));
 
                 // Boost phrase matches if multiple words
-                if(request.Query.SearchText?.IndexOf(" ", StringComparison.OrdinalIgnoreCase) > 0)
+                if (request.Query.SearchText?.IndexOf(" ", StringComparison.OrdinalIgnoreCase) > 0)
                 {
                     request.Query.Bool.Should.Add(
                         new MatchMulti(
@@ -190,7 +179,7 @@ namespace Epinova.ElasticSearch.Core.Engine
             SetupFilters(setup, request);
 
             // Highlighting
-            if(setup.UseHighlight)
+            if (setup.UseHighlight)
             {
                 request.Highlight = new Highlight
                 {
@@ -207,7 +196,7 @@ namespace Epinova.ElasticSearch.Core.Engine
             // function_score. Must be the last operation in this method.
             // Cannot use Gauss and ScriptScore simultaneously
             if (setup.ScriptScore != null && setup.Gauss.Count > 0)
-                throw new Exception("Cannot use Gauss and ScriptScore simultaneously");
+                throw new InvalidOperationException("Cannot use Gauss and ScriptScore simultaneously");
 
             if (setup.ScriptScore != null)
             {
@@ -222,6 +211,15 @@ namespace Epinova.ElasticSearch.Core.Engine
             return request;
         }
 
+        private void CheckSize(in QuerySetup setup)
+        {
+            if (setup.From > 10000 || setup.Size > 10000)
+            {
+                throw new ArgumentOutOfRangeException(nameof(setup),
+                    "From (skip) and size (take) must be less than or equal to 10000 according to default [index.max_result_window] setting.");
+            }
+        }
+
         private void SetupSourceFields(QueryRequest request, QuerySetup setup)
         {
             if (setup.SourceFields == null)
@@ -232,6 +230,8 @@ namespace Epinova.ElasticSearch.Core.Engine
 
             var fields = setup.SourceFields.ToList();
             fields.AddRange(setup.SearchFields);
+
+            fields.AddRange(Conventions.Indexing.CustomProperties.Select(c => c.Name));
 
             fields.Add(DefaultFields.Id);
             fields.Add(DefaultFields.Indexed);
@@ -256,9 +256,9 @@ namespace Epinova.ElasticSearch.Core.Engine
 
         private static void AppendDefaultFilters(QueryBase query, Type type)
         {
-            if(type.GetInheritancHierarchy().Contains(typeof(IVersionable)))
+            if (type.GetInheritancHierarchy().Contains(typeof(IVersionable)))
             {
-                var stopPublishFilter = new Range<DateTime>(DefaultFields.StopPublish, true) {RangeSetting = {Gte = DateTime.Now}};
+                var stopPublishFilter = new Range<DateTime>(DefaultFields.StopPublish, true) { RangeSetting = { Gte = DateTime.Now } };
                 query.Bool.Filter.Add(stopPublishFilter);
             }
         }
@@ -309,16 +309,16 @@ namespace Epinova.ElasticSearch.Core.Engine
             if (setup.UseBestBets && !String.IsNullOrWhiteSpace(request.Query.SearchText))
             {
                 IEnumerable<string> terms = request.Query.SearchText
-                    .Split(new[] {' '}, StringSplitOptions.RemoveEmptyEntries)
+                    .Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries)
                     .Select(t => t.Trim().Trim('*'));
 
                 var key = setup.IndexName ?? _settings.GetDefaultIndexName(Language.GetLanguageCode(setup.Language));
 
-                if (!Conventions.Indexing.BestBets.TryGetValue(key, out var bestBetsForLanguage))
+                if (!Conventions.Indexing.BestBets.TryGetValue(key, out List<BestBet> bestBetsForLanguage))
                     return;
 
                 IEnumerable<BestBet> bestBets = bestBetsForLanguage
-                    .Where(b => b.Terms.Any(t => terms.Contains(t)));
+                    .Where(b => b.GetTerms().Any(t => terms.Contains(t)));
 
                 request.Query.Bool.Should.AddRange(
                     bestBets.Select(_ =>
@@ -350,7 +350,7 @@ namespace Epinova.ElasticSearch.Core.Engine
             // Filter on type
             if (setup.Type != null)
             {
-                var term = CreateTerm(new Filter(DefaultFields.Types, setup.Type.GetTypeName().ToLower(), null, false, Operator.And));
+                Term term = CreateTerm(new Filter(DefaultFields.Types, setup.Type.GetTypeName().ToLower(), null, false, Operator.And));
                 filterQuery.Bool.Must.Add(term);
             }
 
@@ -379,7 +379,7 @@ namespace Epinova.ElasticSearch.Core.Engine
 
                             if (ArrayHelper.IsArrayCandidate(filter.Value.GetType()))
                             {
-                                foreach (object value in (IEnumerable)ArrayHelper.ToArray(filter.Value))
+                                foreach (var value in (IEnumerable)ArrayHelper.ToArray(filter.Value))
                                 {
                                     boolQuery.Should.Add(Term.FromFilter(filter, value));
                                 }
@@ -395,7 +395,7 @@ namespace Epinova.ElasticSearch.Core.Engine
 
                             if (ArrayHelper.IsArrayCandidate(filter.Value.GetType()))
                             {
-                                foreach (object value in (IEnumerable)ArrayHelper.ToArray(filter.Value))
+                                foreach (var value in (IEnumerable)ArrayHelper.ToArray(filter.Value))
                                 {
                                     boolQuery.Must.Add(Term.FromFilter(filter, value));
                                 }
@@ -466,7 +466,8 @@ namespace Epinova.ElasticSearch.Core.Engine
 
             request.Query.Bool.Filter.Add(filterQuery);
 
-            AppendDefaultFilters(request.Query, setup.Type);
+            if(setup.ApplyDefaultFilters)
+                AppendDefaultFilters(request.Query, setup.Type);
 
             if (request.Query.Bool.Should.Count > 1 && request.Query.Bool.Must.Count == 0)
                 request.Query.Bool.MinimumNumberShouldMatch = 1;
@@ -498,7 +499,7 @@ namespace Epinova.ElasticSearch.Core.Engine
         {
             object settings = new { fragment_size = Conventions.Indexing.HighlightFragmentSize };
 
-            var fields = WellKnownProperties.Highlight.ToDictionary(x => x, _ => settings);
+            var fields = WellKnownProperties.Analyze.ToDictionary(x => x, _ => settings);
 
             Conventions.Indexing.Highlights.ToList().ForEach(h =>
             {
@@ -532,11 +533,14 @@ namespace Epinova.ElasticSearch.Core.Engine
 
             foreach (KeyValuePair<string, MappingType> field in sortedFields)
             {
-                if (field.Value == MappingType.Text)
+                var key = field.Key;
+
+                if (field.Value == MappingType.Text && !key.EndsWith(Models.Constants.KeywordSuffix))
                 {
-                    var raw = String.Concat(field.Key, Models.Constants.KeywordSuffix);
-                    aggregations.Add(raw, new Bucket(raw));
+                    key += Models.Constants.KeywordSuffix;
                 }
+
+                aggregations.Add(key, new Bucket(key));
             }
 
             return aggregations;
@@ -571,7 +575,7 @@ namespace Epinova.ElasticSearch.Core.Engine
             if (_boostingRepository == null)
                 return boost;
 
-            List<Boost> boostingFromDb = _boostingRepository.GetByType(type)
+            var boostingFromDb = _boostingRepository.GetByType(type)
                 .Select(p => new Boost
                 {
                     FieldName = p.Key,
@@ -580,7 +584,7 @@ namespace Epinova.ElasticSearch.Core.Engine
                 .ToList();
 
             // Editorial entries has presedence
-            foreach (var dbBoost in boostingFromDb)
+            foreach (Boost dbBoost in boostingFromDb)
             {
                 if (boost.Any(b => b.FieldName == dbBoost.FieldName))
                 {

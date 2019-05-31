@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -28,6 +28,11 @@ namespace Epinova.ElasticSearch.Core.Utilities
             return values;
         }
 
+        internal static object ToDictionary(object value)
+        {
+            return value as IDictionary<string, object>;
+        }
+
         internal static bool IsArrayCandidate(PropertyInfo p)
         {
             return IsArrayCandidate(p?.PropertyType);
@@ -36,7 +41,13 @@ namespace Epinova.ElasticSearch.Core.Utilities
         internal static bool IsArrayCandidate(Type type)
         {
             return type != null && !typeof(string).IsAssignableFrom(type)
-                   && typeof(IEnumerable).IsAssignableFrom(type);
+                   && typeof(IEnumerable).IsAssignableFrom(type)
+                   && !IsDictionary(type);
+        }
+
+        internal static bool IsDictionary(Type type)
+        {
+            return type.IsGenericType && type.GenericTypeArguments.Length == 2;
         }
 
         private static Type GetIEnumerableType(object o)

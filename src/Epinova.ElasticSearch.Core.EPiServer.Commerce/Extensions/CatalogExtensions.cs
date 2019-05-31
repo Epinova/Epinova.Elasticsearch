@@ -13,18 +13,12 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Commerce.Extensions
 {
     public static class CatalogExtensions
     {
-        private static readonly ITrackingRepository TrackingRepository;
-        private static readonly IElasticSearchSettings ElasticSearchSettings;
-
-        static CatalogExtensions()
-        {
-            TrackingRepository = ServiceLocator.Current.GetInstance<ITrackingRepository>();
-            ElasticSearchSettings = ServiceLocator.Current.GetInstance<IElasticSearchSettings>();
-        }
+        private static readonly ITrackingRepository TrackingRepository = ServiceLocator.Current.GetInstance<ITrackingRepository>();
+        private static readonly IElasticSearchSettings ElasticSearchSettings = ServiceLocator.Current.GetInstance<IElasticSearchSettings>();
 
         private static string GetIndexName(CultureInfo searchLanguage)
         {
-            return $"{ElasticSearchSettings.Index}-{Core.Constants.CommerceProviderName}-{Language.GetLanguageCode(searchLanguage)}";
+            return $"{ElasticSearchSettings.Index}-{Constants.CommerceProviderName}-{Language.GetLanguageCode(searchLanguage)}";
         }
 
         public static CatalogSearchResult<T> GetCatalogResults<T>(this IElasticSearchService<T> service)
@@ -38,7 +32,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Commerce.Extensions
 
             foreach (SearchHit hit in results.Hits)
             {
-                if (hit.ShouldAdd(false, out T content, new[] { ProviderConstants.CatalogProviderKey }))
+                if (hit.ShouldAdd(false, out T content, new[] { ProviderConstants.CatalogProviderKey }, false))
                     hits.Add(new CatalogSearchHit<T>(content, hit.CustomProperties, hit.QueryScore, hit.Highlight));
                 else
                     results.TotalHits--;
