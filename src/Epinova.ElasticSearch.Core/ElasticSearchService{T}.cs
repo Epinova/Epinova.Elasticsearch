@@ -17,6 +17,7 @@ using Epinova.ElasticSearch.Core.Models.Query;
 using Epinova.ElasticSearch.Core.Settings;
 using Epinova.ElasticSearch.Core.Utilities;
 using EPiServer.ServiceLocation;
+using Epinova.ElasticSearch.Core.Models.Properties;
 
 #pragma warning disable 693
 namespace Epinova.ElasticSearch.Core
@@ -465,42 +466,84 @@ namespace Epinova.ElasticSearch.Core
             return this;
         }
 
-        public IElasticSearchService<T> SortBy(Expression<Func<T, object>> fieldSelector)
+        public IElasticSearchService<T> SortBy<TProperty>(Expression<Func<T, TProperty>> fieldSelector)
         {
-            if (SortFields.Count > 0)
+            return Sort(fieldSelector, false, true, default);
+        }
+
+        public IElasticSearchService<T> SortBy<TProperty>(Expression<Func<T, TProperty>> fieldSelector, (double Lat, double Lon) compareTo, string unit = "km", string mode = "min")
+            where TProperty : GeoPoint
+        {
+            return Sort(fieldSelector, false, true, compareTo, unit, mode);
+        }
+
+        public IElasticSearchService<T> ThenBy<TProperty>(Expression<Func<T, TProperty>> fieldSelector)
+        {
+            return Sort(fieldSelector, false, false);
+        }
+
+        public IElasticSearchService<T> ThenBy<TProperty>(Expression<Func<T, TProperty>> fieldSelector, (double Lat, double Lon) compareTo, string unit = "km", string mode = "min")
+            where TProperty : GeoPoint
+        {
+            return Sort(fieldSelector, false, false, compareTo, unit, mode);
+        }
+
+        public IElasticSearchService<T> SortByDescending<TProperty>(Expression<Func<T, TProperty>> fieldSelector)
+        {
+            return Sort(fieldSelector, true, true);
+        }
+
+        public IElasticSearchService<T> SortByDescending<TProperty>(Expression<Func<T, TProperty>> fieldSelector, (double Lat, double Lon) compareTo, string unit = "km", string mode = "min")
+            where TProperty : GeoPoint
+        {
+            return Sort(fieldSelector, false, true, compareTo, unit, mode);
+        }
+
+        public IElasticSearchService<T> ThenByDescending<TProperty>(Expression<Func<T, TProperty>> fieldSelector)
+        {
+            return Sort(fieldSelector, true, false);
+        }
+
+        public IElasticSearchService<T> ThenByDescending<TProperty>(Expression<Func<T, TProperty>> fieldSelector, (double Lat, double Lon) compareTo, string unit = "km", string mode = "min")
+            where TProperty : GeoPoint
+        {
+            return Sort(fieldSelector, false, false, compareTo, unit, mode);
+        }
+
+        private IElasticSearchService<T> Sort<TProperty>(
+            Expression<Func<T, TProperty>> fieldSelector,
+            bool descending,
+            bool primary,
+            (double Lat, double Lon) compareTo = default,
+            string unit = "km",
+            string mode = "min")
+        {
+            if (primary && SortFields.Count > 0)
                 throw new InvalidOperationException("Query is already sorted. Use ThenBy or ThenByDescending to apply further sorting");
 
-            return Sort(fieldSelector, false);
-        }
-
-        public IElasticSearchService<T> ThenBy(Expression<Func<T, object>> fieldSelector)
-        {
-            return Sort(fieldSelector, false);
-        }
-
-        public IElasticSearchService<T> SortByDescending(Expression<Func<T, object>> fieldSelector)
-        {
-            if (SortFields.Count > 0)
-                throw new InvalidOperationException("Query is already sorted. Use ThenBy or ThenByDescending to apply further sorting");
-
-            return Sort(fieldSelector, true);
-        }
-
-        public IElasticSearchService<T> ThenByDescending(Expression<Func<T, object>> fieldSelector)
-        {
-            return Sort(fieldSelector, true);
-        }
-
-        private IElasticSearchService<T> Sort(Expression<Func<T, object>> fieldSelector, bool descending)
-        {
             Tuple<string, MappingType> fieldInfo = GetFieldInfo(fieldSelector);
 
-            SortFields.Add(new Sort
+            if (typeof(TProperty) == typeof(GeoPoint))
             {
-                FieldName = fieldInfo.Item1,
-                Direction = descending ? "desc" : "asc",
-                IsStringField = fieldInfo.Item2 == MappingType.Text
-            });
+                SortFields.Add(new GeoSort
+                {
+                    FieldName = fieldInfo.Item1,
+                    Direction = descending ? "desc" : "asc",
+                    MappingType = fieldInfo.Item2,
+                    Unit = unit,
+                    Mode = mode,
+                    CompareTo = compareTo
+                });
+            }
+            else
+            {
+                SortFields.Add(new Sort
+                {
+                    FieldName = fieldInfo.Item1,
+                    Direction = descending ? "desc" : "asc",
+                    MappingType = fieldInfo.Item2
+                });
+            }
 
             return this;
         }

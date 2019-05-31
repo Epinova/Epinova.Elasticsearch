@@ -15,6 +15,7 @@ using Epinova.ElasticSearch.Core.Utilities;
 using EPiServer.Core;
 using EPiServer.ServiceLocation;
 using Epinova.ElasticSearch.Core.Settings;
+using Epinova.ElasticSearch.Core.Models.Properties;
 
 namespace Epinova.ElasticSearch.Core.Engine
 {
@@ -427,25 +428,37 @@ namespace Epinova.ElasticSearch.Core.Engine
                 IEnumerable<Filter> notFilters = setup.Filters.Where(f => f.Not).ToArray();
                 filterQuery.Bool.MustNot.AddRange(notFilters.Select(CreateTerm));
 
+                // GeoFilters
+                IEnumerable<Filter> geoFilters = setup.Filters.Where(f => f.Type == typeof(GeoPoint)).ToArray();
+
                 // Use regular or post filter?
                 if (!setup.UsePostfilters)
                 {
                     request.Query.Bool.Filter.AddRange(
                         setup.Filters
                             .Except(notFilters)
+                            .Except(geoFilters)
                             .Select(CreateTerm));
+
+                    request.Query.Bool.Filter.AddRange(
+                        geoFilters.Select(g => g.Value as MatchBase));
                 }
                 else
                 {
                     request.PostFilter.Bool.Must.AddRange(
                         setup.Filters
                           .Except(notFilters)
+                          .Except(geoFilters)
                           .Where(f => f.Operator == Operator.And && !f.Not)
                           .Select(CreateTerm));
+
+                    request.PostFilter.Bool.Must.AddRange(
+                        geoFilters.Select(g => g.Value as MatchBase));
 
                     request.PostFilter.Bool.Should.AddRange(
                         setup.Filters
                           .Except(notFilters)
+                          .Except(geoFilters)
                           .Where(f => f.Operator == Operator.Or && !f.Not)
                           .Select(CreateTerm));
                 }

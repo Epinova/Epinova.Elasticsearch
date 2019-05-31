@@ -338,7 +338,7 @@ namespace Epinova.ElasticSearch.Core.Contracts
         /// </remarks>
         /// </summary>
         /// <returns>The current <see cref="IElasticSearchService"/> instance</returns>
-        IElasticSearchService<T> SortBy(Expression<Func<T, object>> fieldSelector);
+        IElasticSearchService<T> SortBy<TProperty>(Expression<Func<T, TProperty>> fieldSelector);
 
         /// <summary>
         /// Change what field to sort by.
@@ -347,19 +347,49 @@ namespace Epinova.ElasticSearch.Core.Contracts
         /// </remarks>
         /// </summary>
         /// <returns>The current <see cref="IElasticSearchService"/> instance</returns>
-        IElasticSearchService<T> SortByDescending(Expression<Func<T, object>> fieldSelector);
+        IElasticSearchService<T> SortBy<TProperty>(Expression<Func<T, TProperty>> fieldSelector, (double Lat, double Lon) compareTo, string unit = "km", string mode = "min") where TProperty : GeoPoint;
+
+        /// <summary>
+        /// Change what field to sort by.
+        /// <remarks>
+        /// Use with care, ElasticSearch usually gives you the best sorting based on score.
+        /// </remarks>
+        /// </summary>
+        /// <returns>The current <see cref="IElasticSearchService"/> instance</returns>
+        IElasticSearchService<T> SortByDescending<TProperty>(Expression<Func<T, TProperty>> fieldSelector);
+
+        /// <summary>
+        /// Change what field to sort by.
+        /// <remarks>
+        /// Use with care, ElasticSearch usually gives you the best sorting based on score.
+        /// </remarks>
+        /// </summary>
+        /// <returns>The current <see cref="IElasticSearchService"/> instance</returns>
+        IElasticSearchService<T> SortByDescending<TProperty>(Expression<Func<T, TProperty>> fieldSelector, (double Lat, double Lon) compareTo, string unit = "km", string mode = "min") where TProperty : GeoPoint;
 
         /// <summary>
         /// Secondary field to sort by. Repeat as needed.
         /// </summary>
         /// <returns>The current <see cref="IElasticSearchService"/> instance</returns>
-        IElasticSearchService<T> ThenBy(Expression<Func<T, object>> fieldSelector);
+        IElasticSearchService<T> ThenBy<TProperty>(Expression<Func<T, TProperty>> fieldSelector, (double Lat, double Lon) compareTo, string unit = "km", string mode = "min") where TProperty : GeoPoint;
 
         /// <summary>
         /// Secondary field to sort by. Repeat as needed.
         /// </summary>
         /// <returns>The current <see cref="IElasticSearchService"/> instance</returns>
-        IElasticSearchService<T> ThenByDescending(Expression<Func<T, object>> fieldSelector);
+        IElasticSearchService<T> ThenBy<TProperty>(Expression<Func<T, TProperty>> fieldSelector);
+
+        /// <summary>
+        /// Secondary field to sort by. Repeat as needed.
+        /// </summary>
+        /// <returns>The current <see cref="IElasticSearchService"/> instance</returns>
+        IElasticSearchService<T> ThenByDescending<TProperty>(Expression<Func<T, TProperty>> fieldSelector);
+
+        /// <summary>
+        /// Secondary field to sort by. Repeat as needed.
+        /// </summary>
+        /// <returns>The current <see cref="IElasticSearchService"/> instance</returns>
+        IElasticSearchService<T> ThenByDescending<TProperty>(Expression<Func<T, TProperty>> fieldSelector, (double Lat, double Lon) compareTo, string unit = "km", string mode = "min") where TProperty : GeoPoint;
 
         /// <summary>
         /// Used to ignore any boosting set by <see cref="Epinova.ElasticSearch.Core.Attributes.BoostAttribute"/> 

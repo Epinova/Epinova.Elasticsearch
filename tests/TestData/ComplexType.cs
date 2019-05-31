@@ -1,4 +1,5 @@
 ﻿using System;
+using Epinova.ElasticSearch.Core.Models.Properties;
 using EPiServer.DataAnnotations;
 
 namespace TestData
@@ -31,5 +32,6 @@ namespace TestData
         public DateTime DateTimeProperty { get; set; }
 
         public bool BoolProperty { get; set; }
+        public GeoPoint GeoPointProperty { get; set; }
     }
 }

@@ -1,7 +1,8 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using Epinova.ElasticSearch.Core.Enums;
+using Epinova.ElasticSearch.Core.Models.Properties;
 
 namespace Epinova.ElasticSearch.Core.Contracts
 {
@@ -135,5 +136,35 @@ namespace Epinova.ElasticSearch.Core.Contracts
         /// <param name="raw">Indicates that no analyzer nor tokenizer should be used.</param>
         /// <returns>The current <see cref="IElasticSearchService"/> instance</returns>
         IElasticSearchService<T> FiltersMustNot<TType>(string fieldName, IEnumerable<TType> filterValues, bool raw = true);
+
+        /// <summary>
+        /// Filter hits inside a geo bounding box
+        /// </summary>
+        /// <param name="fieldSelector">The field to filter on</param>
+        /// <param name="topLeft">Value-tuple containg coordinates for the top-left corner</param>
+        /// <param name="bottomRight">Value-tuple containg coordinates for the bottom-right corner</param>
+        /// <returns>The current <see cref="IElasticSearchService"/> instance</returns>
+        IElasticSearchService<T> FilterGeoBoundingBox(Expression<Func<T, GeoPoint>> fieldSelector, (double Lat, double Lon) topLeft, (double Lat, double Lon) bottomRight);
+
+        /// <summary>
+        /// <para>
+        /// Filter hits within a radius of <paramref name="distance"/> from <paramref name="center"/> 
+        /// </para>
+        /// <para>Example of values for <paramref name="distance"/> is "200m" or "15km". See https://www.elastic.co/guide/en/elasticsearch/reference/current/common-options.html#distance-units for the full list of valid entries.</para>
+        /// <para>Meters is the default unit if not specified</para>
+        /// </summary>
+        /// <param name="fieldSelector">The field to filter on</param>
+        /// <param name="distance">The radius of the circle centered on the specified location. Points which fall into this circle are considered to be matches.</param>
+        /// <param name="center">The center point to measure from</param>
+        /// <returns>The current <see cref="IElasticSearchService"/> instance</returns>
+        IElasticSearchService<T> FilterGeoDistance(Expression<Func<T, GeoPoint>> fieldSelector, string distance, (double Lat, double Lon) center);
+
+        /// <summary>
+        /// Filter hits inside a polygon of coordinates
+        /// </summary>
+        /// <param name="fieldSelector">The field to filter on</param>
+        /// <param name="points">A series of coordinates forming the polygon.</param>
+        /// <returns>The current <see cref="IElasticSearchService"/> instance</returns>
+        IElasticSearchService<T> FilterGeoPolygon(Expression<Func<T, GeoPoint>> fieldSelector, IEnumerable<(double Lat, double Lon)> points);
     }
 }

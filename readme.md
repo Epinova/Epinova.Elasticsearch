@@ -197,6 +197,72 @@ SearchResult result = service
    .GetResults();
 ```
 
+### Geo-point datatype
+
+Using properties of the type `Epinova.ElasticSearch.Core.Models.Properties.GeoPoint` allows you to perform geo-based filtering. 
+
+Example model:
+
+```csharp
+public class OfficePage : StandardPage
+{
+    [Display]
+    public virtual double Lat { get; set; }
+
+    [Display]
+    public virtual double Lon { get; set; }
+
+    // Helper property, you could always roll an editor for this
+    public GeoPoint Location => new GeoPoint(Lat, Lon);
+}
+```
+
+#### Filtering options
+
+##### Bounding box
+Find points inside a square area based on its top-left and bottom-right corners.
+
+```csharp
+var topLeft = (59.9277542, 10.7190847);
+var bottomRight = (59.8881646, 10.7983952);
+
+SearchResult result = service
+   .Get<OfficePage>()
+   .FilterGeoBoundingBox(x => x.Location, , topLeft, bottomRight)
+   .GetResults();
+```
+
+##### Distance
+Find points inside a circle given a center point and the distance of the radius. 
+
+```csharp
+var center = (59.9277542, 10.7190847);
+var radius = "10km";
+
+SearchResult result = service
+   .Get<OfficePage>()
+   .FilterGeoDistance(x => x.Location, radius, center)
+   .GetResults();
+```
+
+##### Polygons
+Find points inside a polygon with an arbitrary amount of points. 
+The polygon points can for example be the outlines of a city, country or other types of areas.
+
+```csharp
+var polygons = new[]
+{
+    (59.9702837, 10.6149134),
+    (59.9459601, 11.0231964),
+    (59.7789455, 10.604809)
+};
+
+SearchResult result = service
+   .Get<OfficePage>()
+   .FilterGeoPolygon(x => x.Location, polygons)
+   .GetResults();
+```
+
 
 ### More Like This
 
@@ -642,6 +708,13 @@ SearchResult result = service
    .ThenBy(p => p.Bar)
    .GetResults();
 ```
+
+&nbsp;
+
+#### Geo-points
+
+When sorting on a GeoPoint, there is one more mandatory argument; `compareTo`. 
+Items will be compared to these coordinates, and the resulting distances will be used as the sort values.
 
 &nbsp;
 
