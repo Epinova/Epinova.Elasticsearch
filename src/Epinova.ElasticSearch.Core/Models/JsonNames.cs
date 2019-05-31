@@ -38,6 +38,7 @@
         public const string Id = "_id";
         public const string Inline = "inline";
         public const string IgnoreAbove = "ignore_above";
+        public const string IgnoreUnmapped = "ignore_unmapped";
         public const string Index = "_index";
         public const string Input = "input";
         public const string Key = "key";
@@ -58,6 +59,7 @@
         public const string MinDocFreq = "min_doc_freq";
         public const string MinTermFreq = "min_term_freq";
         public const string MinWordLength = "min_word_length";
+        public const string Mode = "mode";
         public const string MoreLikeThis = "more_like_this";
         public const string MultiMatch = "multi_match";
         public const string Must = "must";
@@ -101,6 +103,7 @@
         public const string TopLeft = "top_left";
         public const string Total = "total";
         public const string Type = "type";
+        public const string Unit = "unit";
         public const string Version = "_version";
         public const string Wildcard = "wildcard";
     }

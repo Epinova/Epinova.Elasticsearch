@@ -32,14 +32,29 @@ namespace Epinova.ElasticSearch.Core.Models.Query
                 {
                     string sortField = _sortFields[i].FieldName;
 
-                    if (sortField[0] != '_' && _sortFields[i].IsStringField)
-                        sortField += Constants.KeywordSuffix;
+                    if (_sortFields[i].MappingType == MappingType.Geo_Point && _sortFields[i] is GeoSort geoSort)
+                    {
+                        sorts.Add(
+                            new JObject(
+                                new JProperty("_geo_distance",
+                                    new JObject(
+                                        new JProperty(sortField, new[] { geoSort.CompareTo.Lat, geoSort.CompareTo.Lon }),
+                                        new JProperty(JsonNames.Order, geoSort.Direction),
+                                        new JProperty(JsonNames.Unit, geoSort.Unit),
+                                        new JProperty(JsonNames.Mode, geoSort.Mode)
+                            ))));
+                    }
+                    else
+                    {
+                        if (sortField[0] != '_' && _sortFields[i].MappingType == MappingType.Text)
+                            sortField += Constants.KeywordSuffix;
 
-                    sorts.Add(
-                        new JObject(
-                            new JProperty(sortField,
-                                new JObject(new JProperty(JsonNames.Order, _sortFields[i].Direction))))
-                        );
+                        sorts.Add(
+                            new JObject(
+                                new JProperty(sortField,
+                                    new JObject(new JProperty(JsonNames.Order, _sortFields[i].Direction))))
+                            );
+                    }
                 }
 
                 return sorts;
