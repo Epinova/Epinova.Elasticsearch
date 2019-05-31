@@ -184,6 +184,9 @@
     <Compile Include="Engine\QueryBuilderTests.cs" />
     <Compile Include="Engine\SearchEngineTests.cs" />
     <Compile Include="Extensions\TypeExtensionsTests.cs" />
+    <Compile Include="Models\Converters\GeoPolygonConverterTests.cs" />
+    <Compile Include="Models\Converters\GeoDistanceConverterTests.cs" />
+    <Compile Include="Models\Converters\GeoBoundingBoxConverterTests.cs" />
     <Compile Include="Models\Properties\GeoPointTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Settings\Configuration\ElasticsearchSectionTests.cs" />
