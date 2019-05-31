@@ -221,7 +221,7 @@ public class OfficePage : StandardPage
 #### Filtering options
 
 ##### Bounding box
-Find points inside a square area based on its top-left and bottom-right position
+Find points inside a square area based on its top-left and bottom-right corners.
 
 ```csharp
 var topLeft = (59.9277542, 10.7190847);
