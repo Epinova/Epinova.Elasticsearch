@@ -3,6 +3,7 @@ using System.Linq;
 using Epinova.ElasticSearch.Core;
 using Epinova.ElasticSearch.Core.Contracts;
 using Epinova.ElasticSearch.Core.Models;
+using Epinova.ElasticSearch.Core.Models.Query;
 using TestData;
 using Xunit;
 
@@ -78,9 +79,26 @@ namespace Core.Tests
         public void SortBy_SetsCorrectField()
         {
             var result = _service.SortBy(x => x.StringProperty) as ElasticSearchService<ComplexType>;
-            const string fieldName = "StringProperty";
 
-            Assert.Equal(result.SortFields[0].FieldName, fieldName);
+            Assert.Equal(result.SortFields[0].FieldName, nameof(ComplexType.StringProperty));
+        }
+
+        [Fact]
+        public void SortBy_GeoPoint_AddsCorrectSort()
+        {
+            _service.SortBy(x => x.GeoPointProperty);
+
+            Assert.True(_service.SortFields.OfType<GeoSort>().Any());
+        }
+
+        [Fact]
+        public void SortBy_CalledTwice_ThrowsUp()
+        {
+            Assert.Throws<InvalidOperationException>(() =>
+            {
+                _service.SortBy(x => x.StringProperty);
+                _service.SortBy(x => x.IntProperty);
+            });
         }
 
         [Fact]
