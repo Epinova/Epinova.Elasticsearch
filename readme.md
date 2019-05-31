@@ -663,6 +663,13 @@ SearchResult result = service
 
 &nbsp;
 
+#### Geo-points
+
+When sorting on a GeoPoint, there is one more mandatory argument; `compareTo`. 
+Items will be compared to these coordinates, and the resulting distances will be used as the sort values.
+
+&nbsp;
+
 
 # &laquo;Did You Mean&raquo;
 
