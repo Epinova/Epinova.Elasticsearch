@@ -3,6 +3,7 @@ using System.Linq;
 using Epinova.ElasticSearch.Core;
 using Epinova.ElasticSearch.Core.Contracts;
 using Epinova.ElasticSearch.Core.Models;
+using Epinova.ElasticSearch.Core.Models.Properties;
 using Epinova.ElasticSearch.Core.Models.Query;
 using TestData;
 using Xunit;
@@ -239,6 +240,59 @@ namespace Core.Tests
 
             Assert.Equal(value, result.Value);
             Assert.Equal(typeof(DateTime).Name, result.Type.Name);
+        }
+
+        [Fact]
+        public void FilterGeoBoundingBox_SetsCorrectTypeAndCoords()
+        {
+            var topLeft = (59.9277542, 10.7190847);
+            var bottomRight = (59.8881646, 10.7983952);
+
+            var service = _service.FilterGeoBoundingBox(x => x.GeoPointProperty, topLeft, bottomRight) as ElasticSearchService<ComplexType>;
+            Filter result = service.PostFilters.Single(f => f.FieldName == nameof(ComplexType.GeoPointProperty));
+            var value = result.Value as GeoBoundingBox;
+
+            Assert.True(result.Type == typeof(GeoPoint));
+            Assert.Equal(topLeft.Item1, value.Box.TopLeft.Lat);
+            Assert.Equal(topLeft.Item2, value.Box.TopLeft.Lon);
+            Assert.Equal(bottomRight.Item1, value.Box.BottomRight.Lat);
+            Assert.Equal(bottomRight.Item2, value.Box.BottomRight.Lon);
+        }
+
+        [Fact]
+        public void FilterGeoDistance_SetsCorrectTypeAndCoords()
+        {
+            var center = (59.9277542, 10.7190847);
+
+            var service = _service.FilterGeoDistance(x => x.GeoPointProperty, "123km", center) as ElasticSearchService<ComplexType>;
+            Filter result = service.PostFilters.Single(f => f.FieldName == nameof(ComplexType.GeoPointProperty));
+            var value = result.Value as GeoDistance;
+
+            Assert.True(result.Type == typeof(GeoPoint));
+            Assert.Equal("123km", value.Distance);
+            Assert.Equal(center.Item1, value.Point.Lat);
+            Assert.Equal(center.Item2, value.Point.Lon);
+        }
+
+        [Fact]
+        public void FilterGeoPolygon_SetsCorrectTypeAndCoords()
+        {
+            var polygons = new[]
+            {
+                (59.9702837, 10.6149134),
+                (59.9459601, 11.0231964),
+                (59.7789455, 10.604809)
+            };
+
+            var service = _service.FilterGeoPolygon(x => x.GeoPointProperty, polygons) as ElasticSearchService<ComplexType>;
+            Filter result = service.PostFilters.Single(f => f.FieldName == nameof(ComplexType.GeoPointProperty));
+            var value = result.Value as GeoPolygon;
+
+            Assert.True(result.Type == typeof(GeoPoint));
+            Assert.Equal(polygons[0].Item1, value.Points.First().Lat);
+            Assert.Equal(polygons[0].Item2, value.Points.First().Lon);
+            Assert.Equal(polygons[2].Item1, value.Points.Last().Lat);
+            Assert.Equal(polygons[2].Item2, value.Points.Last().Lon);
         }
 
         [Fact]
