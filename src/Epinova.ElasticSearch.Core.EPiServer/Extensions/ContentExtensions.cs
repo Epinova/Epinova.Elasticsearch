@@ -429,6 +429,15 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Extensions
                 dictionary.Add(DefaultFields.Created, trackable.Created);
                 dictionary.Add(DefaultFields.Changed, trackable.Changed);
             }
+
+            if (content is ISecurable securable && securable.GetSecurityDescriptor() is IContentSecurityDescriptor acl)
+            {
+                var users = acl.Entries.Where(a => a.EntityType == SecurityEntityType.User).Select(a => a.Name);
+                var roles = acl.Entries.Where(a => a.EntityType == SecurityEntityType.Role).Select(a => a.Name);
+
+                dictionary.Add(DefaultFields.AclRoles, roles);
+                dictionary.Add(DefaultFields.AclUsers, users);
+            }
         }
 
         private static Type GetContentType(IContent content)

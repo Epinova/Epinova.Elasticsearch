@@ -2,6 +2,8 @@
 {
     public static class DefaultFields
     {
+        public const string AclRoles = "_acl_roles";
+        public const string AclUsers = "_acl_users";
         public const string BestBets = "_bestbets";
         public const string Id = "Id";
         public const string Indexed = "Indexed";

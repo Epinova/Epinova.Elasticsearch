@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using Epinova.ElasticSearch.Core.Enums;
 using Epinova.ElasticSearch.Core.Models;
 using Epinova.ElasticSearch.Core.Models.Mapping;
@@ -79,6 +79,8 @@ namespace Epinova.ElasticSearch.Core.Utilities
                     Suggest = SuggestMapping,
                     Type = new { type = nameof(MappingType.Text).ToLower(), analyzer = "raw" },
                     Types = new { type = nameof(MappingType.Text).ToLower(), analyzer = "raw" },
+                    _acl_roles = new { type = nameof(MappingType.Text).ToLower(), analyzer = "raw" },
+                    _acl_users = new { type = nameof(MappingType.Text).ToLower(), analyzer = "raw" },
                     _attachmentdata = new { type = nameof(MappingType.Text).ToLower() },
                     attachment = GetAttachmentMapping(languageName)
                 }
