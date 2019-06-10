@@ -7,6 +7,9 @@ namespace Epinova.ElasticSearch.Core.Utilities
 {
     internal static class MappingPatterns
     {
+        private static readonly string TextType = nameof(MappingType.Text).ToLower();
+        private static readonly string IntType = nameof(MappingType.Integer).ToLower();
+
         internal static dynamic GetTokenizerTemplate(string language, string tokenizer)
         {
             string analyzer = Language.GetLanguageAnalyzer(language);
@@ -65,23 +68,21 @@ namespace Epinova.ElasticSearch.Core.Utilities
                     Changed = new { type = "date" },
                     Indexed = new { type = "date" },
                     Name = new {
-                        type = nameof(MappingType.Text).ToLower(),
+                        type = TextType,
                         fields = Fields
                     },
                     _bestbets = new {
-                        type = nameof(MappingType.Text).ToLower(),
+                        type = TextType,
                         fields = Fields
                     },
                     ParentLink = new { type = "long" },
                     Path = new { type = "long" },
-                    Lang = new { type = nameof(MappingType.Text).ToLower() },
-                    DidYouMean = new { type = nameof(MappingType.Text).ToLower(), analyzer = languageName + "_suggest", fields = new { raw = new { analyzer = "raw", type = nameof(MappingType.Text).ToLower() } } },
+                    Lang = new { type = TextType },
+                    DidYouMean = new { type = TextType, analyzer = languageName + "_suggest", fields = new { raw = new { analyzer = "raw", type = TextType } } },
                     Suggest = SuggestMapping,
-                    Type = new { type = nameof(MappingType.Text).ToLower(), analyzer = "raw" },
-                    Types = new { type = nameof(MappingType.Text).ToLower(), analyzer = "raw" },
-                    _acl_roles = new { type = nameof(MappingType.Text).ToLower(), analyzer = "raw" },
-                    _acl_users = new { type = nameof(MappingType.Text).ToLower(), analyzer = "raw" },
-                    _attachmentdata = new { type = nameof(MappingType.Text).ToLower() },
+                    Type = new { type = TextType, analyzer = "raw" },
+                    Types = new { type = TextType, analyzer = "raw" },
+                    _attachmentdata = new { type = TextType },
                     attachment = GetAttachmentMapping(languageName)
                 }
             };
@@ -95,7 +96,7 @@ namespace Epinova.ElasticSearch.Core.Utilities
                 {
                     content = new
                     {
-                        type = nameof(MappingType.Text).ToLower(),
+                        type = TextType,
                         term_vector = "with_positions_offsets",
                         store = true,
                         analyzer = languageName,
@@ -110,36 +111,36 @@ namespace Epinova.ElasticSearch.Core.Utilities
                     },
                     title = new
                     {
-                        type = nameof(MappingType.Text).ToLower(),
+                        type = TextType,
                     },
                     language = new
                     {
-                        type = nameof(MappingType.Text).ToLower(),
+                        type = TextType,
                     },
                     content_type = new
                     {
-                        type = nameof(MappingType.Text).ToLower(),
+                        type = TextType,
                     },
                     content_length = new
                     {
-                        type = nameof(MappingType.Integer).ToLower(),
+                        type = IntType,
                     }
                 }
             };
         }
-        
+
         internal static dynamic GetCustomIndexMapping(string languageName)
         {
             return new
             {
                 properties = new
                 {
-                    _bestbets = new { type = nameof(MappingType.Text).ToLower() },
-                    Lang = new { type = nameof(MappingType.Text).ToLower() },
-                    DidYouMean = new { type = nameof(MappingType.Text).ToLower(), analyzer = languageName + "_suggest", fields = new { raw = new { analyzer = "raw", type = nameof(MappingType.Text).ToLower() } } },
+                    _bestbets = new { type = TextType },
+                    Lang = new { type = TextType },
+                    DidYouMean = new { type = TextType, analyzer = languageName + "_suggest", fields = new { raw = new { analyzer = "raw", type = TextType } } },
                     Suggest = SuggestMapping,
-                    Type = new { type = nameof(MappingType.Text).ToLower(), analyzer = "raw" },
-                    Types = new { type = nameof(MappingType.Text).ToLower(), analyzer = "raw" }
+                    Type = new { type = TextType, analyzer = "raw" },
+                    Types = new { type = TextType, analyzer = "raw" }
                 }
             };
         }

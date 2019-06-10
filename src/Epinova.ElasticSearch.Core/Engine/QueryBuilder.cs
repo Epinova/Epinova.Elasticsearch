@@ -328,7 +328,7 @@ namespace Epinova.ElasticSearch.Core.Engine
 
         private static void SetupFilters(QuerySetup setup, QueryRequest request)
         {
-            var filterQuery = new NestedBoolQuery(new BoolQuery());
+            var filterQuery = new NestedBoolQuery();
 
             // Filter away excluded types
             if (setup.ExcludedTypes.Count > 0)
@@ -336,9 +336,7 @@ namespace Epinova.ElasticSearch.Core.Engine
                 filterQuery.Bool.MustNot.AddRange(setup.ExcludedTypes.Select(e => new MatchSimple(DefaultFields.Types, e.GetTypeName().ToLower())));
             }
 
-            Dictionary<int, bool> excludedRoots = GetExcludedRoots(setup);
-
-            foreach (var ex in excludedRoots)
+            foreach (var ex in GetExcludedRoots(setup))
             {
                 filterQuery.Bool.MustNot.Add(new MatchSimple(DefaultFields.Id, ex.Key.ToString()));
 
@@ -454,7 +452,6 @@ namespace Epinova.ElasticSearch.Core.Engine
             request.Query.Bool.Filter.Add(filterQuery);
 
             AppendDefaultFilters(request.Query, setup.Type);
-
 
             if (request.Query.Bool.Should.Count > 1 && request.Query.Bool.Must.Count == 0)
                 request.Query.Bool.MinimumNumberShouldMatch = 1;
