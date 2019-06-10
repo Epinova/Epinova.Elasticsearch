@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using Epinova.ElasticSearch.Core.Enums;
+using EPiServer.Security;
 
 namespace Epinova.ElasticSearch.Core.Contracts
 {
@@ -135,5 +136,12 @@ namespace Epinova.ElasticSearch.Core.Contracts
         /// <param name="raw">Indicates that no analyzer nor tokenizer should be used.</param>
         /// <returns>The current <see cref="IElasticSearchService"/> instance</returns>
         IElasticSearchService<T> FiltersMustNot<TType>(string fieldName, IEnumerable<TType> filterValues, bool raw = true);
+
+        /// <summary>
+        /// Require the current principal to have least read-access to hits.
+        /// </summary>
+        /// <param name="principal">The principal used to compare against ACL of hits. Defaults to <see cref="PrincipalInfo.Current"/> if null.</param>
+        /// <returns>The current <see cref="IElasticSearchService"/> instance</returns>
+        IElasticSearchService<T> FilterByACL(PrincipalInfo principal = null);
     }
 }

@@ -17,6 +17,7 @@ using Epinova.ElasticSearch.Core.Models.Query;
 using Epinova.ElasticSearch.Core.Settings;
 using Epinova.ElasticSearch.Core.Utilities;
 using EPiServer.ServiceLocation;
+using EPiServer.Security;
 
 #pragma warning disable 693
 namespace Epinova.ElasticSearch.Core
@@ -38,6 +39,7 @@ namespace Epinova.ElasticSearch.Core
         internal readonly List<Sort> SortFields;
         private string _fuzzyLength;
         private bool _usePostfilters;
+        private bool _appendAclFilters;
 
         // function_score values
         private readonly List<Gauss> _gauss;
@@ -66,6 +68,7 @@ namespace Epinova.ElasticSearch.Core
         public CultureInfo SearchLanguage { get; private set; }
 
         private string _indexName;
+        private PrincipalInfo _aclPrincipal;
 
         public string IndexName
         {
@@ -353,6 +356,8 @@ namespace Epinova.ElasticSearch.Core
                 BoostTypes = _boostTypes,
                 FuzzyLength = _fuzzyLength,
                 UsePostfilters = _usePostfilters,
+                AppendAclFilters = _appendAclFilters,
+                AclPrincipal = _aclPrincipal,
                 Gauss = _gauss,
                 ScriptScore = CreateScriptScore(),
                 Type = Type,
@@ -534,6 +539,14 @@ namespace Epinova.ElasticSearch.Core
 
             if (!String.IsNullOrWhiteSpace(fieldInfo.Item1) && !_facetFields.ContainsKey(fieldInfo.Item1))
                 _facetFields.Add(fieldInfo.Item1, fieldInfo.Item2);
+
+            return this;
+        }
+
+        public IElasticSearchService<T> FilterByACL(PrincipalInfo principal = null)
+        {
+            _appendAclFilters = true;
+            _aclPrincipal = principal ?? PrincipalInfo.Current;
 
             return this;
         }

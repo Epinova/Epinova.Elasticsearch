@@ -82,6 +82,7 @@ namespace Epinova.ElasticSearch.Core.Utilities
                     Suggest = SuggestMapping,
                     Type = new { type = TextType, analyzer = "raw" },
                     Types = new { type = TextType, analyzer = "raw" },
+                    _acl = new { type = TextType, analyzer = "raw" },
                     _attachmentdata = new { type = TextType },
                     attachment = GetAttachmentMapping(languageName)
                 }

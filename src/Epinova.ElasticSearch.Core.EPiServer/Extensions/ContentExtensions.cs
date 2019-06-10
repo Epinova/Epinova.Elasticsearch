@@ -432,11 +432,8 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Extensions
 
             if (content is ISecurable securable && securable.GetSecurityDescriptor() is IContentSecurityDescriptor acl)
             {
-                var users = acl.Entries.Where(a => a.EntityType == SecurityEntityType.User).Select(a => a.Name);
-                var roles = acl.Entries.Where(a => a.EntityType == SecurityEntityType.Role).Select(a => a.Name);
-
-                dictionary.Add(DefaultFields.AclRoles, roles);
-                dictionary.Add(DefaultFields.AclUsers, users);
+                var entries = acl.Entries.Select(a => $"{a.EntityType.ToString()[0]}:{a.Name}");
+                dictionary.Add(DefaultFields.Acl, entries);
             }
         }
 
