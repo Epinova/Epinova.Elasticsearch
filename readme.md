@@ -397,6 +397,20 @@ var query = service
 ```
 &nbsp;
 
+# ACL
+
+To filter on the current users ACL, use `FilterByACL`
+
+```csharp
+var query = service
+   .Search<PageData>("foo")
+   .FilterByACL();
+```
+
+`EPiServer.Security.PrincipalInfo.Current` will be used by default, but a custom `PrincipalInfo` can be supplied if needed. 
+
+&nbsp;
+
 
 # Range
 To search within a given range of values, use the `Range` function.  
