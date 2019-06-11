@@ -805,7 +805,6 @@ namespace Epinova.ElasticSearch.Core
                 case MemberExpression memberExpression:
                     {
                         if (memberExpression.Member is FieldInfo fieldInfo
-                            && fieldInfo != null
                             && memberExpression.Expression is ConstantExpression constantExpression)
                         {
                             fieldName = fieldInfo.GetValue(constantExpression.Value).ToString();
