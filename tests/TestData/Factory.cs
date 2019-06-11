@@ -314,5 +314,14 @@ namespace TestData
         {
             return Regex.Replace(input, @"\s+", String.Empty);
         }
+
+        public static PrincipalInfo GetPrincipalInfo(string username, params string[] roles)
+        {
+            var identity = new GenericPrincipal(
+                new GenericIdentity(username),
+                roles);
+
+            return new PrincipalInfo(identity);
+        }
     }
 }

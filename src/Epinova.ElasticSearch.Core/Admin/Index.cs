@@ -203,7 +203,7 @@ namespace Epinova.ElasticSearch.Core.Admin
         private void CreateStandardMappings()
         {
             string json = Serialization.Serialize(MappingPatterns.GetStandardIndexMapping(Language.GetLanguageAnalyzer(_language)));
-            byte[] data = Encoding.UTF8.GetBytes(json);
+            byte[] data = Encoding.UTF8.GetBytes(json); 
             var uri = _indexing.GetUri(_name, "_mapping", typeof(IndexItem).GetTypeName());
 
             Logger.Information($"Creating standard mappings. Language: {_language}");

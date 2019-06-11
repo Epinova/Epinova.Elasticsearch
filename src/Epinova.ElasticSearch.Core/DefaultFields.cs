@@ -2,6 +2,7 @@
 {
     public static class DefaultFields
     {
+        public const string Acl = "_acl";
         public const string BestBets = "_bestbets";
         public const string Id = "Id";
         public const string Indexed = "Indexed";

@@ -1,4 +1,4 @@
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 
 namespace Epinova.ElasticSearch.Core.Models.Query
 {
@@ -6,7 +6,6 @@ namespace Epinova.ElasticSearch.Core.Models.Query
     {
         [JsonProperty(JsonNames.Bool)]
         public BoolQuery Bool { get; set; } = new BoolQuery();
-
 
         public bool ShouldSerializeBool()
         {

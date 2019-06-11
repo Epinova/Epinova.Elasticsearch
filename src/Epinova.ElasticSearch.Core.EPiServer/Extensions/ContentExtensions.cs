@@ -429,6 +429,12 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Extensions
                 dictionary.Add(DefaultFields.Created, trackable.Created);
                 dictionary.Add(DefaultFields.Changed, trackable.Changed);
             }
+
+            if (content is ISecurable securable && securable.GetSecurityDescriptor() is IContentSecurityDescriptor acl)
+            {
+                var entries = acl.Entries.Select(a => $"{a.EntityType.ToString()[0]}:{a.Name}");
+                dictionary.Add(DefaultFields.Acl, entries);
+            }
         }
 
         private static Type GetContentType(IContent content)
