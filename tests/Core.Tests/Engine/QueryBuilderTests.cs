@@ -13,6 +13,8 @@ using TestData;
 using static TestData.Factory;
 using Xunit;
 using Xunit.Abstractions;
+using EPiServer.Security;
+using System.Security.Principal;
 
 namespace Core.Tests.Engine
 {
@@ -505,6 +507,26 @@ namespace Core.Tests.Engine
             var expected = GetJsonTestData("PostFilterShouldDateTime.json");
 
             Assert.Equal(expected, result, ignoreLineEndingDifferences: true);
+        }
+
+        [Fact]
+        public void FilterACL__AddsBoolShoulds()
+        {
+            var setup = new QuerySetup
+            {
+                SearchText = "term",
+                Language = _language,
+                AclPrincipal = Factory.GetPrincipalInfo("foo", "Role1", "Role2"),
+                AppendAclFilters = true
+            };
+
+            var request = (QueryRequest)_builder.TypedSearch<String>(setup);
+            var boolQuery = request.Query.Bool.Filter.Cast<NestedBoolQuery>().First().Bool;
+            var shoulds = boolQuery.Should.Cast<MatchSimple>();
+
+            Assert.Contains(shoulds, f => f.Match.Value<string>("_acl") == "U:foo");
+            Assert.Contains(shoulds, f => f.Match.Value<string>("_acl") == "R:Role1");
+            Assert.Contains(shoulds, f => f.Match.Value<string>("_acl") == "R:Role2");
         }
     }
 }

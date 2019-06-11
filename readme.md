@@ -1,6 +1,6 @@
 [![Build status](https://ci.appveyor.com/api/projects/status/vhaehgrviq4u92ha/branch/master?svg=true)](https://ci.appveyor.com/project/Epinova_AppVeyor_Team/epinova-elasticsearch/branch/master)
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=Epinova_Epinova.Elasticsearch&metric=alert_status)](https://sonarcloud.io/dashboard?id=Epinova_Epinova.Elasticsearch)
-![Tests](https://img.shields.io/appveyor/tests/Epinova_AppVeyor_Team/epinova-elasticsearch.svg)
+![Tests](https://img.shields.io/appveyor/tests/Epinova_AppVeyor_Team/epinova-elasticsearch/master.svg)
 
 
 # Introduction
@@ -460,6 +460,20 @@ var query = service
    .Search<PageData>("foo")
    .FilterMustNot(x => x.Title, "bar");
 ```
+&nbsp;
+
+# ACL
+
+To filter on the current users ACL, use `FilterByACL`
+
+```csharp
+var query = service
+   .Search<PageData>("foo")
+   .FilterByACL();
+```
+
+`EPiServer.Security.PrincipalInfo.Current` will be used by default, but a custom `PrincipalInfo` can be supplied if needed. 
+
 &nbsp;
 
 

@@ -329,7 +329,7 @@ namespace Epinova.ElasticSearch.Core.Engine
 
         private static void SetupFilters(QuerySetup setup, QueryRequest request)
         {
-            var filterQuery = new NestedBoolQuery(new BoolQuery());
+            var filterQuery = new NestedBoolQuery();
 
             // Filter away excluded types
             if (setup.ExcludedTypes.Count > 0)
@@ -337,9 +337,7 @@ namespace Epinova.ElasticSearch.Core.Engine
                 filterQuery.Bool.MustNot.AddRange(setup.ExcludedTypes.Select(e => new MatchSimple(DefaultFields.Types, e.GetTypeName().ToLower())));
             }
 
-            Dictionary<int, bool> excludedRoots = GetExcludedRoots(setup);
-
-            foreach (var ex in excludedRoots)
+            foreach (var ex in GetExcludedRoots(setup))
             {
                 filterQuery.Bool.MustNot.Add(new MatchSimple(DefaultFields.Id, ex.Key.ToString()));
 
@@ -356,13 +354,34 @@ namespace Epinova.ElasticSearch.Core.Engine
 
             // Filter on ranges
             if (setup.Ranges.Count > 0)
-                request.Query.Bool.Must.AddRange(setup.Ranges);
+            {
+                request.Query.Bool.Filter.AddRange(setup.Ranges);
+            }
 
             // Filter on root-id
             if (setup.RootId != 0)
             {
                 var term = new Term(DefaultFields.Path, Convert.ToString(setup.RootId), true);
                 filterQuery.Bool.Must.Add(term);
+            }
+
+            // Filter on ACL
+            if (setup.AppendAclFilters && setup.AclPrincipal != null)
+            {
+                var boolQuery = new NestedBoolQuery();
+
+                foreach (var role in setup.AclPrincipal.RoleList)
+                {
+                    var roleTerm = new MatchSimple(DefaultFields.Acl, $"R:{role}");
+                    boolQuery.Bool.Should.Add(roleTerm);
+                }
+
+                var userTerm = new MatchSimple(DefaultFields.Acl, $"U:{setup.AclPrincipal.Name}");
+                boolQuery.Bool.Should.Add(userTerm);
+
+                boolQuery.Bool.MinimumNumberShouldMatch = 1;
+
+                request.Query.Bool.Filter.Add(boolQuery);
             }
 
             if (setup.FilterGroups.Count > 0)

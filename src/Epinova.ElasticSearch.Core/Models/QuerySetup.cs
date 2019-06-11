@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using Epinova.ElasticSearch.Core.Enums;
 using Epinova.ElasticSearch.Core.Models.Query;
+using EPiServer.Security;
 
 namespace Epinova.ElasticSearch.Core.Models
 {
@@ -66,5 +67,7 @@ namespace Epinova.ElasticSearch.Core.Models
         public bool UseHighlight { get; set; }
         public string Analyzer { get; internal set; }
         public bool ApplyDefaultFilters { get; set; }
+        public bool AppendAclFilters { get; internal set; }
+        public PrincipalInfo AclPrincipal { get; internal set; }
     }
 }

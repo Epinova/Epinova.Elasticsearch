@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq.Expressions;
 using Epinova.ElasticSearch.Core.Enums;
 using Epinova.ElasticSearch.Core.Models.Properties;
+using EPiServer.Security;
 
 namespace Epinova.ElasticSearch.Core.Contracts
 {
@@ -166,5 +167,12 @@ namespace Epinova.ElasticSearch.Core.Contracts
         /// <param name="points">A series of coordinates forming the polygon.</param>
         /// <returns>The current <see cref="IElasticSearchService"/> instance</returns>
         IElasticSearchService<T> FilterGeoPolygon(Expression<Func<T, GeoPoint>> fieldSelector, IEnumerable<(double Lat, double Lon)> points);
+
+        /// <summary>
+        /// Require the current principal to have least read-access to hits.
+        /// </summary>
+        /// <param name="principal">The principal used to compare against ACL of hits. Defaults to <see cref="PrincipalInfo.Current"/> if null.</param>
+        /// <returns>The current <see cref="IElasticSearchService"/> instance</returns>
+        IElasticSearchService<T> FilterByACL(PrincipalInfo principal = null);
     }
 }

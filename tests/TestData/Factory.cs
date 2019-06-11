@@ -321,5 +321,14 @@ namespace TestData
                     false
                 )));
         }
+
+        public static PrincipalInfo GetPrincipalInfo(string username, params string[] roles)
+        {
+            var identity = new GenericPrincipal(
+                new GenericIdentity(username),
+                roles);
+
+            return new PrincipalInfo(identity);
+        }
     }
 }

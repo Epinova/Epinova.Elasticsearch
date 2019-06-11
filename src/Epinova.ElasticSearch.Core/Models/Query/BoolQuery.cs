@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using Newtonsoft.Json;
 
 namespace Epinova.ElasticSearch.Core.Models.Query
@@ -20,25 +20,24 @@ namespace Epinova.ElasticSearch.Core.Models.Query
         [JsonProperty(JsonNames.Filter)]
         public List<MatchBase> Filter { get; set; } = new List<MatchBase>();
 
-
         public bool ShouldSerializeMust()
         {
-            return Must != null && Must.Count > 0;
+            return Must?.Count > 0;
         }
 
         public bool ShouldSerializeMustNot()
         {
-            return MustNot != null && MustNot.Count > 0;
+            return MustNot?.Count > 0;
         }
 
         public bool ShouldSerializeShould()
         {
-            return Should != null && Should.Count > 0;
+            return Should?.Count > 0;
         }
 
         public bool ShouldSerializeFilter()
         {
-            return Filter != null && Filter.Count > 0;
+            return Filter?.Count > 0;
         }
     }
 }
