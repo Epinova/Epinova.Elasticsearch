@@ -537,7 +537,7 @@ namespace Core.Tests.Engine
         }
 
         [Fact]
-        public void FilterACL__AddsBoolShoulds()
+        public void FilterACL_AddsBoolShoulds()
         {
             var setup = new QuerySetup
             {
@@ -554,6 +554,27 @@ namespace Core.Tests.Engine
             Assert.Contains(shoulds, f => f.Match.Value<string>("_acl") == "U:foo");
             Assert.Contains(shoulds, f => f.Match.Value<string>("_acl") == "R:Role1");
             Assert.Contains(shoulds, f => f.Match.Value<string>("_acl") == "R:Role2");
+        }
+
+        [Theory]
+        [InlineData("Foo", MappingType.Text, "Foo.keyword")]
+        [InlineData("Bar", MappingType.Integer, "Bar")]
+        public void FacetFieldNames_AddsAggregation(string field, MappingType type, string expectedKey)
+        {
+            var setup = new QuerySetup
+            {
+                SearchText = "term",
+                Language = _language,
+                FacetFieldNames = new Dictionary<string, MappingType>
+                {
+                    { field, type}
+                }
+            };
+
+            var request = (QueryRequest)_builder.TypedSearch<String>(setup);
+            var aggregation = request.Aggregation.First();
+
+            Assert.Equal(expectedKey, aggregation.Key);
         }
     }
 }
