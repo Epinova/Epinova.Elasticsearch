@@ -73,12 +73,17 @@ namespace Epinova.ElasticSearch.Core.Utilities
             index.WaitForStatus();
         }
 
-        internal Uri GetUri(string indexName, string endpoint = null, string type = null)
+        internal Uri GetUri(string indexName, string endpoint = null, string type = null, string extraParams = null)
         {
             type = type != null ? String.Concat("/", type) : null;
             endpoint = endpoint != null ? String.Concat("/", endpoint) : null;
 
-            string uri = $"{_settings.Host}/{indexName}{type}{endpoint}";
+            var uri = $"{_settings.Host}/{indexName}{type}{endpoint}";
+
+            if (extraParams != null)
+            {
+                uri += (uri.Contains("?") ? "&" : "?") + extraParams;
+            }
 
             return new Uri(uri);
         }
