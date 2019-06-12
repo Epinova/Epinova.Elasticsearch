@@ -273,7 +273,7 @@ namespace Epinova.ElasticSearch.Core
                     c.Type,
                     Analyzable = WellKnownProperties.Analyze.Select(w => w.ToLower()).Contains(c.Name.ToLower())
                 }));
-                
+
             Logger.Information("IndexableProperties for " + type?.Name + ": " + String.Join(", ", indexableProperties.Select(p => p.Name)));
 
             // Get existing mapping
@@ -281,10 +281,10 @@ namespace Epinova.ElasticSearch.Core
 
             // Ignore special mappings
             mapping.Properties.Remove(DefaultFields.AttachmentData);
-            mapping.Properties.Remove(DefaultFields.BestBets);            
+            mapping.Properties.Remove(DefaultFields.BestBets);
             mapping.Properties.Remove(DefaultFields.DidYouMean);
             mapping.Properties.Remove(DefaultFields.Suggest);
-            
+
             try
             {
                 foreach (var prop in indexableProperties)
