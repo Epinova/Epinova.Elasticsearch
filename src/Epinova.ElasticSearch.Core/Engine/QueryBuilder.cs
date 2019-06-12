@@ -553,10 +553,9 @@ namespace Epinova.ElasticSearch.Core.Engine
             foreach (KeyValuePair<string, MappingType> field in sortedFields)
             {
                 var key = field.Key;
-
                 if (field.Value == MappingType.Text && !key.EndsWith(Models.Constants.KeywordSuffix))
                 {
-                    key += Models.Constants.KeywordSuffix;
+                    key = String.Concat(key, Models.Constants.KeywordSuffix);
                 }
 
                 aggregations.Add(key, new Bucket(key));
