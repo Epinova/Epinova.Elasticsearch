@@ -164,7 +164,7 @@ namespace Epinova.ElasticSearch.Core.Utilities
 
         private static string GetMappingUri(string index, string typeName)
         {
-            return $"{ElasticSearchSettings.Host}/{index}/{typeName}/_mapping";
+            return $"{ElasticSearchSettings.Host}/{index}/{typeName}/_mapping?include_type_name=true";
         }
     }
 }
