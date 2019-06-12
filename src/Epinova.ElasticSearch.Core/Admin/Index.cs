@@ -113,12 +113,12 @@ namespace Epinova.ElasticSearch.Core.Admin
 
         internal int GetDocumentCount()
         {
-            var uri = _indexing.GetUri(_name, "_search") + "?size=0";
+            var uri = _indexing.GetUri(_name, "_search", null, "size=0&rest_total_hits_as_int=true");
             dynamic model = new { hits = new { total = 0 } };
 
             try
             {
-                string response = HttpClientHelper.GetString(new Uri(uri));
+                string response = HttpClientHelper.GetString(uri);
                 var result = JsonConvert.DeserializeAnonymousType(response, model);
                 return result.hits.total;
             }
