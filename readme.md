@@ -39,13 +39,17 @@ A search plugin for Episerver CMS and Commerce
 * Compound word token filter
 * Utilize aliases for better downtime management
 
+## Version convention
+
+* Major version reflects Episerver version
+* Minor version reflects Elasticsearch version
 
 # Requirements
 
 * .NET 4.6.1+
 * Episerver CMS 11+
 * Episerver Commerce 11.5+
-* Elasticsearch >5.1.1 && <6
+* Elasticsearch 5.6+
 * Ingest Attachment Processor Plugin
 
 # Usage

@@ -1,10 +1,14 @@
 # Changelog
 
-#### 11.6.1
+#### 11.7.1
 * Geo-point filtering and sorting
 * Support for `IDictionary<string, object>` properties.
 * Delete-all function in index administration GUI
 * Support for synonyms from file
+* Support for all blob types (remove hardcoded FileBlob coupling)
+
+#### 11.7
+* ES 7 support
 
 #### 11.6
 * ES 6 support
