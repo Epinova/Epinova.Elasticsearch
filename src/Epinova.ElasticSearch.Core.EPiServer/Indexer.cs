@@ -16,6 +16,7 @@ using Epinova.ElasticSearch.Core.Settings;
 using EPiServer;
 using EPiServer.Core;
 using EPiServer.ServiceLocation;
+using EPiServer.Web;
 using Epinova.ElasticSearch.Core.EPiServer.Contracts;
 
 namespace Epinova.ElasticSearch.Core.EPiServer
@@ -231,11 +232,23 @@ namespace Epinova.ElasticSearch.Core.EPiServer
             if (!HostingEnvironment.IsHosted)
                 return FallbackLanguage;
 
+            ContentReference startPageLink = ContentReference.StartPage;
+            if (startPageLink == null || startPageLink == ContentReference.EmptyReference)
+            {
+                // Fallback to first defined site if StartPage is empty (no context or star-mapping)
+                var siteDefinitionRepository = ServiceLocator.Current.GetInstance<ISiteDefinitionRepository>();
+                var firstSite = siteDefinitionRepository.List().FirstOrDefault();
+                if (firstSite != null)
+                {
+                    startPageLink = firstSite.StartPage;
+                }
+            }
+
             // Try to fetch master language from startpage
-            if (ContentReference.StartPage != null && ContentReference.StartPage != ContentReference.EmptyReference)
+            if (startPageLink != null && startPageLink != ContentReference.EmptyReference)
             {
                 var contentLoader = ServiceLocator.Current.GetInstance<IContentLoader>();
-                if (contentLoader.TryGet(ContentReference.StartPage, out PageData startPage))
+                if (contentLoader.TryGet(startPageLink, out PageData startPage))
                     return startPage.MasterLanguage.Name;
             }
 

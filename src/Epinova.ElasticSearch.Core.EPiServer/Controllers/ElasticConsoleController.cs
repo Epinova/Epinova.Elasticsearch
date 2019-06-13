@@ -48,7 +48,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Controllers
             if (String.IsNullOrWhiteSpace(index) || !indices.Contains(index))
                 return View("~/Views/ElasticSearchAdmin/Console/Index.cshtml");
 
-            string uri = $"{_settings.Host}/{index}/_search";
+            string uri = $"{_settings.Host}/{index}/_search?rest_total_hits_as_int=true";
             byte[] data = Encoding.UTF8.GetBytes(query);
             byte[] returnData = HttpClientHelper.Post(new Uri(uri), data);
             string response = Encoding.UTF8.GetString(returnData);

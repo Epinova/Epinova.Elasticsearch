@@ -544,12 +544,12 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Extensions
                 }
 
                 json = JsonConvert.SerializeObject(mapping, jsonSettings);
-                byte[] data = Encoding.UTF8.GetBytes(json);
+                var data = Encoding.UTF8.GetBytes(json);
 
                 if (String.IsNullOrWhiteSpace(indexName))
                     indexName = ElasticSearchSettings.GetDefaultIndexName(language);
 
-                var uri = $"{ElasticSearchSettings.Host}/{indexName}/_mapping/{typeof(IndexItem).GetTypeName()}";
+                var uri = $"{ElasticSearchSettings.Host}/{indexName}/_mapping/{typeof(IndexItem).GetTypeName()}?include_type_name=true";
 
                 Logger.Debug("Update mapping:\n" + JToken.Parse(json).ToString(Formatting.Indented));
 
@@ -641,8 +641,8 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Extensions
                 }
 
                 json = JsonConvert.SerializeObject(mapping, jsonSettings);
-                byte[] data = Encoding.UTF8.GetBytes(json);
-                string uri = $"{ElasticSearchSettings.Host}/{indexName}/_mapping/{typeof(IndexItem).GetTypeName()}";
+                var data = Encoding.UTF8.GetBytes(json);
+                var uri = $"{ElasticSearchSettings.Host}/{indexName}/_mapping/{typeof(IndexItem).GetTypeName()}?include_type_name=true";
 
                 Logger.Debug("Update mapping:\n" + JToken.Parse(json).ToString(Formatting.Indented));
 
