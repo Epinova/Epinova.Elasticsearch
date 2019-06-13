@@ -354,9 +354,11 @@ namespace Epinova.ElasticSearch.Core
                 }
 
                 var jsonSettings = new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore };
-                string json = JsonConvert.SerializeObject(mapping, jsonSettings);
-                byte[] data = Encoding.UTF8.GetBytes(json);
-                string uri = $"{_settings.Host}/{index}/_mapping/{indexType.GetTypeName()}?include_type_name=true";
+                var json = JsonConvert.SerializeObject(mapping, jsonSettings);
+                var data = Encoding.UTF8.GetBytes(json);
+                var uri = $"{_settings.Host}/{index}/_mapping/{indexType.GetTypeName()}";
+                if (Server.Info.Version.Major >= 7)
+                    uri += "?include_type_name=true";
 
                 Logger.Information("Update mapping:\n" + JToken.Parse(json).ToString(Formatting.Indented));
 
