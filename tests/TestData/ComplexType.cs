@@ -32,6 +32,7 @@ namespace TestData
         public DateTime DateTimeProperty { get; set; }
 
         public bool BoolProperty { get; set; }
+
         public GeoPoint GeoPointProperty { get; set; }
     }
 }

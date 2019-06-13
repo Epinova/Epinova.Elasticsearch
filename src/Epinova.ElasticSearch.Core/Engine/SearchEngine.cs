@@ -15,7 +15,6 @@ using Epinova.ElasticSearch.Core.Models.Query;
 using Epinova.ElasticSearch.Core.Models.Serialization;
 using Epinova.ElasticSearch.Core.Settings;
 using Epinova.ElasticSearch.Core.Utilities;
-using EPiServer.ServiceLocation;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Aggregation = Epinova.ElasticSearch.Core.Models.Serialization.Aggregation;
@@ -363,9 +362,9 @@ namespace Epinova.ElasticSearch.Core.Engine
             return null;
         }
 
-        private static string GetSearchEndpoint(string indexName)
+        private string GetSearchEndpoint(string indexName)
         {
-            return $"{_elasticSearchSettings.Host}/{indexName}/_search?rest_total_hits_as_int=true";
+            return $"{_settings.Host}/{indexName}/_search?rest_total_hits_as_int=true";
         }
 
         private static void TryLogErrors(WebException webException)

@@ -120,7 +120,7 @@ namespace Epinova.ElasticSearch.Core.Admin
 
             try
             {
-                var response = HttpClientHelper.GetString(new Uri(uri));
+                var response = HttpClientHelper.GetString(uri);
                 var result = JsonConvert.DeserializeAnonymousType(response, model);
                 return result.hits.total;
             }
