@@ -296,7 +296,11 @@ namespace Epinova.ElasticSearch.Core.Engine
 
         private static string GetSearchEndpoint(string indexName)
         {
-            return $"{_elasticSearchSettings.Host}/{indexName}/_search?rest_total_hits_as_int=true";
+            var url = $"{_elasticSearchSettings.Host}/{indexName}/_search";
+            if(Server.Info.Version.Major >= 7)
+                url += "?rest_total_hits_as_int=true";
+
+            return url;
         }
 
         protected async Task<JsonReader> GetResponseAsync(RequestBase request, string endpoint, CancellationToken cancellationToken)

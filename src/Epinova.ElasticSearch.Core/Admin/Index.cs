@@ -113,7 +113,8 @@ namespace Epinova.ElasticSearch.Core.Admin
 
         internal int GetDocumentCount()
         {
-            var uri = _indexing.GetUri(_name, "_search", null, "size=0&rest_total_hits_as_int=true");
+            var extraParams = Server.Info.Version.Major >= 7 ? "size=0&rest_total_hits_as_int=true" : "size=0";
+            var uri = _indexing.GetUri(_name, "_search", null, extraParams);
             dynamic model = new { hits = new { total = 0 } };
 
             try
