@@ -1,5 +1,8 @@
 # Changelog
 
+#### 11.7
+* ES 7 support
+
 #### 11.6
 * ES 6 support
 * Replace Attachment Mapper with Ingest plugin
