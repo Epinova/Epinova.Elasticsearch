@@ -205,7 +205,7 @@ namespace Epinova.ElasticSearch.Core.Engine
             Logger.Information($"Index:\n{indexName}\n");
             Logger.Information($"Query:\n{query?.ToString(Formatting.Indented)}\n");
 
-            var uri = $"{_elasticSearchSettings.Host}/{indexName}/_search";
+            var uri = GetSearchEndpoint(indexName);
 
             JsonReader response = GetResponse(query, uri, out string rawJsonResult);
 
@@ -234,7 +234,7 @@ namespace Epinova.ElasticSearch.Core.Engine
             Logger.Information($"Index:\n{indexName}\n");
             Logger.Information($"Query:\n{query?.ToString(Formatting.Indented)}\n");
 
-            var uri = $"{_elasticSearchSettings.Host}/{indexName}/_search";
+            var uri = GetSearchEndpoint(indexName);
 
             JsonReader response = await GetResponseAsync(query, uri, cancellationToken);
 
@@ -272,7 +272,7 @@ namespace Epinova.ElasticSearch.Core.Engine
             if (indexName == null)
                 indexName = _elasticSearchSettings.GetDefaultIndexName(Language.GetLanguageCode(culture));
 
-            var endpoint = $"{_elasticSearchSettings.Host}/{indexName}/_search";
+            var endpoint = GetSearchEndpoint(indexName);
 
             Logger.Information($"GetSuggestions query:\nGET {endpoint}\n{request?.ToString(Formatting.Indented)}\n");
 
@@ -292,6 +292,11 @@ namespace Epinova.ElasticSearch.Core.Engine
             }
 
             return new string[0];
+        }
+
+        private static string GetSearchEndpoint(string indexName)
+        {
+            return $"{_elasticSearchSettings.Host}/{indexName}/_search?rest_total_hits_as_int=true";
         }
 
         protected async Task<JsonReader> GetResponseAsync(RequestBase request, string endpoint, CancellationToken cancellationToken)
