@@ -274,6 +274,8 @@ namespace Epinova.ElasticSearch.Core
                     Analyzable = WellKnownProperties.Analyze.Select(w => w.ToLower()).Contains(c.Name.ToLower())
                 }));
 
+            indexableProperties = indexableProperties.Distinct().ToList();
+
             Logger.Information("IndexableProperties for " + type?.Name + ": " + String.Join(", ", indexableProperties.Select(p => p.Name)));
 
             // Get existing mapping
