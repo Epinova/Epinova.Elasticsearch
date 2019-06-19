@@ -141,7 +141,11 @@ namespace Epinova.ElasticSearch.Core.Engine
             SetupAttachmentFields(setup);
             SetupSourceFields(request, setup);
 
-            if (setup.IsWildcard)
+            if (setup.IsGetQuery)
+            {
+                request.Query.Bool.Must.Add(new MatchAll());
+            }
+            else if(setup.IsWildcard)
             {
                 setup.SearchFields.ForEach(field =>
                     request.Query.Bool.Should.Add(new Wildcard(field, request.Query.SearchText)));
