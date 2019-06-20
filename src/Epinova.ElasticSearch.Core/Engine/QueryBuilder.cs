@@ -50,7 +50,7 @@ namespace Epinova.ElasticSearch.Core.Engine
             _mappedFields = fields;
         }
 
-        private string[] GetMappedFields(string language, string index)
+        private string[] GetMappedFields(string language, string index, Type type)
         {
             Log.Debug("Get mapped fields");
 
@@ -58,7 +58,7 @@ namespace Epinova.ElasticSearch.Core.Engine
             {
                 Log.Debug("No mapped fields found, lookup with Mapping.GetIndexMapping");
 
-                _mappedFields = Mapping.GetIndexMapping(typeof(IndexItem), language, index)
+                _mappedFields = Mapping.GetIndexMapping(type, language, index)
                     .Properties
                     .Where(m => _searchableFieldTypes.Contains(m.Value.Type)
                         && !m.Key.EndsWith(Models.Constants.KeywordSuffix))
@@ -130,7 +130,7 @@ namespace Epinova.ElasticSearch.Core.Engine
             request.Query.SearchText = setup.SearchText.ToLower();
 
             if (setup.SearchFields.Count == 0)
-                setup.SearchFields.AddRange(GetMappedFields(Language.GetLanguageCode(setup.Language), setup.IndexName));
+                setup.SearchFields.AddRange(GetMappedFields(Language.GetLanguageCode(setup.Language), setup.IndexName, setup.SearchType));
 
             if (Log.IsDebugEnabled())
             {
