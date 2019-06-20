@@ -115,7 +115,8 @@ namespace Epinova.ElasticSearch.Core.Admin
 
         internal int GetDocumentCount()
         {
-            var uri = _indexing.GetUri(_name, "_search", null, "size=0&rest_total_hits_as_int=true");
+            var extraParams = Server.Info.Version.Major >= 7 ? "size=0&rest_total_hits_as_int=true" : "size=0";
+            var uri = _indexing.GetUri(_name, "_search", null, extraParams);
             dynamic model = new { hits = new { total = 0 } };
 
             try
@@ -163,8 +164,9 @@ namespace Epinova.ElasticSearch.Core.Admin
         {
             var typeName = indexType.GetTypeName();
             var json = MappingPatterns.GetDisableDynamicMapping(typeName);
-            var data = Encoding.UTF8.GetBytes(json);
-            var uri = _indexing.GetUri(_name, "_mapping", typeName, "include_type_name=true");
+            byte[] data = Encoding.UTF8.GetBytes(json);
+            var extraParams = Server.Info.Version.Major >= 7 ? "include_type_name=true" : null;
+            var uri = _indexing.GetUri(_name, "_mapping", typeName, extraParams);
 
             Logger.Information($"Disable dynamic mapping for {typeName}");
             Logger.Information($"PUT: {uri}");
@@ -188,7 +190,8 @@ namespace Epinova.ElasticSearch.Core.Admin
         {
             string json = Serialization.Serialize(MappingPatterns.GetCustomIndexMapping(Language.GetLanguageAnalyzer(_language)));
             byte[] data = Encoding.UTF8.GetBytes(json);
-            var uri = _indexing.GetUri(_name, "_mapping", type.GetTypeName(), "include_type_name=true");
+            var extraParams = Server.Info.Version.Major >= 7 ? "include_type_name=true" : null;
+            var uri = _indexing.GetUri(_name, "_mapping", type.GetTypeName(), extraParams);
 
             Logger.Information($"Creating custom mappings. Language: {_language}");
             Logger.Information($"PUT: {uri}");
@@ -200,8 +203,9 @@ namespace Epinova.ElasticSearch.Core.Admin
         private void CreateStandardMappings()
         {
             string json = Serialization.Serialize(MappingPatterns.GetStandardIndexMapping(Language.GetLanguageAnalyzer(_language)));
-            var data = Encoding.UTF8.GetBytes(json); 
-            var uri = _indexing.GetUri(_name, "_mapping", typeof(IndexItem).GetTypeName(), "include_type_name=true");
+            var data = Encoding.UTF8.GetBytes(json);
+            var extraParams = Server.Info.Version.Major >= 7 ? "include_type_name=true" : null;
+            var uri = _indexing.GetUri(_name, "_mapping", typeof(IndexItem).GetTypeName(), extraParams);
 
             Logger.Information($"Creating standard mappings. Language: {_language}");
             Logger.Information($"PUT: {uri}");

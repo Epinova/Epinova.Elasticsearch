@@ -549,7 +549,9 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Extensions
                 if (String.IsNullOrWhiteSpace(indexName))
                     indexName = ElasticSearchSettings.GetDefaultIndexName(language);
 
-                var uri = $"{ElasticSearchSettings.Host}/{indexName}/_mapping/{typeof(IndexItem).GetTypeName()}?include_type_name=true";
+                var uri = $"{ElasticSearchSettings.Host}/{indexName}/_mapping/{typeof(IndexItem).GetTypeName()}";
+                if (Server.Info.Version.Major >= 7)
+                    uri += "?include_type_name=true";
 
                 Logger.Debug("Update mapping:\n" + JToken.Parse(json).ToString(Formatting.Indented));
 
@@ -642,7 +644,9 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Extensions
 
                 json = JsonConvert.SerializeObject(mapping, jsonSettings);
                 var data = Encoding.UTF8.GetBytes(json);
-                var uri = $"{ElasticSearchSettings.Host}/{indexName}/_mapping/{typeof(IndexItem).GetTypeName()}?include_type_name=true";
+                var uri = $"{ElasticSearchSettings.Host}/{indexName}/_mapping/{typeof(IndexItem).GetTypeName()}";
+                if (Server.Info.Version.Major >= 7)
+                    uri += "?include_type_name=true";
 
                 Logger.Debug("Update mapping:\n" + JToken.Parse(json).ToString(Formatting.Indented));
 

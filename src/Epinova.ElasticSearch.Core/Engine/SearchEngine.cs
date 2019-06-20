@@ -316,7 +316,7 @@ namespace Epinova.ElasticSearch.Core.Engine
                 if (returnData == null)
                     throw new InvalidOperationException("Failed to POST to " + endpoint);
 
-                string response = Encoding.UTF8.GetString(returnData);
+                var response = Encoding.UTF8.GetString(returnData);
                 Logger.Debug("GetResponse response:\n" + JToken.Parse(response).ToString(Formatting.Indented));
                 return new JsonTextReader(new StringReader(response));
             }
@@ -341,7 +341,7 @@ namespace Epinova.ElasticSearch.Core.Engine
                 var data = Encoding.UTF8.GetBytes(request.ToString());
                 var returnData = HttpClientHelper.Post(new Uri(endpoint), data);
                 if (returnData == null)
-                    throw new InvalidOperationException("Failed to POST to " + endpoint);
+                    throw new InvalidOperationException($"Failed to POST to '{endpoint}'");
 
                 var response = Encoding.UTF8.GetString(returnData);
 
@@ -364,7 +364,11 @@ namespace Epinova.ElasticSearch.Core.Engine
 
         private string GetSearchEndpoint(string indexName)
         {
-            return $"{_settings.Host}/{indexName}/_search?rest_total_hits_as_int=true";
+            var url = $"{_settings.Host}/{indexName}/_search";
+            if (Server.Info.Version.Major >= 7)
+                url += "?rest_total_hits_as_int=true";
+
+            return url;
         }
 
         private static void TryLogErrors(WebException webException)

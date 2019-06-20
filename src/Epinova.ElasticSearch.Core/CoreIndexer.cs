@@ -245,7 +245,7 @@ namespace Epinova.ElasticSearch.Core
                 type = type.BaseType;
 
             language = language ?? _settings.GetLanguage(index);
-            List<IndexableProperty> indexableProperties = GetIndexableProperties(type, optIn);
+            var indexableProperties = GetIndexableProperties(type, optIn);
 
             Logger.Information("IndexableProperties for " + type?.Name + ": " + String.Join(", ", indexableProperties.Select(p => p.Name)));
 
@@ -329,7 +329,9 @@ namespace Epinova.ElasticSearch.Core
                 var jsonSettings = new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore };
                 var json = JsonConvert.SerializeObject(mapping, jsonSettings);
                 var data = Encoding.UTF8.GetBytes(json);
-                var uri = $"{_settings.Host}/{index}/_mapping/{indexType.GetTypeName()}?include_type_name=true";
+                var uri = $"{_settings.Host}/{index}/_mapping/{indexType.GetTypeName()}";
+                if (Server.Info.Version.Major >= 7)
+                    uri += "?include_type_name=true";
 
                 Logger.Information("Update mapping:\n" + JToken.Parse(json).ToString(Formatting.Indented));
 
@@ -379,9 +381,11 @@ namespace Epinova.ElasticSearch.Core
                 })
                 .Where(p => IsValidName(p.Name))
                 .ToList();
+            var typeList = type.GetInheritancHierarchy();
 
             // Custom properties marked for stemming
             props.AddRange(Conventions.Indexing.CustomProperties
+                .Where(c => typeList.Contains(c.OwnerType))
                 .Select(c => new IndexableProperty
                 {
                     Name = c.Name,
@@ -389,7 +393,7 @@ namespace Epinova.ElasticSearch.Core
                     Analyzable = WellKnownProperties.Analyze.Select(w => w.ToLower()).Contains(c.Name.ToLower())
                 }));
 
-            return props;
+            return props.Distinct().ToList();
 
             bool IsAnalyzable(PropertyInfo p)
             {
@@ -427,7 +431,7 @@ namespace Epinova.ElasticSearch.Core
         {
             var indexing = new Indexing(_settings);
             if (!indexing.IndexExists(indexName))
-                throw new InvalidOperationException("Index '" + indexName + "' not found");
+                throw new InvalidOperationException($"Index '{indexName}' not found");
 
             Logger.Information("PerformUpdate: Id=" + id + ", Type=" + objectType.Name + ", Index=" + indexName);
 

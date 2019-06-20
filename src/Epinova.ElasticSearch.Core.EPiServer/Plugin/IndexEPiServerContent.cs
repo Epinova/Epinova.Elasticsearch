@@ -16,6 +16,7 @@ using EPiServer.DataAbstraction;
 using EPiServer.PlugIn;
 using EPiServer.Scheduler;
 using Epinova.ElasticSearch.Core.EPiServer.Extensions;
+using Epinova.ElasticSearch.Core.Events;
 
 namespace Epinova.ElasticSearch.Core.EPiServer.Plugin
 {
@@ -25,6 +26,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Plugin
         Description = "Indexes CMS content in Elasticsearch.")]
     public class IndexEPiServerContent : ScheduledJobBase
     {
+        public static event OnBeforeIndexContent BeforeIndexContent;
         private readonly ILogger _logger = LogManager.GetLogger(typeof(IndexEPiServerContent));
         private readonly IContentLoader _contentLoader;
         private readonly ICoreIndexer _coreIndexer;
@@ -58,6 +60,12 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Plugin
 
         public override string Execute()
         {
+            if (BeforeIndexContent != null)
+            {
+                _logger.Debug("Firing subscribed event BeforeIndexContent");
+                BeforeIndexContent(EventArgs.Empty);
+            }
+
             var finalStatus = new StringBuilder();
             var skippedReason = new StringBuilder();
             var results = new BulkBatchResult();
