@@ -340,6 +340,8 @@ namespace Epinova.ElasticSearch.Core
         {
             QuerySetup query = CreateQuery();
 
+            query.SearchType = typeof(T);
+
             // Always return all fields for custom objects
             query.SourceFields = null;
 

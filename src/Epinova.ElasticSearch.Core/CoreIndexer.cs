@@ -265,8 +265,11 @@ namespace Epinova.ElasticSearch.Core
                             && p.Name != nameof(IndexItem._attachmentdata))
                 .ToList();
 
+            var typeList = type.GetInheritancHierarchy();
+
             // Custom properties marked for stemming
             indexableProperties.AddRange(Conventions.Indexing.CustomProperties
+                .Where(c => typeList.Contains(c.OwnerType))
                 .Select(c => new
                 {
                     c.Name,
