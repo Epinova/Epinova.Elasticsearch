@@ -41,6 +41,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Initialization
 
         public void Uninitialize(InitializationEngine context)
         {
+            // Not applicable
         }
     }
 }
