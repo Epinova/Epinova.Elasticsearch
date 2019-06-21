@@ -24,6 +24,7 @@ namespace Epinova.ElasticSearch.Core.Contracts
         int FromValue { get; }
         int SizeValue { get; }
         bool IsWildcard { get; }
+        bool IsGetQuery { get; }
         bool TrackSearch { get; }
 
         /// <summary>
