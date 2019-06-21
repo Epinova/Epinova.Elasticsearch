@@ -21,6 +21,8 @@ namespace Core.Tests.Engine
     public class QueryBuilderTests
     {
         private readonly ITestOutputHelper _console;
+        private readonly QueryBuilder _builder;
+        private readonly CultureInfo _language;
 
         public QueryBuilderTests(ITestOutputHelper console)
         {
@@ -33,19 +35,6 @@ namespace Core.Tests.Engine
 
             Epinova.ElasticSearch.Core.Conventions.Indexing.Roots.Clear();
         }
-
-
-        private readonly QueryBuilder _builder;
-        private readonly CultureInfo _language;
-
-
-        private static string Serialize(object data)
-        {
-            return JsonConvert.SerializeObject(data,
-                Formatting.Indented,
-                new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore });
-        }
-
 
         [Fact]
         public void Search_ExcludeField_AddsMustNotMatch()
@@ -68,7 +57,6 @@ namespace Core.Tests.Engine
 
             Assert.Equal(typeof(ComplexType).GetTypeName().ToLower(), match);
         }
-
 
         [Fact]
         public void Search_ExcludeMultipleFields_AddsMustNotMatches()
@@ -96,7 +84,6 @@ namespace Core.Tests.Engine
             Assert.True(match.Contains(typeof(TypeWithBoosting).GetTypeName().ToLower()));
         }
 
-
         [Fact]
         public void Search_BoostedFields_AddsShouldMatch()
         {
@@ -122,7 +109,6 @@ namespace Core.Tests.Engine
             Assert.NotNull(match);
         }
 
-
         [Theory]
         [InlineData("Search_Term_Foo.json", "Foo")]
         [InlineData("Search_Term_Foo-Bar.json", "Foo Bar")]
@@ -138,7 +124,6 @@ namespace Core.Tests.Engine
 
             Assert.Contains(expected, result);
         }
-
 
         [Theory]
         [InlineData("Search_With_Filter_123_Term_Foo.json", 123, "Foo")]
@@ -291,7 +276,6 @@ namespace Core.Tests.Engine
             Assert.DoesNotContain(expected2, result);
         }
 
-
         [Fact]
         public void Search_SizeOver10k_Throws()
         {
@@ -307,7 +291,6 @@ namespace Core.Tests.Engine
                 _builder.Search(setup);
             });
         }
-
 
         [Fact]
         public void Search_FromOver10k_Throws()
@@ -325,7 +308,6 @@ namespace Core.Tests.Engine
             });
         }
 
-
         [Fact]
         public void GetBoosting_TypeWithBoostAttribute_ReturnsAtLeastOneItem()
         {
@@ -334,7 +316,6 @@ namespace Core.Tests.Engine
 
             Assert.True(boosting.Count > 0);
         }
-
 
         [Fact]
         public void GetBoosting_TypeWithoutBoostAttribute_ReturnsNoItems()
@@ -345,7 +326,6 @@ namespace Core.Tests.Engine
 
             Assert.Empty(boosting);
         }
-
 
         [Fact]
         public void Search_WithOperatorAnd_ReturnsExpectedJson()
@@ -360,7 +340,6 @@ namespace Core.Tests.Engine
             Assert.Contains("\"operator\": \"and\"", result);
         }
 
-
         [Fact]
         public void Search_WithOperatorOr_ReturnsExpectedJson()
         {
@@ -373,7 +352,6 @@ namespace Core.Tests.Engine
 
             Assert.Contains("\"operator\": \"or\"", result);
         }
-
 
         [Fact]
         public void TypedSearch_Object_ReturnsExpectedJson()
@@ -389,7 +367,6 @@ namespace Core.Tests.Engine
 
             Assert.Contains(json, result);
         }
-
 
         [Fact]
         public void TypedSearch_String_ReturnsExpectedJson()
@@ -575,6 +552,27 @@ namespace Core.Tests.Engine
             var aggregation = request.Aggregation.First();
 
             Assert.Equal(expectedKey, aggregation.Key);
+        }
+
+        [Fact]
+        public void GetQuery_AddsMatchAll()
+        {
+            var request = (QueryRequest)_builder.Search(new QuerySetup
+            {
+                IsGetQuery = true,
+                SearchText = String.Empty
+            });
+
+            var result = request.Query.Bool.Must.Cast<MatchAll>().Any();
+
+            Assert.True(result);
+        }
+
+        private static string Serialize(object data)
+        {
+            return JsonConvert.SerializeObject(data,
+                Formatting.Indented,
+                new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore });
         }
     }
 }

@@ -466,7 +466,8 @@ namespace Epinova.ElasticSearch.Core.Engine
                 }
             }
 
-            request.Query.Bool.Filter.Add(filterQuery);
+            if(filterQuery.HasAnyValues())
+                request.Query.Bool.Filter.Add(filterQuery);
 
             AppendDefaultFilters(request.Query, setup.Type);
 

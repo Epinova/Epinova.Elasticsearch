@@ -16,13 +16,13 @@ namespace Epinova.ElasticSearch.Core.Models.Query
         [JsonProperty(JsonNames.Bool)]
         public BoolQuery Bool { get; set; }
 
-        public bool ShouldSerializeBool()
-        {
-            return Bool != null
-                   && (Bool.ShouldSerializeFilter()
-                       || Bool.ShouldSerializeMust()
-                       || Bool.ShouldSerializeMustNot()
-                       || Bool.ShouldSerializeShould());
-        }
+        public bool ShouldSerializeBool() => HasAnyValues();
+
+        public bool HasAnyValues() =>
+            Bool != null
+            && (Bool.ShouldSerializeFilter()
+            || Bool.ShouldSerializeMust()
+            || Bool.ShouldSerializeMustNot()
+            || Bool.ShouldSerializeShould());
     }
 }
