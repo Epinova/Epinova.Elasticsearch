@@ -2,6 +2,7 @@
 using Epinova.ElasticSearch.Core.EPiServer.Events;
 using Epinova.ElasticSearch.Core.EPiServer.Models;
 using EPiServer.Core;
+using EPiServer.DataAbstraction;
 using EPiServer.Framework;
 using EPiServer.Framework.Initialization;
 
@@ -23,9 +24,8 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Initialization
             events.MovedContent += IndexingEvents.UpdateIndex;
             events.SavedContent += IndexingEvents.UpdateIndex;
 
-            //INFO: Might be useful later for re-indexing upon ACL changes
-            //IContentSecurityRepository contentSecurityRepository = ServiceLocator.Current.GetInstance<IContentSecurityRepository>();
-            //contentSecurityRepository.ContentSecuritySaved += ...
+            IContentSecurityRepository contentSecurityRepository = context.Locate.Advanced.GetInstance<IContentSecurityRepository>();
+            contentSecurityRepository.ContentSecuritySaved += IndexingEvents.UpdateIndex;
         }
 
         public void Uninitialize(InitializationEngine context)

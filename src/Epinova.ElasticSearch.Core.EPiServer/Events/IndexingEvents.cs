@@ -4,6 +4,7 @@ using EPiServer;
 using EPiServer.Core;
 using EPiServer.DataAccess;
 using EPiServer.ServiceLocation;
+using EPiServer.DataAbstraction;
 
 namespace Epinova.ElasticSearch.Core.EPiServer.Events
 {
@@ -12,6 +13,25 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Events
         private static readonly ILogger Logger = LogManager.GetLogger(typeof(IndexingEvents));
         private static readonly IIndexer EPiIndexer = ServiceLocator.Current.GetInstance<IIndexer>();
         private static readonly IContentVersionRepository VersionRepository = ServiceLocator.Current.GetInstance<IContentVersionRepository>();
+        private static readonly IContentLoader ContentLoader = ServiceLocator.Current.GetInstance<IContentLoader>();
+
+        internal static void UpdateIndex(object sender, ContentSecurityEventArg e)
+        {
+            Logger.Debug($"ACL changed for '{e.ContentLink}'");
+
+            var published = VersionRepository.LoadPublished(e.ContentLink);
+            if (published == null)
+            {
+                Logger.Debug("Previously unpublished, do nothing");
+                return;
+            }
+
+            if (ContentLoader.TryGet(e.ContentLink, out IContent content))
+            {
+                Logger.Debug("Valid content, update index");
+                EPiIndexer.Update(content);
+            }
+        }
 
         internal static void DeleteFromIndex(object sender, ContentEventArgs e)
         {
