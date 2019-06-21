@@ -279,6 +279,7 @@
     <Compile Include="Models\Query\Match.cs" />
     <Compile Include="Models\Query\MatchBase.cs" />
     <Compile Include="Models\Query\MatchMulti.cs" />
+    <Compile Include="Models\Query\MatchAll.cs" />
     <Compile Include="Models\Query\MatchSimple.cs" />
     <Compile Include="Models\Query\MatchWithBoost.cs" />
     <Compile Include="Models\Query\MoreLikeThisQuery.cs" />

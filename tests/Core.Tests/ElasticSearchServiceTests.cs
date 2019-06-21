@@ -308,5 +308,13 @@ namespace Core.Tests
             _service.Exclude(42, false);
             Assert.False(_service.ExcludedRoots[42]);
         }
+
+        [Fact]
+        public void Get_SetsFlag()
+        {
+            var result = _service.Get<TestPage>();
+
+            Assert.True(result.IsGetQuery);
+        }
     }
 }

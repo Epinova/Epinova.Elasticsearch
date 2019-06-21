@@ -54,6 +54,7 @@
         public const string LuceneVersion = "lucene_version";
         public const string MappingIndex = "index";
         public const string Match = "match";
+        public const string MatchAll = "match_all";
         public const string MaxQueryTerms = "max_query_terms";
         public const string MaxScore = "max_score";
         public const string MinimumNumberShouldMatch = "minimum_should_match";

@@ -22,6 +22,8 @@ namespace Core.Tests.Engine
     public class QueryBuilderTests
     {
         private readonly ITestOutputHelper _console;
+        private readonly QueryBuilder _builder;
+        private readonly CultureInfo _language;
 
         public QueryBuilderTests(ITestOutputHelper console)
         {
@@ -31,16 +33,6 @@ namespace Core.Tests.Engine
             _builder.SetMappedFields(new[] { "bar" });
 
             Epinova.ElasticSearch.Core.Conventions.Indexing.Roots.Clear();
-        }
-
-        private readonly QueryBuilder _builder;
-        private readonly CultureInfo _language;
-
-        private static string Serialize(object data)
-        {
-            return JsonConvert.SerializeObject(data,
-                Formatting.Indented,
-                new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore });
         }
 
         [Fact]
@@ -548,6 +540,27 @@ namespace Core.Tests.Engine
             var aggregation = request.Aggregation.First();
 
             Assert.Equal(expectedKey, aggregation.Key);
+        }
+
+        [Fact]
+        public void GetQuery_AddsMatchAll()
+        {
+            var request = (QueryRequest)_builder.Search(new QuerySetup
+            {
+                IsGetQuery = true,
+                SearchText = String.Empty
+            });
+
+            var result = request.Query.Bool.Must.Cast<MatchAll>().Any();
+
+            Assert.True(result);
+        }
+
+        private static string Serialize(object data)
+        {
+            return JsonConvert.SerializeObject(data,
+                Formatting.Indented,
+                new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore });
         }
     }
 }

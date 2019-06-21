@@ -55,6 +55,7 @@ namespace Epinova.ElasticSearch.Core
         public Type SearchType { get; set; }
         public Type Type { get; private set; }
         public bool IsWildcard { get; private set; }
+        public bool IsGetQuery { get; private set; }
         public Operator Operator { get; private set; }
         public string Analyzer { get; private set; }
         public string SearchText { get; private set; }
@@ -259,7 +260,20 @@ namespace Epinova.ElasticSearch.Core
 
         public IElasticSearchService<T> Get<T>()
         {
-            return WildcardSearch<T>("*");
+            return new ElasticSearchService<T>
+            {
+                Type = typeof(T),
+                SearchLanguage = SearchLanguage,
+                RootId = RootId,
+                SearchType = SearchType,
+                UseBoosting = UseBoosting,
+                EnableBestBets = EnableBestBets,
+                FromValue = FromValue,
+                SizeValue = SizeValue,
+                IsGetQuery = true,
+                SearchText = String.Empty,
+                IndexName = IndexName
+            };
         }
 
         public IElasticSearchService<object> Search(string searchText, Operator @operator = Operator.Or)
@@ -289,6 +303,7 @@ namespace Epinova.ElasticSearch.Core
                 SizeValue = SizeValue,
                 IsWildcard = IsWildcard,
                 TrackSearch = TrackSearch,
+                IsGetQuery = IsGetQuery,
                 IndexName = IndexName
             };
         }
@@ -386,6 +401,7 @@ namespace Epinova.ElasticSearch.Core
                 Size = SizeValue,
                 RootId = RootId,
                 IsWildcard = IsWildcard,
+                IsGetQuery = IsGetQuery,
                 SourceFields = fields,
                 SearchType = SearchType,
                 SortFields = SortFields,

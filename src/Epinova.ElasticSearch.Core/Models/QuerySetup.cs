@@ -51,6 +51,7 @@ namespace Epinova.ElasticSearch.Core.Models
         public int RootId { get; set; }
         public int Size { get; set; }
         public bool IsWildcard { get; set; }
+        public bool IsGetQuery { get; set; }
         public List<Filter> Filters { get; set; }
         public Dictionary<string, FilterGroupQuery> FilterGroups { get; set; }
         public Type SearchType { get; set; }
