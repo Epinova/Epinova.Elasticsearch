@@ -100,14 +100,6 @@ namespace Epinova.ElasticSearch.Core.Engine
             return SearchInternal(querySetup);
         }
 
-        /// <summary>
-        /// See https://www.elastic.co/guide/en/elasticsearch/reference/current/search-suggesters-completion.html
-        /// </summary>
-        public SuggestRequest Suggest(QuerySetup querySetup)
-        {
-            return new SuggestRequest(querySetup.SearchText, querySetup.Size);
-        }
-
         internal RequestBase MoreLikeThis(QuerySetup setup)
         {
             return new MoreLikeThisRequest(setup);
