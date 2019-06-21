@@ -322,6 +322,42 @@ namespace TestData
                 )));
         }
 
+        public static (IContent Content, DeleteContentEventArgs Args) GetDeleteScenario()
+        {
+            var page = Factory.GetPageData();
+            var args = new DeleteContentEventArgs(page.ContentLink, ContentReference.WasteBasket)
+            {
+                Content = page
+                //DeletedDescendents
+            };
+
+            return (page, args);
+        }
+
+        public static (IContent Content, MoveContentEventArgs Args) GetMoveScenario(params ContentReference[] descendents)
+        {
+            var page = Factory.GetPageData();
+            var target = Factory.GetPageData();
+            var args = new MoveContentEventArgs(page.ContentLink, target.ContentLink)
+            {
+                Content = page,
+                Descendents = descendents
+            };
+
+            return (page, args);
+        }
+
+        public static (IContent Content, MoveContentEventArgs Args) GetMoveToWasteBasketScenario()
+        {
+            var page = Factory.GetPageData();
+            var args = new MoveContentEventArgs(page.ContentLink, ContentReference.WasteBasket)
+            {
+                Content = page
+            };
+
+            return (page, args);
+        }
+
         public static PrincipalInfo GetPrincipalInfo(string username, params string[] roles)
         {
             var identity = new GenericPrincipal(

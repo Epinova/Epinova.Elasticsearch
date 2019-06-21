@@ -6,6 +6,7 @@ using Xunit;
 using TestData;
 using EPiServer.DataAbstraction;
 using EPiServer.Security;
+using System.Globalization;
 
 namespace Core.Episerver.Tests.Events
 {
@@ -30,7 +31,7 @@ namespace Core.Episerver.Tests.Events
         [Fact]
         public void DeleteFromIndex_ValidContentlink_CallsDelete()
         {
-            var input = GetPublishScenario();
+            var input = GetDeleteScenario();
 
             IndexingEvents.DeleteFromIndex(null, input.Args);
 
@@ -40,13 +41,30 @@ namespace Core.Episerver.Tests.Events
         [Fact]
         public void UpdateIndex_PageInWasteBasket_CallsDelete()
         {
-            var input = GetPublishScenario();
-            input.Args.TargetLink = ContentReference.WasteBasket;
+            var input = GetMoveToWasteBasketScenario();
 
             IndexingEvents.UpdateIndex(null, input.Args);
 
             _fixture.ServiceLocationMock.IndexerMock.Verify(m => m.Delete(input.Content.ContentLink), Times.Once);
             _fixture.ServiceLocationMock.IndexerMock.Verify(m => m.Update(input.Content, null), Times.Never);
+        }
+
+        [Fact]
+        public void UpdateIndex_MoveWithDescendents_UpdatesAll()
+        {
+            var child1 = Factory.GetPageData();
+            var child2 = Factory.GetPageData();
+            var input = GetMoveScenario(child1.ContentLink, child2.ContentLink);
+
+            _fixture.ServiceLocationMock.ContentLoaderMock
+                .Setup(m => m.GetItems(new[] { child1.ContentLink, child2.ContentLink }, It.IsAny<CultureInfo>()))
+                .Returns(new[] { child1, child2 });
+
+            IndexingEvents.UpdateIndex(null, input.Args);
+
+            _fixture.ServiceLocationMock.IndexerMock.Verify(m => m.Update(input.Content, null), Times.Once);
+            _fixture.ServiceLocationMock.IndexerMock.Verify(m => m.Update(child1, null), Times.Once);
+            _fixture.ServiceLocationMock.IndexerMock.Verify(m => m.Update(child2, null), Times.Once);
         }
 
         [Fact]

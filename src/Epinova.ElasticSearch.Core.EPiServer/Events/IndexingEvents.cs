@@ -5,6 +5,8 @@ using EPiServer.Core;
 using EPiServer.DataAccess;
 using EPiServer.ServiceLocation;
 using EPiServer.DataAbstraction;
+using System.Globalization;
+using System.Linq;
 
 namespace Epinova.ElasticSearch.Core.EPiServer.Events
 {
@@ -15,40 +17,54 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Events
         private static readonly IContentVersionRepository VersionRepository = ServiceLocator.Current.GetInstance<IContentVersionRepository>();
         private static readonly IContentLoader ContentLoader = ServiceLocator.Current.GetInstance<IContentLoader>();
 
-        internal static void UpdateIndex(object sender, ContentSecurityEventArg e)
+        internal static void DeleteFromIndex(object sender, DeleteContentEventArgs e)
         {
-            Logger.Debug($"ACL changed for '{e.ContentLink}'");
+            Logger.Debug($"Raising event DeleteFromIndex for '{e?.ContentLink}'");
 
-            var published = VersionRepository.LoadPublished(e.ContentLink);
-            if (published == null)
-            {
-                Logger.Debug("Previously unpublished, do nothing");
+            if (ContentReference.IsNullOrEmpty(e?.ContentLink))
                 return;
-            }
 
-            if (ContentLoader.TryGet(e.ContentLink, out IContent content))
+            DeleteFromIndex(e.ContentLink);
+
+            if (e.DeletedDescendents != null)
             {
-                Logger.Debug("Valid content, update index");
-                EPiIndexer.Update(content);
+                foreach (var descendent in e.DeletedDescendents)
+                {
+                    DeleteFromIndex(descendent);
+                }
             }
         }
 
-        internal static void DeleteFromIndex(object sender, ContentEventArgs e)
+        internal static void DeleteFromIndex(ContentReference contentLink)
         {
-            if (e?.ContentLink == null)
+            if (ContentReference.IsNullOrEmpty(contentLink))
                 return;
 
-            Logger.Debug($"Raising event DeleteFromIndex for '{e.ContentLink}'");
-            EPiIndexer.Delete(e.ContentLink);
+            EPiIndexer.Delete(contentLink);
         }
 
         internal static void UpdateIndex(object sender, ContentEventArgs e)
         {
             Logger.Debug($"Raising event UpdateIndex for '{e.Content?.ContentLink}'");
 
-            if (ContentReference.WasteBasket.CompareToIgnoreWorkID(e.TargetLink))
+            // On Move, handle all descendents as well
+            if (e is MoveContentEventArgs moveArgs)
             {
-                DeleteFromIndex(sender, e);
+                Logger.Debug("Move-event, update index including descendents");
+
+                var isDelete = ContentReference.WasteBasket.CompareToIgnoreWorkID(moveArgs.TargetLink);
+                var language = GetLanguage(moveArgs.Content);
+                var contentList = ContentLoader.GetItems(moveArgs.Descendents, language).ToList();
+                contentList.Insert(0, moveArgs.Content);
+
+                foreach (var content in contentList)
+                {
+                    if (isDelete)
+                        DeleteFromIndex(content.ContentLink);
+                    else
+                        EPiIndexer.Update(content);
+                }
+
                 return;
             }
 
@@ -94,6 +110,34 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Events
             }
 
             Logger.Information($"Event was not handled. Action {saveArgs.Action}, transition {saveArgs.Transition.CurrentStatus}=>{saveArgs.Transition.NextStatus}");
+        }
+
+        internal static void UpdateIndex(object sender, ContentSecurityEventArg e)
+        {
+            Logger.Debug($"ACL changed for '{e.ContentLink}'");
+
+            var published = VersionRepository.LoadPublished(e.ContentLink);
+            if (published == null)
+            {
+                Logger.Debug("Previously unpublished, do nothing");
+                return;
+            }
+
+            if (ContentLoader.TryGet(e.ContentLink, out IContent content))
+            {
+                Logger.Debug("Valid content, update index");
+                EPiIndexer.Update(content);
+            }
+        }
+
+        private static CultureInfo GetLanguage(IContent content)
+        {
+            if (content is ILocale locale && locale.Language != null && !CultureInfo.InvariantCulture.Equals(locale.Language))
+            {
+                return locale.Language;
+            }
+
+            return CultureInfo.CurrentCulture;
         }
     }
 }
