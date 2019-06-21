@@ -1,4 +1,4 @@
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 
 namespace Epinova.ElasticSearch.Core.Models.Query
 {
@@ -9,5 +9,8 @@ namespace Epinova.ElasticSearch.Core.Models.Query
 
         [JsonProperty(JsonNames.Size)]
         public int Size { get; set; }
+
+        [JsonProperty(JsonNames.SkipDuplicates)]
+        public bool? SkipDuplicates { get; set; }
     }
 }
