@@ -285,7 +285,7 @@ namespace Epinova.ElasticSearch.Core.Engine
             if (indexName == null)
                 indexName = _settings.GetDefaultIndexName(Language.GetLanguageCode(culture));
 
-            var endpoint = GetSearchEndpoint(indexName);
+            var endpoint = GetSearchEndpoint(indexName, $"?filter_path={JsonNames.Suggest}");
 
             Logger.Information($"GetSuggestions query:\nGET {endpoint}\n{request?.ToString(Formatting.Indented)}\n");
 
@@ -298,6 +298,11 @@ namespace Epinova.ElasticSearch.Core.Engine
             };
 
             SuggestionsRootObject results = serializer.Deserialize<SuggestionsRootObject>(response);
+
+            if (results?.Suggestions == null)
+            {
+                results = results?.InnerRoot;
+            }
 
             if (results?.Suggestions != null && results.Suggestions.Length > 0)
             {
@@ -362,11 +367,15 @@ namespace Epinova.ElasticSearch.Core.Engine
             return null;
         }
 
-        private string GetSearchEndpoint(string indexName)
+        private string GetSearchEndpoint(string indexName, string extraParam = null)
         {
             var url = $"{_settings.Host}/{indexName}/_search";
+
+            if (extraParam != null)
+                url += extraParam;
+
             if (Server.Info.Version.Major >= 7)
-                url += "?rest_total_hits_as_int=true";
+                url += (url.Contains("?") ? "&" : "?") + "rest_total_hits_as_int=true";
 
             return url;
         }

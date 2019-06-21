@@ -87,6 +87,7 @@
         public const string Score = "score";
         public const string Should = "should";
         public const string Size = "size";
+        public const string SkipDuplicates = "skip_duplicates";
         public const string Sort = "sort";
         public const string Source = "_source";
         public const string Script = "script";

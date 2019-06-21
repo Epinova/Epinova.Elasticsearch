@@ -62,12 +62,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Extensions
 
             var builder = new QueryBuilder(settings);
 
-            SuggestRequest request = builder.Suggest(new QuerySetup
-            {
-                SearchText = searchText,
-                Language = service.SearchLanguage,
-                Size = service.SizeValue
-            });
+            var request = new SuggestRequest(searchText, service.SizeValue);
 
             var elasticSuggestions = engine.GetSuggestions(request, service.SearchLanguage);
 
