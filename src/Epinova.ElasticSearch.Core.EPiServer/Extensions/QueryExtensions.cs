@@ -5,7 +5,6 @@ using Epinova.ElasticSearch.Core.Contracts;
 using Epinova.ElasticSearch.Core.Engine;
 using Epinova.ElasticSearch.Core.Enums;
 using Epinova.ElasticSearch.Core.EPiServer.Contracts;
-using Epinova.ElasticSearch.Core.Models;
 using Epinova.ElasticSearch.Core.Models.Query;
 using Epinova.ElasticSearch.Core.Settings;
 using Epinova.ElasticSearch.Core.Utilities;
@@ -58,10 +57,6 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Extensions
 
         internal static string[] GetSuggestions<T>(this IElasticSearchService<T> service, string searchText, SearchEngine engine)
         {
-            var settings = ServiceLocator.Current.GetInstance<IElasticSearchSettings>();
-
-            var builder = new QueryBuilder(service.SearchType, settings);
-
             var request = new SuggestRequest(searchText, service.SizeValue);
 
             var elasticSuggestions = engine.GetSuggestions(request, service.SearchLanguage);
