@@ -256,6 +256,8 @@ namespace Epinova.ElasticSearch.Core.Engine
             {
                 var stopPublishFilter = new Range<DateTime>(DefaultFields.StopPublish, true) { RangeSetting = { Gte = DateTime.Now } };
                 query.Bool.Filter.Add(stopPublishFilter);
+                var startPublishFilter = new Range<DateTime>(DefaultFields.StartPublish, true) { RangeSetting = { Lte = DateTime.Now } };
+                query.Bool.Filter.Add(startPublishFilter);
             }
         }
 
