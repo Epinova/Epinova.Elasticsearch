@@ -15,6 +15,7 @@ using Xunit;
 using Xunit.Abstractions;
 using EPiServer.Security;
 using System.Security.Principal;
+using EPiServer.Core;
 
 namespace Core.Tests.Engine
 {
@@ -294,6 +295,24 @@ namespace Core.Tests.Engine
             };
 
             Assert.Throws<ArgumentOutOfRangeException>(() => _builder.Search(setup));
+        }
+
+        [Fact]
+        public void Search_IVersionable_WithApplyDefaultFilters_AddsPublishFilters()
+        {
+            var setup = new QuerySetup
+            {
+                SearchText = GetString(),
+                Type = typeof(IVersionable),
+                Language = CultureInfo.CurrentCulture,
+                ApplyDefaultFilters = true
+            };
+
+            var request = (QueryRequest)_builder.Search(setup);
+            var filters = request.Query.Bool.Filter.OfType<Range<DateTime>>();
+
+            Assert.Contains(filters, x => x.RangeSetting.Field == nameof(IVersionable.StopPublish));
+            Assert.Contains(filters, x => x.RangeSetting.Field == nameof(IVersionable.StartPublish));
         }
 
         [Fact]
