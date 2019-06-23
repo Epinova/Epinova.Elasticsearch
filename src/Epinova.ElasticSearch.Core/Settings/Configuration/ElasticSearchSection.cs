@@ -19,7 +19,7 @@ namespace Epinova.ElasticSearch.Core.Settings.Configuration
 
         public static ElasticSearchSection GetConfiguration()
         {
-            if (!HostingEnvironment.IsHosted)
+            if(!HostingEnvironment.IsHosted)
             {
                 return new ElasticSearchSection();
             }
@@ -29,7 +29,7 @@ namespace Epinova.ElasticSearch.Core.Settings.Configuration
                     .GetSection("epinova.elasticSearch")
                 as ElasticSearchSection;
 
-            if (section == null)
+            if(section == null)
             {
                 throw new ConfigurationErrorsException("epinova.elasticSearch not found");
             }
@@ -152,23 +152,23 @@ namespace Epinova.ElasticSearch.Core.Settings.Configuration
 
         internal bool IsValidSizeString(string size)
         {
-            if (String.IsNullOrWhiteSpace(size))
+            if(String.IsNullOrWhiteSpace(size))
             {
                 return false;
             }
 
-            if (Int64.TryParse(size, out long parsed))
+            if(Int64.TryParse(size, out long parsed))
             {
                 return parsed > 0;
             }
 
             IEnumerable<char> invalidChars = size.ToLower().ToCharArray().Except(ValidSizeChars);
-            if (invalidChars.Any())
+            if(invalidChars.Any())
             {
                 return false;
             }
 
-            if (ValidSizeSuffixes.All(suffix => !size.EndsWith(suffix, StringComparison.OrdinalIgnoreCase)))
+            if(ValidSizeSuffixes.All(suffix => !size.EndsWith(suffix, StringComparison.OrdinalIgnoreCase)))
             {
                 return false;
             }
@@ -179,12 +179,12 @@ namespace Epinova.ElasticSearch.Core.Settings.Configuration
         internal void ValidateFiles()
         {
             string[] extensions = Files.OfType<FileConfiguration>().Select(i => i.Extension).ToArray();
-            if (extensions.Any(String.IsNullOrWhiteSpace))
+            if(extensions.Any(String.IsNullOrWhiteSpace))
             {
                 throw new ConfigurationErrorsException("Configuration Error. Extension cannot be empty");
             }
 
-            if (!IsValidSizeString(Files.Maxsize))
+            if(!IsValidSizeString(Files.Maxsize))
             {
                 throw new ConfigurationErrorsException("Configuration Error. Maxsize value is invalid");
             }
@@ -192,22 +192,22 @@ namespace Epinova.ElasticSearch.Core.Settings.Configuration
 
         internal void ValidateIndices()
         {
-            if (!IndicesParsed.Any())
+            if(!IndicesParsed.Any())
             {
                 throw new ConfigurationErrorsException("Configuration Error. You must add at least one index to the <indices> node");
             }
 
-            if (IndicesParsed.Count() > 1 && !IndicesParsed.Any(i => i.Default))
+            if(IndicesParsed.Count() > 1 && !IndicesParsed.Any(i => i.Default))
             {
                 throw new ConfigurationErrorsException("Configuration Error. One index must be set as default when adding multiple indices");
             }
 
-            if (Indices.Count > 1 && IndicesParsed.Count(i => i.Default) > 1)
+            if(Indices.Count > 1 && IndicesParsed.Count(i => i.Default) > 1)
             {
                 throw new ConfigurationErrorsException("Configuration Error. Only one index can be set as default");
             }
 
-            if (Indices.Count > 1 && IndicesParsed.Count(i => String.IsNullOrWhiteSpace(i.Type)) > 1)
+            if(Indices.Count > 1 && IndicesParsed.Count(i => String.IsNullOrWhiteSpace(i.Type)) > 1)
             {
                 throw new ConfigurationErrorsException("Configuration Error. Custom indices must define a type");
             }
@@ -216,13 +216,13 @@ namespace Epinova.ElasticSearch.Core.Settings.Configuration
             var indices = IndicesParsed.ToArray();
 
             var indexNames = indices.Select(i => i.Name);
-            if (indexNames.Any(String.IsNullOrWhiteSpace))
+            if(indexNames.Any(String.IsNullOrWhiteSpace))
             {
                 throw new ConfigurationErrorsException("Configuration Error. Index name cannot be empty");
             }
 
             var displayNames = indices.Select(i => i.DisplayName);
-            if (displayNames.Any(String.IsNullOrWhiteSpace))
+            if(displayNames.Any(String.IsNullOrWhiteSpace))
             {
                 throw new ConfigurationErrorsException("Configuration Error. Index display name cannot be empty");
             }

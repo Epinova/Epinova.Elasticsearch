@@ -40,13 +40,13 @@ namespace Epinova.ElasticSearch.Core.Engine
         /// <param name="indexName"></param>
         public async Task<SearchResult> QueryAsync(RequestBase query, CultureInfo culture, CancellationToken cancellationToken, string indexName = null)
         {
-            if (query == null)
+            if(query == null)
             {
                 return new SearchResult();
             }
 
             EsRootObject results = await GetRawResultsAsync<EsRootObject>(query, Language.GetLanguageCode(culture), cancellationToken, indexName).ConfigureAwait(false);
-            if (results == null)
+            if(results == null)
             {
                 return new SearchResult();
             }
@@ -67,14 +67,14 @@ namespace Epinova.ElasticSearch.Core.Engine
         /// <param name="indexName"></param>
         public SearchResult Query(RequestBase query, CultureInfo culture, string indexName = null)
         {
-            if (query == null)
+            if(query == null)
             {
                 return new SearchResult();
             }
 
             RawResults<EsRootObject> rawResults = GetRawResults<EsRootObject>(query, Language.GetLanguageCode(culture), indexName);
 
-            if (rawResults?.RootObject == null)
+            if(rawResults?.RootObject == null)
             {
                 return new SearchResult();
             }
@@ -88,19 +88,19 @@ namespace Epinova.ElasticSearch.Core.Engine
 
         public async Task<CustomSearchResult<T>> CustomQueryAsync<T>(RequestBase query, CultureInfo culture, CancellationToken cancellationToken, string indexName = null)
         {
-            if (query == null)
+            if(query == null)
             {
                 return new CustomSearchResult<T>();
             }
 
             EsCustomRootObject<T> rawResults = await GetRawResultsAsync<EsCustomRootObject<T>>(query, Language.GetLanguageCode(culture), cancellationToken, indexName);
 
-            if (rawResults == null)
+            if(rawResults == null)
             {
                 return new CustomSearchResult<T>();
             }
 
-            if (rawResults.Hits?.HitArray == null || rawResults.Hits.HitArray.Length == 0)
+            if(rawResults.Hits?.HitArray == null || rawResults.Hits.HitArray.Length == 0)
             {
                 return new CustomSearchResult<T>();
             }
@@ -121,13 +121,13 @@ namespace Epinova.ElasticSearch.Core.Engine
 
         public CustomSearchResult<T> CustomQuery<T>(RequestBase query, CultureInfo culture, string indexName = null)
         {
-            if (query == null)
+            if(query == null)
             {
                 return new CustomSearchResult<T>();
             }
 
             RawResults<EsCustomRootObject<T>> rawResults = GetRawResults<EsCustomRootObject<T>>(query, Language.GetLanguageCode(culture), indexName);
-            if (rawResults?.RootObject == null)
+            if(rawResults?.RootObject == null)
             {
                 return new CustomSearchResult<T>();
             }
@@ -137,7 +137,7 @@ namespace Epinova.ElasticSearch.Core.Engine
                 Query = query.ToString(Formatting.Indented)
             };
 
-            if (rawResults.RootObject.Hits?.HitArray != null && rawResults.RootObject.Hits.HitArray.Length > 0)
+            if(rawResults.RootObject.Hits?.HitArray != null && rawResults.RootObject.Hits.HitArray.Length > 0)
             {
                 searchResult.Hits = rawResults.RootObject.Hits.HitArray.Select(h => new CustomSearchHit<T>(h.Source, h.Score, h.Highlight));
                 searchResult.TotalHits = rawResults.RootObject.Hits.Total;
@@ -158,12 +158,12 @@ namespace Epinova.ElasticSearch.Core.Engine
                 RawJsonOutput = results.RawJson
             };
 
-            if (results.RootObject.Suggest?.DidYouMean != null && results.RootObject.Suggest.DidYouMean.Length > 0)
+            if(results.RootObject.Suggest?.DidYouMean != null && results.RootObject.Suggest.DidYouMean.Length > 0)
             {
                 searchResult.DidYouMeanSuggestions = results.RootObject.Suggest.DidYouMean[0].Options;
             }
 
-            if (hits?.HitArray != null && hits.HitArray.Length > 0)
+            if(hits?.HitArray != null && hits.HitArray.Length > 0)
             {
                 searchResult.Hits = hits.HitArray.Select(Map).ToArray();
                 searchResult.TotalHits = hits.Total;
@@ -179,38 +179,38 @@ namespace Epinova.ElasticSearch.Core.Engine
 
             CustomProperty[] customPropertiesForType = GetCustomPropertiesForType(hit);
 
-            if (!IsValidCustomProperty())
+            if(!IsValidCustomProperty())
             {
                 return searchHit;
             }
 
-            foreach (CustomProperty property in customPropertiesForType)
+            foreach(CustomProperty property in customPropertiesForType)
             {
-                if (!hit.Source.UnmappedFields.ContainsKey(property.Name))
+                if(!hit.Source.UnmappedFields.ContainsKey(property.Name))
                 {
                     continue;
                 }
 
                 JToken unmappedField = hit.Source.UnmappedFields[property.Name];
 
-                if (unmappedField == null)
+                if(unmappedField == null)
                 {
                     break;
                 }
 
-                if (IsArrayValue(unmappedField))
+                if(IsArrayValue(unmappedField))
                 {
                     searchHit.CustomProperties[property.Name] = unmappedField.Children().Cast<JValue>().Select(v => v.Value).ToArray();
                     continue;
                 }
 
-                if (IsDictionaryValue(unmappedField))
+                if(IsDictionaryValue(unmappedField))
                 {
                     searchHit.CustomProperties[property.Name] = JObject.FromObject(unmappedField).ToObject<IDictionary<string, object>>();
                     continue;
                 }
 
-                if (unmappedField is JValue value)
+                if(unmappedField is JValue value)
                 {
                     searchHit.CustomProperties[property.Name] = value.Value;
                 }
@@ -240,7 +240,7 @@ namespace Epinova.ElasticSearch.Core.Engine
 
         public RawResults<TRoot> GetRawResults<TRoot>(RequestBase query, string language, string indexName = null)
         {
-            if (indexName == null)
+            if(indexName == null)
             {
                 indexName = _settings.GetDefaultIndexName(language);
             }
@@ -271,7 +271,7 @@ namespace Epinova.ElasticSearch.Core.Engine
 
         public async Task<TRoot> GetRawResultsAsync<TRoot>(RequestBase query, string language, CancellationToken cancellationToken, string indexName = null)
         {
-            if (indexName == null)
+            if(indexName == null)
             {
                 indexName = _settings.GetDefaultIndexName(language);
             }
@@ -297,7 +297,7 @@ namespace Epinova.ElasticSearch.Core.Engine
         private void SetupFacets<T, TU>(EsRootObjectBase<T> results, SearchResultBase<TU> searchResult)
         {
             Dictionary<string, Aggregation> facets = results.Aggregations;
-            if (facets?.Any() == true)
+            if(facets?.Any() == true)
             {
                 searchResult.Facets = facets.Select(f => new FacetEntry
                 {
@@ -314,7 +314,7 @@ namespace Epinova.ElasticSearch.Core.Engine
 
         public virtual string[] GetSuggestions(SuggestRequest request, CultureInfo culture, string indexName = null)
         {
-            if (indexName == null)
+            if(indexName == null)
             {
                 indexName = _settings.GetDefaultIndexName(Language.GetLanguageCode(culture));
             }
@@ -333,12 +333,12 @@ namespace Epinova.ElasticSearch.Core.Engine
 
             SuggestionsRootObject results = serializer.Deserialize<SuggestionsRootObject>(response);
 
-            if (results?.Suggestions == null)
+            if(results?.Suggestions == null)
             {
                 results = results?.InnerRoot;
             }
 
-            if (results?.Suggestions != null && results.Suggestions.Length > 0)
+            if(results?.Suggestions != null && results.Suggestions.Length > 0)
             {
                 return results.Suggestions.SelectMany(s => s.Options.Select(o => o.Text)).ToArray();
             }
@@ -352,7 +352,7 @@ namespace Epinova.ElasticSearch.Core.Engine
             {
                 var data = Encoding.UTF8.GetBytes(request.ToString());
                 var returnData = await HttpClientHelper.PostAsync(new Uri(endpoint), data, cancellationToken);
-                if (returnData == null)
+                if(returnData == null)
                 {
                     throw new InvalidOperationException("Failed to POST to " + endpoint);
                 }
@@ -361,11 +361,11 @@ namespace Epinova.ElasticSearch.Core.Engine
                 Logger.Debug("GetResponse response:\n" + JToken.Parse(response).ToString(Formatting.Indented));
                 return new JsonTextReader(new StringReader(response));
             }
-            catch (WebException ex)
+            catch(WebException ex)
             {
                 TryLogErrors(ex);
             }
-            catch (Exception ex)
+            catch(Exception ex)
             {
                 Logger.Error("Could not get response", ex);
             }
@@ -381,7 +381,7 @@ namespace Epinova.ElasticSearch.Core.Engine
             {
                 var data = Encoding.UTF8.GetBytes(request.ToString());
                 var returnData = HttpClientHelper.Post(new Uri(endpoint), data);
-                if (returnData == null)
+                if(returnData == null)
                 {
                     throw new InvalidOperationException($"Failed to POST to '{endpoint}'");
                 }
@@ -393,11 +393,11 @@ namespace Epinova.ElasticSearch.Core.Engine
                 Logger.Debug("GetResponse response:\n" + JToken.Parse(response).ToString(Formatting.Indented));
                 return new JsonTextReader(new StringReader(response));
             }
-            catch (WebException ex)
+            catch(WebException ex)
             {
                 TryLogErrors(ex);
             }
-            catch (Exception ex)
+            catch(Exception ex)
             {
                 Logger.Error("Could not get response", ex);
             }
@@ -409,12 +409,12 @@ namespace Epinova.ElasticSearch.Core.Engine
         {
             var url = $"{_settings.Host}/{indexName}/_search";
 
-            if (extraParam != null)
+            if(extraParam != null)
             {
                 url += extraParam;
             }
 
-            if (Server.Info.Version.Major >= 7)
+            if(Server.Info.Version.Major >= 7)
             {
                 url += (url.Contains("?") ? "&" : "?") + "rest_total_hits_as_int=true";
             }
@@ -427,7 +427,7 @@ namespace Epinova.ElasticSearch.Core.Engine
             // Assume the response is json
             try
             {
-                using (var reader = new StreamReader(webException.Response.GetResponseStream()))
+                using(var reader = new StreamReader(webException.Response.GetResponseStream()))
                 {
                     Logger.Error(JToken.Parse(reader.ReadToEnd()).ToString(Formatting.Indented));
                 }

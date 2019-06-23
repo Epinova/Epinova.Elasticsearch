@@ -9,7 +9,7 @@ namespace Epinova.ElasticSearch.Core.Settings.Configuration
             get => (IndexConfiguration)BaseGet(index);
             set
             {
-                if (BaseGet(index) != null)
+                if(BaseGet(index) != null)
                 {
                     BaseRemoveAt(index);
                 }
@@ -18,38 +18,24 @@ namespace Epinova.ElasticSearch.Core.Settings.Configuration
         }
 
         public void Add(IndexConfiguration serviceConfig)
-        {
-            BaseAdd(serviceConfig);
-        }
+            => BaseAdd(serviceConfig);
 
         public void Clear()
-        {
-            BaseClear();
-        }
+            => BaseClear();
 
         protected override ConfigurationElement CreateNewElement()
-        {
-            return new IndexConfiguration();
-        }
+            => new IndexConfiguration();
 
         protected override object GetElementKey(ConfigurationElement element)
-        {
-            return (IndexConfiguration)element;
-        }
+            => (IndexConfiguration)element;
 
         public void Remove(IndexConfiguration serviceConfig)
-        {
-            BaseRemove(serviceConfig);
-        }
+            => BaseRemove(serviceConfig);
 
         public void RemoveAt(int index)
-        {
-            BaseRemoveAt(index);
-        }
+            => BaseRemoveAt(index);
 
         public void Remove(string name)
-        {
-            BaseRemove(name);
-        }
+            => BaseRemove(name);
     }
 }

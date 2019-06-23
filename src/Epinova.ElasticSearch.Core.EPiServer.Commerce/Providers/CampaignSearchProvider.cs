@@ -23,9 +23,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Commerce.Providers
         }
 
         protected override string GetSearchRoot()
-        {
-            return RootService.Service.Get("SysCampaignRoot").ID.ToString();
-        }
+            => RootService.Service.Get("SysCampaignRoot").ID.ToString();
 
         protected override string[] GetProviderKeys()
         {

@@ -9,7 +9,6 @@ namespace Epinova.ElasticSearch.Core.Models.Bulk
             Batches = new List<BulkResult>();
         }
 
-
         public List<BulkResult> Batches { get; }
     }
 }

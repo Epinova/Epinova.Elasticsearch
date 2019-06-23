@@ -52,7 +52,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Services
             List<BestBet> bestBets = GetBestBets(languageId, index).ToList();
             BestBet target = bestBets.FirstOrDefault(b => b.Phrase == phrase && b.Id == id);
 
-            if (target == null)
+            if(target == null)
             {
                 return;
             }
@@ -73,20 +73,20 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Services
         public IEnumerable<BestBet> GetBestBets(string languageId, string index)
         {
             var backup = GetBestBetsFile(GetFilename(languageId, index));
-            if (backup?.BinaryData == null)
+            if(backup?.BinaryData == null)
             {
                 return Enumerable.Empty<BestBet>();
             }
 
-            using (var stream = backup.BinaryData.OpenRead())
+            using(var stream = backup.BinaryData.OpenRead())
             {
-                using (var reader = new StreamReader(stream))
+                using(var reader = new StreamReader(stream))
                 {
                     string raw = reader.ReadToEnd();
 
                     Logger.Information($"Raw data:\n{raw}");
 
-                    if (String.IsNullOrWhiteSpace(raw))
+                    if(String.IsNullOrWhiteSpace(raw))
                     {
                         return Enumerable.Empty<BestBet>();
                     }
@@ -125,14 +125,14 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Services
                 ? _contentRepository.GetDefault<BestBetsFile>(GetBestBetsFolder().ContentLink)
                 : contentFile.CreateWritableClone() as BestBetsFile;
 
-            if (contentFile == null)
+            if(contentFile == null)
             {
                 return;
             }
 
             Logger.Information($"Saving BestBest for language:{languageId}");
 
-            using (Stream stream = contentFile.BinaryData?.OpenRead() ?? Stream.Null)
+            using(Stream stream = contentFile.BinaryData?.OpenRead() ?? Stream.Null)
             {
                 byte[] data = new byte[stream.Length];
                 stream.Read(data, 0, (int)stream.Length);
@@ -146,7 +146,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Services
             Logger.Information($"New content:\n{content}");
 
             Blob blob = _blobFactory.CreateBlob(contentFile.BinaryDataContainer, "." + BestBetsFile.Extension);
-            using (Stream stream = blob.OpenWrite())
+            using(Stream stream = blob.OpenWrite())
             {
                 var writer = new StreamWriter(stream);
                 writer.Write(content);
@@ -162,9 +162,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Services
         }
 
         private static string PhraseToRow(BestBet bestBet)
-        {
-            return $"{bestBet.Phrase}{PhraseDelim}{bestBet.Id}{PhraseDelim}{bestBet.Provider}";
-        }
+            => $"{bestBet.Phrase}{PhraseDelim}{bestBet.Id}{PhraseDelim}{bestBet.Provider}";
 
         private void UpdateIndex(in IEnumerable<BestBet> bestbets, string index, Type type)
         {
@@ -176,7 +174,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Services
                     Terms = x.SelectMany(z => z.GetTerms()).ToArray()
                 });
 
-            foreach (var item in termsById)
+            foreach(var item in termsById)
             {
                 _coreIndexer.UpdateBestBets(index, type, item.Id, item.Terms);
             }
@@ -192,16 +190,14 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Services
         }
 
         private static string GetFilename(string languageId, string index)
-        {
-            return $"{languageId}_{index}.{BestBetsFile.Extension}";
-        }
+            => $"{languageId}_{index}.{BestBetsFile.Extension}";
 
         private BestBetsFileFolder GetBestBetsFolder()
         {
             var parent = ContentReference.RootPage;
 
             var backupFolder = _contentRepository.GetChildren<BestBetsFileFolder>(parent).FirstOrDefault();
-            if (backupFolder == null)
+            if(backupFolder == null)
             {
                 backupFolder = _contentRepository.GetDefault<BestBetsFileFolder>(parent);
                 backupFolder.Name = BestBetsFileFolder.ContentName;

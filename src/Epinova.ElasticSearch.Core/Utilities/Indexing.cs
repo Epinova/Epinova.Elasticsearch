@@ -79,7 +79,7 @@ namespace Epinova.ElasticSearch.Core.Utilities
 
             var uri = $"{_settings.Host}/{indexName}{type}{endpoint}";
 
-            if (extraParams != null)
+            if(extraParams != null)
             {
                 uri += (uri.Contains("?") ? "&" : "?") + extraParams;
             }

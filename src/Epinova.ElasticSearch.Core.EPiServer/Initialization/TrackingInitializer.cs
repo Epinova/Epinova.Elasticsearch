@@ -17,7 +17,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Initialization
         {
             string connectionString = ConfigurationManager.ConnectionStrings[Constants.EPiServerConnectionStringName].ConnectionString;
 
-            if (!DbHelper.TableExists(connectionString, Constants.TrackingTable))
+            if(!DbHelper.TableExists(connectionString, Constants.TrackingTable))
             {
                 const string definition = @"
                     [Query] [nvarchar](400) NOT NULL,
@@ -30,7 +30,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Initialization
                 DbHelper.CreateTable(connectionString, Constants.TrackingTable, definition);
             }
 
-            if (!DbHelper.ColumnExists(connectionString, Constants.TrackingTable, Constants.TrackingFieldIndex))
+            if(!DbHelper.ColumnExists(connectionString, Constants.TrackingTable, Constants.TrackingFieldIndex))
             {
                 Logger.Information($"Extending table with {Constants.TrackingFieldIndex} column");
 

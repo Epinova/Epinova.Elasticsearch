@@ -20,13 +20,13 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Extensions
             string fieldName = ElasticSearchService<T>.GetFieldInfo(fieldSelector).Item1;
             Type type = typeof(T);
 
-            if (!Indexing.Instance.SearchableProperties.ContainsKey(type))
+            if(!Indexing.Instance.SearchableProperties.ContainsKey(type))
             {
                 Indexing.Instance.SearchableProperties.TryAdd(type, new[] { fieldName });
             }
             else
             {
-                if (Indexing.Instance.SearchableProperties.TryGetValue(type, out string[] current))
+                if(Indexing.Instance.SearchableProperties.TryGetValue(type, out string[] current))
                 {
                     var merged = new string[current.Length + 1];
                     current.CopyTo(merged, 1);

@@ -27,15 +27,11 @@ namespace Epinova.ElasticSearch.Core.Models.Converters
         }
 
         public override bool CanConvert(Type objectType)
-        {
-            return objectType == typeof(BulkResultItem);
-        }
+            => objectType == typeof(BulkResultItem);
 
         public override bool CanWrite => false;
 
         public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
-        {
-            throw new NotImplementedException();
-        }
+            => throw new NotImplementedException();
     }
 }

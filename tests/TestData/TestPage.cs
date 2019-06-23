@@ -53,14 +53,8 @@ namespace TestData
 
     public static class TestPageExtensions
     {
-        public static string CustomStuff(this TestPage page)
-        {
-            return Factory.GetSentence();
-        }
+        public static string CustomStuff(this TestPage page) => Factory.GetSentence();
 
-        public static int Prize(this TestPage page)
-        {
-            return Factory.GetInteger();
-        }
+        public static int Prize(this TestPage page) => Factory.GetInteger();
     }
 }

@@ -7,7 +7,7 @@ namespace Epinova.ElasticSearch.Core.Models.Query
     {
         public Wildcard(string field, string query, sbyte boost = 0)
         {
-            if (boost == 0)
+            if(boost == 0)
             {
                 WildcardQuery = new JObject(new JProperty(field, query));
             }

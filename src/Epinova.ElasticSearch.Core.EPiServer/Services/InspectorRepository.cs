@@ -34,7 +34,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Services
 
         public List<InspectItem> Search(string languageId, string searchText, int size, string type = null, string selectedIndex = null)
         {
-            if (String.IsNullOrWhiteSpace(searchText) && String.IsNullOrWhiteSpace(type))
+            if(String.IsNullOrWhiteSpace(searchText) && String.IsNullOrWhiteSpace(type))
             {
                 return new List<InspectItem>();
             }
@@ -43,7 +43,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Services
             string indexName = GetIndexName(languageId, selectedIndex);
 
             string uri = $"{_elasticSearchSettings.Host}/{indexName}/_search?q={query}&size={size}";
-            if (Server.Info.Version.Major >= 7)
+            if(Server.Info.Version.Major >= 7)
             {
                 uri += "&rest_total_hits_as_int=true";
             }
@@ -59,7 +59,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Services
         {
             string indexName = GetIndexName(languageId, selectedIndex);
             string uri = $"{_elasticSearchSettings.Host}/{indexName}/_search";
-            if (Server.Info.Version.Major >= 7)
+            if(Server.Info.Version.Major >= 7)
             {
                 uri += "?rest_total_hits_as_int=true";
             }
@@ -91,14 +91,14 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Services
         {
             string query = null;
 
-            if (!String.IsNullOrEmpty(searchText))
+            if(!String.IsNullOrEmpty(searchText))
             {
                 query = searchText;
             }
 
-            if (!String.IsNullOrEmpty(type))
+            if(!String.IsNullOrEmpty(type))
             {
-                if (query != null)
+                if(query != null)
                 {
                     query += " AND ";
                 }
@@ -124,7 +124,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Services
             };
 
             object searchQuery = null;
-            if (!String.IsNullOrEmpty(searchText))
+            if(!String.IsNullOrEmpty(searchText))
             {
                 searchQuery = new
                 {
@@ -156,18 +156,18 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Services
             typeCount.ShortTypeName = typeCount.Type.GetShortTypeName();
             ContentType contentType = _contentTypeRepository.Load(typeCount.ShortTypeName);
 
-            if (contentType != null)
+            if(contentType != null)
             {
                 typeCount.Name = contentType.LocalizedName;
                 typeCount.Group = contentType.LocalizedGroupName;
             }
 
-            if (String.IsNullOrWhiteSpace(typeCount.Name))
+            if(String.IsNullOrWhiteSpace(typeCount.Name))
             {
                 typeCount.Name = typeCount.ShortTypeName;
             }
 
-            if (String.IsNullOrWhiteSpace(typeCount.Group))
+            if(String.IsNullOrWhiteSpace(typeCount.Group))
             {
                 typeCount.Group = " " + LocalizationExtensions.TranslateWithPath("nocategory", "/epinovaelasticsearch/indexinspector/");
             }

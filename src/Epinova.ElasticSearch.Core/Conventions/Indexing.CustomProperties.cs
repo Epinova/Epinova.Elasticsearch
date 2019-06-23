@@ -15,9 +15,7 @@ namespace Epinova.ElasticSearch.Core.Conventions
         /// </summary>
         /// <typeparam name="T">The type</typeparam>
         /// <returns>An instance of <see cref="CustomPropertyConvention{T}"/></returns>
-        public CustomPropertyConvention<T> ForType<T>()
-        {
-            return new CustomPropertyConvention<T>(this);
-        }
+        public CustomPropertyConvention<T> ForType<T>() 
+            => new CustomPropertyConvention<T>(this);
     }
 }

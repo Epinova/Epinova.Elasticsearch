@@ -363,7 +363,7 @@ namespace Core.Tests.Engine
         {
             var json = RemoveWhitespace(GetJsonTestData("SearchOfT_Object.json"));
 
-            var result = RemoveWhitespace(Serialize(_builder.TypedSearch<Object>(new QuerySetup
+            var result = RemoveWhitespace(Serialize(_builder.TypedSearch<object>(new QuerySetup
             {
                 SearchText = "term",
                 Operator = Operator.Or,
@@ -378,7 +378,7 @@ namespace Core.Tests.Engine
         {
             var json = RemoveWhitespace(GetJsonTestData("SearchOfT_String.json"));
 
-            var result = RemoveWhitespace(Serialize(_builder.TypedSearch<String>(new QuerySetup
+            var result = RemoveWhitespace(Serialize(_builder.TypedSearch<string>(new QuerySetup
             {
                 SearchText = "term",
                 Language = _language
@@ -388,8 +388,8 @@ namespace Core.Tests.Engine
         }
 
         [Theory]
-        [InlineData(Int32.MinValue)]
-        [InlineData(Int32.MaxValue)]
+        [InlineData(int.MinValue)]
+        [InlineData(int.MaxValue)]
         [InlineData(0)]
         [InlineData(1234)]
         public void Filter_ReturnsExpectedJsonForInteger(int value)
@@ -397,7 +397,7 @@ namespace Core.Tests.Engine
             var setup = new QuerySetup { SearchText = "term", Language = _language };
             setup.Filters.Add(new Filter("MyField", value, typeof(int), false, Operator.And));
 
-            var query = (QueryRequest)_builder.TypedSearch<String>(setup);
+            var query = (QueryRequest)_builder.TypedSearch<string>(setup);
 
             var result = Serialize(query.PostFilter.Bool.Must);
             var expected = GetJsonTestData($"PostFilterShouldInt_{value}.json");
@@ -406,8 +406,8 @@ namespace Core.Tests.Engine
         }
 
         [Theory]
-        [InlineData(Int64.MinValue)]
-        [InlineData(Int64.MaxValue)]
+        [InlineData(long.MinValue)]
+        [InlineData(long.MaxValue)]
         [InlineData(0)]
         [InlineData(1234)]
         public void Filter_ReturnsExpectedJsonForLong(long value)
@@ -415,7 +415,7 @@ namespace Core.Tests.Engine
             var setup = new QuerySetup { SearchText = "term", Language = _language };
             setup.Filters.Add(new Filter("MyField", value, typeof(long), false, Operator.And));
 
-            var query = (QueryRequest)_builder.TypedSearch<String>(setup);
+            var query = (QueryRequest)_builder.TypedSearch<string>(setup);
 
             var result = Serialize(query.PostFilter.Bool.Must);
             var expected = GetJsonTestData($"PostFilterShouldLong_{value}.json");
@@ -431,7 +431,7 @@ namespace Core.Tests.Engine
             var setup = new QuerySetup { SearchText = "term", Language = _language };
             setup.Filters.Add(new Filter("MyField", value, typeof(bool), false, Operator.And));
 
-            var query = (QueryRequest)_builder.TypedSearch<String>(setup);
+            var query = (QueryRequest)_builder.TypedSearch<string>(setup);
 
             var result = Serialize(query.PostFilter.Bool.Must);
             var expected = GetJsonTestData($"PostFilterShouldBool_{value}.json");
@@ -447,7 +447,7 @@ namespace Core.Tests.Engine
             var setup = new QuerySetup { SearchText = "term", Language = _language };
             setup.Filters.Add(new Filter("MyField", value, typeof(string), false, Operator.And));
 
-            var query = (QueryRequest)_builder.TypedSearch<String>(setup);
+            var query = (QueryRequest)_builder.TypedSearch<string>(setup);
 
             var result = Serialize(query.PostFilter.Bool.Must);
             var expected = GetJsonTestData($"PostFilterShouldString_{value}.json");
@@ -464,7 +464,7 @@ namespace Core.Tests.Engine
             var setup = new QuerySetup { SearchText = "term", Language = _language };
             setup.Filters.Add(new Filter("MyField", value, typeof(float), false, Operator.And));
 
-            var query = (QueryRequest)_builder.TypedSearch<String>(setup);
+            var query = (QueryRequest)_builder.TypedSearch<string>(setup);
 
             var result = Serialize(query.PostFilter.Bool.Must);
             var expected = GetJsonTestData($"PostFilterShouldFloat_{value}.json");
@@ -480,7 +480,7 @@ namespace Core.Tests.Engine
             var setup = new QuerySetup { SearchText = "term", Language = _language };
             setup.Filters.Add(new Filter("MyField", value, typeof(double), false, Operator.And));
 
-            var query = (QueryRequest)_builder.TypedSearch<String>(setup);
+            var query = (QueryRequest)_builder.TypedSearch<string>(setup);
 
             var result = Serialize(query.PostFilter.Bool.Must);
             var expected = GetJsonTestData($"PostFilterShouldDouble_{value}.json");
@@ -495,7 +495,7 @@ namespace Core.Tests.Engine
             var setup = new QuerySetup { SearchText = "term", Language = _language };
             setup.Filters.Add(new Filter("MyField", value, typeof(DateTime), false, Operator.And));
 
-            var query = (QueryRequest)_builder.TypedSearch<String>(setup);
+            var query = (QueryRequest)_builder.TypedSearch<string>(setup);
 
             var result = Serialize(query.PostFilter.Bool.Must);
             var expected = GetJsonTestData("PostFilterShouldDate.json");
@@ -510,7 +510,7 @@ namespace Core.Tests.Engine
             var setup = new QuerySetup { SearchText = "term", Language = _language };
             setup.Filters.Add(new Filter("MyField", value, typeof(DateTime), false, Operator.And));
 
-            var query = (QueryRequest)_builder.TypedSearch<String>(setup);
+            var query = (QueryRequest)_builder.TypedSearch<string>(setup);
 
             var result = Serialize(query.PostFilter.Bool.Must);
             var expected = GetJsonTestData("PostFilterShouldDateTime.json");
@@ -529,7 +529,7 @@ namespace Core.Tests.Engine
                 AppendAclFilters = true
             };
 
-            var request = (QueryRequest)_builder.TypedSearch<String>(setup);
+            var request = (QueryRequest)_builder.TypedSearch<string>(setup);
             var boolQuery = request.Query.Bool.Filter.Cast<NestedBoolQuery>().First().Bool;
             var shoulds = boolQuery.Should.Cast<MatchSimple>();
 
@@ -553,7 +553,7 @@ namespace Core.Tests.Engine
                 }
             };
 
-            var request = (QueryRequest)_builder.TypedSearch<String>(setup);
+            var request = (QueryRequest)_builder.TypedSearch<string>(setup);
             var aggregation = request.Aggregation.First();
 
             Assert.Equal(expectedKey, aggregation.Key);
@@ -565,7 +565,7 @@ namespace Core.Tests.Engine
             var request = (QueryRequest)_builder.Search(new QuerySetup
             {
                 IsGetQuery = true,
-                SearchText = String.Empty
+                SearchText = string.Empty
             });
 
             var result = request.Query.Bool.Must.Cast<MatchAll>().Any();

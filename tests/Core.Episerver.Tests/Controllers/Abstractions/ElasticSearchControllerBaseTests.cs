@@ -81,19 +81,13 @@ namespace Core.Episerver.Tests.Controllers.Abstractions
             public new List<IndexInformation> Indices => base.Indices;
 
             public new void OnActionExecuting(ActionExecutingContext filterContext)
-            {
-                base.OnActionExecuting(filterContext);
-            }
+                => base.OnActionExecuting(filterContext);
 
             public new void OnResultExecuting(ResultExecutingContext filterContext)
-            {
-                base.OnResultExecuting(filterContext);
-            }
+                => base.OnResultExecuting(filterContext);
 
             public new void Initialize(RequestContext requestContext)
-            {
-                base.Initialize(requestContext);
-            }
+                => base.Initialize(requestContext);
         }
     }
 }

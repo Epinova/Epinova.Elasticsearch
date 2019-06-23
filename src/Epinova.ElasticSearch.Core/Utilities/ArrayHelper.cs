@@ -11,13 +11,13 @@ namespace Epinova.ElasticSearch.Core.Utilities
         internal static object ToArray(object value)
         {
             var enumerable = value as IEnumerable;
-            if (enumerable == null)
+            if(enumerable == null)
             {
                 return Enumerable.Empty<object>();
             }
 
             Type type = GetIEnumerableType(value);
-            if (type == null)
+            if(type == null)
             {
                 return Enumerable.Empty<object>();
             }
@@ -26,7 +26,7 @@ namespace Epinova.ElasticSearch.Core.Utilities
             Array values = Array.CreateInstance(type, list.Count);
 
             var i = 0;
-            foreach (object e in list)
+            foreach(object e in list)
             {
                 values.SetValue(e, i++);
             }
@@ -35,14 +35,10 @@ namespace Epinova.ElasticSearch.Core.Utilities
         }
 
         internal static object ToDictionary(object value)
-        {
-            return value as IDictionary<string, object>;
-        }
+            => value as IDictionary<string, object>;
 
         internal static bool IsArrayCandidate(PropertyInfo p)
-        {
-            return IsArrayCandidate(p?.PropertyType);
-        }
+            => IsArrayCandidate(p?.PropertyType);
 
         internal static bool IsArrayCandidate(Type type)
         {
@@ -52,9 +48,7 @@ namespace Epinova.ElasticSearch.Core.Utilities
         }
 
         internal static bool IsDictionary(Type type)
-        {
-            return type.IsGenericType && type.GenericTypeArguments.Length == 2;
-        }
+            => type.IsGenericType && type.GenericTypeArguments.Length == 2;
 
         private static Type GetIEnumerableType(object o)
         {

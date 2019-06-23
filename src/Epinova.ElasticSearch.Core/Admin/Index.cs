@@ -26,7 +26,7 @@ namespace Epinova.ElasticSearch.Core.Admin
 
         public Index(IElasticSearchSettings settings, string name) : this(settings)
         {
-            if (String.IsNullOrWhiteSpace(name))
+            if(String.IsNullOrWhiteSpace(name))
             {
                 throw new InvalidOperationException("'name' can not be empty.");
             }
@@ -57,7 +57,7 @@ namespace Epinova.ElasticSearch.Core.Admin
                 .Where(MatchName)
                 .ToArray();
 
-            foreach (var indexInfo in indices)
+            foreach(var indexInfo in indices)
             {
                 var index = new Index(_settings, indexInfo.Index);
                 indexInfo.Tokenizer = index.GetTokenizer();
@@ -70,7 +70,7 @@ namespace Epinova.ElasticSearch.Core.Admin
 
         internal string GetTokenizer()
         {
-            if (String.IsNullOrWhiteSpace(_name) || !_indexing.IndexExists(_name))
+            if(String.IsNullOrWhiteSpace(_name) || !_indexing.IndexExists(_name))
             {
                 return String.Empty;
             }
@@ -78,7 +78,7 @@ namespace Epinova.ElasticSearch.Core.Admin
             var json = HttpClientHelper.GetString(_indexing.GetUri(_name, "_settings"));
             var languageAnalyzer = Language.GetLanguageAnalyzer(_settings.GetLanguage(_name));
 
-            if (String.IsNullOrWhiteSpace(languageAnalyzer))
+            if(String.IsNullOrWhiteSpace(languageAnalyzer))
             {
                 return String.Empty;
             }
@@ -88,7 +88,7 @@ namespace Epinova.ElasticSearch.Core.Admin
             JContainer settings = JsonConvert.DeserializeObject<JContainer>(json);
 
             JToken token = settings?.SelectToken(jpath);
-            if (token == null)
+            if(token == null)
             {
                 return String.Empty;
             }
@@ -114,7 +114,7 @@ namespace Epinova.ElasticSearch.Core.Admin
 
                 return isSuccess;
             }
-            catch (Exception ex)
+            catch(Exception ex)
             {
                 Logger.Error("Could not get status", ex);
                 return false;
@@ -133,7 +133,7 @@ namespace Epinova.ElasticSearch.Core.Admin
                 var result = JsonConvert.DeserializeAnonymousType(response, model);
                 return result.hits.total;
             }
-            catch (Exception ex)
+            catch(Exception ex)
             {
                 Logger.Error("Could not get count", ex);
                 return 0;
@@ -159,9 +159,9 @@ namespace Epinova.ElasticSearch.Core.Admin
 
             _indexing.Open(_name);
 
-            if (type != null)
+            if(type != null)
             {
-                if (type == typeof(IndexItem))
+                if(type == typeof(IndexItem))
                 {
                     CreateStandardMappings();
                 }
@@ -279,9 +279,9 @@ namespace Epinova.ElasticSearch.Core.Admin
 
         private bool MatchName(IndexInformation i)
         {
-            foreach (string indexName in _settings.Indices)
+            foreach(string indexName in _settings.Indices)
             {
-                if (i.Index.StartsWith(String.Concat(indexName, "-"), StringComparison.OrdinalIgnoreCase))
+                if(i.Index.StartsWith(String.Concat(indexName, "-"), StringComparison.OrdinalIgnoreCase))
                 {
                     return true;
                 }

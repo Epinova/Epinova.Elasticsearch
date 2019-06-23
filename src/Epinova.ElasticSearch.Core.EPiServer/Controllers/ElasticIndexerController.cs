@@ -30,12 +30,12 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Controllers
         {
             try
             {
-                if (_contentLoader.TryGet(ContentReference.Parse(id), out IContent content))
+                if(_contentLoader.TryGet(ContentReference.Parse(id), out IContent content))
                 {
                     string indexName = null;
 
                     // Point catalog content to correct index
-                    if (Constants.CommerceProviderName.Equals(content.ContentLink.ProviderName))
+                    if(Constants.CommerceProviderName.Equals(content.ContentLink.ProviderName))
                     {
                         string lang = _indexer.GetLanguage(content);
                         indexName = _settings.GetCustomIndexName($"{_settings.Index}-{Constants.CommerceProviderName}", lang);
@@ -48,7 +48,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Controllers
                     return Json(new { status = status.ToString() });
                 }
             }
-            catch (Exception ex)
+            catch(Exception ex)
             {
                 Logger.Error("Error updating item with id '" + id + "'", ex);
                 return Json(new { status = nameof(IndexingStatus.Error), error = ex.Message });

@@ -16,19 +16,13 @@ namespace Epinova.ElasticSearch.Core.Models
         public bool IsPartOfFilteredQuery { get; set; }
 
         public bool ShouldSerializeFilter()
-        {
-            return IsPartOfFilteredQuery;
-        }
+            => IsPartOfFilteredQuery;
 
         public virtual bool ShouldSerializeFrom()
-        {
-            return !IsPartOfFilteredQuery;
-        }
+            => !IsPartOfFilteredQuery;
 
         public virtual bool ShouldSerializeSize()
-        {
-            return !IsPartOfFilteredQuery;
-        }
+            => !IsPartOfFilteredQuery;
 
         public string ToString(Formatting formatting)
         {
@@ -43,8 +37,6 @@ namespace Epinova.ElasticSearch.Core.Models
         }
 
         public override string ToString()
-        {
-            return ToString(Formatting.None);
-        }
+            => ToString(Formatting.None);
     }
 }

@@ -11,13 +11,13 @@ namespace Epinova.ElasticSearch.Core.Utilities
             string languageName = Language.GetLanguageAnalyzer(languageCode);
 
             dynamic synonymSettings = new { type = "synonym", synonyms = new[] { "example_from,example_to" } };
-            if (!String.IsNullOrWhiteSpace(synonymsFilePath))
+            if(!String.IsNullOrWhiteSpace(synonymsFilePath))
             {
                 synonymSettings = new { type = "synonym", synonyms_path = languageCode + "_" + synonymsFilePath };
             }
 
             var stemmerLanguage = languageName;
-            if (languageName == "french" || languageName == "german")
+            if(languageName == "french" || languageName == "german")
             {
                 stemmerLanguage = "light_" + stemmerLanguage;
             }
@@ -88,12 +88,12 @@ namespace Epinova.ElasticSearch.Core.Utilities
 
             dict.Add("shingle_filter", shingleFilter);
 
-            if (languageName == "french")
+            if(languageName == "french")
             {
                 dict.Add("french_elision", new { type = "elision", articles_case = true, articles = new[] { "l", "m", "t", "qu", "n", "s", "j", "d", "c", "jusqu", "quoiqu", "lorsqu", "puisqu" } });
             }
 
-            if (languageName == "english")
+            if(languageName == "english")
             {
                 dict.Add("light_english_stemmer", new { type = "stemmer", language = "light_english" });
                 dict.Add("english_possessive_stemmer", new { type = "stemmer", language = "possessive_english" });
@@ -110,7 +110,7 @@ namespace Epinova.ElasticSearch.Core.Utilities
         {
             yield return "lowercase";
 
-            if (languageName == "english")
+            if(languageName == "english")
             {
                 yield return "english_possessive_stemmer";
                 yield return "light_english_stemmer";
@@ -164,7 +164,7 @@ namespace Epinova.ElasticSearch.Core.Utilities
 
         private static IEnumerable<string> CreateSimpleAnalyzerFilter(string languageName)
         {
-            if (languageName == "french")
+            if(languageName == "french")
             {
                 yield return "french_elision";
             }
@@ -172,7 +172,7 @@ namespace Epinova.ElasticSearch.Core.Utilities
             yield return "lowercase";
             yield return languageName + "_stop";
 
-            if (languageName == "german")
+            if(languageName == "german")
             {
                 yield return "german_normalization";
             }
@@ -182,21 +182,21 @@ namespace Epinova.ElasticSearch.Core.Utilities
 
         private static IEnumerable<string> CreateAnalyzerFilter(string languageName)
         {
-            if (languageName == "french")
+            if(languageName == "french")
             {
                 yield return "french_elision";
             }
 
             yield return "lowercase";
 
-            if (languageName == "english")
+            if(languageName == "english")
             {
                 yield return "english_possessive_stemmer";
             }
 
             yield return languageName + "_stop";
 
-            if (languageName == "german")
+            if(languageName == "german")
             {
                 yield return "german_normalization";
             }

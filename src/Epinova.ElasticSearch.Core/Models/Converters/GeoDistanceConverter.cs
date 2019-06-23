@@ -9,20 +9,16 @@ namespace Epinova.ElasticSearch.Core.Models.Converters
         public override bool CanRead => false;
 
         public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
-        {
-            return null;
-        }
+            => null;
 
         public override bool CanConvert(Type objectType)
-        {
-            return typeof(MatchBase).IsAssignableFrom(objectType);
-        }
+            => typeof(MatchBase).IsAssignableFrom(objectType);
 
         public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
         {
             var geoDistance = value as GeoDistance;
 
-            if (geoDistance?.Point == null)
+            if(geoDistance?.Point == null)
             {
                 return;
             }

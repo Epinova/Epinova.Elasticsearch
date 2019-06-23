@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using Newtonsoft.Json;
 
 namespace Epinova.ElasticSearch.Core.Models.Admin
@@ -50,13 +50,13 @@ namespace Epinova.ElasticSearch.Core.Models.Admin
             get
             {
                 // Unknown, probably closed
-                if (String.IsNullOrEmpty(Status))
+                if(String.IsNullOrEmpty(Status))
                 {
                     return "red";
                 }
 
                 // Poor contrast for "yellow"
-                if (Status == "yellow")
+                if(Status == "yellow")
                 {
                     return "orange";
                 }

@@ -16,30 +16,20 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Extensions
     public static class QueryExtensions
     {
         public static IElasticSearchService<T> StartFrom<T>(this IElasticSearchService<T> service, ContentReference contentReference)
-        {
-            return service.StartFrom(contentReference.ID);
-        }
+            => service.StartFrom(contentReference.ID);
 
         public static IElasticSearchService<T> Exclude<T>(this IElasticSearchService<T> service, ContentReference root, bool recursive = true)
-        {
-            return service.Exclude(root.ID, recursive);
-        }
+            => service.Exclude(root.ID, recursive);
 
         public static IElasticSearchService<T> Exclude<T>(this IElasticSearchService<T> service, IContent root, bool recursive = true)
-        {
-            return service.Exclude(root.ContentLink.ID, recursive);
-        }
+            => service.Exclude(root.ContentLink.ID, recursive);
 
         public static IElasticSearchService<T> BoostByAncestor<T>(this IElasticSearchService<T> service, ContentReference path, sbyte weight)
-        {
-            return service.BoostByAncestor(path.ID, weight);
-        }
+            => service.BoostByAncestor(path.ID, weight);
 
         [Obsolete("Use GetSuggestions")]
         public static string[] Suggestions<T>(this IElasticSearchService<T> service, string searchText)
-        {
-            return service.GetSuggestions(searchText);
-        }
+            => service.GetSuggestions(searchText);
 
         /// <summary>
         /// Get auto-suggestions for the indexed word beginning with the supplied term. 
@@ -68,11 +58,8 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Extensions
             return editorialSuggestions.Concat(elasticSuggestions).Distinct().ToArray();
         }
 
-        public static IElasticSearchService<T> Filter<T>(this IElasticSearchService<T> service,
-            Expression<Func<T, CategoryList>> fieldSelector, int filterValue)
-        {
-            return service.Filter(fieldSelector, filterValue.ToString());
-        }
+        public static IElasticSearchService<T> Filter<T>(this IElasticSearchService<T> service, Expression<Func<T, CategoryList>> fieldSelector, int filterValue)
+            => service.Filter(fieldSelector, filterValue.ToString());
 
         public static IElasticSearchService<T> Filter<T>(this IElasticSearchService<T> service,
             Expression<Func<T, CategoryList>> fieldSelector, string filterValue)

@@ -24,15 +24,9 @@ namespace Core.Tests.Engine
             _dummyQuery = new QueryRequest(new QuerySetup { SearchText = "foo" });
         }
 
-        public void Dispose()
-        {
-            _engine = null;
-        }
+        public void Dispose() => _engine = null;
 
-        private void SetupEngineMock(string jsonFile)
-        {
-            _engine = new TestableSearchEngine(jsonFile, _fixture.ServiceLocationMock.SettingsMock.Object);
-        }
+        private void SetupEngineMock(string jsonFile) => _engine = new TestableSearchEngine(jsonFile, _fixture.ServiceLocationMock.SettingsMock.Object);
 
         [Fact]
         public void GetSuggestions_InvalidResult_ReturnEmptyArray()

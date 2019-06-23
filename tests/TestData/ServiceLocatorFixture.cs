@@ -10,10 +10,7 @@ namespace TestData
             ServiceLocationMock = Factory.SetupServiceLocator();
         }
 
-        public void Dispose()
-        {
-            ServiceLocator.SetLocator(null);
-        }
+        public void Dispose() => ServiceLocator.SetLocator(null);
 
         public ServiceLocationMock ServiceLocationMock { get; }
     }

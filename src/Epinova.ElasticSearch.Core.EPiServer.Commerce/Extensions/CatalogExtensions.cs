@@ -17,9 +17,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Commerce.Extensions
         private static readonly IElasticSearchSettings ElasticSearchSettings = ServiceLocator.Current.GetInstance<IElasticSearchSettings>();
 
         private static string GetIndexName(CultureInfo searchLanguage)
-        {
-            return $"{ElasticSearchSettings.Index}-{Constants.CommerceProviderName}-{Language.GetLanguageCode(searchLanguage)}";
-        }
+            => $"{ElasticSearchSettings.Index}-{Constants.CommerceProviderName}-{Language.GetLanguageCode(searchLanguage)}";
 
         public static CatalogSearchResult<T> GetCatalogResults<T>(this IElasticSearchService<T> service)
             where T : EntryContentBase
@@ -30,9 +28,9 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Commerce.Extensions
             SearchResult results = service.GetResults();
             var hits = new List<CatalogSearchHit<T>>();
 
-            foreach (SearchHit hit in results.Hits)
+            foreach(SearchHit hit in results.Hits)
             {
-                if (hit.ShouldAdd(false, out T content, new[] { ProviderConstants.CatalogProviderKey }, false))
+                if(hit.ShouldAdd(false, out T content, new[] { ProviderConstants.CatalogProviderKey }, false))
                 {
                     hits.Add(new CatalogSearchHit<T>(content, hit.CustomProperties, hit.QueryScore, hit.Highlight));
                 }
@@ -42,7 +40,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Commerce.Extensions
                 }
             }
 
-            if (service.TrackSearch)
+            if(service.TrackSearch)
             {
                 TrackingRepository.AddSearch(
                     Language.GetLanguageCode(service.SearchLanguage),

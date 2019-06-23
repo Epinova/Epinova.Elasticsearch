@@ -9,7 +9,6 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Models
             Boosting = new Dictionary<string, int>();
         }
 
-
         public string TypeName { get; set; }
 
         public Dictionary<string, int> Boosting { get; set; }

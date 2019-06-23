@@ -27,18 +27,18 @@ namespace Epinova.ElasticSearch.Core.Models.Query
         {
             get
             {
-                if (_sortFields == null || _sortFields.Count == 0)
+                if(_sortFields == null || _sortFields.Count == 0)
                 {
                     return null;
                 }
 
                 var sorts = new JArray();
 
-                for (var i = 0; i < _sortFields.Count; i++)
+                for(var i = 0; i < _sortFields.Count; i++)
                 {
                     string sortField = _sortFields[i].FieldName;
 
-                    if (_sortFields[i].MappingType == MappingType.Geo_Point && _sortFields[i] is GeoSort geoSort)
+                    if(_sortFields[i].MappingType == MappingType.Geo_Point && _sortFields[i] is GeoSort geoSort)
                     {
                         sorts.Add(
                             new JObject(
@@ -52,7 +52,7 @@ namespace Epinova.ElasticSearch.Core.Models.Query
                     }
                     else
                     {
-                        if (sortField[0] != '_' && _sortFields[i].MappingType == MappingType.Text)
+                        if(sortField[0] != '_' && _sortFields[i].MappingType == MappingType.Text)
                         {
                             sortField += Constants.KeywordSuffix;
                         }
@@ -98,13 +98,9 @@ namespace Epinova.ElasticSearch.Core.Models.Query
         public PostFilter PostFilter { get; set; } = new PostFilter();
 
         public bool ShouldSerializePostFilter()
-        {
-            return PostFilter?.ShouldSerializeBool() == true;
-        }
+            => PostFilter?.ShouldSerializeBool() == true;
 
         public bool ShouldSerializeAggregation()
-        {
-            return !IsPartOfFilteredQuery;
-        }
+            => !IsPartOfFilteredQuery;
     }
 }

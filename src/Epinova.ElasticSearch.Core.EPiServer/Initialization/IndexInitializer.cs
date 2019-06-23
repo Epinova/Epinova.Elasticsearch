@@ -69,7 +69,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Initialization
                     .ToList()
                     .ForEach(ext => IndexingConvention.Instance.IncludeFileType(ext));
             }
-            catch (Exception ex)
+            catch(Exception ex)
             {
                 // Swallow exception and fail silently. This init module shouldn't crash the site 
                 // because an index is missing or the like.
@@ -97,7 +97,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Initialization
         {
             ElasticSearchSection config = ElasticSearchSection.GetConfiguration();
 
-            if (!config.Files.Enabled)
+            if(!config.Files.Enabled)
             {
                 Logger.Information("File indexing disabled");
                 yield break;
@@ -105,7 +105,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Initialization
 
             Logger.Information($"Adding allowed file extensions from config. Max size is {config.Files.ParsedMaxsize}");
 
-            foreach (FileConfiguration file in config.Files)
+            foreach(FileConfiguration file in config.Files)
             {
                 Logger.Information($"Found: {file.Extension}");
                 yield return file.Extension;
@@ -120,7 +120,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Initialization
             AssemblyBlacklist.ToList().ForEach(
                 b => assemblies.RemoveAll(a => a.FullName.StartsWith(b, StringComparison.OrdinalIgnoreCase)));
 
-            foreach (var assembly in assemblies)
+            foreach(var assembly in assemblies)
             {
                 try
                 {
@@ -128,7 +128,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Initialization
                         assembly.GetTypes()
                             .Where(t => t.GetCustomAttributes(typeof(ExcludeFromSearchAttribute)).Any()));
                 }
-                catch (ReflectionTypeLoadException ex)
+                catch(ReflectionTypeLoadException ex)
                 {
                     Logger.Error($"Error while scanning assembly '{assembly.FullName}'");
                     ex.LoaderExceptions.ToList().ForEach(e => Logger.Error("LoaderException", e));

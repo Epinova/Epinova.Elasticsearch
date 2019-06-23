@@ -34,9 +34,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Controllers
 
         [Authorize(Roles = RoleNames.ElasticsearchAdmins)]
         public ActionResult Index()
-        {
-            return View("~/Views/ElasticSearchAdmin/Synonyms/Index.cshtml", GetModel());
-        }
+            => View("~/Views/ElasticSearchAdmin/Synonyms/Index.cshtml", GetModel());
 
         [Authorize(Roles = RoleNames.ElasticsearchAdmins)]
         public ActionResult Delete(Synonym synonym, string languageId, string analyzer, string index)
@@ -48,7 +46,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Controllers
                     .Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries)
                     .Select(w => w.Trim()));
 
-                if (!s.TwoWay && !s.MultiWord)
+                if(!s.TwoWay && !s.MultiWord)
                 {
                     synonymFrom += "=>" + synonymFrom;
                 }
@@ -65,7 +63,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Controllers
         [Authorize(Roles = RoleNames.ElasticsearchAdmins)]
         public ActionResult Add(Synonym synonym, string languageId, string analyzer, string index)
         {
-            if (!String.IsNullOrWhiteSpace(synonym.From) && !String.IsNullOrWhiteSpace(synonym.To))
+            if(!String.IsNullOrWhiteSpace(synonym.From) && !String.IsNullOrWhiteSpace(synonym.To))
             {
                 List<Synonym> synonyms = _synonymRepository.GetSynonyms(languageId, index);
 
@@ -74,12 +72,12 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Controllers
                     .Select(s => s.Trim())
                     .ToArray();
 
-                if (fromWords.Length > 1)
+                if(fromWords.Length > 1)
                 {
                     synonym.MultiWord = true;
                     synonym.From = String.Join(",", fromWords);
                 }
-                else if (!synonym.TwoWay)
+                else if(!synonym.TwoWay)
                 {
                     synonym.From += "=>" + synonym.From;
                 }
@@ -96,7 +94,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Controllers
         {
             var model = new SynonymsViewModel(CurrentLanguage);
 
-            foreach (var language in Languages)
+            foreach(var language in Languages)
             {
                 var name = language.Value;
                 name = String.Concat(name.Substring(0, 1).ToUpper(), name.Substring(1));
@@ -114,7 +112,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Controllers
                         .Select(s =>
                         {
                             var key = s.From;
-                            if (key.Contains("=>"))
+                            if(key.Contains("=>"))
                             {
                                 key = key.Split(new[] { "=>" }, StringSplitOptions.None)[0].Trim();
                             }

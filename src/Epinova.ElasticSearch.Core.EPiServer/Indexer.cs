@@ -34,9 +34,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer
         internal const string FormsUploadNamespace = "EPiServer.Forms.Core.IFileUploadElementBlock";
 
         internal void SetContentPathGetter(Func<ContentReference, int[]> func)
-        {
-            _getContentPath = func;
-        }
+            => _getContentPath = func;
 
         private Func<ContentReference, int[]> _getContentPath = ContentExtensions.GetContentPath;
 
@@ -104,7 +102,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer
         public IndexingStatus UpdateStructure(IContent root, string indexName = null)
         {
             var language = CultureInfo.CurrentCulture;
-            if (root is ILocale locale && locale.Language != null && !CultureInfo.InvariantCulture.Equals(locale.Language))
+            if(root is ILocale locale && locale.Language != null && !CultureInfo.InvariantCulture.Equals(locale.Language))
             {
                 language = locale.Language;
             }
@@ -114,11 +112,11 @@ namespace Epinova.ElasticSearch.Core.EPiServer
             var status = Update(root, indexName);
             var descendents = _contentLoader.GetDescendents(root.ContentLink);
 
-            foreach (var content in _contentLoader.GetItems(descendents, language))
+            foreach(var content in _contentLoader.GetItems(descendents, language))
             {
                 var childStatus = Update(content, indexName);
 
-                if (childStatus == IndexingStatus.Error && status != IndexingStatus.Error)
+                if(childStatus == IndexingStatus.Error && status != IndexingStatus.Error)
                 {
                     status = IndexingStatus.PartialError;
                 }
@@ -131,18 +129,18 @@ namespace Epinova.ElasticSearch.Core.EPiServer
         {
             indexName = GetIndexname(content.ContentLink, indexName, GetLanguage(content));
 
-            if (ShouldHideFromSearch(content))
+            if(ShouldHideFromSearch(content))
             {
                 Delete(content, indexName);
                 return IndexingStatus.HideFromSearchProperty;
             }
 
-            if (IsExludedType(content))
+            if(IsExludedType(content))
             {
                 return IndexingStatus.ExcludedByConvention;
             }
 
-            if (IsExludedByRoot(content))
+            if(IsExludedByRoot(content))
             {
                 return IndexingStatus.ExcludedByConvention;
             }
@@ -155,19 +153,19 @@ namespace Epinova.ElasticSearch.Core.EPiServer
         private bool IsExludedByRoot(IContent content)
         {
             // Check options less expensive than DB-lookup first
-            if (content.ContentLink != null && Indexing.ExcludedRoots.Contains(content.ContentLink.ID))
+            if(content.ContentLink != null && Indexing.ExcludedRoots.Contains(content.ContentLink.ID))
             {
                 return true;
             }
 
-            if (content.ParentLink != null && Indexing.ExcludedRoots.Contains(content.ParentLink.ID))
+            if(content.ParentLink != null && Indexing.ExcludedRoots.Contains(content.ParentLink.ID))
             {
                 return true;
             }
 
             var ancestors = _getContentPath(content.ContentLink);
 
-            if (ancestors == null)
+            if(ancestors == null)
             {
                 return false;
             }
@@ -183,7 +181,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer
 
         internal static bool IsExludedType(Type type)
         {
-            if (type == null)
+            if(type == null)
             {
                 return true;
             }
@@ -195,40 +193,40 @@ namespace Epinova.ElasticSearch.Core.EPiServer
 
         internal static bool ShouldHideFromSearch(IContent content)
         {
-            if (content is ContentFolder)
+            if(content is ContentFolder)
             {
                 return true;
             }
 
-            if (ContentReference.WasteBasket.CompareToIgnoreWorkID(content.ParentLink))
+            if(ContentReference.WasteBasket.CompareToIgnoreWorkID(content.ParentLink))
             {
                 return true;
             }
 
-            if (ContentReference.WasteBasket.CompareToIgnoreWorkID(content.ContentLink))
+            if(ContentReference.WasteBasket.CompareToIgnoreWorkID(content.ContentLink))
             {
                 return true;
             }
 
-            if (IsFormUpload(content))
+            if(IsFormUpload(content))
             {
                 return true;
             }
 
             // Common property in Epinova template
             var hideFromSearch = GetEpiserverBoolProperty(content.Property["HideFromSearch"]);
-            if (hideFromSearch)
+            if(hideFromSearch)
             {
                 return true;
             }
 
             var deleted = GetEpiserverBoolProperty(content.Property["PageDeleted"]);
-            if (deleted)
+            if(deleted)
             {
                 return true;
             }
 
-            if (IsPageWithInvalidLinkType(content))
+            if(IsPageWithInvalidLinkType(content))
             {
                 return true;
             }
@@ -238,25 +236,25 @@ namespace Epinova.ElasticSearch.Core.EPiServer
 
         private static bool IsPageWithInvalidLinkType(IContent content)
         {
-            if (!(content is PageData))
+            if(!(content is PageData))
             {
                 return false;
             }
 
             var linkType = content.GetType().GetProperty("LinkType");
-            if (linkType == null)
+            if(linkType == null)
             {
                 return true;
             }
 
             var linkTypeValue = linkType.GetValue(content);
-            if (linkTypeValue == null)
+            if(linkTypeValue == null)
             {
                 return true;
             }
 
             var shortcutType = (PageShortcutType)linkTypeValue;
-            if (shortcutType != PageShortcutType.Normal && shortcutType != PageShortcutType.FetchData)
+            if(shortcutType != PageShortcutType.Normal && shortcutType != PageShortcutType.FetchData)
             {
                 return true;
             }
@@ -266,28 +264,28 @@ namespace Epinova.ElasticSearch.Core.EPiServer
 
         private static string GetFallbackLanguage()
         {
-            if (!HostingEnvironment.IsHosted)
+            if(!HostingEnvironment.IsHosted)
             {
                 return FallbackLanguage;
             }
 
             ContentReference startPageLink = ContentReference.StartPage;
-            if (startPageLink == null || startPageLink == ContentReference.EmptyReference)
+            if(startPageLink == null || startPageLink == ContentReference.EmptyReference)
             {
                 // Fallback to first defined site if StartPage is empty (no context or star-mapping)
                 var siteDefinitionRepository = ServiceLocator.Current.GetInstance<ISiteDefinitionRepository>();
                 var firstSite = siteDefinitionRepository.List().FirstOrDefault();
-                if (firstSite != null)
+                if(firstSite != null)
                 {
                     startPageLink = firstSite.StartPage;
                 }
             }
 
             // Try to fetch master language from startpage
-            if (startPageLink != null && startPageLink != ContentReference.EmptyReference)
+            if(startPageLink != null && startPageLink != ContentReference.EmptyReference)
             {
                 var contentLoader = ServiceLocator.Current.GetInstance<IContentLoader>();
-                if (contentLoader.TryGet(startPageLink, out PageData startPage))
+                if(contentLoader.TryGet(startPageLink, out PageData startPage))
                 {
                     return startPage.MasterLanguage.Name;
                 }
@@ -314,9 +312,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer
         }
 
         private static bool GetEpiserverBoolProperty(PropertyData content)
-        {
-            return content is PropertyBoolean property && property.Boolean.GetValueOrDefault(false);
-        }
+            => content is PropertyBoolean property && property.Boolean.GetValueOrDefault(false);
 
         private static bool IsFormUpload(IContent content)
         {
@@ -324,7 +320,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer
 
             IContent owner = contentAssetHelper.GetAssetOwner(content.ContentLink);
 
-            if (owner == null)
+            if(owner == null)
             {
                 return false;
             }
@@ -336,7 +332,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer
 
         private string GetIndexname(ContentReference contentLink, string indexName, string language)
         {
-            if (String.IsNullOrWhiteSpace(indexName) && contentLink.ProviderName == null)
+            if(String.IsNullOrWhiteSpace(indexName) && contentLink.ProviderName == null)
             {
                 return _elasticSearchSettings.GetDefaultIndexName(language);
             }

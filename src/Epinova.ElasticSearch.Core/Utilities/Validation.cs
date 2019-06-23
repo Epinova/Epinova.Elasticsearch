@@ -6,7 +6,7 @@ namespace Epinova.ElasticSearch.Core.Utilities
     {
         internal static void EnsureNotNull(this string instance, string message = null)
         {
-            if (instance == null)
+            if(instance == null)
             {
                 throw new ArgumentNullException(message);
             }
@@ -14,7 +14,7 @@ namespace Epinova.ElasticSearch.Core.Utilities
 
         internal static void EnsureNotNull(this object instance, string message = null)
         {
-            if (instance == null)
+            if(instance == null)
             {
                 throw new ArgumentNullException(message);
             }
@@ -22,7 +22,7 @@ namespace Epinova.ElasticSearch.Core.Utilities
 
         private static void EnsureNotNull(this string[] instance, string message = null)
         {
-            if (instance == null)
+            if(instance == null)
             {
                 throw new ArgumentNullException(message);
             }
@@ -32,7 +32,7 @@ namespace Epinova.ElasticSearch.Core.Utilities
         {
             instance.EnsureNotNull();
 
-            if (instance.Length == 0)
+            if(instance.Length == 0)
             {
                 throw new ArgumentNullException(message);
             }

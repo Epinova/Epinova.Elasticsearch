@@ -60,7 +60,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Plugin
 
         public override string Execute()
         {
-            if (BeforeIndexContent != null)
+            if(BeforeIndexContent != null)
             {
                 _logger.Debug("Firing subscribed event BeforeIndexContent");
                 BeforeIndexContent(EventArgs.Empty);
@@ -78,12 +78,12 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Plugin
             {
                 var languages = _languageBranchRepository.ListEnabled();
 
-                if (!IndicesExists(languages))
+                if(!IndicesExists(languages))
                 {
                     throw new InvalidOperationException("One or more indices is missing, please create them.");
                 }
 
-                if (!Server.Plugins.Any(p => p.Component.Equals("ingest-attachment")))
+                if(!Server.Plugins.Any(p => p.Component.Equals("ingest-attachment")))
                 {
                     throw new InvalidOperationException("Plugin 'ingest-attachment' is missing, please install it.");
                 }
@@ -97,9 +97,9 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Plugin
                 var contentList = new List<IContent>();
 
                 // Fetch all content to index
-                while (contentReferences.Count > 0)
+                while(contentReferences.Count > 0)
                 {
-                    if (IsStopped)
+                    if(IsStopped)
                     {
                         return "Aborted by user";
                     }
@@ -118,7 +118,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Plugin
                 var isFirstRun = GetTotalDocumentCount(languages) == 0;
 
                 // Update mappings on first run after analyzing the actual content
-                if (isFirstRun)
+                if(isFirstRun)
                 {
                     var uniqueTypes = contentList.Select(content =>
                         {
@@ -132,7 +132,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Plugin
                 }
 
                 var bulkCount = Math.Ceiling(contentList.Count / (double)_settings.BulkSize);
-                for (var i = 1; i <= bulkCount; i++)
+                for(var i = 1; i <= bulkCount; i++)
                 {
                     OnStatusChanged($"Bulk {i} of {bulkCount} - Preparing bulk update of {_settings.BulkSize} items...");
                     var batch = contentList.Take(_settings.BulkSize);
@@ -141,13 +141,13 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Plugin
                     var removeCount = contentList.Count >= _settings.BulkSize ? _settings.BulkSize : contentList.Count;
                     contentList.RemoveRange(0, removeCount);
 
-                    if (IsStopped)
+                    if(IsStopped)
                     {
                         return "Aborted by user";
                     }
                 }
             }
-            catch (Exception ex)
+            catch(Exception ex)
             {
                 _logger.Error(ex.Message, ex);
                 finalStatus.AppendLine();
@@ -158,13 +158,13 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Plugin
 
             var finishedBuilder = new StringBuilder($"Processed {results.Batches.Count} batches of {_settings.BulkSize} items, for a total of {results.Batches.Sum(b => b.Items.Length)} items to Elasticsearch index.");
 
-            for (var i = 1; i <= results.Batches.Count; i++)
+            for(var i = 1; i <= results.Batches.Count; i++)
             {
-                if (results.Batches[i - 1].Errors)
+                if(results.Batches[i - 1].Errors)
                 {
                     var messageBuilder = new StringBuilder($" Batch {i} failed. Details: \n");
 
-                    foreach (var item in results.Batches[i - 1].Items.Where(item => item.Status >= 400))
+                    foreach(var item in results.Batches[i - 1].Items.Where(item => item.Status >= 400))
                     {
                         messageBuilder.AppendLine(item.ToString());
                     }
@@ -196,7 +196,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Plugin
         {
             var contentItems = new List<IContent>();
 
-            foreach (var languageBranch in languages)
+            foreach(var languageBranch in languages)
             {
                 contentItems.AddRange(_contentLoader.GetItems(contentReferences, languageBranch.Culture));
             }
@@ -211,9 +211,9 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Plugin
             var allIndexableProperties = new List<KeyValuePair<string, Type>>();
             var contentToIndex = new List<IContent>();
 
-            foreach (var content in contentItems)
+            foreach(var content in contentItems)
             {
-                if (IsStopped)
+                if(IsStopped)
                 {
                     break;
                 }
@@ -226,7 +226,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Plugin
 
                 allIndexableProperties.AddRange(indexableProperties);
 
-                if (_logger.IsDebugEnabled())
+                if(_logger.IsDebugEnabled())
                 {
                     _logger.Debug("Indexable properties:");
                     indexableProperties.ForEach(p => _logger.Debug(p.Key));
@@ -240,11 +240,11 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Plugin
 
         private bool IndicesExists(IEnumerable<LanguageBranch> languages)
         {
-            foreach (var language in languages.Select(l => l.LanguageID))
+            foreach(var language in languages.Select(l => l.LanguageID))
             {
                 var indexName = GetIndexName(language);
                 var index = new Index(_settings, indexName);
-                if (!index.Exists)
+                if(!index.Exists)
                 {
                     return false;
                 }
@@ -256,7 +256,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Plugin
         private int GetTotalDocumentCount(IEnumerable<LanguageBranch> languages)
         {
             var count = 0;
-            foreach (var language in languages.Select(l => l.LanguageID))
+            foreach(var language in languages.Select(l => l.LanguageID))
             {
                 var indexName = GetIndexName(language);
                 var index = new Index(_settings, indexName);
@@ -268,7 +268,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Plugin
 
         private void UpdateMappings(IEnumerable<LanguageBranch> languages, Type[] contentTypes)
         {
-            foreach (var language in languages.Select(l => l.LanguageID))
+            foreach(var language in languages.Select(l => l.LanguageID))
             {
                 try
                 {
@@ -276,14 +276,14 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Plugin
                     _logger.Debug("Index: " + indexName);
                     OnStatusChanged("Updating mapping for index " + indexName);
 
-                    foreach (var type in contentTypes)
+                    foreach(var type in contentTypes)
                     {
                         _coreIndexer.UpdateMapping(type, typeof(IndexItem), indexName);
                         ContentExtensions.CreateAnalyzedMappingsIfNeeded(type, language, indexName);
                         ContentExtensions.CreateDidYouMeanMappingsIfNeeded(type, language, indexName);
                     }
                 }
-                catch (Exception ex)
+                catch(Exception ex)
                 {
                     _logger.Warning("Failed to update mappings", ex);
                 }
@@ -292,7 +292,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Plugin
 
         private string GetIndexName(string language)
         {
-            if (!String.IsNullOrEmpty(CustomIndexName))
+            if(!String.IsNullOrEmpty(CustomIndexName))
             {
                 return _settings.GetCustomIndexName(CustomIndexName, language);
             }

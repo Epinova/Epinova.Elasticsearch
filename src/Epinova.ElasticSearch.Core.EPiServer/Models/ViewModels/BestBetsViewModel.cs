@@ -26,9 +26,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Models.ViewModels
         public List<BestBetsByLanguage> BestBetsByLanguage { get; } = new List<BestBetsByLanguage>();
 
         public string GetEditUrlPrefix(string language)
-        {
-            return $"{UriSupport.UIUrl}#viewsetting=viewlanguage:///{language}&context=epi.cms.contentdata:///";
-        }
+            => $"{UriSupport.UIUrl}#viewsetting=viewlanguage:///{language}&context=epi.cms.contentdata:///";
 
         public IEnumerable<ModuleViewModel> GetModuleSettings()
         {
@@ -47,11 +45,11 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Models.ViewModels
             // anyways, and the only thing besides it that depends on epiJQuery seems to be the ancient version of TinyMCE EPiServer
             // uses. If you want to use your own JQuery you must create a global alias called epiJQuery because the TinyMCE build is
             // hardcoded to look for it, e.g.: window.epiJQuery = jQuery;
-            foreach (ModuleViewModel mvm in moduleList)
+            foreach(ModuleViewModel mvm in moduleList)
             {
-                foreach (string res in mvm.ScriptResources.ToArray())
+                foreach(string res in mvm.ScriptResources.ToArray())
                 {
-                    if (res.EndsWith("/ReportCenter.js", StringComparison.OrdinalIgnoreCase))
+                    if(res.EndsWith("/ReportCenter.js", StringComparison.OrdinalIgnoreCase))
                     {
                         mvm.ScriptResources.Remove(res);
                     }

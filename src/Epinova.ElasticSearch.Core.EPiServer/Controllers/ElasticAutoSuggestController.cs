@@ -33,7 +33,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Controllers
         {
             AutoSuggestViewModel model = new AutoSuggestViewModel(languageId);
 
-            foreach (var language in Languages)
+            foreach(var language in Languages)
             {
                 var name = language.Value;
                 name = String.Concat(name.Substring(0, 1).ToUpper(), name.Substring(1));
@@ -52,7 +52,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Controllers
         [HttpPost]
         public ActionResult AddWord(string languageId, string word)
         {
-            if (!String.IsNullOrWhiteSpace(word))
+            if(!String.IsNullOrWhiteSpace(word))
             {
                 _autoSuggestRepository.AddWord(languageId, word.Replace("|", String.Empty));
             }
@@ -62,7 +62,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Controllers
 
         public ActionResult DeleteWord(string languageId, string word)
         {
-            if (!String.IsNullOrWhiteSpace(word))
+            if(!String.IsNullOrWhiteSpace(word))
             {
                 _autoSuggestRepository.DeleteWord(languageId, word);
             }

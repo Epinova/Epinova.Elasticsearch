@@ -28,7 +28,7 @@ namespace Epinova.ElasticSearch.Core.Settings
         {
             get
             {
-                if (_commerceEnabled.HasValue)
+                if(_commerceEnabled.HasValue)
                 {
                     return _commerceEnabled.Value;
                 }
@@ -79,7 +79,7 @@ namespace Epinova.ElasticSearch.Core.Settings
 
         public string GetDefaultIndexName(string language)
         {
-            if (String.IsNullOrWhiteSpace(language))
+            if(String.IsNullOrWhiteSpace(language))
             {
                 throw new InvalidOperationException("Language must be specified");
             }
@@ -89,12 +89,12 @@ namespace Epinova.ElasticSearch.Core.Settings
 
         public string GetCustomIndexName(string index, string language)
         {
-            if (String.IsNullOrWhiteSpace(index))
+            if(String.IsNullOrWhiteSpace(index))
             {
                 throw new InvalidOperationException("IndexInformation is null");
             }
 
-            if (String.IsNullOrWhiteSpace(language))
+            if(String.IsNullOrWhiteSpace(language))
             {
                 throw new InvalidOperationException("Language must be specified");
             }
@@ -104,12 +104,12 @@ namespace Epinova.ElasticSearch.Core.Settings
 
         private static string CreateIndexName(string index, string language)
         {
-            if (String.IsNullOrWhiteSpace(index))
+            if(String.IsNullOrWhiteSpace(index))
             {
                 throw new InvalidOperationException("Index must be specified");
             }
 
-            if (String.IsNullOrWhiteSpace(language))
+            if(String.IsNullOrWhiteSpace(language))
             {
                 throw new InvalidOperationException("Language must be specified");
             }
@@ -119,12 +119,12 @@ namespace Epinova.ElasticSearch.Core.Settings
 
         public string GetLanguage(string indexName)
         {
-            if (String.IsNullOrWhiteSpace(indexName))
+            if(String.IsNullOrWhiteSpace(indexName))
             {
                 throw new InvalidOperationException("Index must be specified");
             }
 
-            if (!indexName.Contains("-"))
+            if(!indexName.Contains("-"))
             {
                 throw new InvalidOperationException("Invalid index name '" + indexName + "' (Must be <name>-<lang>)");
             }

@@ -21,23 +21,15 @@ namespace Epinova.ElasticSearch.Core.Models.Query
         public List<MatchBase> Filter { get; set; } = new List<MatchBase>();
 
         public bool ShouldSerializeMust()
-        {
-            return Must?.Count > 0;
-        }
+            => Must?.Count > 0;
 
         public bool ShouldSerializeMustNot()
-        {
-            return MustNot?.Count > 0;
-        }
+            => MustNot?.Count > 0;
 
         public bool ShouldSerializeShould()
-        {
-            return Should?.Count > 0;
-        }
+            => Should?.Count > 0;
 
         public bool ShouldSerializeFilter()
-        {
-            return Filter?.Count > 0;
-        }
+            => Filter?.Count > 0;
     }
 }

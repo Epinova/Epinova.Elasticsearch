@@ -167,7 +167,7 @@ namespace Core.Tests
             Filter result = service.PostFilters.Single(f => f.FieldName == "StringProperty");
 
             Assert.Equal(value, result.Value);
-            Assert.Equal(typeof(String).Name, result.Type.Name);
+            Assert.Equal(typeof(string).Name, result.Type.Name);
         }
 
         [Theory]
@@ -179,7 +179,7 @@ namespace Core.Tests
             Filter result = service.PostFilters.Single(f => f.FieldName == "BoolProperty");
 
             Assert.Equal(value, result.Value);
-            Assert.Equal(typeof(Boolean).Name, result.Type.Name);
+            Assert.Equal(typeof(bool).Name, result.Type.Name);
         }
 
         [Theory]
@@ -191,7 +191,7 @@ namespace Core.Tests
             Filter result = service.PostFilters.Single(f => f.FieldName == "LongProperty");
 
             Assert.Equal(value, result.Value);
-            Assert.Equal(typeof(Int64).Name, result.Type.Name);
+            Assert.Equal(typeof(long).Name, result.Type.Name);
         }
 
         [Theory]
@@ -203,7 +203,7 @@ namespace Core.Tests
             Filter result = service.PostFilters.Single(f => f.FieldName == "IntProperty");
 
             Assert.Equal(value, result.Value);
-            Assert.Equal(typeof(Int32).Name, result.Type.Name);
+            Assert.Equal(typeof(int).Name, result.Type.Name);
         }
 
         [Theory]
@@ -215,7 +215,7 @@ namespace Core.Tests
             Filter result = service.PostFilters.Single(f => f.FieldName == "DoubleProperty");
 
             Assert.Equal(value, result.Value);
-            Assert.Equal(typeof(Double).Name, result.Type.Name);
+            Assert.Equal(typeof(double).Name, result.Type.Name);
         }
 
         [Theory]
@@ -227,7 +227,7 @@ namespace Core.Tests
             Filter result = service.PostFilters.Single(f => f.FieldName == "FloatProperty");
 
             Assert.Equal(value, result.Value);
-            Assert.Equal(typeof(Single).Name, result.Type.Name);
+            Assert.Equal(typeof(float).Name, result.Type.Name);
         }
 
         [Fact]

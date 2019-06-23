@@ -30,15 +30,13 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Controllers
 
         [Authorize(Roles = RoleNames.ElasticsearchAdmins)]
         public ActionResult Index()
-        {
-            return View("~/Views/ElasticSearchAdmin/Tracking/Index.cshtml", GetModel());
-        }
+            => View("~/Views/ElasticSearchAdmin/Tracking/Index.cshtml", GetModel());
 
         private TrackingViewModel GetModel()
         {
             var model = new TrackingViewModel(CurrentLanguage);
 
-            foreach (var language in Languages)
+            foreach(var language in Languages)
             {
                 var id = language.Key;
                 var name = language.Value;

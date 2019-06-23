@@ -36,7 +36,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Controllers
         {
             var model = new BestBetsViewModel(CurrentLanguage);
 
-            foreach (var language in Languages)
+            foreach(var language in Languages)
             {
                 var name = language.Value;
                 name = String.Concat(name.Substring(0, 1).ToUpper(), name.Substring(1));
@@ -53,14 +53,14 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Controllers
 
             var config = ElasticSearchSection.GetConfiguration();
 
-            foreach (ContentSelectorConfiguration entry in config.ContentSelector)
+            foreach(ContentSelectorConfiguration entry in config.ContentSelector)
             {
                 model.SelectorTypes.Add(entry.Type.ToLower());
                 model.SelectorRoots.Add(new ContentReference(entry.Id, entry.Provider));
             }
 
             var currentType = config.IndicesParsed.FirstOrDefault(i => CurrentIndex.StartsWith(i.Name, StringComparison.InvariantCultureIgnoreCase))?.Type;
-            if (!String.IsNullOrEmpty(currentType))
+            if(!String.IsNullOrEmpty(currentType))
             {
                 ViewBag.TypeName = Type.GetType(currentType).AssemblyQualifiedName;
             }
@@ -75,7 +75,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Controllers
         [HttpPost]
         public ActionResult Add(string phrase, ContentReference contentId, string languageId, string index, string typeName)
         {
-            if (!String.IsNullOrWhiteSpace(phrase) && !ContentReference.IsNullOrEmpty(contentId))
+            if(!String.IsNullOrWhiteSpace(phrase) && !ContentReference.IsNullOrEmpty(contentId))
             {
                 phrase = phrase
                     .Replace("¤", String.Empty)
@@ -91,7 +91,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Controllers
 
         public ActionResult Delete(string languageId, string phrase, string contentId, string index, string typeName)
         {
-            if (!String.IsNullOrWhiteSpace(phrase))
+            if(!String.IsNullOrWhiteSpace(phrase))
             {
                 _bestBetsRepository.DeleteBestBet(languageId, phrase, contentId, index, Type.GetType(typeName));
             }
@@ -103,10 +103,10 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Controllers
 
         private IEnumerable<BestBet> GetBestBetsForLanguage(string language, string index)
         {
-            foreach (BestBet bestBet in _bestBetsRepository.GetBestBets(language, index))
+            foreach(BestBet bestBet in _bestBetsRepository.GetBestBets(language, index))
             {
                 var contentLink = new ContentReference(Convert.ToInt32(ContentReference.Parse(bestBet.Id).ID), bestBet.Provider);
-                if (_contentLoader.TryGet(contentLink, out IContent content))
+                if(_contentLoader.TryGet(contentLink, out IContent content))
                 {
                     bestBet.Name = content.Name;
                 }

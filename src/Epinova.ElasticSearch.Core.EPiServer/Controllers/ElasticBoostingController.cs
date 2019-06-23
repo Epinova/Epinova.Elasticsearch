@@ -32,7 +32,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Controllers
                 .Where(p => p.ModelType != null)
                 .OrderBy(p => p.LocalizedName);
 
-            foreach (var type in pageTypes)
+            foreach(var type in pageTypes)
             {
                 var currentBoosting = _boostingRepository.GetByType(type.ModelType);
                 var indexableProps = type.ModelType
@@ -52,15 +52,15 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Controllers
                     })
                     .ToList();
 
-                foreach (var boost in currentBoosting)
+                foreach(var boost in currentBoosting)
                 {
-                    if (propsWithBoost.Any(p => p.TypeName == boost.Key))
+                    if(propsWithBoost.Any(p => p.TypeName == boost.Key))
                     {
                         propsWithBoost.First(p => p.TypeName == boost.Key).Weight = boost.Value;
                     }
                 }
 
-                if (propsWithBoost.Count > 0)
+                if(propsWithBoost.Count > 0)
                 {
                     model.BoostingByType.Add(type.ModelType.GetTypeName(), propsWithBoost);
                 }

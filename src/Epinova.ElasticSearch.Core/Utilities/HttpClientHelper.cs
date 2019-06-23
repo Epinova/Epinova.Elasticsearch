@@ -27,7 +27,7 @@ namespace Epinova.ElasticSearch.Core.Utilities
 
             IElasticSearchSettings settings = ServiceLocator.Current.GetInstance<IElasticSearchSettings>();
 
-            if (!String.IsNullOrEmpty(settings.Username)
+            if(!String.IsNullOrEmpty(settings.Username)
                 && !String.IsNullOrEmpty(settings.Password))
             {
                 var credentials = Encoding.ASCII.GetBytes(
@@ -41,7 +41,7 @@ namespace Epinova.ElasticSearch.Core.Utilities
                 client.DefaultRequestHeaders.Authorization = null;
             }
 
-            if (settings.ClientTimeoutSeconds > 0)
+            if(settings.ClientTimeoutSeconds > 0)
             {
                 client.Timeout = TimeSpan.FromSeconds(settings.ClientTimeoutSeconds);
             }
@@ -62,16 +62,13 @@ namespace Epinova.ElasticSearch.Core.Utilities
 
                 LogErrorIfNotSuccess(response);
             }
-            catch (Exception ex)
+            catch(Exception ex)
             {
                 Logger.Error("Request failed", ex);
             }
         }
 
-        internal static async Task PutAsync(Uri uri, byte[] data = null)
-        {
-            await PutAsync(uri, data, CancellationToken.None).ConfigureAwait(false);
-        }
+        internal static async Task PutAsync(Uri uri, byte[] data = null) => await PutAsync(uri, data, CancellationToken.None).ConfigureAwait(false);
 
         internal static async Task PutAsync(Uri uri, byte[] data, CancellationToken cancellationToken)
         {
@@ -83,7 +80,7 @@ namespace Epinova.ElasticSearch.Core.Utilities
                 HttpResponseMessage response = await Client.PutAsync(uri, JsonContent(data), cancellationToken).ConfigureAwait(false);
                 LogErrorIfNotSuccess(response);
             }
-            catch (Exception ex)
+            catch(Exception ex)
             {
                 Logger.Error("Request failed", ex);
             }
@@ -106,7 +103,7 @@ namespace Epinova.ElasticSearch.Core.Utilities
                       response.Content.ReadAsByteArrayAsync()
                 );
             }
-            catch (Exception ex)
+            catch(Exception ex)
             {
                 Logger.Error("Request failed", ex);
                 return null;
@@ -124,7 +121,7 @@ namespace Epinova.ElasticSearch.Core.Utilities
                 LogErrorIfNotSuccess(response);
                 return await response.Content.ReadAsByteArrayAsync().ConfigureAwait(false);
             }
-            catch (Exception ex)
+            catch(Exception ex)
             {
                 Logger.Error("Request failed", ex);
                 return null;
@@ -177,7 +174,7 @@ namespace Epinova.ElasticSearch.Core.Utilities
                 Logger.Debug($"Status: {statusCode}");
                 return statusCode;
             }
-            catch (Exception ex)
+            catch(Exception ex)
             {
                 Logger.Error($"Error in HEAD-request: {uri}", ex);
                 return HttpStatusCode.InternalServerError;
@@ -197,7 +194,7 @@ namespace Epinova.ElasticSearch.Core.Utilities
                 Logger.Debug($"Status: {statusCode}");
                 return statusCode;
             }
-            catch (Exception ex)
+            catch(Exception ex)
             {
                 Logger.Error($"Error in HEAD-request: {uri}", ex);
                 return HttpStatusCode.InternalServerError;
@@ -228,7 +225,7 @@ namespace Epinova.ElasticSearch.Core.Utilities
 
         private static void LogErrorIfNotSuccess(HttpResponseMessage response)
         {
-            if (!response.IsSuccessStatusCode)
+            if(!response.IsSuccessStatusCode)
             {
                 string error = AsyncUtil.RunSync(() =>
                      response.Content.ReadAsStringAsync()

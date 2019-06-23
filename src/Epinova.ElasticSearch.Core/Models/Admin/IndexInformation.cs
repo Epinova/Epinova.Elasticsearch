@@ -50,13 +50,13 @@ namespace Epinova.ElasticSearch.Core.Models.Admin
             get
             {
                 // Unknown, probably closed
-                if (String.IsNullOrEmpty(Health))
+                if(String.IsNullOrEmpty(Health))
                 {
                     return "red";
                 }
 
                 // Poor contrast for "yellow"
-                if (Health == "yellow")
+                if(Health == "yellow")
                 {
                     return "orange";
                 }

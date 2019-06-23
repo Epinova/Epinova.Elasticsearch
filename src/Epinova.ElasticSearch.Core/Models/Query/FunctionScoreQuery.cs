@@ -53,7 +53,7 @@ namespace Epinova.ElasticSearch.Core.Models.Query
             {
                 get
                 {
-                    if (Gauss?.Any() != true)
+                    if(Gauss?.Any() != true)
                     {
                         return null;
                     }

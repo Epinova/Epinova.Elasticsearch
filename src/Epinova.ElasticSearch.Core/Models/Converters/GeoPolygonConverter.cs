@@ -9,20 +9,16 @@ namespace Epinova.ElasticSearch.Core.Models.Converters
         public override bool CanRead => false;
 
         public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
-        {
-            return null;
-        }
+            => null;
 
         public override bool CanConvert(Type objectType)
-        {
-            return typeof(MatchBase).IsAssignableFrom(objectType);
-        }
+            => typeof(MatchBase).IsAssignableFrom(objectType);
 
         public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
         {
             var geoPoly = value as GeoPolygon;
 
-            if (geoPoly?.Points == null)
+            if(geoPoly?.Points == null)
             {
                 return;
             }
@@ -34,7 +30,7 @@ namespace Epinova.ElasticSearch.Core.Models.Converters
             writer.WriteStartObject();
             writer.WritePropertyName(JsonNames.Points);
             writer.WriteStartArray();
-            foreach (var point in geoPoly.Points)
+            foreach(var point in geoPoly.Points)
             {
                 writer.WriteStartObject();
                 writer.WritePropertyName(JsonNames.Lat);

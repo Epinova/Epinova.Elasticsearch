@@ -66,19 +66,19 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Providers
             var contentSearchHits = new List<ContentSearchHit<TContentData>>();
             CultureInfo language = Language.GetRequestLanguage();
 
-            if (!query.SearchRoots.Any() || ForceRootLookup)
+            if(!query.SearchRoots.Any() || ForceRootLookup)
             {
                 query.SearchRoots = new[] { GetSearchRoot() };
             }
 
-            foreach (string searchRoot in query.SearchRoots)
+            foreach(string searchRoot in query.SearchRoots)
             {
-                if (!Int32.TryParse(searchRoot, out int searchRootId) && searchRoot.Contains("__"))
+                if(!Int32.TryParse(searchRoot, out int searchRootId) && searchRoot.Contains("__"))
                 {
                     Int32.TryParse(searchRoot.Split(new[] { "__" }, StringSplitOptions.None)[0], out searchRootId);
                 }
 
-                if (searchRootId != 0)
+                if(searchRootId != 0)
                 {
                     IElasticSearchService<TContentData> searchQuery = CreateQuery(query, language, searchRootId);
 
@@ -96,18 +96,14 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Providers
         }
 
         protected virtual string GetSearchRoot()
-        {
-            return ContentReference.RootPage.ID.ToString();
-        }
+            => ContentReference.RootPage.ID.ToString();
 
         protected virtual string[] GetProviderKeys()
-        {
-            return null;
-        }
+            => null;
 
         private IElasticSearchService<TContentData> CreateQuery(Query query, CultureInfo language, int searchRootId)
         {
-            if (query.Parameters.TryGetValue(Core.Models.Constants.MoreLikeThisId, out object mltId) && mltId != null)
+            if(query.Parameters.TryGetValue(Core.Models.Constants.MoreLikeThisId, out object mltId) && mltId != null)
             {
                 var id = ContentReference.Parse(mltId.ToString()).ToReferenceWithoutVersion();
 
@@ -118,7 +114,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Providers
                     .StartFrom(searchRootId)
                     .Take(_elasticSearchSettings.ProviderMaxResults);
 
-                foreach (var field in Conventions.MoreLikeThis.ComponentFields.Keys.ToArray())
+                foreach(var field in Conventions.MoreLikeThis.ComponentFields.Keys.ToArray())
                 {
                     esQuery = esQuery.InField(_ => field);
                 }

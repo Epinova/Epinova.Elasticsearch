@@ -55,7 +55,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Controllers.Abstractions
 
         protected string SwapLanguage(string indexName, string newLanguage)
         {
-            if (String.IsNullOrEmpty(indexName))
+            if(String.IsNullOrEmpty(indexName))
             {
                 return null;
             }
@@ -97,7 +97,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Controllers.Abstractions
 
             var config = ElasticSearchSection.GetConfiguration();
 
-            foreach (var indexInfo in indices)
+            foreach(var indexInfo in indices)
             {
                 var parsed = config.IndicesParsed
                     .OrderByDescending(i => i.Name.Length)
@@ -109,7 +109,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Controllers.Abstractions
 
                 var displayName = new StringBuilder(parsed?.DisplayName);
 
-                if (indexInfo.Index.Contains($"-{Constants.CommerceProviderName}".ToLowerInvariant()))
+                if(indexInfo.Index.Contains($"-{Constants.CommerceProviderName}".ToLowerInvariant()))
                 {
                     displayName.Append(" Commerce");
                 }

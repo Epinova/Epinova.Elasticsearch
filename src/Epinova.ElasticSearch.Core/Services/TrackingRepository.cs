@@ -18,12 +18,12 @@ namespace Epinova.ElasticSearch.Core.Services
         public void AddSearch(string languageId, string text, bool noHits, string index)
         {
             text = text ?? String.Empty;
-            if (text.Length > 200)
+            if(text.Length > 200)
             {
                 text = text.Substring(0, 200);
             }
 
-            if (SearchExists(text, languageId, index))
+            if(SearchExists(text, languageId, index))
             {
                 string sql = $@"UPDATE [{Constants.TrackingTable}]
                     SET [Searches] = [Searches]+1

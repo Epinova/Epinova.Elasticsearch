@@ -8,26 +8,22 @@ namespace Epinova.ElasticSearch.Core.Models.Converters
     public class AggregationConverter : JsonConverter
     {
         public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
-        {
-            return null;
-        }
+            => null;
 
         public override bool CanConvert(Type objectType)
-        {
-            return objectType == typeof(Dictionary<string, Bucket>);
-        }
+            => objectType == typeof(Dictionary<string, Bucket>);
 
         public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
         {
             var buckets = value as Dictionary<string, Bucket>;
-            if (buckets == null)
+            if(buckets == null)
             {
                 return;
             }
 
             writer.WriteStartObject();
 
-            foreach (KeyValuePair<string, Bucket> bucket in buckets)
+            foreach(KeyValuePair<string, Bucket> bucket in buckets)
             {
                 string name = bucket.Value.Terms.Field.Replace(Constants.KeywordSuffix, String.Empty);
 

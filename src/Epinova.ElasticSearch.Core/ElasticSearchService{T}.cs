@@ -115,7 +115,7 @@ namespace Epinova.ElasticSearch.Core
         {
             var fieldName = GetFieldName(fieldSelector);
 
-            if (BoostFields.ContainsKey(fieldName) || weight <= Byte.MinValue)
+            if(BoostFields.ContainsKey(fieldName) || weight <= Byte.MinValue)
             {
                 return this;
             }
@@ -128,7 +128,7 @@ namespace Epinova.ElasticSearch.Core
 
         public IElasticSearchService<T> BoostByAncestor(int path, sbyte weight)
         {
-            if (!BoostAncestors.ContainsKey(path))
+            if(!BoostAncestors.ContainsKey(path))
             {
                 _logger.Debug($"Boosting by ancestor: '{path} ({weight})'");
                 BoostAncestors.Add(path, weight);
@@ -138,13 +138,11 @@ namespace Epinova.ElasticSearch.Core
         }
 
         public IElasticSearchService<T> Boost<TBoost>(sbyte weight)
-        {
-            return Boost(typeof(TBoost), weight);
-        }
+            => Boost(typeof(TBoost), weight);
 
         public IElasticSearchService<T> Boost(Type type, sbyte weight)
         {
-            if (!_boostTypes.ContainsKey(type))
+            if(!_boostTypes.ContainsKey(type))
             {
                 _logger.Debug($"Boosting type: '{type.FullName} ({weight})'");
                 _boostTypes.Add(type, weight);
@@ -154,18 +152,16 @@ namespace Epinova.ElasticSearch.Core
         }
 
         public IElasticSearchService<T> Decay(Expression<Func<T, DateTime?>> fieldSelector, TimeSpan scale = default, TimeSpan offset = default)
-        {
-            return Decay(GetFieldName(fieldSelector), scale, offset);
-        }
+            => Decay(GetFieldName(fieldSelector), scale, offset);
 
         public IElasticSearchService<T> Decay(string fieldName, TimeSpan scale = default, TimeSpan offset = default)
         {
-            if (scale == default)
+            if(scale == default)
             {
                 scale = TimeSpan.FromDays(30);
             }
 
-            if (_gauss.Any(g => fieldName.Equals(g.Field, StringComparison.InvariantCultureIgnoreCase)))
+            if(_gauss.Any(g => fieldName.Equals(g.Field, StringComparison.InvariantCultureIgnoreCase)))
             {
                 throw new InvalidOperationException($"Decay for '{fieldName}' already defined");
             }
@@ -182,7 +178,7 @@ namespace Epinova.ElasticSearch.Core
 
         public IElasticSearchService<T> CustomScriptScore(string script, string scriptLanguage = null, object parameters = null)
         {
-            if (!String.IsNullOrEmpty(script))
+            if(!String.IsNullOrEmpty(script))
             {
                 _customScriptScoreSource = script;
                 _customScriptScoreParams = parameters;
@@ -206,13 +202,11 @@ namespace Epinova.ElasticSearch.Core
         }
 
         public IElasticSearchService<T> Exclude<TType>()
-        {
-            return Exclude(typeof(TType));
-        }
+            => Exclude(typeof(TType));
 
         public IElasticSearchService<T> Exclude(Type type)
         {
-            if (!_excludedTypes.Contains(type))
+            if(!_excludedTypes.Contains(type))
             {
                 _excludedTypes.Add(type);
             }
@@ -222,7 +216,7 @@ namespace Epinova.ElasticSearch.Core
 
         public IElasticSearchService<T> Exclude(int rootId, bool recursive = true)
         {
-            if (!ExcludedRoots.ContainsKey(rootId))
+            if(!ExcludedRoots.ContainsKey(rootId))
             {
                 ExcludedRoots.Add(rootId, recursive);
             }
@@ -245,9 +239,7 @@ namespace Epinova.ElasticSearch.Core
         }
 
         public IElasticSearchService<T> Skip(int skip)
-        {
-            return From(skip);
-        }
+            => From(skip);
 
         public IElasticSearchService<T> Size(int size)
         {
@@ -257,9 +249,7 @@ namespace Epinova.ElasticSearch.Core
         }
 
         public IElasticSearchService<T> Take(int take)
-        {
-            return Size(take);
-        }
+            => Size(take);
 
         public IElasticSearchService<T> NoBoosting()
         {
@@ -287,14 +277,10 @@ namespace Epinova.ElasticSearch.Core
         }
 
         public IElasticSearchService<object> Search(string searchText, Operator @operator = Operator.Or)
-        {
-            return Search<object>(searchText, null, @operator);
-        }
+            => Search<object>(searchText, null, @operator);
 
         public IElasticSearchService<T> Search<T>(string searchText, Operator @operator = Operator.Or)
-        {
-            return Search<T>(searchText, null, @operator);
-        }
+            => Search<T>(searchText, null, @operator);
 
         public IElasticSearchService<T> Search<T>(string searchText, string facetFieldName,
             Operator @operator = Operator.Or)
@@ -336,9 +322,7 @@ namespace Epinova.ElasticSearch.Core
         }
 
         public async Task<SearchResult> GetResultsAsync(params string[] fields)
-        {
-            return await GetResultsAsync(CancellationToken.None, fields).ConfigureAwait(false);
-        }
+            => await GetResultsAsync(CancellationToken.None, fields).ConfigureAwait(false);
 
         public async Task<SearchResult> GetResultsAsync(CancellationToken cancellationToken, params string[] fields)
         {
@@ -348,9 +332,7 @@ namespace Epinova.ElasticSearch.Core
         }
 
         public async Task<CustomSearchResult<T>> GetCustomResultsAsync()
-        {
-            return await GetCustomResultsAsync(CancellationToken.None).ConfigureAwait(false);
-        }
+            => await GetCustomResultsAsync(CancellationToken.None).ConfigureAwait(false);
 
         public async Task<CustomSearchResult<T>> GetCustomResultsAsync(CancellationToken cancellationToken)
         {
@@ -423,7 +405,7 @@ namespace Epinova.ElasticSearch.Core
 
         private ScriptScore CreateScriptScore()
         {
-            if (String.IsNullOrEmpty(_customScriptScoreSource))
+            if(String.IsNullOrEmpty(_customScriptScoreSource))
             {
                 return null;
             }
@@ -440,7 +422,7 @@ namespace Epinova.ElasticSearch.Core
             // There was a breaking change in v5.6 renaming the "inline" field to "source"
             var inlineVsSourceVersion = new Version(5, 6);
 
-            if (Server.Info.Version >= inlineVsSourceVersion)
+            if(Server.Info.Version >= inlineVsSourceVersion)
             {
                 scriptScore.Script.Source = _customScriptScoreSource;
             }
@@ -453,9 +435,7 @@ namespace Epinova.ElasticSearch.Core
         }
 
         public IElasticSearchService<object> WildcardSearch(string searchText)
-        {
-            return WildcardSearch<object>(searchText);
-        }
+            => WildcardSearch<object>(searchText);
 
         public IElasticSearchService<T> MoreLikeThis<T>(string id, int minimumTermFrequency = 1, int maxQueryTerms = 25, int minimumDocFrequency = 3, int minimumWordLength = 3)
         {
@@ -506,48 +486,32 @@ namespace Epinova.ElasticSearch.Core
         }
 
         public IElasticSearchService<T> SortBy<TProperty>(Expression<Func<T, TProperty>> fieldSelector)
-        {
-            return Sort(fieldSelector, false, true, default);
-        }
+            => Sort(fieldSelector, false, true, default);
 
         public IElasticSearchService<T> SortBy<TProperty>(Expression<Func<T, TProperty>> fieldSelector, (double Lat, double Lon) compareTo, string unit = "km", string mode = "min")
             where TProperty : GeoPoint
-        {
-            return Sort(fieldSelector, false, true, compareTo, unit, mode);
-        }
+            => Sort(fieldSelector, false, true, compareTo, unit, mode);
 
         public IElasticSearchService<T> ThenBy<TProperty>(Expression<Func<T, TProperty>> fieldSelector)
-        {
-            return Sort(fieldSelector, false, false);
-        }
+            => Sort(fieldSelector, false, false);
 
         public IElasticSearchService<T> ThenBy<TProperty>(Expression<Func<T, TProperty>> fieldSelector, (double Lat, double Lon) compareTo, string unit = "km", string mode = "min")
             where TProperty : GeoPoint
-        {
-            return Sort(fieldSelector, false, false, compareTo, unit, mode);
-        }
+            => Sort(fieldSelector, false, false, compareTo, unit, mode);
 
         public IElasticSearchService<T> SortByDescending<TProperty>(Expression<Func<T, TProperty>> fieldSelector)
-        {
-            return Sort(fieldSelector, true, true);
-        }
+            => Sort(fieldSelector, true, true);
 
         public IElasticSearchService<T> SortByDescending<TProperty>(Expression<Func<T, TProperty>> fieldSelector, (double Lat, double Lon) compareTo, string unit = "km", string mode = "min")
             where TProperty : GeoPoint
-        {
-            return Sort(fieldSelector, false, true, compareTo, unit, mode);
-        }
+            => Sort(fieldSelector, false, true, compareTo, unit, mode);
 
         public IElasticSearchService<T> ThenByDescending<TProperty>(Expression<Func<T, TProperty>> fieldSelector)
-        {
-            return Sort(fieldSelector, true, false);
-        }
+            => Sort(fieldSelector, true, false);
 
         public IElasticSearchService<T> ThenByDescending<TProperty>(Expression<Func<T, TProperty>> fieldSelector, (double Lat, double Lon) compareTo, string unit = "km", string mode = "min")
             where TProperty : GeoPoint
-        {
-            return Sort(fieldSelector, false, false, compareTo, unit, mode);
-        }
+            => Sort(fieldSelector, false, false, compareTo, unit, mode);
 
         private IElasticSearchService<T> Sort<TProperty>(
             Expression<Func<T, TProperty>> fieldSelector,
@@ -557,14 +521,14 @@ namespace Epinova.ElasticSearch.Core
             string unit = "km",
             string mode = "min")
         {
-            if (primary && SortFields.Count > 0)
+            if(primary && SortFields.Count > 0)
             {
                 throw new InvalidOperationException("Query is already sorted. Use ThenBy or ThenByDescending to apply further sorting");
             }
 
             Tuple<string, MappingType> fieldInfo = GetFieldInfo(fieldSelector);
 
-            if (typeof(TProperty) == typeof(GeoPoint))
+            if(typeof(TProperty) == typeof(GeoPoint))
             {
                 SortFields.Add(new GeoSort
                 {
@@ -602,9 +566,9 @@ namespace Epinova.ElasticSearch.Core
 
             _logger.Debug($"Adding field: '{fieldName}'");
 
-            if (!String.IsNullOrWhiteSpace(fieldName))
+            if(!String.IsNullOrWhiteSpace(fieldName))
             {
-                if (SearchFields.Contains(fieldName))
+                if(SearchFields.Contains(fieldName))
                 {
                     throw new InvalidOperationException($"Field {fieldName} already added to query");
                 }
@@ -620,7 +584,7 @@ namespace Epinova.ElasticSearch.Core
             _usePostfilters = usePostFilter;
             var fieldInfo = GetFieldInfo(fieldSelector, explicitType);
 
-            if (!String.IsNullOrWhiteSpace(fieldInfo.Item1) && !_facetFields.ContainsKey(fieldInfo.Item1))
+            if(!String.IsNullOrWhiteSpace(fieldInfo.Item1) && !_facetFields.ContainsKey(fieldInfo.Item1))
             {
                 _facetFields.Add(fieldInfo.Item1, fieldInfo.Item2);
             }
@@ -638,7 +602,7 @@ namespace Epinova.ElasticSearch.Core
 
         public IElasticSearchService<T> Filter<TType>(string fieldName, TType filterValue, bool raw = true)
         {
-            if (filterValue != null)
+            if(filterValue != null)
             {
                 PostFilters.Add(new Filter(fieldName, filterValue, typeof(TType), raw, Operator.And));
             }
@@ -649,9 +613,9 @@ namespace Epinova.ElasticSearch.Core
         public IElasticSearchService<T> Filters<TType>(string fieldName, IEnumerable<TType> filterValues, Operator @operator = Operator.Or, bool raw = true)
         {
             TType[] values = filterValues as TType[] ?? filterValues.ToArray();
-            if (values.Length > 0)
+            if(values.Length > 0)
             {
-                foreach (TType value in values)
+                foreach(TType value in values)
                 {
                     PostFilters.Add(new Filter(fieldName, value, typeof(TType), raw, @operator));
                 }
@@ -697,7 +661,7 @@ namespace Epinova.ElasticSearch.Core
 
         public IElasticSearchService<T> FilterMustNot<TType>(string fieldName, TType filterValue, bool raw = true)
         {
-            if (filterValue != null)
+            if(filterValue != null)
             {
                 PostFilters.Add(new Filter(fieldName, filterValue, typeof(TType), raw, Operator.And, true));
             }
@@ -708,9 +672,9 @@ namespace Epinova.ElasticSearch.Core
         public IElasticSearchService<T> FiltersMustNot<TType>(string fieldName, IEnumerable<TType> filterValues, bool raw = true)
         {
             TType[] values = filterValues as TType[] ?? filterValues.ToArray();
-            if (values.Length > 0)
+            if(values.Length > 0)
             {
-                foreach (TType value in values)
+                foreach(TType value in values)
                 {
                     PostFilters.Add(new Filter(fieldName, value, typeof(TType), raw, Operator.And, true));
                 }
@@ -756,7 +720,7 @@ namespace Epinova.ElasticSearch.Core
 
         public IElasticSearchService<T> FilterGroup(Expression<Func<IFilterGroup<T>, IFilterGroup<T>>> groupExpression, Operator @operator = Operator.And)
         {
-            if (groupExpression.Body is MethodCallExpression expression)
+            if(groupExpression.Body is MethodCallExpression expression)
             {
                 groupExpression.Compile().Invoke(new FilterGroup<T>(this, Guid.NewGuid().ToString()));
             }
@@ -834,13 +798,13 @@ namespace Epinova.ElasticSearch.Core
             string fieldName;
             MappingType fieldType;
 
-            switch (expression)
+            switch(expression)
             {
                 case MethodCallExpression callExpression:
                     {
                         MethodInfo methodInfo = callExpression.Method;
 
-                        if (ArrayHelper.IsArrayCandidate(methodInfo.ReturnType))
+                        if(ArrayHelper.IsArrayCandidate(methodInfo.ReturnType))
                         {
                             explicitType = methodInfo.ReturnType.GetTypeFromTypeCode();
                         }
@@ -852,7 +816,7 @@ namespace Epinova.ElasticSearch.Core
 
                 case MemberExpression memberExpression:
                     {
-                        if (memberExpression.Member is FieldInfo fieldInfo
+                        if(memberExpression.Member is FieldInfo fieldInfo
                             && memberExpression.Expression is ConstantExpression constantExpression)
                         {
                             fieldName = fieldInfo.GetValue(constantExpression.Value).ToString();
@@ -862,7 +826,7 @@ namespace Epinova.ElasticSearch.Core
 
                         MemberInfo memberInfo = memberExpression.Member;
 
-                        if (ArrayHelper.IsArrayCandidate(memberExpression.Type))
+                        if(ArrayHelper.IsArrayCandidate(memberExpression.Type))
                         {
                             explicitType = memberExpression.Type.GetTypeFromTypeCode();
                         }
@@ -873,7 +837,7 @@ namespace Epinova.ElasticSearch.Core
                     }
 
                 case ConstantExpression constantExpression:
-                    if (ArrayHelper.IsArrayCandidate(constantExpression.Type))
+                    if(ArrayHelper.IsArrayCandidate(constantExpression.Type))
                     {
                         explicitType = constantExpression.Type.GetTypeFromTypeCode();
                     }

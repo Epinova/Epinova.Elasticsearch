@@ -105,7 +105,7 @@ namespace TestData
         {
             var instance = Guid.NewGuid().ToString("N");
 
-            while (instance.Length < size)
+            while(instance.Length < size)
             {
                 instance += Guid.NewGuid().ToString("N");
             }
@@ -117,7 +117,7 @@ namespace TestData
         {
             string instance = String.Empty;
 
-            for (var i = 0; i < words; i++)
+            for(var i = 0; i < words; i++)
             {
                 instance += GetString(Random.Next(3, 8)) + " ";
             }
@@ -132,20 +132,11 @@ namespace TestData
             bool isNotInWaste = true,
             PageShortcutType shortcutType = PageShortcutType.Normal,
             int id = 0,
-            int parentId = 0)
-        {
-            return GetPageData<PageData>(visibleInMenu, isPublished, userHasAccess, isNotInWaste, shortcutType, id, parentId);
-        }
+            int parentId = 0) => GetPageData<PageData>(visibleInMenu, isPublished, userHasAccess, isNotInWaste, shortcutType, id, parentId);
 
-        public static PageReference GetPageReference()
-        {
-            return new PageReference(GetInteger(1000));
-        }
+        public static PageReference GetPageReference() => new PageReference(GetInteger(1000));
 
-        public static int GetInteger(int start = 1, int count = 1337)
-        {
-            return Enumerable.Range(start, count).OrderBy(_ => Guid.NewGuid()).First();
-        }
+        public static int GetInteger(int start = 1, int count = 1337) => Enumerable.Range(start, count).OrderBy(_ => Guid.NewGuid()).First();
 
         public static TemplateResolver GetTemplateResolver(bool hasTemplate = true)
         {
@@ -186,7 +177,7 @@ namespace TestData
             var securityDescriptor = new Mock<ISecurityDescriptor>();
             securityDescriptor.Setup(m => m.HasAccess(It.IsAny<IPrincipal>(), It.IsAny<AccessLevel>())).Returns(userHasAccess);
 
-            if (language == null)
+            if(language == null)
             {
                 language = CultureInfo.CurrentCulture;
             }
@@ -208,7 +199,7 @@ namespace TestData
             instance.Setup(m => m.StaticLinkURL).Returns($"/link/{pageGuid:N}.aspx?id={pageLink.ID}");
 
             ContentReference.WasteBasket = new PageReference(1);
-            if (!isNotInWaste)
+            if(!isNotInWaste)
             {
                 instance.Setup(m => m.ContentLink).Returns(ContentReference.WasteBasket);
             }
@@ -240,7 +231,7 @@ namespace TestData
         {
             string path = GetFilePath("Json", filename);
 
-            if (!File.Exists(path))
+            if(!File.Exists(path))
             {
                 return String.Empty;
             }
@@ -268,7 +259,7 @@ namespace TestData
 
         public static XhtmlString GetXhtmlString(string s, params IStringFragment[] additionalFragments)
         {
-            if (s == null)
+            if(s == null)
             {
                 return null;
             }
@@ -280,14 +271,14 @@ namespace TestData
 
             var xhtmlStringMock = new Mock<XhtmlString>();
             var fragments = new StringFragmentCollection();
-            if (!String.IsNullOrWhiteSpace(s))
+            if(!String.IsNullOrWhiteSpace(s))
             {
                 fragments.Add(fragmentMock.Object);
             }
 
-            if (additionalFragments?.Length > 0)
+            if(additionalFragments?.Length > 0)
             {
-                foreach (IStringFragment fragment in additionalFragments)
+                foreach(IStringFragment fragment in additionalFragments)
                 {
                     fragments.Add(fragment);
                 }
@@ -316,10 +307,7 @@ namespace TestData
             return obj1.SequenceEqual(obj2);
         }
 
-        public static string RemoveWhitespace(string input)
-        {
-            return Regex.Replace(input, @"\s+", String.Empty);
-        }
+        public static string RemoveWhitespace(string input) => Regex.Replace(input, @"\s+", String.Empty);
 
         public static (IContent Content, SaveContentEventArgs Args) GetPublishScenario()
         {
@@ -342,7 +330,6 @@ namespace TestData
             var args = new DeleteContentEventArgs(page.ContentLink, ContentReference.WasteBasket)
             {
                 Content = page
-                //DeletedDescendents
             };
 
             return (page, args);

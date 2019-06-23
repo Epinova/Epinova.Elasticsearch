@@ -55,7 +55,7 @@ namespace Epinova.ElasticSearch.Core.Conventions
         {
             Logger.Debug("Including field: " + fieldName);
 
-            if (!String.IsNullOrEmpty(fieldName))
+            if(!String.IsNullOrEmpty(fieldName))
             {
                 //Is compile needed?
                 Func<T, TProperty> getter = fieldSelector.Compile();
@@ -63,7 +63,7 @@ namespace Epinova.ElasticSearch.Core.Conventions
                 Indexing.CustomProperties.Add(new CustomProperty(fieldName, getter, typeof(T)));
             }
 
-            if (stem)
+            if(stem)
             {
                 StemField(fieldSelector);
             }
@@ -77,9 +77,9 @@ namespace Epinova.ElasticSearch.Core.Conventions
         /// <param name="fieldSelector">An expression, typically a property or an instance/extension method.</param>
         public Indexing StemField<TProperty>(Expression<Func<T, TProperty>> fieldSelector)
         {
-            string fieldName = ElasticSearchService<T>.GetFieldInfo(fieldSelector).Item1;
+            var fieldName = ElasticSearchService<T>.GetFieldInfo(fieldSelector).Item1;
 
-            if (WellKnownProperties.Analyze.Contains(fieldName))
+            if(WellKnownProperties.Analyze.Contains(fieldName))
             {
                 return _instance;
             }
@@ -96,16 +96,16 @@ namespace Epinova.ElasticSearch.Core.Conventions
         /// </summary>
         public Indexing EnableHighlighting<TProperty>(params Expression<Func<T, TProperty>>[] fieldSelectors)
         {
-            if (fieldSelectors == null || fieldSelectors.Length == 0)
+            if(fieldSelectors == null || fieldSelectors.Length == 0)
             {
                 return _instance;
             }
 
-            foreach (var fieldSelector in fieldSelectors)
+            foreach(var fieldSelector in fieldSelectors)
             {
                 string fieldName = ElasticSearchService<T>.GetFieldInfo(fieldSelector).Item1;
 
-                if (!Indexing.Highlights.Contains(fieldName))
+                if(!Indexing.Highlights.Contains(fieldName))
                 {
                     Indexing.Highlights.Add(fieldName);
                 }
@@ -120,7 +120,7 @@ namespace Epinova.ElasticSearch.Core.Conventions
         public Indexing EnableSuggestions()
         {
             // Update existing registration of type?
-            if (Indexing.Suggestions.Any(s => s.Type == typeof(T)))
+            if(Indexing.Suggestions.Any(s => s.Type == typeof(T)))
             {
                 Indexing.Suggestions.Single(s => s.Type == typeof(T)).IncludeAllFields = true;
             }
@@ -137,17 +137,17 @@ namespace Epinova.ElasticSearch.Core.Conventions
         /// </summary>
         public Indexing EnableSuggestions<TProperty>(params Expression<Func<T, TProperty>>[] fieldSelectors)
         {
-            if (fieldSelectors == null || fieldSelectors.Length == 0)
+            if(fieldSelectors == null || fieldSelectors.Length == 0)
             {
                 return _instance;
             }
 
-            foreach (var fieldSelector in fieldSelectors)
+            foreach(var fieldSelector in fieldSelectors)
             {
                 string fieldName = ElasticSearchService<T>.GetFieldInfo(fieldSelector).Item1;
 
                 // Update existing registration of type?
-                if (Indexing.Suggestions.Any(s => s.Type == typeof(T)))
+                if(Indexing.Suggestions.Any(s => s.Type == typeof(T)))
                 {
                     Indexing.Suggestions.Single(s => s.Type == typeof(T)).InputFields.Add(fieldName);
                 }

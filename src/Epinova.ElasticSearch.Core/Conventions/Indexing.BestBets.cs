@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Concurrent;
+﻿using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using Epinova.ElasticSearch.Core.Contracts;
@@ -24,7 +23,7 @@ namespace Epinova.ElasticSearch.Core.Conventions
             var settings = ServiceLocator.Current?.GetInstance<IElasticSearchSettings>();
             var languageBranchRepository = ServiceLocator.Current?.GetInstance<ILanguageBranchRepository>();
 
-            if (repository == null || settings == null || languageBranchRepository == null)
+            if(repository == null || settings == null || languageBranchRepository == null)
             {
                 // Probably in test-context
                 return;
@@ -37,7 +36,7 @@ namespace Epinova.ElasticSearch.Core.Conventions
 
             var indexList = config.IndicesParsed.ToList();
 
-            if (settings.CommerceEnabled)
+            if(settings.CommerceEnabled)
             {
                 indexList.Add(new IndexConfiguration
                 {
@@ -46,16 +45,16 @@ namespace Epinova.ElasticSearch.Core.Conventions
                 });
             }
 
-            foreach (IndexConfiguration index in indexList)
+            foreach(IndexConfiguration index in indexList)
             {
                 Logger.Information($"Setup BestBets for index '{index.Name}'");
-                foreach (var languageId in languageIds)
+                foreach(var languageId in languageIds)
                 {
                     Logger.Information($"Language '{languageId}'");
                     var indexName = index.Name + "-" + languageId;
                     var bestBets = repository.GetBestBets(languageId, indexName).ToList();
                     BestBets.TryAdd(indexName, bestBets);
-                    Logger.Information($"BestBets:\n{String.Join("\n", bestBets.Select(b => b.Phrase + " => " + b.Id))}");
+                    Logger.Information($"BestBets:\n{System.String.Join("\n", bestBets.Select(b => b.Phrase + " => " + b.Id))}");
                 }
             }
         }

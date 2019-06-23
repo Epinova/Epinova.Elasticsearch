@@ -35,21 +35,21 @@ namespace Epinova.ElasticSearch.Core.Models.Properties
         /// <returns>A new instance of <see cref="GeoPoint"/> or null in case of invalid input</returns>
         public static GeoPoint Parse(string latlon)
         {
-            if (latlon == null || latlon.IndexOf(",") < 1)
+            if(latlon == null || latlon.IndexOf(",") < 1)
             {
                 return null;
             }
 
             var segments = latlon.Split(',');
 
-            if (segments.Length != 2
+            if(segments.Length != 2
                 || !Double.TryParse(segments[0], NumberStyles.Float, CultureInfo.InvariantCulture, out var lat)
                 || !Double.TryParse(segments[1], NumberStyles.Float, CultureInfo.InvariantCulture, out var lon))
             {
                 return null;
             }
 
-            if (lat > 90 || lat < -90 || lon > 180 || lon < -180)
+            if(lat > 90 || lat < -90 || lon > 180 || lon < -180)
             {
                 return null;
             }

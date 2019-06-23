@@ -9,18 +9,14 @@ namespace Epinova.ElasticSearch.Core.Utilities
         private static readonly Regex Pattern = new Regex(@"&[^\s;]+;", RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
         internal static bool IsNumeric(string input)
-        {
-            return input != null && Int64.TryParse(input, out _);
-        }
+            => input != null && Int64.TryParse(input, out _);
 
         internal static string StripHtmlAndEntities(string input)
-        {
-            return Pattern.Replace(StripHtml(input), " ");
-        }
+            => Pattern.Replace(StripHtml(input), " ");
 
         internal static string StripHtml(string input)
         {
-            if (input == null)
+            if(input == null)
             {
                 return String.Empty;
             }

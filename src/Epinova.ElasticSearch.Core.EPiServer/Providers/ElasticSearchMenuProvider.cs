@@ -11,9 +11,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Providers
     public class ElasticSearchMenuProvider : IMenuProvider
     {
         private static Func<RequestContext, bool> GetAccessInfo()
-        {
-            return request => PrincipalInfo.CurrentPrincipal.IsInRole(RoleNames.ElasticsearchAdmins);
-        }
+            => request => PrincipalInfo.CurrentPrincipal.IsInRole(RoleNames.ElasticsearchAdmins);
 
         private readonly Func<string, string> _translate = key => LocalizationService.Current.GetString(String.Concat("/epinovaelasticsearch/", key));
 

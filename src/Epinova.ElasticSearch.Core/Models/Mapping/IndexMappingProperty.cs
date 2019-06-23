@@ -35,9 +35,7 @@ namespace Epinova.ElasticSearch.Core.Models.Mapping
         public bool? Dynamic { get; set; }
 
         public override string ToString()
-        {
-            return $"Analyzer: {Analyzer}, Format: {Format}, FieldData: {FieldData}, Type: {Type}, CopyTo: {String.Join(",", CopyTo ?? Enumerable.Empty<string>())}, Index: {Index}";
-        }
+            => $"Analyzer: {Analyzer}, Format: {Format}, FieldData: {FieldData}, Type: {Type}, CopyTo: {String.Join(",", CopyTo ?? Enumerable.Empty<string>())}, Index: {Index}";
 
         internal class ContentProperty
         {
@@ -73,17 +71,17 @@ namespace Epinova.ElasticSearch.Core.Models.Mapping
 
         public override bool Equals(object obj)
         {
-            if (ReferenceEquals(null, obj))
+            if(ReferenceEquals(null, obj))
             {
                 return false;
             }
 
-            if (ReferenceEquals(this, obj))
+            if(ReferenceEquals(this, obj))
             {
                 return true;
             }
 
-            if (obj.GetType() != GetType())
+            if(obj.GetType() != GetType())
             {
                 return false;
             }
@@ -93,8 +91,8 @@ namespace Epinova.ElasticSearch.Core.Models.Mapping
 
         protected bool Equals(IndexMappingProperty other)
         {
-            return String.Equals(Index, other.Index) && String.Equals(Analyzer, other.Analyzer) &&
-                   String.Equals(Type, other.Type) && String.Equals(Format, other.Format) &&
+            return System.String.Equals(Index, other.Index) && System.String.Equals(Analyzer, other.Analyzer) &&
+                   System.String.Equals(Type, other.Type) && System.String.Equals(Format, other.Format) &&
                    FieldData == other.FieldData &&
                    (CopyTo == null && other.CopyTo == null || CopyTo?.SequenceEqual(other.CopyTo) == true);
         }

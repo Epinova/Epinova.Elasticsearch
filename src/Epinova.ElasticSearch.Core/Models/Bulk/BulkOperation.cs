@@ -38,7 +38,7 @@ namespace Epinova.ElasticSearch.Core.Models.Bulk
         /// </summary>
         internal BulkOperation(object data, Operation operation, string language = null, Type dataType = null, string id = null, string index = null)
         {
-            if (String.IsNullOrWhiteSpace(language) && String.IsNullOrWhiteSpace(index))
+            if(String.IsNullOrWhiteSpace(language) && String.IsNullOrWhiteSpace(index))
             {
                 throw new InvalidOperationException("Either 'language' or 'index' must be specified.");
             }
@@ -49,29 +49,29 @@ namespace Epinova.ElasticSearch.Core.Models.Bulk
 
             // If we have no Types, this is a custom object and we must extract the properties from the data-object.
             // Standard IndexItems will already have needed data created by AsIndexItem
-            if (dataType.GetProperty(DefaultFields.Types) == null)
+            if(dataType.GetProperty(DefaultFields.Types) == null)
             {
                 dynamic indexItem = new ExpandoObject();
                 var dictionary = (IDictionary<string, object>)indexItem;
 
-                foreach (var property in data.GetType().GetProperties())
+                foreach(var property in data.GetType().GetProperties())
                 {
                     try
                     {
                         var value = GetPropertyValue(data, property);
-                        if (value != null)
+                        if(value != null)
                         {
                             dictionary[property.Name] = value;
                         }
                     }
-                    catch (Exception ex)
+                    catch(Exception ex)
                     {
                         Logger.Error("Failed to apply object property: " + property.Name, ex);
                     }
                 }
 
                 dictionary[DefaultFields.Types] = dataType.GetInheritancHierarchyArray();
-                if (dataType.GetProperty(DefaultFields.Type) == null)
+                if(dataType.GetProperty(DefaultFields.Type) == null)
                 {
                     dictionary.Add(DefaultFields.Type, dataType.GetTypeName());
                 }
@@ -79,7 +79,7 @@ namespace Epinova.ElasticSearch.Core.Models.Bulk
                 data = indexItem;
             }
 
-            if (String.IsNullOrWhiteSpace(index))
+            if(String.IsNullOrWhiteSpace(index))
             {
                 index = ElasticSearchSettings.GetDefaultIndexName(language);
             }
@@ -99,45 +99,45 @@ namespace Epinova.ElasticSearch.Core.Models.Bulk
         private static object GetPropertyValue(object data, PropertyInfo property)
         {
             var value = property.GetValue(data);
-            if (value == null)
+            if(value == null)
             {
                 return null;
             }
 
-            if (property.PropertyType == typeof(bool) || property.PropertyType == typeof(bool?))
+            if(property.PropertyType == typeof(bool) || property.PropertyType == typeof(bool?))
             {
                 return (bool)value;
             }
-            else if (property.PropertyType.IsEnum)
+            else if(property.PropertyType.IsEnum)
             {
                 return (int)value;
             }
-            else if (value is DateTime)
+            else if(value is DateTime)
             {
                 // Don't ToString or anything funky here
                 return value;
             }
-            else if (value is decimal dec)
+            else if(value is decimal dec)
             {
                 return dec.ToString(DotSeparatorFormat);
             }
-            else if (value is double dbl)
+            else if(value is double dbl)
             {
                 return dbl.ToString(DotSeparatorFormat);
             }
-            else if (value is float flt)
+            else if(value is float flt)
             {
                 return flt.ToString(DotSeparatorFormat);
             }
-            else if (ArrayHelper.IsArrayCandidate(property))
+            else if(ArrayHelper.IsArrayCandidate(property))
             {
                 return ArrayHelper.ToArray(value);
             }
-            else if (Utilities.Mapping.IsNumericType(property.PropertyType))
+            else if(Utilities.Mapping.IsNumericType(property.PropertyType))
             {
                 return value.ToString().Trim('\"');
             }
-            else if (property.PropertyType.IsValueType || property.PropertyType.IsPrimitive)
+            else if(property.PropertyType.IsValueType || property.PropertyType.IsPrimitive)
             {
                 return value.ToString().Trim('\"');
             }
@@ -149,16 +149,16 @@ namespace Epinova.ElasticSearch.Core.Models.Bulk
 
         private string GetId(string id, Type dataType, object data)
         {
-            if (id != null)
+            if(id != null)
             {
                 return id;
             }
 
             var idProp = dataType.GetProperty(DefaultFields.Id);
-            if (idProp != null)
+            if(idProp != null)
             {
                 var idVal = idProp.GetValue(data);
-                if (idVal != null)
+                if(idVal != null)
                 {
                     return idVal.ToString();
                 }

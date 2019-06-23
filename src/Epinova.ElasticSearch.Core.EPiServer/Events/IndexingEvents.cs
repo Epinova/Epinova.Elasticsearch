@@ -21,16 +21,16 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Events
         {
             Logger.Debug($"Raising event DeleteFromIndex for '{e?.ContentLink}'");
 
-            if (ContentReference.IsNullOrEmpty(e?.ContentLink))
+            if(ContentReference.IsNullOrEmpty(e?.ContentLink))
             {
                 return;
             }
 
             DeleteFromIndex(e?.ContentLink);
 
-            if (e?.DeletedDescendents != null)
+            if(e?.DeletedDescendents != null)
             {
-                foreach (var descendent in e.DeletedDescendents)
+                foreach(var descendent in e.DeletedDescendents)
                 {
                     DeleteFromIndex(descendent);
                 }
@@ -39,7 +39,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Events
 
         internal static void DeleteFromIndex(ContentReference contentLink)
         {
-            if (ContentReference.IsNullOrEmpty(contentLink))
+            if(ContentReference.IsNullOrEmpty(contentLink))
             {
                 return;
             }
@@ -52,13 +52,13 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Events
             Logger.Debug($"Raising event UpdateIndex for '{e.Content?.ContentLink}'");
 
             // On Move, handle all descendents as well
-            if (e is MoveContentEventArgs moveArgs)
+            if(e is MoveContentEventArgs moveArgs)
             {
                 HandleMoveEvent(moveArgs);
                 return;
             }
 
-            if (e is SaveContentEventArgs saveArgs)
+            if(e is SaveContentEventArgs saveArgs)
             {
                 HandleSaveEvent(saveArgs);
                 return;
@@ -72,13 +72,13 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Events
             Logger.Debug($"ACL changed for '{e.ContentLink}'");
 
             var published = VersionRepository.LoadPublished(e.ContentLink);
-            if (published == null)
+            if(published == null)
             {
                 Logger.Debug("Previously unpublished, do nothing");
                 return;
             }
 
-            if (ContentLoader.TryGet(e.ContentLink, out IContent content))
+            if(ContentLoader.TryGet(e.ContentLink, out IContent content))
             {
                 Logger.Debug("Valid content, update index");
                 EPiIndexer.Update(content);
@@ -87,7 +87,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Events
 
         private static CultureInfo GetLanguage(IContent content)
         {
-            if (content is ILocale locale && locale.Language != null && !CultureInfo.InvariantCulture.Equals(locale.Language))
+            if(content is ILocale locale && locale.Language != null && !CultureInfo.InvariantCulture.Equals(locale.Language))
             {
                 return locale.Language;
             }
@@ -104,9 +104,9 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Events
             var contentList = ContentLoader.GetItems(moveArgs.Descendents, language).ToList();
             contentList.Insert(0, moveArgs.Content);
 
-            foreach (var content in contentList)
+            foreach(var content in contentList)
             {
-                if (isDelete)
+                if(isDelete)
                 {
                     DeleteFromIndex(content.ContentLink);
                 }
@@ -119,22 +119,22 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Events
 
         private static void HandleSaveEvent(SaveContentEventArgs args)
         {
-            if (IsPublishAction(args))
+            if(IsPublishAction(args))
             {
                 Logger.Debug("Publish-event, update index");
                 EPiIndexer.Update(args.Content);
                 return;
             }
 
-            if (IsPublishedToCheckedOutAction(args))
+            if(IsPublishedToCheckedOutAction(args))
             {
                 Logger.Debug("Save-event, previously published, do nothing");
                 return;
             }
 
-            if (IsSaveAction(args, out ContentVersion published))
+            if(IsSaveAction(args, out ContentVersion published))
             {
-                if (published == null)
+                if(published == null)
                 {
                     Logger.Debug("Save-event, previously unpublished, update index");
                     EPiIndexer.Update(args.Content);
@@ -146,7 +146,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Events
             }
 
             // Create
-            if (args.Transition.CurrentStatus == VersionStatus.NotCreated)
+            if(args.Transition.CurrentStatus == VersionStatus.NotCreated)
             {
                 Logger.Debug("Create-event, do nothing");
                 return;
@@ -157,7 +157,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Events
 
         private static bool IsSaveAction(SaveContentEventArgs args, out ContentVersion published)
         {
-            if (args.Transition.CurrentStatus == VersionStatus.CheckedOut
+            if(args.Transition.CurrentStatus == VersionStatus.CheckedOut
                 && args.Transition.NextStatus == VersionStatus.CheckedOut)
             {
                 published = VersionRepository.LoadPublished(args.ContentLink);

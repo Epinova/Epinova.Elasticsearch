@@ -56,23 +56,23 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Controllers
         [Authorize(Roles = RoleNames.ElasticsearchAdmins)]
         public ActionResult AddNewIndex()
         {
-            if (Core.Server.Info.Version.Major < 5)
+            if(Core.Server.Info.Version.Major < 5)
             {
                 throw new InvalidOperationException("Elasticsearch version 5 or higher required");
             }
 
             var config = ElasticSearchSection.GetConfiguration();
 
-            foreach (var lang in Languages)
+            foreach(var lang in Languages)
             {
-                foreach (IndexConfiguration indexConfig in config.IndicesParsed)
+                foreach(IndexConfiguration indexConfig in config.IndicesParsed)
                 {
                     var indexName = _settings.GetCustomIndexName(indexConfig.Name, lang.Key);
                     Type indexType = GetIndexType(indexConfig, config);
 
                     var index = new Index(_settings, indexName);
 
-                    if (!index.Exists)
+                    if(!index.Exists)
                     {
                         index.Initialize(indexType);
                         index.WaitForStatus();
@@ -80,16 +80,16 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Controllers
                         index.WaitForStatus();
                     }
 
-                    if (IsCustomType(indexType))
+                    if(IsCustomType(indexType))
                     {
                         _coreIndexer.UpdateMapping(indexType, indexType, indexName, lang.Key, true);
                         index.WaitForStatus();
                     }
-                    else if (_settings.CommerceEnabled)
+                    else if(_settings.CommerceEnabled)
                     {
                         indexName = _settings.GetCustomIndexName($"{indexConfig.Name}-{Constants.CommerceProviderName}", lang.Key);
                         index = new Index(_settings, indexName);
-                        if (!index.Exists)
+                        if(!index.Exists)
                         {
                             index.Initialize(indexType);
                             index.WaitForStatus();
@@ -118,7 +118,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Controllers
         {
             var indexing = new Indexing(_settings);
 
-            foreach (var index in Indices)
+            foreach(var index in Indices)
             {
                 indexing.DeleteIndex(index.Index);
             }
@@ -142,18 +142,16 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Controllers
         }
 
         private static bool IsCustomType(Type indexType)
-        {
-            return indexType != null && indexType != typeof(IndexItem);
-        }
+            => indexType != null && indexType != typeof(IndexItem);
 
         private static Type GetIndexType(IndexConfiguration index, ElasticSearchSection config)
         {
-            if (index.Default || config.IndicesParsed.Count() == 1)
+            if(index.Default || config.IndicesParsed.Count() == 1)
             {
                 return typeof(IndexItem);
             }
 
-            if (String.IsNullOrWhiteSpace(index.Type))
+            if(String.IsNullOrWhiteSpace(index.Type))
             {
                 return null;
             }
