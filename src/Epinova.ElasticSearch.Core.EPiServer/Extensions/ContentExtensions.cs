@@ -142,7 +142,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Extensions
         internal static bool ShouldAdd<T>(this SearchHit hit, bool requirePageTemplate, out T content, string[] providerNames, bool ignoreFilters)
             where T : IContentData
         {
-            if(providerNames?.Any() != true)
+            if(providerNames.Length > 0)
             {
                 var contentLink = new ContentReference(hit.Id);
 
