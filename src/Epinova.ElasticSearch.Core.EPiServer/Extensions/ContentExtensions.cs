@@ -863,28 +863,28 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Extensions
 
             try
             {
-                if (content is MediaData mediaData)
+                if(content is MediaData mediaData)
                 {
                     string extension = Path.GetExtension(mediaData.RouteSegment ?? String.Empty).Trim(' ', '.');
 
-                    if (!Indexing.IncludedFileExtensions.Contains(extension.ToLower()))
+                    if(!Indexing.IncludedFileExtensions.Contains(extension.ToLower()))
                     {
                         extensionNotAllowed = true;
                         return null;
                     }
 
-                    if (IsBinary(extension))
+                    if(IsBinary(extension))
                     {
                         Logger.Information($"Extension '{extension}' is a binary type, skipping its contents");
                         return String.Empty;
                     }
 
-                    using (var memoryStream = new MemoryStream())
+                    using(var memoryStream = new MemoryStream())
                     {
                         mediaData.BinaryData.OpenRead().CopyTo(memoryStream);
                         var bytes = memoryStream.ToArray();
 
-                        if (BlobIsTooLarge(bytes))
+                        if(BlobIsTooLarge(bytes))
                         {
                             Logger.Information($"MediaData with id {content.ContentLink} and size {bytes.Length} was larger than configured maxsize {ElasticSearchSettings.DocumentMaxSize} bytes");
                             return null;
@@ -894,7 +894,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Extensions
                     }
                 }
             }
-            catch (Exception ex)
+            catch(Exception ex)
             {
                 Logger.Warning($"Could not index MediaData with id {content.ContentLink}.", ex);
                 extensionNotAllowed = true;
@@ -922,8 +922,10 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Extensions
 
         private static bool BlobIsTooLarge(in byte[] bytes)
         {
-            if (ElasticSearchSettings.DocumentMaxSize <= 0)
+            if(ElasticSearchSettings.DocumentMaxSize <= 0)
+            {
                 return true;
+            }
 
             return bytes.Length <= ElasticSearchSettings.DocumentMaxSize;
         }
