@@ -6,5 +6,8 @@ namespace Epinova.ElasticSearch.Core.Models.Serialization
     {
         [JsonProperty(JsonNames.Suggestions)]
         public Suggestions[] Suggestions { get; set; }
+
+        [JsonProperty(JsonNames.Suggest)]
+        public SuggestionsRootObject InnerRoot { get; set; }
     }
 }

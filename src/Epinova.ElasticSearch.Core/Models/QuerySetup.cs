@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using Epinova.ElasticSearch.Core.Enums;
 using Epinova.ElasticSearch.Core.Models.Query;
+using EPiServer.Security;
 
 namespace Epinova.ElasticSearch.Core.Models
 {
@@ -50,6 +51,7 @@ namespace Epinova.ElasticSearch.Core.Models
         public int RootId { get; set; }
         public int Size { get; set; }
         public bool IsWildcard { get; set; }
+        public bool IsGetQuery { get; set; }
         public List<Filter> Filters { get; set; }
         public Dictionary<string, FilterGroupQuery> FilterGroups { get; set; }
         public Type SearchType { get; set; }
@@ -65,5 +67,7 @@ namespace Epinova.ElasticSearch.Core.Models
         public bool UseBestBets { get; set; }
         public bool UseHighlight { get; set; }
         public string Analyzer { get; internal set; }
+        public bool AppendAclFilters { get; internal set; }
+        public PrincipalInfo AclPrincipal { get; internal set; }
     }
 }

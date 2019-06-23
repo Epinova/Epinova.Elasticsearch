@@ -265,15 +265,20 @@ namespace Epinova.ElasticSearch.Core
                             && p.Name != nameof(IndexItem._attachmentdata))
                 .ToList();
 
+            var typeList = type.GetInheritancHierarchy();
+
             // Custom properties marked for stemming
             indexableProperties.AddRange(Conventions.Indexing.CustomProperties
+                .Where(c => typeList.Contains(c.OwnerType))
                 .Select(c => new
                 {
                     c.Name,
                     c.Type,
                     Analyzable = WellKnownProperties.Analyze.Select(w => w.ToLower()).Contains(c.Name.ToLower())
                 }));
-                
+
+            indexableProperties = indexableProperties.Distinct().ToList();
+
             Logger.Information("IndexableProperties for " + type?.Name + ": " + String.Join(", ", indexableProperties.Select(p => p.Name)));
 
             // Get existing mapping
@@ -281,10 +286,10 @@ namespace Epinova.ElasticSearch.Core
 
             // Ignore special mappings
             mapping.Properties.Remove(DefaultFields.AttachmentData);
-            mapping.Properties.Remove(DefaultFields.BestBets);            
+            mapping.Properties.Remove(DefaultFields.BestBets);
             mapping.Properties.Remove(DefaultFields.DidYouMean);
             mapping.Properties.Remove(DefaultFields.Suggest);
-            
+
             try
             {
                 foreach (var prop in indexableProperties)
@@ -354,9 +359,11 @@ namespace Epinova.ElasticSearch.Core
                 }
 
                 var jsonSettings = new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore };
-                string json = JsonConvert.SerializeObject(mapping, jsonSettings);
-                byte[] data = Encoding.UTF8.GetBytes(json);
-                string uri = $"{_settings.Host}/{index}/_mapping/{indexType.GetTypeName()}";
+                var json = JsonConvert.SerializeObject(mapping, jsonSettings);
+                var data = Encoding.UTF8.GetBytes(json);
+                var uri = $"{_settings.Host}/{index}/_mapping/{indexType.GetTypeName()}";
+                if (Server.Info.Version.Major >= 7)
+                    uri += "?include_type_name=true";
 
                 Logger.Information("Update mapping:\n" + JToken.Parse(json).ToString(Formatting.Indented));
 

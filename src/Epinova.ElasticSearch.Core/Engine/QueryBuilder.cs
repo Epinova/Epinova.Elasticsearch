@@ -50,7 +50,7 @@ namespace Epinova.ElasticSearch.Core.Engine
             _mappedFields = fields;
         }
 
-        private string[] GetMappedFields(string language, string index)
+        private string[] GetMappedFields(string language, string index, Type type)
         {
             Log.Debug("Get mapped fields");
 
@@ -58,7 +58,7 @@ namespace Epinova.ElasticSearch.Core.Engine
             {
                 Log.Debug("No mapped fields found, lookup with Mapping.GetIndexMapping");
 
-                _mappedFields = Mapping.GetIndexMapping(typeof(IndexItem), language, index)
+                _mappedFields = Mapping.GetIndexMapping(type, language, index)
                     .Properties
                     .Where(m => _searchableFieldTypes.Contains(m.Value.Type)
                         && !m.Key.EndsWith(Models.Constants.KeywordSuffix))
@@ -100,14 +100,6 @@ namespace Epinova.ElasticSearch.Core.Engine
             return SearchInternal(querySetup);
         }
 
-        /// <summary>
-        /// See https://www.elastic.co/guide/en/elasticsearch/reference/current/search-suggesters-completion.html
-        /// </summary>
-        public SuggestRequest Suggest(QuerySetup querySetup)
-        {
-            return new SuggestRequest(querySetup.SearchText, querySetup.Size);
-        }
-
         internal RequestBase MoreLikeThis(QuerySetup setup)
         {
             return new MoreLikeThisRequest(setup);
@@ -130,7 +122,7 @@ namespace Epinova.ElasticSearch.Core.Engine
             request.Query.SearchText = setup.SearchText.ToLower();
 
             if (setup.SearchFields.Count == 0)
-                setup.SearchFields.AddRange(GetMappedFields(Language.GetLanguageCode(setup.Language), setup.IndexName));
+                setup.SearchFields.AddRange(GetMappedFields(Language.GetLanguageCode(setup.Language), setup.IndexName, setup.SearchType));
 
             if (Log.IsDebugEnabled())
             {
@@ -141,7 +133,11 @@ namespace Epinova.ElasticSearch.Core.Engine
             SetupAttachmentFields(setup);
             SetupSourceFields(request, setup);
 
-            if (setup.IsWildcard)
+            if (setup.IsGetQuery)
+            {
+                request.Query.Bool.Must.Add(new MatchAll());
+            }
+            else if(setup.IsWildcard)
             {
                 setup.SearchFields.ForEach(field =>
                     request.Query.Bool.Should.Add(new Wildcard(field, request.Query.SearchText)));
@@ -328,7 +324,7 @@ namespace Epinova.ElasticSearch.Core.Engine
 
         private static void SetupFilters(QuerySetup setup, QueryRequest request)
         {
-            var filterQuery = new NestedBoolQuery(new BoolQuery());
+            var filterQuery = new NestedBoolQuery();
 
             // Filter away excluded types
             if (setup.ExcludedTypes.Count > 0)
@@ -336,9 +332,7 @@ namespace Epinova.ElasticSearch.Core.Engine
                 filterQuery.Bool.MustNot.AddRange(setup.ExcludedTypes.Select(e => new MatchSimple(DefaultFields.Types, e.GetTypeName().ToLower())));
             }
 
-            Dictionary<int, bool> excludedRoots = GetExcludedRoots(setup);
-
-            foreach (var ex in excludedRoots)
+            foreach (var ex in GetExcludedRoots(setup))
             {
                 filterQuery.Bool.MustNot.Add(new MatchSimple(DefaultFields.Id, ex.Key.ToString()));
 
@@ -355,13 +349,34 @@ namespace Epinova.ElasticSearch.Core.Engine
 
             // Filter on ranges
             if (setup.Ranges.Count > 0)
-                request.Query.Bool.Must.AddRange(setup.Ranges);
+            {
+                request.Query.Bool.Filter.AddRange(setup.Ranges);
+            }
 
             // Filter on root-id
             if (setup.RootId != 0)
             {
                 var term = new Term(DefaultFields.Path, Convert.ToString(setup.RootId), true);
                 filterQuery.Bool.Must.Add(term);
+            }
+
+            // Filter on ACL
+            if (setup.AppendAclFilters && setup.AclPrincipal != null)
+            {
+                var boolQuery = new NestedBoolQuery();
+
+                foreach (var role in setup.AclPrincipal.RoleList)
+                {
+                    var roleTerm = new MatchSimple(DefaultFields.Acl, $"R:{role}");
+                    boolQuery.Bool.Should.Add(roleTerm);
+                }
+
+                var userTerm = new MatchSimple(DefaultFields.Acl, $"U:{setup.AclPrincipal.Name}");
+                boolQuery.Bool.Should.Add(userTerm);
+
+                boolQuery.Bool.MinimumNumberShouldMatch = 1;
+
+                request.Query.Bool.Filter.Add(boolQuery);
             }
 
             if (setup.FilterGroups.Count > 0)
@@ -451,10 +466,10 @@ namespace Epinova.ElasticSearch.Core.Engine
                 }
             }
 
-            request.Query.Bool.Filter.Add(filterQuery);
+            if(filterQuery.HasAnyValues())
+                request.Query.Bool.Filter.Add(filterQuery);
 
             AppendDefaultFilters(request.Query, setup.Type);
-
 
             if (request.Query.Bool.Should.Count > 1 && request.Query.Bool.Must.Count == 0)
                 request.Query.Bool.MinimumNumberShouldMatch = 1;
@@ -520,11 +535,13 @@ namespace Epinova.ElasticSearch.Core.Engine
 
             foreach (KeyValuePair<string, MappingType> field in sortedFields)
             {
+                var key = field.Key;
                 if (field.Value == MappingType.Text)
                 {
-                    var raw = String.Concat(field.Key, Models.Constants.KeywordSuffix);
-                    aggregations.Add(raw, new Bucket(raw));
+                    key = String.Concat(key, Models.Constants.KeywordSuffix);
                 }
+
+                aggregations.Add(key, new Bucket(key));
             }
 
             return aggregations;

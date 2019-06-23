@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using System;
+using Newtonsoft.Json;
 
 namespace Epinova.ElasticSearch.Core.Models.Query
 {
@@ -14,11 +15,15 @@ namespace Epinova.ElasticSearch.Core.Models.Query
                     Completion = new Completion
                     {
                         Field = DefaultFields.Suggest,
+                        SkipDuplicates = Server.Info.Version >= new Version(6, 1) ? (bool?)true : null,
                         Size = size > 0 ? size : 5
                     }
                 }
             };
         }
+
+        [JsonProperty(JsonNames.Source)]
+        public bool Source => false;
 
         [JsonIgnore]
         public override int From { get; internal set; }

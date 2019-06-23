@@ -1,6 +1,6 @@
 [![Build status](https://ci.appveyor.com/api/projects/status/vhaehgrviq4u92ha/branch/master?svg=true)](https://ci.appveyor.com/project/Epinova_AppVeyor_Team/epinova-elasticsearch/branch/master)
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=Epinova_Epinova.Elasticsearch&metric=alert_status)](https://sonarcloud.io/dashboard?id=Epinova_Epinova.Elasticsearch)
-![Tests](https://img.shields.io/appveyor/tests/Epinova_AppVeyor_Team/epinova-elasticsearch.svg)
+![Tests](https://img.shields.io/appveyor/tests/Epinova_AppVeyor_Team/epinova-elasticsearch/master.svg)
 
 
 
@@ -40,13 +40,17 @@ A search plugin for Episerver CMS and Commerce
 * Compound word token filter
 * Utilize aliases for better downtime management
 
+## Version convention
+
+* Major version reflects Episerver version
+* Minor version reflects Elasticsearch version
 
 # Requirements
 
 * .NET 4.6.1+
 * Episerver CMS 11+
 * Episerver Commerce 11.5+
-* Elasticsearch >5.1.1 && <6
+* Elasticsearch 5.6+
 * Ingest Attachment Processor Plugin
 
 # Usage
@@ -395,6 +399,20 @@ var query = service
    .Search<PageData>("foo")
    .FilterMustNot(x => x.Title, "bar");
 ```
+&nbsp;
+
+# ACL
+
+To filter on the current users ACL, use `FilterByACL`
+
+```csharp
+var query = service
+   .Search<PageData>("foo")
+   .FilterByACL();
+```
+
+`EPiServer.Security.PrincipalInfo.Current` will be used by default, but a custom `PrincipalInfo` can be supplied if needed. 
+
 &nbsp;
 
 

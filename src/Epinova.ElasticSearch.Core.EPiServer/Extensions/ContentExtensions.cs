@@ -429,6 +429,12 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Extensions
                 dictionary.Add(DefaultFields.Created, trackable.Created);
                 dictionary.Add(DefaultFields.Changed, trackable.Changed);
             }
+
+            if (content is ISecurable securable && securable.GetSecurityDescriptor() is IContentSecurityDescriptor acl)
+            {
+                var entries = acl.Entries.Select(a => $"{a.EntityType.ToString()[0]}:{a.Name}");
+                dictionary.Add(DefaultFields.Acl, entries);
+            }
         }
 
         private static Type GetContentType(IContent content)
@@ -562,7 +568,9 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Extensions
                 if (String.IsNullOrWhiteSpace(indexName))
                     indexName = ElasticSearchSettings.GetDefaultIndexName(language);
 
-                string uri = $"{ElasticSearchSettings.Host}/{indexName}/_mapping/{typeof(IndexItem).GetTypeName()}";
+                var uri = $"{ElasticSearchSettings.Host}/{indexName}/_mapping/{typeof(IndexItem).GetTypeName()}";
+                if (Server.Info.Version.Major >= 7)
+                    uri += "?include_type_name=true";
 
                 Logger.Debug("Update mapping:\n" + JToken.Parse(json).ToString(Formatting.Indented));
 
@@ -654,8 +662,10 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Extensions
                 }
 
                 json = JsonConvert.SerializeObject(mapping, jsonSettings);
-                byte[] data = Encoding.UTF8.GetBytes(json);
-                string uri = $"{ElasticSearchSettings.Host}/{indexName}/_mapping/{typeof(IndexItem).GetTypeName()}";
+                var data = Encoding.UTF8.GetBytes(json);
+                var uri = $"{ElasticSearchSettings.Host}/{indexName}/_mapping/{typeof(IndexItem).GetTypeName()}";
+                if (Server.Info.Version.Major >= 7)
+                    uri += "?include_type_name=true";
 
                 Logger.Debug("Update mapping:\n" + JToken.Parse(json).ToString(Formatting.Indented));
 
@@ -762,7 +772,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Extensions
                 if (value is XhtmlString xhtml)
                 {
                     isString = true;
-                    string indexText = TextUtil.StripHtmlAndEntities(value.ToString());
+                    string indexText = TextUtil.StripHtml(value.ToString());
 
                     IPrincipal principal = HostingEnvironment.IsHosted
                         ? PrincipalInfo.AnonymousPrincipal

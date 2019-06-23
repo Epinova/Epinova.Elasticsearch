@@ -41,6 +41,9 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Services
             string indexName = GetIndexName(languageId, selectedIndex);
 
             string uri = $"{_elasticSearchSettings.Host}/{indexName}/_search?q={query}&size={size}";
+            if (Server.Info.Version.Major >= 7)
+                uri += "&rest_total_hits_as_int=true";
+
             string response = HttpClientHelper.GetString(new Uri(uri));
             dynamic parsedResponse = JObject.Parse(response);
             JArray hits = parsedResponse.hits.hits;
@@ -52,6 +55,8 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Services
         {
             string indexName = GetIndexName(languageId, selectedIndex);
             string uri = $"{_elasticSearchSettings.Host}/{indexName}/_search";
+            if (Server.Info.Version.Major >= 7)
+                uri += "?rest_total_hits_as_int=true";
 
             object query = CreateTypeQuery(searchText);
             string json = JsonConvert.SerializeObject(query, new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore });
