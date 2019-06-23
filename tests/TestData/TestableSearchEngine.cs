@@ -1,10 +1,10 @@
 ﻿using System.Globalization;
 using System.IO;
-using Newtonsoft.Json;
 using Epinova.ElasticSearch.Core.Engine;
 using Epinova.ElasticSearch.Core.Models;
 using Epinova.ElasticSearch.Core.Models.Query;
 using Epinova.ElasticSearch.Core.Settings;
+using Newtonsoft.Json;
 
 namespace TestData
 {

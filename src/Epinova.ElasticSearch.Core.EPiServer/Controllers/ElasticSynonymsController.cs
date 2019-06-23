@@ -1,14 +1,14 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Web.Mvc;
 using Epinova.ElasticSearch.Core.EPiServer.Contracts;
 using Epinova.ElasticSearch.Core.EPiServer.Controllers.Abstractions;
 using Epinova.ElasticSearch.Core.EPiServer.Models;
 using Epinova.ElasticSearch.Core.EPiServer.Models.ViewModels;
+using Epinova.ElasticSearch.Core.Settings;
 using Epinova.ElasticSearch.Core.Utilities;
 using EPiServer.DataAbstraction;
-using System.Collections.Generic;
-using Epinova.ElasticSearch.Core.Settings;
 
 namespace Epinova.ElasticSearch.Core.EPiServer.Controllers
 {
@@ -48,7 +48,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Controllers
                     .Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries)
                     .Select(w => w.Trim()));
 
-                if(!s.TwoWay && !s.MultiWord)
+                if (!s.TwoWay && !s.MultiWord)
                     synonymFrom += "=>" + synonymFrom;
 
                 return s.From == synonymFrom && s.To == synonym.To && s.TwoWay == synonym.TwoWay && s.MultiWord == synonym.MultiWord;

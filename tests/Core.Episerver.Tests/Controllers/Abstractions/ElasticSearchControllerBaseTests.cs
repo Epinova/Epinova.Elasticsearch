@@ -1,15 +1,14 @@
 ﻿using System.Collections.Generic;
 using System.Globalization;
-using EPiServer.DataAbstraction;
-using Moq;
-using Xunit;
-using Epinova.ElasticSearch.Core.Settings;
+using System.Web.Mvc;
+using System.Web.Routing;
 using Epinova.ElasticSearch.Core.Admin;
 using Epinova.ElasticSearch.Core.EPiServer.Controllers.Abstractions;
 using Epinova.ElasticSearch.Core.Models.Admin;
-using System.Web.Mvc;
-using System.Web.Routing;
-using EPiServer.Globalization;
+using Epinova.ElasticSearch.Core.Settings;
+using EPiServer.DataAbstraction;
+using Moq;
+using Xunit;
 
 namespace Core.Episerver.Tests.Controllers.Abstractions
 {

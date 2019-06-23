@@ -6,9 +6,9 @@ using System.Web.Mvc;
 using System.Web.Routing;
 using Epinova.ElasticSearch.Core.Attributes;
 using Epinova.ElasticSearch.Core.Settings.Configuration;
-using EPiServer.Logging;
 using EPiServer.Framework;
 using EPiServer.Framework.Initialization;
+using EPiServer.Logging;
 using IndexingConvention = Epinova.ElasticSearch.Core.Conventions.Indexing;
 using InitializationModule = EPiServer.Web.InitializationModule;
 
@@ -58,7 +58,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Initialization
         {
             try
             {
-                RouteTable.Routes.MapRoute("ElasticSearchAdmin", "ElasticSearchAdmin/{controller}/{action}", new { controller = "ElasticAdmin", action = "Index"}, new { controller = GetControllers() });
+                RouteTable.Routes.MapRoute("ElasticSearchAdmin", "ElasticSearchAdmin/{controller}/{action}", new { controller = "ElasticAdmin", action = "Index" }, new { controller = GetControllers() });
 
                 Logger.Information($"Initializing Elasticsearch.\n{Server.Info}\nPlugins:\n{String.Join("\n", Server.Plugins.Select(p => p.ToString()))}");
 

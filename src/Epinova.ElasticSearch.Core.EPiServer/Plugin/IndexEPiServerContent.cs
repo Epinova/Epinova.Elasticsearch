@@ -5,18 +5,18 @@ using System.Text;
 using Epinova.ElasticSearch.Core.Admin;
 using Epinova.ElasticSearch.Core.Contracts;
 using Epinova.ElasticSearch.Core.EPiServer.Contracts;
+using Epinova.ElasticSearch.Core.EPiServer.Extensions;
+using Epinova.ElasticSearch.Core.Events;
 using Epinova.ElasticSearch.Core.Extensions;
 using Epinova.ElasticSearch.Core.Models;
-using EPiServer.Logging;
 using Epinova.ElasticSearch.Core.Models.Bulk;
 using Epinova.ElasticSearch.Core.Settings;
 using EPiServer;
 using EPiServer.Core;
 using EPiServer.DataAbstraction;
+using EPiServer.Logging;
 using EPiServer.PlugIn;
 using EPiServer.Scheduler;
-using Epinova.ElasticSearch.Core.EPiServer.Extensions;
-using Epinova.ElasticSearch.Core.Events;
 
 namespace Epinova.ElasticSearch.Core.EPiServer.Plugin
 {
@@ -283,7 +283,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Plugin
 
         private string GetIndexName(string language)
         {
-            if(!String.IsNullOrEmpty(CustomIndexName))
+            if (!String.IsNullOrEmpty(CustomIndexName))
                 return _settings.GetCustomIndexName(CustomIndexName, language);
 
             return _settings.GetDefaultIndexName(language);

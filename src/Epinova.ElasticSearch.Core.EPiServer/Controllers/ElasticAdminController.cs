@@ -83,7 +83,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Controllers
                         _coreIndexer.UpdateMapping(indexType, indexType, indexName, lang.Key, true);
                         index.WaitForStatus();
                     }
-                    else if(_settings.CommerceEnabled)
+                    else if (_settings.CommerceEnabled)
                     {
                         indexName = _settings.GetCustomIndexName($"{indexConfig.Name}-{Constants.CommerceProviderName}", lang.Key);
                         index = new Index(_settings, indexName);

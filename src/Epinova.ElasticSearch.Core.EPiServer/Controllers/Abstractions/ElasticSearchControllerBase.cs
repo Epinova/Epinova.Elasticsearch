@@ -66,7 +66,8 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Controllers.Abstractions
         protected List<IndexInformation> Indices { get; }
 
         protected Dictionary<string, string> UniqueIndices =>
-            Indices.Select(i => {
+            Indices.Select(i =>
+            {
                 var lang = i.Index.ToLower().Split('-').Last();
                 var nameWithoutLanguage = i.Index.Substring(0, i.Index.Length - lang.Length - 1);
                 return new

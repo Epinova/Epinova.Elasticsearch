@@ -9,12 +9,12 @@ using System.Threading;
 using System.Threading.Tasks;
 using Epinova.ElasticSearch.Core.Conventions;
 using Epinova.ElasticSearch.Core.Extensions;
-using EPiServer.Logging;
 using Epinova.ElasticSearch.Core.Models;
 using Epinova.ElasticSearch.Core.Models.Query;
 using Epinova.ElasticSearch.Core.Models.Serialization;
 using Epinova.ElasticSearch.Core.Settings;
 using Epinova.ElasticSearch.Core.Utilities;
+using EPiServer.Logging;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Aggregation = Epinova.ElasticSearch.Core.Models.Serialization.Aggregation;
@@ -205,7 +205,7 @@ namespace Epinova.ElasticSearch.Core.Engine
 
             bool IsDictionaryValue(JToken field)
             {
-                return field.Type == JTokenType.Object 
+                return field.Type == JTokenType.Object
                     && field.Children().OfType<JProperty>().Any();
             }
         }

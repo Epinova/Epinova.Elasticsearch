@@ -1,13 +1,13 @@
 ﻿using System.Collections.Generic;
 using System.Globalization;
 using Epinova.ElasticSearch.Core;
-using EPiServer.Core;
-using TestData;
-using Xunit;
 using Epinova.ElasticSearch.Core.EPiServer.Extensions;
-using Moq;
 using Epinova.ElasticSearch.Core.Models;
 using Epinova.ElasticSearch.Core.Models.Serialization;
+using EPiServer.Core;
+using Moq;
+using TestData;
+using Xunit;
 
 namespace Core.Episerver.Tests.Extensions
 {

@@ -52,7 +52,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Controllers
         [HttpPost]
         public ActionResult AddWord(string languageId, string word)
         {
-            if(!String.IsNullOrWhiteSpace(word))
+            if (!String.IsNullOrWhiteSpace(word))
                 _autoSuggestRepository.AddWord(languageId, word.Replace("|", String.Empty));
 
             return RedirectToAction("Index", new { languageId });

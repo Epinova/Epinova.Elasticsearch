@@ -8,14 +8,14 @@ using Epinova.ElasticSearch.Core.Contracts;
 using Epinova.ElasticSearch.Core.Conventions;
 using Epinova.ElasticSearch.Core.Enums;
 using Epinova.ElasticSearch.Core.Extensions;
-using EPiServer.Logging;
 using Epinova.ElasticSearch.Core.Models;
+using Epinova.ElasticSearch.Core.Models.Properties;
 using Epinova.ElasticSearch.Core.Models.Query;
+using Epinova.ElasticSearch.Core.Settings;
 using Epinova.ElasticSearch.Core.Utilities;
 using EPiServer.Core;
+using EPiServer.Logging;
 using EPiServer.ServiceLocation;
-using Epinova.ElasticSearch.Core.Settings;
-using Epinova.ElasticSearch.Core.Models.Properties;
 
 namespace Epinova.ElasticSearch.Core.Engine
 {
@@ -127,7 +127,7 @@ namespace Epinova.ElasticSearch.Core.Engine
             {
                 request.Query.Bool.Must.Add(new MatchAll());
             }
-            else if(setup.IsWildcard)
+            else if (setup.IsWildcard)
             {
                 setup.SearchFields.ForEach(field =>
                     request.Query.Bool.Should.Add(new Wildcard(field, request.Query.SearchText)));
@@ -481,10 +481,10 @@ namespace Epinova.ElasticSearch.Core.Engine
                 }
             }
 
-            if(filterQuery.HasAnyValues())
+            if (filterQuery.HasAnyValues())
                 request.Query.Bool.Filter.Add(filterQuery);
 
-            if(setup.ApplyDefaultFilters)
+            if (setup.ApplyDefaultFilters)
                 AppendDefaultFilters(request.Query, setup.Type);
 
             if (request.Query.Bool.Should.Count > 1 && request.Query.Bool.Must.Count == 0)

@@ -34,7 +34,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Services
 
         public List<InspectItem> Search(string languageId, string searchText, int size, string type = null, string selectedIndex = null)
         {
-            if(String.IsNullOrWhiteSpace(searchText) && String.IsNullOrWhiteSpace(type))
+            if (String.IsNullOrWhiteSpace(searchText) && String.IsNullOrWhiteSpace(type))
                 return new List<InspectItem>();
 
             string query = CreateSearchQuery(searchText, type);

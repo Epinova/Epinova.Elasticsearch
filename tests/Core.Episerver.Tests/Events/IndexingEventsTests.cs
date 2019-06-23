@@ -1,12 +1,12 @@
-﻿using Epinova.ElasticSearch.Core.EPiServer.Events;
+﻿using System.Globalization;
+using Epinova.ElasticSearch.Core.EPiServer.Events;
 using EPiServer.Core;
-using Moq;
-using static TestData.Factory;
-using Xunit;
-using TestData;
 using EPiServer.DataAbstraction;
 using EPiServer.Security;
-using System.Globalization;
+using Moq;
+using TestData;
+using Xunit;
+using static TestData.Factory;
 
 namespace Core.Episerver.Tests.Events
 {

@@ -1,10 +1,10 @@
-﻿using EPiServer.Framework;
+﻿using System.Web;
+using System.Web.Mvc;
+using System.Web.WebPages;
+using EPiServer.Framework;
 using EPiServer.Framework.Initialization;
 using EPiServer.Initialization.Internal;
 using RazorGenerator.Mvc;
-using System.Web;
-using System.Web.Mvc;
-using System.Web.WebPages;
 
 namespace Epinova.ElasticSearch.Core.EPiServer.Initialization
 {

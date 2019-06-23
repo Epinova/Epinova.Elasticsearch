@@ -5,10 +5,10 @@ using System.Reflection;
 using Castle.DynamicProxy;
 using Epinova.ElasticSearch.Core.Contracts;
 using Epinova.ElasticSearch.Core.Conventions;
-using EPiServer.Logging;
 using EPiServer.Core;
 using EPiServer.Data.Entity;
 using EPiServer.DataAnnotations;
+using EPiServer.Logging;
 
 namespace Epinova.ElasticSearch.Core.Extensions
 {

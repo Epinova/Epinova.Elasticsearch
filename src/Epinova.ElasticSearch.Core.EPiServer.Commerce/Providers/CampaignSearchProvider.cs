@@ -1,6 +1,6 @@
 ﻿using Epinova.ElasticSearch.Core.EPiServer.Providers;
-using EPiServer.Core.Internal;
 using EPiServer.Core;
+using EPiServer.Core.Internal;
 using EPiServer.DataAbstraction;
 using EPiServer.ServiceLocation;
 using EPiServer.Shell.Search;

@@ -1,13 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Dynamic;
-using Epinova.ElasticSearch.Core.Extensions;
-using EPiServer.Logging;
-using Epinova.ElasticSearch.Core.Settings;
-using Epinova.ElasticSearch.Core.Utilities;
-using EPiServer.ServiceLocation;
 using System.Globalization;
 using System.Reflection;
+using Epinova.ElasticSearch.Core.Extensions;
+using Epinova.ElasticSearch.Core.Settings;
+using Epinova.ElasticSearch.Core.Utilities;
+using EPiServer.Logging;
+using EPiServer.ServiceLocation;
 
 namespace Epinova.ElasticSearch.Core.Models.Bulk
 {

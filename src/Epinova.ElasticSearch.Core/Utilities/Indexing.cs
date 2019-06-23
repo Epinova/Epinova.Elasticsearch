@@ -2,8 +2,8 @@
 using System.Net;
 using System.Text;
 using Epinova.ElasticSearch.Core.Admin;
-using EPiServer.Logging;
 using Epinova.ElasticSearch.Core.Settings;
+using EPiServer.Logging;
 
 namespace Epinova.ElasticSearch.Core.Utilities
 {

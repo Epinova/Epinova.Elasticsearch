@@ -15,14 +15,14 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Extensions
         /// </para> 
         /// </summary>
         public static Indexing IncludeProperty<T, TProperty>(this CustomPropertyConvention<T> instance, Expression<Func<T, TProperty>> fieldSelector)
-            where T: IContent
+            where T : IContent
         {
             string fieldName = ElasticSearchService<T>.GetFieldInfo(fieldSelector).Item1;
             Type type = typeof(T);
 
-            if(!Indexing.Instance.SearchableProperties.ContainsKey(type))
+            if (!Indexing.Instance.SearchableProperties.ContainsKey(type))
             {
-                Indexing.Instance.SearchableProperties.TryAdd(type, new []{ fieldName });
+                Indexing.Instance.SearchableProperties.TryAdd(type, new[] { fieldName });
             }
             else
             {

@@ -11,14 +11,14 @@ using Epinova.ElasticSearch.Core.Contracts;
 using Epinova.ElasticSearch.Core.Engine;
 using Epinova.ElasticSearch.Core.Enums;
 using Epinova.ElasticSearch.Core.Extensions;
-using EPiServer.Logging;
 using Epinova.ElasticSearch.Core.Models;
+using Epinova.ElasticSearch.Core.Models.Properties;
 using Epinova.ElasticSearch.Core.Models.Query;
 using Epinova.ElasticSearch.Core.Settings;
 using Epinova.ElasticSearch.Core.Utilities;
-using EPiServer.ServiceLocation;
-using Epinova.ElasticSearch.Core.Models.Properties;
+using EPiServer.Logging;
 using EPiServer.Security;
+using EPiServer.ServiceLocation;
 
 #pragma warning disable 693
 namespace Epinova.ElasticSearch.Core

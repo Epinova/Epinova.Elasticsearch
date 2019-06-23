@@ -1,11 +1,11 @@
 ﻿using System;
-using EPiServer.Logging;
+using System.Collections.Generic;
 using Epinova.ElasticSearch.Core.Models.Admin;
 using Epinova.ElasticSearch.Core.Settings;
 using Epinova.ElasticSearch.Core.Utilities;
+using EPiServer.Logging;
 using EPiServer.ServiceLocation;
 using Newtonsoft.Json;
-using System.Collections.Generic;
 
 namespace Epinova.ElasticSearch.Core
 {

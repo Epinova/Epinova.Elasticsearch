@@ -8,14 +8,12 @@ using Epinova.ElasticSearch.Core.Enums;
 using Epinova.ElasticSearch.Core.Extensions;
 using Epinova.ElasticSearch.Core.Models;
 using Epinova.ElasticSearch.Core.Models.Query;
+using EPiServer.Core;
 using Newtonsoft.Json;
 using TestData;
-using static TestData.Factory;
 using Xunit;
 using Xunit.Abstractions;
-using EPiServer.Security;
-using System.Security.Principal;
-using EPiServer.Core;
+using static TestData.Factory;
 
 namespace Core.Tests.Engine
 {

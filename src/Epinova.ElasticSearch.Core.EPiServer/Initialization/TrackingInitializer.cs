@@ -35,7 +35,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Initialization
                 Logger.Information($"Extending table with {Constants.TrackingFieldIndex} column");
 
                 DbHelper.ExecuteCommand(connectionString, $"ALTER TABLE {Constants.TrackingTable} ADD {Constants.TrackingFieldIndex} nvarchar(200)");
-                DbHelper.ExecuteCommand(connectionString, $"IF (OBJECT_ID('PK_ElasticTracking', 'U') IS NOT NULL) BEGIN ALTER TABLE {Constants.TrackingTable}  DROP CONSTRAINT [PK_ElasticTracking] END" );
+                DbHelper.ExecuteCommand(connectionString, $"IF (OBJECT_ID('PK_ElasticTracking', 'U') IS NOT NULL) BEGIN ALTER TABLE {Constants.TrackingTable}  DROP CONSTRAINT [PK_ElasticTracking] END");
             }
         }
 

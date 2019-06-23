@@ -1,14 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
-using Epinova.ElasticSearch.Core.Enums;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using Epinova.ElasticSearch.Core.Enums;
 using Epinova.ElasticSearch.Core.Extensions;
-using EPiServer.Logging;
 using Epinova.ElasticSearch.Core.Models.Mapping;
 using Epinova.ElasticSearch.Core.Models.Properties;
 using Epinova.ElasticSearch.Core.Settings;
+using EPiServer.Logging;
 using EPiServer.ServiceLocation;
 using Newtonsoft.Json;
 

@@ -1,6 +1,5 @@
 ﻿using System.Net.Http;
 using Epinova.ElasticSearch.Core.Conventions;
-using TestData;
 using Xunit;
 
 namespace Core.Tests.Conventions

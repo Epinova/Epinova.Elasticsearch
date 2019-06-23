@@ -1,12 +1,12 @@
-﻿using Epinova.ElasticSearch.Core.EPiServer.Contracts;
-using EPiServer.Logging;
+﻿using System.Globalization;
+using System.Linq;
+using Epinova.ElasticSearch.Core.EPiServer.Contracts;
 using EPiServer;
 using EPiServer.Core;
-using EPiServer.DataAccess;
-using EPiServer.ServiceLocation;
 using EPiServer.DataAbstraction;
-using System.Globalization;
-using System.Linq;
+using EPiServer.DataAccess;
+using EPiServer.Logging;
+using EPiServer.ServiceLocation;
 
 namespace Epinova.ElasticSearch.Core.EPiServer.Events
 {
@@ -162,13 +162,13 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Events
 
         private static bool IsPublishedToCheckedOutAction(SaveContentEventArgs args)
         {
-            return args.Transition.CurrentStatus == VersionStatus.Published 
+            return args.Transition.CurrentStatus == VersionStatus.Published
                 && args.Transition.NextStatus == VersionStatus.CheckedOut;
         }
 
         private static bool IsPublishAction(SaveContentEventArgs args)
         {
-            return args.MaskedAction == SaveAction.Publish 
+            return args.MaskedAction == SaveAction.Publish
                 && args.Transition.NextStatus == VersionStatus.Published;
         }
     }

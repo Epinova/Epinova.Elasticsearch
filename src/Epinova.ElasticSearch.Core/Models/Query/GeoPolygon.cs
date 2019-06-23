@@ -11,7 +11,7 @@ namespace Epinova.ElasticSearch.Core.Models.Query
         public GeoPolygon(string field, IEnumerable<GeoPoint> points)
         {
             Field = field;
-            Points= points;
+            Points = points;
         }
 
         [JsonIgnore]

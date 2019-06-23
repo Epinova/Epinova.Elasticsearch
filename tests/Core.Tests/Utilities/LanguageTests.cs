@@ -2,7 +2,6 @@
 using Epinova.ElasticSearch.Core.Enums;
 using Epinova.ElasticSearch.Core.Models.Mapping;
 using Epinova.ElasticSearch.Core.Utilities;
-using TestData;
 using Xunit;
 
 namespace Core.Tests.Utilities

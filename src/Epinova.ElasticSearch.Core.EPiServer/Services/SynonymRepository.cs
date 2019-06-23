@@ -5,13 +5,13 @@ using System.Linq;
 using System.Text;
 using Epinova.ElasticSearch.Core.EPiServer.Contracts;
 using Epinova.ElasticSearch.Core.EPiServer.Models;
-using EPiServer.Logging;
 using Epinova.ElasticSearch.Core.Settings;
 using Epinova.ElasticSearch.Core.Utilities;
 using EPiServer;
 using EPiServer.Core;
 using EPiServer.DataAccess;
 using EPiServer.Framework.Blobs;
+using EPiServer.Logging;
 using EPiServer.Security;
 using EPiServer.ServiceLocation;
 using Newtonsoft.Json;
@@ -39,7 +39,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Services
 
         public void SetSynonyms(string languageId, string analyzer, List<Synonym> synonymsToAdd, string index)
         {
-            if(String.IsNullOrWhiteSpace(index))
+            if (String.IsNullOrWhiteSpace(index))
                 index = _settings.GetDefaultIndexName(languageId);
 
             var indexing = new Indexing(_settings);
@@ -50,7 +50,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Services
                 .ToArray();
 
             if (synonymPairs.Length == 0)
-                synonymPairs = new[] {"example_from,example_to"};
+                synonymPairs = new[] { "example_from,example_to" };
 
             Logger.Information(
                 $"Adding {synonymsToAdd.Count} synonyms for language:{languageId} and analyzer:{analyzer}");
@@ -117,7 +117,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Services
         {
             var synonyms = new List<Synonym>();
 
-            if(String.IsNullOrWhiteSpace(index))
+            if (String.IsNullOrWhiteSpace(index))
                 index = _settings.GetDefaultIndexName(languageId);
 
             var indexing = new Indexing(_settings);
@@ -155,7 +155,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Services
 
             foreach (string synonym in parsedSynonyms)
             {
-                if(String.IsNullOrWhiteSpace(synonym))
+                if (String.IsNullOrWhiteSpace(synonym))
                     continue;
 
                 var arrowPos = synonym.IndexOf("=>");
@@ -166,7 +166,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Services
                 Logger.Debug("Synonym: " + synonym);
 
                 var pair = synonym.Split(splitToken, StringSplitOptions.None);
-                if(pair.Length > 1)
+                if (pair.Length > 1)
                 {
                     synonyms.Add(new Synonym
                     {
@@ -223,7 +223,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Services
 
             _contentRepository.Save(contentFile, SaveAction.Publish, AccessLevel.NoAccess);
 
-            if(Logger.IsDebugEnabled())
+            if (Logger.IsDebugEnabled())
             {
                 Logger.Debug("SaveBackup -> Name: " + contentFile.Name);
                 Logger.Debug("SaveBackup -> RouteSegment: " + contentFile.RouteSegment);

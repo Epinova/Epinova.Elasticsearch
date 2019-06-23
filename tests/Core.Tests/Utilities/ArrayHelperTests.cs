@@ -23,9 +23,9 @@ namespace Core.Tests.Utilities
 
         [Theory]
         [InlineData("foo")]
-        [InlineData(new [] { 1, 2, 3 })]
-        [InlineData(new [] { '1', '2', '3' })]
-        [InlineData(new [] { Double.MaxValue, Double.MinValue, Double.MaxValue })]
+        [InlineData(new[] { 1, 2, 3 })]
+        [InlineData(new[] { '1', '2', '3' })]
+        [InlineData(new[] { Double.MaxValue, Double.MinValue, Double.MaxValue })]
         public void ToArray_EnumerableType_ReturnsArray(object instance)
         {
             var result = (IEnumerable)ArrayHelper.ToArray(instance);

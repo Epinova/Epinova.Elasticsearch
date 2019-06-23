@@ -126,7 +126,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Services
             abandonedSuggestions.ToList().ForEach(n =>
             {
                 var content = GetAutoSuggest(n);
-                if(content != null)
+                if (content != null)
                     _contentRepository.Delete(content.ContentLink, true, AccessLevel.NoAccess);
             });
         }

@@ -1,8 +1,8 @@
 ﻿using System.Web.Mvc;
 using Epinova.ElasticSearch.Core.EPiServer.Contracts;
-using EPiServer;
 using Epinova.ElasticSearch.Core.EPiServer.Controllers;
 using Epinova.ElasticSearch.Core.EPiServer.Enums;
+using EPiServer;
 using EPiServer.Core;
 using Moq;
 using TestData;

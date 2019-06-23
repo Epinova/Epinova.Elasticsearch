@@ -6,18 +6,18 @@ using System.Web.Hosting;
 using Epinova.ElasticSearch.Core.Attributes;
 using Epinova.ElasticSearch.Core.Contracts;
 using Epinova.ElasticSearch.Core.Conventions;
+using Epinova.ElasticSearch.Core.EPiServer.Contracts;
 using Epinova.ElasticSearch.Core.EPiServer.Enums;
 using Epinova.ElasticSearch.Core.EPiServer.Extensions;
 using Epinova.ElasticSearch.Core.Extensions;
-using EPiServer.Logging;
 using Epinova.ElasticSearch.Core.Models;
 using Epinova.ElasticSearch.Core.Models.Bulk;
 using Epinova.ElasticSearch.Core.Settings;
 using EPiServer;
 using EPiServer.Core;
+using EPiServer.Logging;
 using EPiServer.ServiceLocation;
 using EPiServer.Web;
-using Epinova.ElasticSearch.Core.EPiServer.Contracts;
 
 namespace Epinova.ElasticSearch.Core.EPiServer
 {
@@ -201,7 +201,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer
             if (deleted)
                 return true;
 
-            if(IsPageWithInvalidLinkType(content))
+            if (IsPageWithInvalidLinkType(content))
                 return true;
 
             return false;
@@ -221,7 +221,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer
                 return true;
 
             var shortcutType = (PageShortcutType)linkTypeValue;
-            if(shortcutType != PageShortcutType.Normal && shortcutType != PageShortcutType.FetchData)
+            if (shortcutType != PageShortcutType.Normal && shortcutType != PageShortcutType.FetchData)
                 return true;
 
             return false;

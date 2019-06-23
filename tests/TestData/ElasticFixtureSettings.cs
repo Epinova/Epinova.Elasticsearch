@@ -1,7 +1,4 @@
-﻿using System;
-using Epinova.ElasticSearch.Core.Models;
-
-namespace TestData
+﻿namespace TestData
 {
     public static class ElasticFixtureSettings
     {

@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Epinova.ElasticSearch.Core.Enums;
 using EPiServer.Logging;
 using Newtonsoft.Json;
-using Epinova.ElasticSearch.Core.Enums;
 
 namespace Epinova.ElasticSearch.Core.Models.Mapping
 {

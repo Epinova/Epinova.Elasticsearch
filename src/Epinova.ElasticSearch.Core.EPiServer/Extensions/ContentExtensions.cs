@@ -10,11 +10,12 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Web.Hosting;
+using Castle.DynamicProxy;
 using Epinova.ElasticSearch.Core.Attributes;
 using Epinova.ElasticSearch.Core.Contracts;
 using Epinova.ElasticSearch.Core.Conventions;
+using Epinova.ElasticSearch.Core.EPiServer.Providers;
 using Epinova.ElasticSearch.Core.Extensions;
-using EPiServer.Logging;
 using Epinova.ElasticSearch.Core.Models;
 using Epinova.ElasticSearch.Core.Models.Mapping;
 using Epinova.ElasticSearch.Core.Settings;
@@ -22,16 +23,15 @@ using Epinova.ElasticSearch.Core.Utilities;
 using EPiServer;
 using EPiServer.Core;
 using EPiServer.Core.Html.StringParsing;
+using EPiServer.DataAccess.Internal;
 using EPiServer.Filters;
 using EPiServer.Framework.Blobs;
+using EPiServer.Logging;
 using EPiServer.Security;
 using EPiServer.ServiceLocation;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Indexing = Epinova.ElasticSearch.Core.Conventions.Indexing;
-using Castle.DynamicProxy;
-using Epinova.ElasticSearch.Core.EPiServer.Providers;
-using EPiServer.DataAccess.Internal;
 
 namespace Epinova.ElasticSearch.Core.EPiServer.Extensions
 {

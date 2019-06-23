@@ -7,5 +7,5 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Enums
         HideFromSearchProperty,
         Error,
         PartialError
-   }
+    }
 }

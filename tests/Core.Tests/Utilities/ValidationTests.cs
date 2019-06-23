@@ -41,7 +41,7 @@ namespace Core.Tests.Utilities
         [Fact]
         public void EnsureNotNullOrEmpty_ValidArray_DoesNotThrow()
         {
-            string[] instance = {"a"};
+            string[] instance = { "a" };
 
             instance.EnsureNotNullOrEmpty();
         }

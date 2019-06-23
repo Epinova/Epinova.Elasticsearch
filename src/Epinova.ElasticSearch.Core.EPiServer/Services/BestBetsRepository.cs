@@ -52,7 +52,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Services
             List<BestBet> bestBets = GetBestBets(languageId, index).ToList();
             BestBet target = bestBets.FirstOrDefault(b => b.Phrase == phrase && b.Id == id);
 
-            if(target == null)
+            if (target == null)
                 return;
 
             bestBets.Remove(target);

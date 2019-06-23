@@ -1,17 +1,14 @@
 ﻿using System.Collections.Generic;
-using System.Globalization;
+using System.Linq;
 using System.Web.Mvc;
+using Epinova.ElasticSearch.Core.Admin;
 using Epinova.ElasticSearch.Core.EPiServer.Controllers;
 using Epinova.ElasticSearch.Core.EPiServer.Models;
 using Epinova.ElasticSearch.Core.EPiServer.Models.ViewModels;
-using EPiServer.DataAbstraction;
-using Moq;
-using Xunit;
-using TestData;
-using Epinova.ElasticSearch.Core.Settings;
-using Epinova.ElasticSearch.Core.Admin;
 using Epinova.ElasticSearch.Core.Models.Admin;
-using System.Linq;
+using Moq;
+using TestData;
+using Xunit;
 
 namespace Core.Episerver.Tests.Controllers
 {
@@ -44,7 +41,7 @@ namespace Core.Episerver.Tests.Controllers
         [InlineData(null, null)]
         public void Add_MissingInput_DoesNothing(string from, string to)
         {
-            _controller.Add(new Synonym {From = from, To = to, TwoWay = false}, "", "", "");
+            _controller.Add(new Synonym { From = from, To = to, TwoWay = false }, "", "", "");
 
             _fixture.ServiceLocationMock.SynonymRepositoryMock.Verify(m => m.GetSynonyms("", null), Times.Never);
         }
@@ -56,7 +53,7 @@ namespace Core.Episerver.Tests.Controllers
         {
             _fixture.ServiceLocationMock.SynonymRepositoryMock.Invocations.Clear();
 
-           _controller.Add(new Synonym{From = from, To = to, TwoWay = twoway}, "", "", "");
+            _controller.Add(new Synonym { From = from, To = to, TwoWay = twoway }, "", "", "");
 
             _fixture.ServiceLocationMock.SynonymRepositoryMock
                 .Verify(m => m.SetSynonyms("", "", It.IsAny<List<Synonym>>(), ""), Times.Once);
