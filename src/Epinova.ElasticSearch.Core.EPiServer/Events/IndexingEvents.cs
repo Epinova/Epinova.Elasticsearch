@@ -59,6 +59,8 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Events
                 HandleSaveEvent(saveArgs);
                 return;
             }
+
+            Logger.Debug($"Event not handled '{e.GetType()}'");
         }
 
         internal static void UpdateIndex(object sender, ContentSecurityEventArg e)
