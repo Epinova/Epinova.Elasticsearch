@@ -78,24 +78,32 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Services
                 return Enumerable.Empty<BestBet>();
             }
 
-            using(var stream = backup.BinaryData.OpenRead())
+            try
             {
-                using(var reader = new StreamReader(stream))
+                using (var stream = backup.BinaryData.OpenRead())
                 {
-                    string raw = reader.ReadToEnd();
+                    using (var reader = new StreamReader(stream))
+                    {
+                        string raw = reader.ReadToEnd();
 
-                    Logger.Information($"Raw data:\n{raw}");
+                        Logger.Information($"Raw data:\n{raw}");
 
                     if(String.IsNullOrWhiteSpace(raw))
                     {
                         return Enumerable.Empty<BestBet>();
                     }
 
-                    return raw.Split(RowDelim[0])
-                        .Where(IsValidRow)
-                        .Select(b => ParseRow(b, languageId))
-                        .Where(b => b != null);
+                        return raw.Split(RowDelim[0])
+                            .Where(IsValidRow)
+                            .Select(b => ParseRow(b, languageId))
+                            .Where(b => b != null);
+                    }
                 }
+            }
+            catch (Exception ex)
+            {
+                Logger.Warning($"Failed to load BestBet file {backup?.Name}", ex);
+                return Enumerable.Empty<BestBet>();
             }
         }
 

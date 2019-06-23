@@ -861,41 +861,42 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Extensions
                 return null;
             }
 
-            string filePath = null;
-
             try
             {
-                if(content is MediaData mediaData && mediaData.BinaryData is FileBlob fileBlob)
+                if (content is MediaData mediaData)
                 {
-                    filePath = fileBlob.FilePath;
-                    if(SizeIsValid(fileBlob))
+                    string extension = Path.GetExtension(mediaData.RouteSegment ?? String.Empty).Trim(' ', '.');
+
+                    if (!Indexing.IncludedFileExtensions.Contains(extension.ToLower()))
                     {
-                        string extension = Path.GetExtension(fileBlob.FilePath ?? String.Empty).Trim(' ', '.');
-                        if(!Indexing.IncludedFileExtensions.Contains(extension.ToLower()))
+                        extensionNotAllowed = true;
+                        return null;
+                    }
+
+                    if (IsBinary(extension))
+                    {
+                        Logger.Information($"Extension '{extension}' is a binary type, skipping its contents");
+                        return String.Empty;
+                    }
+
+                    using (var memoryStream = new MemoryStream())
+                    {
+                        mediaData.BinaryData.OpenRead().CopyTo(memoryStream);
+                        var bytes = memoryStream.ToArray();
+
+                        if (BlobIsTooLarge(bytes))
                         {
-                            extensionNotAllowed = true;
+                            Logger.Information($"MediaData with id {content.ContentLink} and size {bytes.Length} was larger than configured maxsize {ElasticSearchSettings.DocumentMaxSize} bytes");
                             return null;
                         }
 
-                        if(IsBinary(extension))
-                        {
-                            Logger.Information($"Extension '{extension}' is a binary type, skipping its contents");
-                            return String.Empty;
-                        }
-
-                        using(var memoryStream = new MemoryStream())
-                        {
-                            fileBlob.OpenRead()
-                                .CopyTo(memoryStream);
-                            return Convert.ToBase64String(memoryStream.ToArray());
-                        }
+                        return Convert.ToBase64String(bytes);
                     }
                 }
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
-                Logger.Warning($"Could not index MediaData with id {content.ContentLink}. The blob is probably missing on disk. Path: {filePath}");
-                Logger.Debug("Details", ex);
+                Logger.Warning($"Could not index MediaData with id {content.ContentLink}.", ex);
                 extensionNotAllowed = true;
                 return null;
             }
@@ -919,10 +920,12 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Extensions
             return ElasticSearchSettings.GetDefaultIndexName(Language.GetLanguageCode(service.SearchLanguage));
         }
 
-        private static bool SizeIsValid(FileBlob fileBlob)
+        private static bool BlobIsTooLarge(in byte[] bytes)
         {
-            return ElasticSearchSettings.DocumentMaxSize <= 0
-                || new FileInfo(fileBlob.FilePath).Length <= ElasticSearchSettings.DocumentMaxSize;
+            if (ElasticSearchSettings.DocumentMaxSize <= 0)
+                return true;
+
+            return bytes.Length <= ElasticSearchSettings.DocumentMaxSize;
         }
     }
 }
