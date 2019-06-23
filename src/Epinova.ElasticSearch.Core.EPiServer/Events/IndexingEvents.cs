@@ -50,66 +50,15 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Events
             // On Move, handle all descendents as well
             if (e is MoveContentEventArgs moveArgs)
             {
-                Logger.Debug("Move-event, update index including descendents");
-
-                var isDelete = ContentReference.WasteBasket.CompareToIgnoreWorkID(moveArgs.TargetLink);
-                var language = GetLanguage(moveArgs.Content);
-                var contentList = ContentLoader.GetItems(moveArgs.Descendents, language).ToList();
-                contentList.Insert(0, moveArgs.Content);
-
-                foreach (var content in contentList)
-                {
-                    if (isDelete)
-                        DeleteFromIndex(content.ContentLink);
-                    else
-                        EPiIndexer.Update(content);
-                }
-
+                HandleMoveEvent(moveArgs);
                 return;
             }
 
-            var saveArgs = e as SaveContentEventArgs;
-            if (saveArgs == null)
-                return;
-
-            // Publish
-            if (saveArgs.MaskedAction == SaveAction.Publish && saveArgs.Transition.NextStatus == VersionStatus.Published)
+            if (e is SaveContentEventArgs saveArgs)
             {
-                Logger.Debug("Publish-event, update index");
-                EPiIndexer.Update(e.Content);
+                HandleSaveEvent(saveArgs);
                 return;
             }
-
-            // Published => CheckedOut
-            if (saveArgs.Transition.CurrentStatus == VersionStatus.Published && saveArgs.Transition.NextStatus == VersionStatus.CheckedOut)
-            {
-                Logger.Debug("Save-event, previously published, do nothing");
-                return;
-            }
-
-            // CheckedOut => CheckedOut
-            if (saveArgs.Transition.CurrentStatus == VersionStatus.CheckedOut && saveArgs.Transition.NextStatus == VersionStatus.CheckedOut)
-            {
-                var published = VersionRepository.LoadPublished(e.ContentLink);
-                if (published == null)
-                {
-                    Logger.Debug("Save-event, previously unpublished, update index");
-                    EPiIndexer.Update(e.Content);
-                    return;
-                }
-
-                Logger.Debug("Save-event, previously published, do nothing");
-                return;
-            }
-
-            // Create
-            if (saveArgs.Transition.CurrentStatus == VersionStatus.NotCreated)
-            {
-                Logger.Debug("Create-event, do nothing");
-                return;
-            }
-
-            Logger.Information($"Event was not handled. Action {saveArgs.Action}, transition {saveArgs.Transition.CurrentStatus}=>{saveArgs.Transition.NextStatus}");
         }
 
         internal static void UpdateIndex(object sender, ContentSecurityEventArg e)
@@ -138,6 +87,87 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Events
             }
 
             return CultureInfo.CurrentCulture;
+        }
+
+        private static void HandleMoveEvent(MoveContentEventArgs moveArgs)
+        {
+            Logger.Debug("Move-event, update index including descendents");
+
+            var isDelete = ContentReference.WasteBasket.CompareToIgnoreWorkID(moveArgs.TargetLink);
+            var language = GetLanguage(moveArgs.Content);
+            var contentList = ContentLoader.GetItems(moveArgs.Descendents, language).ToList();
+            contentList.Insert(0, moveArgs.Content);
+
+            foreach (var content in contentList)
+            {
+                if (isDelete)
+                    DeleteFromIndex(content.ContentLink);
+                else
+                    EPiIndexer.Update(content);
+            }
+        }
+
+        private static void HandleSaveEvent(SaveContentEventArgs args)
+        {
+            if (IsPublishAction(args))
+            {
+                Logger.Debug("Publish-event, update index");
+                EPiIndexer.Update(args.Content);
+                return;
+            }
+
+            if (IsPublishedToCheckedOutAction(args))
+            {
+                Logger.Debug("Save-event, previously published, do nothing");
+                return;
+            }
+
+            if (IsSaveAction(args, out ContentVersion published))
+            {
+                if (published == null)
+                {
+                    Logger.Debug("Save-event, previously unpublished, update index");
+                    EPiIndexer.Update(args.Content);
+                    return;
+                }
+
+                Logger.Debug("Save-event, previously published, do nothing");
+                return;
+            }
+
+            // Create
+            if (args.Transition.CurrentStatus == VersionStatus.NotCreated)
+            {
+                Logger.Debug("Create-event, do nothing");
+                return;
+            }
+
+            Logger.Information($"Save-event was not handled. Action {args.Action}, transition {args.Transition.CurrentStatus}=>{args.Transition.NextStatus}");
+        }
+
+        private static bool IsSaveAction(SaveContentEventArgs args, out ContentVersion published)
+        {
+            if (args.Transition.CurrentStatus == VersionStatus.CheckedOut
+                && args.Transition.NextStatus == VersionStatus.CheckedOut)
+            {
+                published = VersionRepository.LoadPublished(args.ContentLink);
+                return true;
+            }
+
+            published = null;
+            return false;
+        }
+
+        private static bool IsPublishedToCheckedOutAction(SaveContentEventArgs args)
+        {
+            return args.Transition.CurrentStatus == VersionStatus.Published 
+                && args.Transition.NextStatus == VersionStatus.CheckedOut;
+        }
+
+        private static bool IsPublishAction(SaveContentEventArgs args)
+        {
+            return args.MaskedAction == SaveAction.Publish 
+                && args.Transition.NextStatus == VersionStatus.Published;
         }
     }
 }
