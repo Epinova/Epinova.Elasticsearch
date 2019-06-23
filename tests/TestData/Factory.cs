@@ -45,7 +45,18 @@ namespace TestData
                 .Setup(m => m.IsPublished(It.IsAny<IContent>(), It.IsAny<PublishedStateCondition>()))
                 .Returns(true);
 
-            var contentPathMock = new Mock<ContentPathDB>(new Mock<IDatabaseExecutor>().Object);
+            var pathLinks = new[]
+            {
+                Factory.GetPageReference(),
+                Factory.GetPageReference(),
+                Factory.GetPageReference()
+            };
+            var dbExecMock = new Mock<IDatabaseExecutor>();
+            dbExecMock
+                .Setup(m => m.Execute<ContentPath>(It.IsAny<Func<ContentPath>>()))
+                .Returns(new ContentPath(pathLinks));
+
+            var contentPathMock = new Mock<ContentPathDB>(dbExecMock.Object);
             var bestbetMock = new Mock<IBestBetsRepository>();
             var boostMock = new Mock<IBoostingRepository>();
             boostMock
@@ -174,7 +185,7 @@ namespace TestData
             int parentId = 0,
             CultureInfo language = null) where T : PageData
         {
-            var securityDescriptor = new Mock<ISecurityDescriptor>();
+            var securityDescriptor = new Mock<IContentSecurityDescriptor>();
             securityDescriptor.Setup(m => m.HasAccess(It.IsAny<IPrincipal>(), It.IsAny<AccessLevel>())).Returns(userHasAccess);
 
             if(language == null)
@@ -204,6 +215,7 @@ namespace TestData
                 instance.Setup(m => m.ContentLink).Returns(ContentReference.WasteBasket);
             }
 
+            instance.Object.PageTypeName = typeof(T).Name;
             instance.Object.LinkType = shortcutType;
             return instance.Object;
         }

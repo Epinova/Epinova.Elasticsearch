@@ -25,7 +25,6 @@ using EPiServer.Core;
 using EPiServer.Core.Html.StringParsing;
 using EPiServer.DataAccess.Internal;
 using EPiServer.Filters;
-using EPiServer.Framework.Blobs;
 using EPiServer.Logging;
 using EPiServer.Security;
 using EPiServer.ServiceLocation;
