@@ -42,7 +42,9 @@ namespace Epinova.ElasticSearch.Core.Utilities
             }
 
             if (settings.ClientTimeoutSeconds > 0)
+            {
                 client.Timeout = TimeSpan.FromSeconds(settings.ClientTimeoutSeconds);
+            }
 
             return client;
         }

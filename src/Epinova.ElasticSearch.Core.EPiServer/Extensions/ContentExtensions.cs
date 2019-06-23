@@ -121,9 +121,13 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Extensions
             foreach (SearchHit hit in results.Hits)
             {
                 if (ShouldAdd(hit, requirePageTemplate, out T content, providerNames, ignoreFilters))
+                {
                     hits.Add(new ContentSearchHit<T>(content, hit.CustomProperties, hit.QueryScore, hit.Highlight));
+                }
                 else
+                {
                     results.TotalHits--;
+                }
             }
 
             if (service.TrackSearch)
@@ -143,7 +147,9 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Extensions
             return await Task.Run(() =>
             {
                 if (!ShouldAdd(hit, requirePageTemplate, out T content, providerNames, false))
+                {
                     return null;
+                }
 
                 return new ContentSearchHit<T>(content, hit.CustomProperties, hit.QueryScore, hit.Highlight);
             }).ConfigureAwait(false);
@@ -185,12 +191,16 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Extensions
                 if (!String.IsNullOrEmpty(hit.Lang))
                 {
                     if (ContentLoader.TryGet(contentLink, CultureInfo.GetCultureInfo(hit.Lang), out T content))
+                    {
                         return content;
+                    }
                 }
                 else
                 {
                     if (ContentLoader.TryGet(contentLink, out T content))
+                    {
                         return content;
+                    }
                 }
             }
 
@@ -200,19 +210,27 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Extensions
         private static bool ShouldFilter(IContent content, bool requirePageTemplate, bool ignoreFilters)
         {
             if (content == null)
+            {
                 return true;
+            }
 
             if (ignoreFilters)
+            {
                 return false;
+            }
 
             if (Indexer.ShouldHideFromSearch(content))
+            {
                 return true;
+            }
 
             var accessFilter = new FilterAccess();
             var publishedFilter = new FilterPublished();
 
             if (publishedFilter.ShouldFilter(content) || accessFilter.ShouldFilter(content))
+            {
                 return true;
+            }
 
             var templateFilter = new FilterTemplate();
 
@@ -225,10 +243,14 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Extensions
 
             // Commerce doesn't support ContentPath
             if (contentLink.ProviderName == ProviderConstants.CatalogProviderKey)
+            {
                 return GetPathTheHardWay(contentLink);
+            }
 
             if (contentPath?.Any() != true)
+            {
                 return null;
+            }
 
             return contentPath
                 .ToString()
@@ -246,9 +268,13 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Extensions
                 path.Add(current.ID);
 
                 if (ContentLoader.TryGet(current, out IContent content))
+                {
                     current = content.ParentLink;
+                }
                 else
+                {
                     current = null;
+                }
             }
 
             path.Reverse();
@@ -265,7 +291,9 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Extensions
             var dictionary = (IDictionary<string, object>)indexItem;
 
             if (!TryAddAttachmentData(content, dictionary))
+            {
                 return null;
+            }
 
             AppendDefaultFields(content, dictionary, contentType);
             AppendIndexableProperties(indexItem, content, contentType, dictionary);
@@ -321,7 +349,9 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Extensions
                     }
 
                     if (returnType == typeof(CategoryList))
+                    {
                         returnType = typeof(int[]);
+                    }
 
                     if (value != null)
                     {
@@ -373,10 +403,14 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Extensions
         {
             string attachmentData = GetAttachmentData(content, out bool extensionNotAllowed);
             if (extensionNotAllowed)
+            {
                 return false;
+            }
 
             if (attachmentData != null)
+            {
                 dictionary.Add(DefaultFields.AttachmentData, attachmentData);
+            }
 
             return true;
         }
@@ -388,7 +422,10 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Extensions
             dictionary.Add(DefaultFields.Id, content.ContentLink.ID);
             dictionary.Add(DefaultFields.Indexed, DateTime.Now);
             if (content.ParentLink != null)
+            {
                 dictionary.Add(DefaultFields.ParentLink, content.ParentLink.ID);
+            }
+
             dictionary.Add(DefaultFields.Name, content.Name);
             dictionary.Add(DefaultFields.Type, typeName);
             dictionary.Add(DefaultFields.Types, contentType.GetInheritancHierarchyArray());
@@ -422,7 +459,10 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Extensions
         {
             Type contentType = content.GetUnproxiedType();
             if (contentType?.FullName?.StartsWith("Castle.") ?? false)
+            {
                 contentType = ProxyUtil.GetUnproxiedInstance(content).GetType().BaseType;
+            }
+
             return contentType;
         }
 
@@ -502,7 +542,9 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Extensions
         private static object SerializeValue(object value)
         {
             if (value == null)
+            {
                 return null;
+            }
 
             return Serialization.Serialize(value);
         }
@@ -547,11 +589,15 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Extensions
                 var data = Encoding.UTF8.GetBytes(json);
 
                 if (String.IsNullOrWhiteSpace(indexName))
+                {
                     indexName = ElasticSearchSettings.GetDefaultIndexName(language);
+                }
 
                 var uri = $"{ElasticSearchSettings.Host}/{indexName}/_mapping/{typeof(IndexItem).GetTypeName()}";
                 if (Server.Info.Version.Major >= 7)
+                {
                     uri += "?include_type_name=true";
+                }
 
                 Logger.Debug("Update mapping:\n" + JToken.Parse(json).ToString(Formatting.Indented));
 
@@ -587,7 +633,9 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Extensions
             try
             {
                 if (String.IsNullOrWhiteSpace(indexName))
+                {
                     indexName = ElasticSearchSettings.GetDefaultIndexName(language);
+                }
 
                 // Get mappings from server
                 mapping = Mapping.GetIndexMapping(typeof(IndexItem), language, indexName);
@@ -646,7 +694,9 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Extensions
                 var data = Encoding.UTF8.GetBytes(json);
                 var uri = $"{ElasticSearchSettings.Host}/{indexName}/_mapping/{typeof(IndexItem).GetTypeName()}";
                 if (Server.Info.Version.Major >= 7)
+                {
                     uri += "?include_type_name=true";
+                }
 
                 Logger.Debug("Update mapping:\n" + JToken.Parse(json).ToString(Formatting.Indented));
 
@@ -713,7 +763,9 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Extensions
 
                 object value = p.GetValue(content);
                 if (value == null)
+                {
                     return null;
+                }
 
                 // Store IEnumerables as arrays
                 if (ArrayHelper.IsArrayCandidate(p))
@@ -736,7 +788,9 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Extensions
                         IContent areaItemContent = item.GetContent();
 
                         if (Indexer.IsExludedType(areaItemContent))
+                        {
                             continue;
+                        }
 
                         Type areaItemType = GetContentType(areaItemContent);
                         List<PropertyInfo> indexableProperties = areaItemType.GetIndexableProps(false);
@@ -764,7 +818,9 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Extensions
                     // occurs when a page A have another page B in XhtmlString and page B as well have page A in XhtmlString
                     // or if page A have another page B in XhtmlString, page B have another page C in XhtmlString and page C have page A in XhtmlString
                     if (ignoreXhtmlStringContentFragments)
+                    {
                         return indexText.ToString();
+                    }
 
                     foreach (ContentFragment fragment in xhtml.GetFragments(principal))
                     {
@@ -789,7 +845,9 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Extensions
                 }
 
                 if (p.PropertyType.IsEnum)
+                {
                     return (int)value;
+                }
 
                 // Local block
                 if (typeof(BlockData).IsAssignableFrom(p.PropertyType))
@@ -817,7 +875,9 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Extensions
             extensionNotAllowed = false;
 
             if (!ElasticSearchSettings.EnableFileIndexing)
+            {
                 return null;
+            }
 
             string filePath = null;
 

@@ -21,7 +21,9 @@ namespace Epinova.ElasticSearch.Core.Models.Query
             {
                 string tag = Conventions.Indexing.HighlightTag;
                 if (String.IsNullOrEmpty(tag))
+                {
                     return new[] { String.Empty };
+                }
 
                 return new[] { $"<{tag}>" };
             }
@@ -34,7 +36,9 @@ namespace Epinova.ElasticSearch.Core.Models.Query
             {
                 string tag = Conventions.Indexing.HighlightTag;
                 if (String.IsNullOrEmpty(tag))
+                {
                     return new[] { String.Empty };
+                }
 
                 return new[] { $"</{tag}>" };
             }

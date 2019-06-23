@@ -35,14 +35,18 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Services
         public List<InspectItem> Search(string languageId, string searchText, int size, string type = null, string selectedIndex = null)
         {
             if (String.IsNullOrWhiteSpace(searchText) && String.IsNullOrWhiteSpace(type))
+            {
                 return new List<InspectItem>();
+            }
 
             string query = CreateSearchQuery(searchText, type);
             string indexName = GetIndexName(languageId, selectedIndex);
 
             string uri = $"{_elasticSearchSettings.Host}/{indexName}/_search?q={query}&size={size}";
             if (Server.Info.Version.Major >= 7)
+            {
                 uri += "&rest_total_hits_as_int=true";
+            }
 
             string response = HttpClientHelper.GetString(new Uri(uri));
             dynamic parsedResponse = JObject.Parse(response);
@@ -56,7 +60,9 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Services
             string indexName = GetIndexName(languageId, selectedIndex);
             string uri = $"{_elasticSearchSettings.Host}/{indexName}/_search";
             if (Server.Info.Version.Major >= 7)
+            {
                 uri += "?rest_total_hits_as_int=true";
+            }
 
             object query = CreateTypeQuery(searchText);
             string json = JsonConvert.SerializeObject(query, new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore });
@@ -86,12 +92,16 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Services
             string query = null;
 
             if (!String.IsNullOrEmpty(searchText))
+            {
                 query = searchText;
+            }
 
             if (!String.IsNullOrEmpty(type))
             {
                 if (query != null)
+                {
                     query += " AND ";
+                }
 
                 query += "Type:" + type;
             }

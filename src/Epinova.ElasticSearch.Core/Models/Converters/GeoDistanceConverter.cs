@@ -23,7 +23,9 @@ namespace Epinova.ElasticSearch.Core.Models.Converters
             var geoDistance = value as GeoDistance;
 
             if (geoDistance?.Point == null)
+            {
                 return;
+            }
 
             writer.WriteStartObject();
             writer.WritePropertyName(JsonNames.GeoDistance);

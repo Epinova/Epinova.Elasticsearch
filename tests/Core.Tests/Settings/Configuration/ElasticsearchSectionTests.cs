@@ -184,13 +184,17 @@ namespace Core.Tests.Settings.Configuration
         private static IEnumerable<object[]> GetIndexNameInvalidCharacters()
         {
             foreach (char c in IndexConfiguration.NameInvalidCharacters)
+            {
                 yield return new object[] { c };
+            }
         }
 
         private static IEnumerable<object[]> GetFileExtensionInvalidCharacters()
         {
             foreach (char c in FileConfiguration.InvalidCharacters)
+            {
                 yield return new object[] { c };
+            }
         }
     }
 }

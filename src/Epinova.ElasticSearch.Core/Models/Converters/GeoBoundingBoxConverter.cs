@@ -23,7 +23,9 @@ namespace Epinova.ElasticSearch.Core.Models.Converters
             var geoBox = value as GeoBoundingBox;
 
             if (geoBox?.Box == null)
+            {
                 return;
+            }
 
             writer.WriteStartObject();
             writer.WritePropertyName(JsonNames.GeoBoundingBox);

@@ -64,7 +64,9 @@ namespace Epinova.ElasticSearch.Core.Conventions
             }
 
             if (stem)
+            {
                 StemField(fieldSelector);
+            }
 
             return _instance;
         }
@@ -78,7 +80,9 @@ namespace Epinova.ElasticSearch.Core.Conventions
             string fieldName = ElasticSearchService<T>.GetFieldInfo(fieldSelector).Item1;
 
             if (WellKnownProperties.Analyze.Contains(fieldName))
+            {
                 return _instance;
+            }
 
             Logger.Debug("Adding stemming for field: " + fieldName);
             WellKnownProperties.Analyze.Add(fieldName);
@@ -93,14 +97,18 @@ namespace Epinova.ElasticSearch.Core.Conventions
         public Indexing EnableHighlighting<TProperty>(params Expression<Func<T, TProperty>>[] fieldSelectors)
         {
             if (fieldSelectors == null || fieldSelectors.Length == 0)
+            {
                 return _instance;
+            }
 
             foreach (var fieldSelector in fieldSelectors)
             {
                 string fieldName = ElasticSearchService<T>.GetFieldInfo(fieldSelector).Item1;
 
                 if (!Indexing.Highlights.Contains(fieldName))
+                {
                     Indexing.Highlights.Add(fieldName);
+                }
             }
 
             return _instance;
@@ -113,9 +121,13 @@ namespace Epinova.ElasticSearch.Core.Conventions
         {
             // Update existing registration of type?
             if (Indexing.Suggestions.Any(s => s.Type == typeof(T)))
+            {
                 Indexing.Suggestions.Single(s => s.Type == typeof(T)).IncludeAllFields = true;
+            }
             else
+            {
                 Indexing.Suggestions.Add(new Suggestion(typeof(T), true));
+            }
 
             return _instance;
         }
@@ -126,7 +138,9 @@ namespace Epinova.ElasticSearch.Core.Conventions
         public Indexing EnableSuggestions<TProperty>(params Expression<Func<T, TProperty>>[] fieldSelectors)
         {
             if (fieldSelectors == null || fieldSelectors.Length == 0)
+            {
                 return _instance;
+            }
 
             foreach (var fieldSelector in fieldSelectors)
             {

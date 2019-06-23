@@ -53,7 +53,9 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Controllers
         public ActionResult AddWord(string languageId, string word)
         {
             if (!String.IsNullOrWhiteSpace(word))
+            {
                 _autoSuggestRepository.AddWord(languageId, word.Replace("|", String.Empty));
+            }
 
             return RedirectToAction("Index", new { languageId });
         }
@@ -61,7 +63,9 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Controllers
         public ActionResult DeleteWord(string languageId, string word)
         {
             if (!String.IsNullOrWhiteSpace(word))
+            {
                 _autoSuggestRepository.DeleteWord(languageId, word);
+            }
 
             return RedirectToAction("Index", new { languageId });
         }

@@ -22,7 +22,9 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Events
             Logger.Debug($"Raising event DeleteFromIndex for '{e?.ContentLink}'");
 
             if (ContentReference.IsNullOrEmpty(e?.ContentLink))
+            {
                 return;
+            }
 
             DeleteFromIndex(e?.ContentLink);
 
@@ -38,7 +40,9 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Events
         internal static void DeleteFromIndex(ContentReference contentLink)
         {
             if (ContentReference.IsNullOrEmpty(contentLink))
+            {
                 return;
+            }
 
             EPiIndexer.Delete(contentLink);
         }
@@ -103,9 +107,13 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Events
             foreach (var content in contentList)
             {
                 if (isDelete)
+                {
                     DeleteFromIndex(content.ContentLink);
+                }
                 else
+                {
                     EPiIndexer.Update(content);
+                }
             }
         }
 

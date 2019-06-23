@@ -49,7 +49,9 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Services
                 : contentFile.CreateWritableClone() as AutoSuggestFile;
 
             if (contentFile == null)
+            {
                 return;
+            }
 
             string content = String.Join("|", wordsToAdd);
 
@@ -74,7 +76,9 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Services
 
             AutoSuggestFile backup = GetAutoSuggest(GetFilename(languageId));
             if (backup?.BinaryData == null)
+            {
                 return words;
+            }
 
             using (var stream = backup.BinaryData.OpenRead())
             {
@@ -127,7 +131,9 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Services
             {
                 var content = GetAutoSuggest(n);
                 if (content != null)
+                {
                     _contentRepository.Delete(content.ContentLink, true, AccessLevel.NoAccess);
+                }
             });
         }
     }

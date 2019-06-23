@@ -16,7 +16,7 @@ namespace Core.Tests.Engine
     {
         private readonly ServiceLocatorFixture _fixture;
         private TestableSearchEngine _engine;
-        private QueryRequest _dummyQuery;
+        private readonly QueryRequest _dummyQuery;
 
         public SearchEngineTests(ServiceLocatorFixture fixture)
         {

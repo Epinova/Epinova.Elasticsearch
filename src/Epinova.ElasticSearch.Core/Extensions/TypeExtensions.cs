@@ -19,7 +19,9 @@ namespace Epinova.ElasticSearch.Core.Extensions
         public static string[] GetInheritancHierarchyArray(this Type type)
         {
             if (type == null)
+            {
                 return new string[0];
+            }
 
             return type.GetInheritancHierarchy().Select(GetTypeName).ToArray();
         }
@@ -27,7 +29,9 @@ namespace Epinova.ElasticSearch.Core.Extensions
         public static string GetShortTypeName(this string typeName)
         {
             if (String.IsNullOrWhiteSpace(typeName) || typeName.IndexOf("_", StringComparison.OrdinalIgnoreCase) == -1)
+            {
                 return typeName;
+            }
 
             return typeName.Split('_').Last();
         }
@@ -39,10 +43,14 @@ namespace Epinova.ElasticSearch.Core.Extensions
         public static string GetTypeName(this Type type)
         {
             if (type?.FullName == null)
+            {
                 return String.Empty;
+            }
 
             if (type.IsAnonymousType())
+            {
                 return "AnonymousType";
+            }
 
             return type.FullName?.Replace(".", "_");
         }
@@ -50,7 +58,9 @@ namespace Epinova.ElasticSearch.Core.Extensions
         internal static Type GetUnproxiedType(this object source)
         {
             if (!(source is IProxyTargetAccessor proxy))
+            {
                 return source?.GetType();
+            }
 
             return proxy.GetType().BaseType;
         }
@@ -78,10 +88,14 @@ namespace Epinova.ElasticSearch.Core.Extensions
         internal static IEnumerable<Type> GetInheritancHierarchy(this Type type)
         {
             for (var current = type; current != null; current = current.BaseType)
+            {
                 yield return current;
+            }
 
             if (type == null)
+            {
                 yield break;
+            }
 
             IEnumerable<Type> interfaces = type
                 .GetInterfaces()
@@ -89,13 +103,17 @@ namespace Epinova.ElasticSearch.Core.Extensions
                 .Where(i => !i.ImplementedInterfaces.Contains(typeof(IReadOnly)));
 
             foreach (var i in interfaces)
+            {
                 yield return i;
+            }
         }
 
         private static bool IsIndexable(Type contentType, PropertyInfo p, bool optIn)
         {
             if (p == null || contentType == null)
+            {
                 return false;
+            }
 
             Logger.Debug("IsIndexable: " + contentType.Name + " -> " + p.Name);
 
@@ -129,7 +147,9 @@ namespace Epinova.ElasticSearch.Core.Extensions
             }
 
             if (optIn)
+            {
                 return false;
+            }
 
             if (p.PropertyType == typeof(ContentArea))
             {

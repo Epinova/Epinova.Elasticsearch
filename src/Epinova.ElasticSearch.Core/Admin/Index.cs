@@ -27,7 +27,9 @@ namespace Epinova.ElasticSearch.Core.Admin
         public Index(IElasticSearchSettings settings, string name) : this(settings)
         {
             if (String.IsNullOrWhiteSpace(name))
+            {
                 throw new InvalidOperationException("'name' can not be empty.");
+            }
 
             _name = name.ToLower();
             _language = _name.Split('-').Last();
@@ -69,13 +71,17 @@ namespace Epinova.ElasticSearch.Core.Admin
         internal string GetTokenizer()
         {
             if (String.IsNullOrWhiteSpace(_name) || !_indexing.IndexExists(_name))
+            {
                 return String.Empty;
+            }
 
             var json = HttpClientHelper.GetString(_indexing.GetUri(_name, "_settings"));
             var languageAnalyzer = Language.GetLanguageAnalyzer(_settings.GetLanguage(_name));
 
             if (String.IsNullOrWhiteSpace(languageAnalyzer))
+            {
                 return String.Empty;
+            }
 
             var jpath = $"{_name}.settings.index.analysis.analyzer.{languageAnalyzer}.tokenizer";
 
@@ -83,7 +89,9 @@ namespace Epinova.ElasticSearch.Core.Admin
 
             JToken token = settings?.SelectToken(jpath);
             if (token == null)
+            {
                 return String.Empty;
+            }
 
             return token.ToString();
         }
@@ -154,9 +162,13 @@ namespace Epinova.ElasticSearch.Core.Admin
             if (type != null)
             {
                 if (type == typeof(IndexItem))
+                {
                     CreateStandardMappings();
+                }
                 else
+                {
                     CreateCustomMappings(type);
+                }
             }
         }
 
@@ -270,7 +282,9 @@ namespace Epinova.ElasticSearch.Core.Admin
             foreach (string indexName in _settings.Indices)
             {
                 if (i.Index.StartsWith(String.Concat(indexName, "-"), StringComparison.OrdinalIgnoreCase))
+                {
                     return true;
+                }
             }
 
             return false;

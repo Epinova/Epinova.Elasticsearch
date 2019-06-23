@@ -18,7 +18,9 @@ namespace Epinova.ElasticSearch.Core.Utilities
 
             var stemmerLanguage = languageName;
             if (languageName == "french" || languageName == "german")
+            {
                 stemmerLanguage = "light_" + stemmerLanguage;
+            }
 
             return new
             {
@@ -163,13 +165,17 @@ namespace Epinova.ElasticSearch.Core.Utilities
         private static IEnumerable<string> CreateSimpleAnalyzerFilter(string languageName)
         {
             if (languageName == "french")
+            {
                 yield return "french_elision";
+            }
 
             yield return "lowercase";
             yield return languageName + "_stop";
 
             if (languageName == "german")
+            {
                 yield return "german_normalization";
+            }
 
             yield return languageName + "_synonym_filter";
         }
@@ -177,17 +183,23 @@ namespace Epinova.ElasticSearch.Core.Utilities
         private static IEnumerable<string> CreateAnalyzerFilter(string languageName)
         {
             if (languageName == "french")
+            {
                 yield return "french_elision";
+            }
 
             yield return "lowercase";
 
             if (languageName == "english")
+            {
                 yield return "english_possessive_stemmer";
+            }
 
             yield return languageName + "_stop";
 
             if (languageName == "german")
+            {
                 yield return "german_normalization";
+            }
 
             yield return languageName + "_synonym_filter";
             yield return languageName + "_stemmer";

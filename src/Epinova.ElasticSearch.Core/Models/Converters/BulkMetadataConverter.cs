@@ -20,11 +20,15 @@ namespace Epinova.ElasticSearch.Core.Models.Converters
         {
             BulkMetadata bulk = value as BulkMetadata;
             if (bulk == null)
+            {
                 return;
+            }
 
             string name = Enum.GetName(typeof(Operation), bulk.Operation);
             if (name == null)
+            {
                 return;
+            }
 
             writer.WriteStartObject();
             writer.WritePropertyName(name.ToLower());

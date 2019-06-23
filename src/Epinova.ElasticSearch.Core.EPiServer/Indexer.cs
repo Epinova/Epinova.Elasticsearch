@@ -119,7 +119,9 @@ namespace Epinova.ElasticSearch.Core.EPiServer
                 var childStatus = Update(content, indexName);
 
                 if (childStatus == IndexingStatus.Error && status != IndexingStatus.Error)
+                {
                     status = IndexingStatus.PartialError;
+                }
             }
 
             return status;
@@ -136,10 +138,14 @@ namespace Epinova.ElasticSearch.Core.EPiServer
             }
 
             if (IsExludedType(content))
+            {
                 return IndexingStatus.ExcludedByConvention;
+            }
 
             if (IsExludedByRoot(content))
+            {
                 return IndexingStatus.ExcludedByConvention;
+            }
 
             _coreIndexer.Update(content.ContentLink.ToReferenceWithoutVersion().ToString(), content.AsIndexItem(), indexName, typeof(IndexItem));
 
@@ -150,14 +156,21 @@ namespace Epinova.ElasticSearch.Core.EPiServer
         {
             // Check options less expensive than DB-lookup first
             if (content.ContentLink != null && Indexing.ExcludedRoots.Contains(content.ContentLink.ID))
+            {
                 return true;
+            }
+
             if (content.ParentLink != null && Indexing.ExcludedRoots.Contains(content.ParentLink.ID))
+            {
                 return true;
+            }
 
             var ancestors = _getContentPath(content.ContentLink);
 
             if (ancestors == null)
+            {
                 return false;
+            }
 
             return Indexing.ExcludedRoots.Intersect(ancestors).Any();
         }
@@ -171,7 +184,9 @@ namespace Epinova.ElasticSearch.Core.EPiServer
         internal static bool IsExludedType(Type type)
         {
             if (type == null)
+            {
                 return true;
+            }
 
             return Indexing.ExcludedTypes.Contains(type)
                    || type.GetCustomAttributes(typeof(ExcludeFromSearchAttribute), true).Length > 0
@@ -181,28 +196,42 @@ namespace Epinova.ElasticSearch.Core.EPiServer
         internal static bool ShouldHideFromSearch(IContent content)
         {
             if (content is ContentFolder)
+            {
                 return true;
+            }
 
             if (ContentReference.WasteBasket.CompareToIgnoreWorkID(content.ParentLink))
+            {
                 return true;
+            }
 
             if (ContentReference.WasteBasket.CompareToIgnoreWorkID(content.ContentLink))
+            {
                 return true;
+            }
 
             if (IsFormUpload(content))
+            {
                 return true;
+            }
 
             // Common property in Epinova template
             var hideFromSearch = GetEpiserverBoolProperty(content.Property["HideFromSearch"]);
             if (hideFromSearch)
+            {
                 return true;
+            }
 
             var deleted = GetEpiserverBoolProperty(content.Property["PageDeleted"]);
             if (deleted)
+            {
                 return true;
+            }
 
             if (IsPageWithInvalidLinkType(content))
+            {
                 return true;
+            }
 
             return false;
         }
@@ -210,19 +239,27 @@ namespace Epinova.ElasticSearch.Core.EPiServer
         private static bool IsPageWithInvalidLinkType(IContent content)
         {
             if (!(content is PageData))
+            {
                 return false;
+            }
 
             var linkType = content.GetType().GetProperty("LinkType");
             if (linkType == null)
+            {
                 return true;
+            }
 
             var linkTypeValue = linkType.GetValue(content);
             if (linkTypeValue == null)
+            {
                 return true;
+            }
 
             var shortcutType = (PageShortcutType)linkTypeValue;
             if (shortcutType != PageShortcutType.Normal && shortcutType != PageShortcutType.FetchData)
+            {
                 return true;
+            }
 
             return false;
         }
@@ -230,7 +267,9 @@ namespace Epinova.ElasticSearch.Core.EPiServer
         private static string GetFallbackLanguage()
         {
             if (!HostingEnvironment.IsHosted)
+            {
                 return FallbackLanguage;
+            }
 
             ContentReference startPageLink = ContentReference.StartPage;
             if (startPageLink == null || startPageLink == ContentReference.EmptyReference)
@@ -249,7 +288,9 @@ namespace Epinova.ElasticSearch.Core.EPiServer
             {
                 var contentLoader = ServiceLocator.Current.GetInstance<IContentLoader>();
                 if (contentLoader.TryGet(startPageLink, out PageData startPage))
+                {
                     return startPage.MasterLanguage.Name;
+                }
             }
 
             Logger.Warning("Could not retrieve StartPage. Are you missing a wildcard mapping in CMS Admin -> Manage Websites?");
@@ -284,7 +325,9 @@ namespace Epinova.ElasticSearch.Core.EPiServer
             IContent owner = contentAssetHelper.GetAssetOwner(content.ContentLink);
 
             if (owner == null)
+            {
                 return false;
+            }
 
             return owner.GetType().GetInterfaces()
                 .Select(i => i.FullName)

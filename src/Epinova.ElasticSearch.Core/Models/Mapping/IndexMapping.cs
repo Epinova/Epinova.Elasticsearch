@@ -46,7 +46,10 @@ namespace Epinova.ElasticSearch.Core.Models.Mapping
                 Logger.Debug("Analyzer: " + property.Analyzer);
 
                 if (Properties[name].Analyzer != property.Analyzer)
+                {
                     IsDirty = true;
+                }
+
                 Properties[name].Analyzer = property.Analyzer;
             }
 
@@ -55,7 +58,10 @@ namespace Epinova.ElasticSearch.Core.Models.Mapping
                 Logger.Debug("Format: " + property.Format);
 
                 if (Properties[name].Format != property.Format)
+                {
                     IsDirty = true;
+                }
+
                 Properties[name].Format = property.Format;
             }
 
@@ -64,7 +70,9 @@ namespace Epinova.ElasticSearch.Core.Models.Mapping
                 Logger.Debug("Type: " + property.Type);
 
                 if (Properties[name].Type != property.Type)
+                {
                     IsDirty = true;
+                }
 
                 if (property.Type == nameof(MappingType.Text).ToLower())
                 {
@@ -105,7 +113,9 @@ namespace Epinova.ElasticSearch.Core.Models.Mapping
             }
 
             if (Properties[name].CopyTo != null)
+            {
                 Logger.Debug("CopyTo: " + String.Join(", ", Properties[name].CopyTo));
+            }
         }
 
         private static bool IncludeInDidYouMean(string name, IndexMappingProperty property)

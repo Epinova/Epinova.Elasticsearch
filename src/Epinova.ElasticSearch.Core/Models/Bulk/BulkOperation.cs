@@ -39,7 +39,9 @@ namespace Epinova.ElasticSearch.Core.Models.Bulk
         internal BulkOperation(object data, Operation operation, string language = null, Type dataType = null, string id = null, string index = null)
         {
             if (String.IsNullOrWhiteSpace(language) && String.IsNullOrWhiteSpace(index))
+            {
                 throw new InvalidOperationException("Either 'language' or 'index' must be specified.");
+            }
 
             dataType = dataType ?? data.GetType();
 
@@ -58,7 +60,9 @@ namespace Epinova.ElasticSearch.Core.Models.Bulk
                     {
                         var value = GetPropertyValue(data, property);
                         if (value != null)
+                        {
                             dictionary[property.Name] = value;
+                        }
                     }
                     catch (Exception ex)
                     {
@@ -76,7 +80,9 @@ namespace Epinova.ElasticSearch.Core.Models.Bulk
             }
 
             if (String.IsNullOrWhiteSpace(index))
+            {
                 index = ElasticSearchSettings.GetDefaultIndexName(language);
+            }
 
             MetaData = new BulkMetadata
             {
@@ -94,7 +100,9 @@ namespace Epinova.ElasticSearch.Core.Models.Bulk
         {
             var value = property.GetValue(data);
             if (value == null)
+            {
                 return null;
+            }
 
             if (property.PropertyType == typeof(bool) || property.PropertyType == typeof(bool?))
             {
@@ -142,14 +150,18 @@ namespace Epinova.ElasticSearch.Core.Models.Bulk
         private string GetId(string id, Type dataType, object data)
         {
             if (id != null)
+            {
                 return id;
+            }
 
             var idProp = dataType.GetProperty(DefaultFields.Id);
             if (idProp != null)
             {
                 var idVal = idProp.GetValue(data);
                 if (idVal != null)
+                {
                     return idVal.ToString();
+                }
             }
 
             return null;

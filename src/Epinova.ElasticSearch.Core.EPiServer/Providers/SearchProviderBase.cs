@@ -67,7 +67,9 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Providers
             CultureInfo language = Language.GetRequestLanguage();
 
             if (!query.SearchRoots.Any() || ForceRootLookup)
+            {
                 query.SearchRoots = new[] { GetSearchRoot() };
+            }
 
             foreach (string searchRoot in query.SearchRoots)
             {

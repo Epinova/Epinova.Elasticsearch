@@ -61,7 +61,9 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Controllers
                 }
 
                 if (propsWithBoost.Count > 0)
+                {
                     model.BoostingByType.Add(type.ModelType.GetTypeName(), propsWithBoost);
+                }
             }
 
             return View("~/Views/ElasticSearchAdmin/Boosting/Index.cshtml", model);

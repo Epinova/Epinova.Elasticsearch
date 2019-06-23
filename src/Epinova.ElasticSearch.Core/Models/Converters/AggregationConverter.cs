@@ -21,7 +21,9 @@ namespace Epinova.ElasticSearch.Core.Models.Converters
         {
             var buckets = value as Dictionary<string, Bucket>;
             if (buckets == null)
+            {
                 return;
+            }
 
             writer.WriteStartObject();
 

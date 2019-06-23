@@ -12,18 +12,24 @@ namespace Epinova.ElasticSearch.Core.Utilities
         {
             var enumerable = value as IEnumerable;
             if (enumerable == null)
+            {
                 return Enumerable.Empty<object>();
+            }
 
             Type type = GetIEnumerableType(value);
             if (type == null)
+            {
                 return Enumerable.Empty<object>();
+            }
 
             List<object> list = enumerable.Cast<object>().ToList();
             Array values = Array.CreateInstance(type, list.Count);
 
             var i = 0;
             foreach (object e in list)
+            {
                 values.SetValue(e, i++);
+            }
 
             return values;
         }

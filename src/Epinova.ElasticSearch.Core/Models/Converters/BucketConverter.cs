@@ -20,7 +20,9 @@ namespace Epinova.ElasticSearch.Core.Models.Converters
         {
             var bucket = value as Bucket;
             if (bucket == null)
+            {
                 return;
+            }
 
             writer.WriteStartObject();
             serializer.Serialize(writer, bucket);

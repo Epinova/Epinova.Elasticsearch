@@ -53,7 +53,9 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Services
             BestBet target = bestBets.FirstOrDefault(b => b.Phrase == phrase && b.Id == id);
 
             if (target == null)
+            {
                 return;
+            }
 
             bestBets.Remove(target);
             var result = bestBets.Where(b => !String.IsNullOrWhiteSpace(b.Phrase));
@@ -72,7 +74,9 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Services
         {
             var backup = GetBestBetsFile(GetFilename(languageId, index));
             if (backup?.BinaryData == null)
+            {
                 return Enumerable.Empty<BestBet>();
+            }
 
             using (var stream = backup.BinaryData.OpenRead())
             {
@@ -83,7 +87,9 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Services
                     Logger.Information($"Raw data:\n{raw}");
 
                     if (String.IsNullOrWhiteSpace(raw))
+                    {
                         return Enumerable.Empty<BestBet>();
+                    }
 
                     return raw.Split(RowDelim[0])
                         .Where(IsValidRow)
@@ -120,7 +126,9 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Services
                 : contentFile.CreateWritableClone() as BestBetsFile;
 
             if (contentFile == null)
+            {
                 return;
+            }
 
             Logger.Information($"Saving BestBest for language:{languageId}");
 

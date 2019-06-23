@@ -41,9 +41,13 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Services
                 string fieldName = boost.FieldName;
 
                 if (!boosting.ContainsKey(fieldName))
+                {
                     boosting.Add(fieldName, boost.Weight);
+                }
                 else
+                {
                     boosting[fieldName] = Math.Max(boost.Weight, boosting[fieldName]);
+                }
             }
 
             return boosting;
@@ -99,7 +103,9 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Services
             string cacheKey = GetCacheKey(type);
 
             if (CacheManager.Get(cacheKey) is BoostingData[] cache)
+            {
                 return cache;
+            }
 
             ContentReference boostingFolder = GetBoostingFolder();
 

@@ -40,7 +40,9 @@ namespace Epinova.ElasticSearch.Core.Models
             get
             {
                 if (DidYouMeanSuggestions == null || DidYouMeanSuggestions.Length == 0)
+                {
                     return new string[0];
+                }
 
                 return DidYouMeanSuggestions.Select(s => s.Text);
             }

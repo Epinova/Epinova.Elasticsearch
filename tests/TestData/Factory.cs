@@ -106,7 +106,9 @@ namespace TestData
             var instance = Guid.NewGuid().ToString("N");
 
             while (instance.Length < size)
+            {
                 instance += Guid.NewGuid().ToString("N");
+            }
 
             return instance.Substring(0, size);
         }
@@ -116,7 +118,9 @@ namespace TestData
             string instance = String.Empty;
 
             for (var i = 0; i < words; i++)
+            {
                 instance += GetString(Random.Next(3, 8)) + " ";
+            }
 
             return instance.Trim();
         }
@@ -183,7 +187,9 @@ namespace TestData
             securityDescriptor.Setup(m => m.HasAccess(It.IsAny<IPrincipal>(), It.IsAny<AccessLevel>())).Returns(userHasAccess);
 
             if (language == null)
+            {
                 language = CultureInfo.CurrentCulture;
+            }
 
             PageReference pageLink = id > 0 ? new PageReference(id) : GetPageReference();
             PageReference parentLink = parentId > 0 ? new PageReference(parentId) : GetPageReference();
@@ -203,7 +209,9 @@ namespace TestData
 
             ContentReference.WasteBasket = new PageReference(1);
             if (!isNotInWaste)
+            {
                 instance.Setup(m => m.ContentLink).Returns(ContentReference.WasteBasket);
+            }
 
             instance.Object.LinkType = shortcutType;
             return instance.Object;
@@ -233,7 +241,9 @@ namespace TestData
             string path = GetFilePath("Json", filename);
 
             if (!File.Exists(path))
+            {
                 return String.Empty;
+            }
 
             return File.ReadAllText(path);
         }
@@ -259,7 +269,9 @@ namespace TestData
         public static XhtmlString GetXhtmlString(string s, params IStringFragment[] additionalFragments)
         {
             if (s == null)
+            {
                 return null;
+            }
 
             var fragmentMock = new Mock<IStringFragment>();
             fragmentMock.SetupAllProperties();
@@ -269,7 +281,9 @@ namespace TestData
             var xhtmlStringMock = new Mock<XhtmlString>();
             var fragments = new StringFragmentCollection();
             if (!String.IsNullOrWhiteSpace(s))
+            {
                 fragments.Add(fragmentMock.Object);
+            }
 
             if (additionalFragments?.Length > 0)
             {

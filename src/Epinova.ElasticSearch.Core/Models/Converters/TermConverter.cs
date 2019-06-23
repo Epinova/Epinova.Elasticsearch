@@ -23,11 +23,15 @@ namespace Epinova.ElasticSearch.Core.Models.Converters
         {
             var term = value as TermItem;
             if (term == null)
+            {
                 return;
+            }
 
             string name = term.Key;
             if (!term.NonRaw && term.Type != null && term.Type == typeof(string))
+            {
                 name += Constants.KeywordSuffix;
+            }
 
             writer.WriteStartObject();
             writer.WritePropertyName(name);

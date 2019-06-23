@@ -99,7 +99,10 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Plugin
                 // Fetch all content to index
                 while (contentReferences.Count > 0)
                 {
-                    if (IsStopped) return "Aborted by user";
+                    if (IsStopped)
+                    {
+                        return "Aborted by user";
+                    }
 
                     var contents = GetDescendentContents(contentReferences.Take(_settings.BulkSize).ToList(), languages);
 
@@ -138,7 +141,10 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Plugin
                     var removeCount = contentList.Count >= _settings.BulkSize ? _settings.BulkSize : contentList.Count;
                     contentList.RemoveRange(0, removeCount);
 
-                    if (IsStopped) return "Aborted by user";
+                    if (IsStopped)
+                    {
+                        return "Aborted by user";
+                    }
                 }
             }
             catch (Exception ex)
@@ -207,7 +213,10 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Plugin
 
             foreach (var content in contentItems)
             {
-                if (IsStopped) break;
+                if (IsStopped)
+                {
+                    break;
+                }
 
                 // Get indexable properties (string, XhtmlString, [Searchable(true)]) 
                 var indexableProperties = content.GetType().GetIndexableProps(false)
@@ -284,7 +293,9 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Plugin
         private string GetIndexName(string language)
         {
             if (!String.IsNullOrEmpty(CustomIndexName))
+            {
                 return _settings.GetCustomIndexName(CustomIndexName, language);
+            }
 
             return _settings.GetDefaultIndexName(language);
         }

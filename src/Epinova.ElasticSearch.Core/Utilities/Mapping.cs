@@ -33,24 +33,36 @@ namespace Epinova.ElasticSearch.Core.Utilities
         internal static MappingType GetMappingType(Type type)
         {
             if (type == typeof(IntegerRange))
+            {
                 return MappingType.Integer_Range;
+            }
 
             if (type == typeof(GeoPoint))
+            {
                 return MappingType.Geo_Point;
+            }
 
             if (ArrayHelper.IsDictionary(type))
+            {
                 return MappingType.Object;
+            }
 
             if (type.IsEnum)
+            {
                 return MappingType.Integer;
+            }
 
             if (ArrayHelper.IsArrayCandidate(type))
+            {
                 type = type.GetTypeFromTypeCode();
+            }
 
             foreach (var typeEntry in TypeRegister)
             {
                 if (typeEntry.Value.Contains(type))
+                {
                     return typeEntry.Key;
+                }
             }
 
             return MappingType.Text;
@@ -59,7 +71,9 @@ namespace Epinova.ElasticSearch.Core.Utilities
         internal static bool IsNumericType(Type type)
         {
             if (type == null)
+            {
                 return false;
+            }
 
             switch (Type.GetTypeCode(type))
             {
@@ -96,7 +110,9 @@ namespace Epinova.ElasticSearch.Core.Utilities
         internal static async Task<IndexMapping> GetIndexMappingAsync(Type type, string language, string index)
         {
             if (String.IsNullOrEmpty(index))
+            {
                 index = ElasticSearchSettings.GetDefaultIndexName(language);
+            }
 
             index = index.ToLower();
 
@@ -118,7 +134,9 @@ namespace Epinova.ElasticSearch.Core.Utilities
             }
 
             if (mappings.Properties == null)
+            {
                 mappings.Properties = new Dictionary<string, IndexMappingProperty>();
+            }
 
             return mappings;
         }
@@ -129,7 +147,9 @@ namespace Epinova.ElasticSearch.Core.Utilities
         internal static IndexMapping GetIndexMapping(Type type, string language, string index)
         {
             if (String.IsNullOrEmpty(index))
+            {
                 index = ElasticSearchSettings.GetDefaultIndexName(language);
+            }
 
             string typeName = type.GetTypeName();
             string mappingUri = GetMappingUri(index, typeName);
@@ -148,7 +168,9 @@ namespace Epinova.ElasticSearch.Core.Utilities
             }
 
             if (mappings.Properties == null)
+            {
                 mappings.Properties = new Dictionary<string, IndexMappingProperty>();
+            }
 
             return mappings;
         }
@@ -172,7 +194,9 @@ namespace Epinova.ElasticSearch.Core.Utilities
         {
             var url = $"{ElasticSearchSettings.Host}/{index}/{typeName}/_mapping";
             if (Server.Info.Version.Major >= 7)
+            {
                 url += "?include_type_name=true";
+            }
 
             return url;
         }

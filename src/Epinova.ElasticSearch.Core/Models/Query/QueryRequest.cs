@@ -28,7 +28,9 @@ namespace Epinova.ElasticSearch.Core.Models.Query
             get
             {
                 if (_sortFields == null || _sortFields.Count == 0)
+                {
                     return null;
+                }
 
                 var sorts = new JArray();
 
@@ -51,7 +53,9 @@ namespace Epinova.ElasticSearch.Core.Models.Query
                     else
                     {
                         if (sortField[0] != '_' && _sortFields[i].MappingType == MappingType.Text)
+                        {
                             sortField += Constants.KeywordSuffix;
+                        }
 
                         sorts.Add(
                             new JObject(

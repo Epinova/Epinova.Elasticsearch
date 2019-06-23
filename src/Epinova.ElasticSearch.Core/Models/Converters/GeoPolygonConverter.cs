@@ -23,7 +23,9 @@ namespace Epinova.ElasticSearch.Core.Models.Converters
             var geoPoly = value as GeoPolygon;
 
             if (geoPoly?.Points == null)
+            {
                 return;
+            }
 
             writer.WriteStartObject();
             writer.WritePropertyName(JsonNames.GeoPolygon);

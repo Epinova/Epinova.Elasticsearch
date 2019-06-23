@@ -57,7 +57,9 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Controllers
         public ActionResult AddNewIndex()
         {
             if (Core.Server.Info.Version.Major < 5)
+            {
                 throw new InvalidOperationException("Elasticsearch version 5 or higher required");
+            }
 
             var config = ElasticSearchSection.GetConfiguration();
 
@@ -147,10 +149,14 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Controllers
         private static Type GetIndexType(IndexConfiguration index, ElasticSearchSection config)
         {
             if (index.Default || config.IndicesParsed.Count() == 1)
+            {
                 return typeof(IndexItem);
+            }
 
             if (String.IsNullOrWhiteSpace(index.Type))
+            {
                 return null;
+            }
 
             return Type.GetType(index.Type, false, true);
         }

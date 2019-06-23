@@ -61,9 +61,13 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Controllers
 
             var currentType = config.IndicesParsed.FirstOrDefault(i => CurrentIndex.StartsWith(i.Name, StringComparison.InvariantCultureIgnoreCase))?.Type;
             if (!String.IsNullOrEmpty(currentType))
+            {
                 ViewBag.TypeName = Type.GetType(currentType).AssemblyQualifiedName;
+            }
             else
+            {
                 ViewBag.TypeName = typeof(IndexItem).AssemblyQualifiedName;
+            }
 
             return View("~/Views/ElasticSearchAdmin/BestBets/Index.cshtml", model);
         }
@@ -88,7 +92,9 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Controllers
         public ActionResult Delete(string languageId, string phrase, string contentId, string index, string typeName)
         {
             if (!String.IsNullOrWhiteSpace(phrase))
+            {
                 _bestBetsRepository.DeleteBestBet(languageId, phrase, contentId, index, Type.GetType(typeName));
+            }
 
             Indexing.SetupBestBets();
 
@@ -101,7 +107,10 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Controllers
             {
                 var contentLink = new ContentReference(Convert.ToInt32(ContentReference.Parse(bestBet.Id).ID), bestBet.Provider);
                 if (_contentLoader.TryGet(contentLink, out IContent content))
+                {
                     bestBet.Name = content.Name;
+                }
+
                 yield return bestBet;
             }
         }

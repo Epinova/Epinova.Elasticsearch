@@ -16,7 +16,9 @@ namespace Epinova.ElasticSearch.Core.Models
             JObject instance = token.Value<JObject>().Property("_source").Value as JObject;
 
             if (instance == null)
+            {
                 return;
+            }
 
             Title = GetTitle(instance);
             string type = instance.Property("Type")?.Value.ToString();
@@ -28,11 +30,15 @@ namespace Epinova.ElasticSearch.Core.Models
         {
             string propertyValue = GetPropertyValue(instance, "Name");
             if (!String.IsNullOrWhiteSpace(propertyValue))
+            {
                 return propertyValue;
+            }
 
             propertyValue = GetPropertyValue(instance, "Title");
             if (!String.IsNullOrWhiteSpace(propertyValue))
+            {
                 return propertyValue;
+            }
 
             return "Name or Title should be indexed.";
         }

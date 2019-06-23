@@ -19,7 +19,9 @@ namespace Epinova.ElasticSearch.Core.Services
         {
             text = text ?? String.Empty;
             if (text.Length > 200)
+            {
                 text = text.Substring(0, 200);
+            }
 
             if (SearchExists(text, languageId, index))
             {

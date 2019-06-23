@@ -13,21 +13,29 @@ namespace Epinova.ElasticSearch.Core.Settings.Configuration
             get
             {
                 if (Int64.TryParse(Maxsize, out long bytes))
+                {
                     return bytes;
+                }
 
                 string lowered = Maxsize.ToLower();
 
                 if (lowered.EndsWith("kb")
                     && Int64.TryParse(lowered.TrimEnd('k', 'b'), out long kbytes))
+                {
                     return kbytes * 1024;
+                }
 
                 if (lowered.EndsWith("mb")
                     && Int64.TryParse(lowered.TrimEnd('m', 'b'), out long mbytes))
+                {
                     return mbytes * (long)Math.Pow(1024, 2);
+                }
 
                 if (lowered.EndsWith("gb")
                     && Int64.TryParse(lowered.TrimEnd('g', 'b'), out long gbytes))
+                {
                     return gbytes * (long)Math.Pow(1024, 3);
+                }
 
                 return 10240000;
             }

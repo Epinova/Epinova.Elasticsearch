@@ -116,7 +116,9 @@ namespace Epinova.ElasticSearch.Core
             var fieldName = GetFieldName(fieldSelector);
 
             if (BoostFields.ContainsKey(fieldName) || weight <= Byte.MinValue)
+            {
                 return this;
+            }
 
             _logger.Debug($"Boosting field: '{fieldName} ({weight})'");
             BoostFields.Add(fieldName, weight);
@@ -159,10 +161,14 @@ namespace Epinova.ElasticSearch.Core
         public IElasticSearchService<T> Decay(string fieldName, TimeSpan scale = default, TimeSpan offset = default)
         {
             if (scale == default)
+            {
                 scale = TimeSpan.FromDays(30);
+            }
 
             if (_gauss.Any(g => fieldName.Equals(g.Field, StringComparison.InvariantCultureIgnoreCase)))
+            {
                 throw new InvalidOperationException($"Decay for '{fieldName}' already defined");
+            }
 
             _gauss.Add(new Gauss
             {
@@ -207,7 +213,9 @@ namespace Epinova.ElasticSearch.Core
         public IElasticSearchService<T> Exclude(Type type)
         {
             if (!_excludedTypes.Contains(type))
+            {
                 _excludedTypes.Add(type);
+            }
 
             return this;
         }
@@ -215,7 +223,9 @@ namespace Epinova.ElasticSearch.Core
         public IElasticSearchService<T> Exclude(int rootId, bool recursive = true)
         {
             if (!ExcludedRoots.ContainsKey(rootId))
+            {
                 ExcludedRoots.Add(rootId, recursive);
+            }
 
             return this;
         }
@@ -414,7 +424,9 @@ namespace Epinova.ElasticSearch.Core
         private ScriptScore CreateScriptScore()
         {
             if (String.IsNullOrEmpty(_customScriptScoreSource))
+            {
                 return null;
+            }
 
             var scriptScore = new ScriptScore
             {
@@ -429,9 +441,13 @@ namespace Epinova.ElasticSearch.Core
             var inlineVsSourceVersion = new Version(5, 6);
 
             if (Server.Info.Version >= inlineVsSourceVersion)
+            {
                 scriptScore.Script.Source = _customScriptScoreSource;
+            }
             else
+            {
                 scriptScore.Script.Inline = _customScriptScoreSource;
+            }
 
             return scriptScore;
         }
@@ -542,7 +558,9 @@ namespace Epinova.ElasticSearch.Core
             string mode = "min")
         {
             if (primary && SortFields.Count > 0)
+            {
                 throw new InvalidOperationException("Query is already sorted. Use ThenBy or ThenByDescending to apply further sorting");
+            }
 
             Tuple<string, MappingType> fieldInfo = GetFieldInfo(fieldSelector);
 
@@ -587,7 +605,9 @@ namespace Epinova.ElasticSearch.Core
             if (!String.IsNullOrWhiteSpace(fieldName))
             {
                 if (SearchFields.Contains(fieldName))
+                {
                     throw new InvalidOperationException($"Field {fieldName} already added to query");
+                }
 
                 SearchFields.Add(fieldName);
             }
@@ -601,7 +621,9 @@ namespace Epinova.ElasticSearch.Core
             var fieldInfo = GetFieldInfo(fieldSelector, explicitType);
 
             if (!String.IsNullOrWhiteSpace(fieldInfo.Item1) && !_facetFields.ContainsKey(fieldInfo.Item1))
+            {
                 _facetFields.Add(fieldInfo.Item1, fieldInfo.Item2);
+            }
 
             return this;
         }
@@ -617,7 +639,9 @@ namespace Epinova.ElasticSearch.Core
         public IElasticSearchService<T> Filter<TType>(string fieldName, TType filterValue, bool raw = true)
         {
             if (filterValue != null)
+            {
                 PostFilters.Add(new Filter(fieldName, filterValue, typeof(TType), raw, Operator.And));
+            }
 
             return this;
         }
@@ -674,7 +698,9 @@ namespace Epinova.ElasticSearch.Core
         public IElasticSearchService<T> FilterMustNot<TType>(string fieldName, TType filterValue, bool raw = true)
         {
             if (filterValue != null)
+            {
                 PostFilters.Add(new Filter(fieldName, filterValue, typeof(TType), raw, Operator.And, true));
+            }
 
             return this;
         }
@@ -731,7 +757,9 @@ namespace Epinova.ElasticSearch.Core
         public IElasticSearchService<T> FilterGroup(Expression<Func<IFilterGroup<T>, IFilterGroup<T>>> groupExpression, Operator @operator = Operator.And)
         {
             if (groupExpression.Body is MethodCallExpression expression)
+            {
                 groupExpression.Compile().Invoke(new FilterGroup<T>(this, Guid.NewGuid().ToString()));
+            }
 
             return this;
         }
@@ -813,7 +841,9 @@ namespace Epinova.ElasticSearch.Core
                         MethodInfo methodInfo = callExpression.Method;
 
                         if (ArrayHelper.IsArrayCandidate(methodInfo.ReturnType))
+                        {
                             explicitType = methodInfo.ReturnType.GetTypeFromTypeCode();
+                        }
 
                         fieldName = methodInfo.Name;
                         fieldType = Mapping.GetMappingType(explicitType ?? methodInfo.ReturnType);
@@ -833,7 +863,9 @@ namespace Epinova.ElasticSearch.Core
                         MemberInfo memberInfo = memberExpression.Member;
 
                         if (ArrayHelper.IsArrayCandidate(memberExpression.Type))
+                        {
                             explicitType = memberExpression.Type.GetTypeFromTypeCode();
+                        }
 
                         fieldName = memberInfo.Name;
                         fieldType = Mapping.GetMappingType(explicitType ?? memberExpression.Type);
@@ -842,7 +874,9 @@ namespace Epinova.ElasticSearch.Core
 
                 case ConstantExpression constantExpression:
                     if (ArrayHelper.IsArrayCandidate(constantExpression.Type))
+                    {
                         explicitType = constantExpression.Type.GetTypeFromTypeCode();
+                    }
 
                     fieldName = constantExpression.Value.ToString();
                     fieldType = Mapping.GetMappingType(explicitType ?? constantExpression.Type);

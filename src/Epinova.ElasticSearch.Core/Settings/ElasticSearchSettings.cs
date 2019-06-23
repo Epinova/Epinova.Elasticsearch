@@ -29,7 +29,9 @@ namespace Epinova.ElasticSearch.Core.Settings
             get
             {
                 if (_commerceEnabled.HasValue)
+                {
                     return _commerceEnabled.Value;
+                }
 
                 try
                 {
@@ -78,7 +80,9 @@ namespace Epinova.ElasticSearch.Core.Settings
         public string GetDefaultIndexName(string language)
         {
             if (String.IsNullOrWhiteSpace(language))
+            {
                 throw new InvalidOperationException("Language must be specified");
+            }
 
             return CreateIndexName(Index, language);
         }
@@ -86,10 +90,14 @@ namespace Epinova.ElasticSearch.Core.Settings
         public string GetCustomIndexName(string index, string language)
         {
             if (String.IsNullOrWhiteSpace(index))
+            {
                 throw new InvalidOperationException("IndexInformation is null");
+            }
 
             if (String.IsNullOrWhiteSpace(language))
+            {
                 throw new InvalidOperationException("Language must be specified");
+            }
 
             return CreateIndexName(index, language);
         }
@@ -97,9 +105,14 @@ namespace Epinova.ElasticSearch.Core.Settings
         private static string CreateIndexName(string index, string language)
         {
             if (String.IsNullOrWhiteSpace(index))
+            {
                 throw new InvalidOperationException("Index must be specified");
+            }
+
             if (String.IsNullOrWhiteSpace(language))
+            {
                 throw new InvalidOperationException("Language must be specified");
+            }
 
             return $"{index}-{language}".ToLower();
         }
@@ -107,9 +120,14 @@ namespace Epinova.ElasticSearch.Core.Settings
         public string GetLanguage(string indexName)
         {
             if (String.IsNullOrWhiteSpace(indexName))
+            {
                 throw new InvalidOperationException("Index must be specified");
+            }
+
             if (!indexName.Contains("-"))
+            {
                 throw new InvalidOperationException("Invalid index name '" + indexName + "' (Must be <name>-<lang>)");
+            }
 
             return indexName.Split('-').Last();
         }

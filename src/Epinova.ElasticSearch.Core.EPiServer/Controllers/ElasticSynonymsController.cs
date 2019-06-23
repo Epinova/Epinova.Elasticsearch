@@ -49,7 +49,9 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Controllers
                     .Select(w => w.Trim()));
 
                 if (!s.TwoWay && !s.MultiWord)
+                {
                     synonymFrom += "=>" + synonymFrom;
+                }
 
                 return s.From == synonymFrom && s.To == synonym.To && s.TwoWay == synonym.TwoWay && s.MultiWord == synonym.MultiWord;
             });
@@ -113,7 +115,9 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Controllers
                         {
                             var key = s.From;
                             if (key.Contains("=>"))
+                            {
                                 key = key.Split(new[] { "=>" }, StringSplitOptions.None)[0].Trim();
+                            }
 
                             var fromDisplay = String.Join(", ", key.Split(','));
                             return new Synonym { From = fromDisplay, To = s.To, TwoWay = s.TwoWay, MultiWord = s.MultiWord };

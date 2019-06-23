@@ -13,7 +13,9 @@ namespace Epinova.ElasticSearch.Core
         public FilterGroup(ElasticSearchService<T> service, string name)
         {
             if (!service.PostFilterGroups.ContainsKey(name))
+            {
                 service.PostFilterGroups[name] = new FilterGroupQuery();
+            }
 
             _filterGroup = service.PostFilterGroups[name];
         }

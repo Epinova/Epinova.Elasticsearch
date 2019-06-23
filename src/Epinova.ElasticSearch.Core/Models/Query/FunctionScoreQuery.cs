@@ -54,7 +54,9 @@ namespace Epinova.ElasticSearch.Core.Models.Query
                 get
                 {
                     if (Gauss?.Any() != true)
+                    {
                         return null;
+                    }
 
                     return
                         JObject.Parse("{" + String.Join(",\n",
