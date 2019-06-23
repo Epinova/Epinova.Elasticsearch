@@ -5,7 +5,9 @@
 * Support for `IDictionary<string, object>` properties.
 * Delete-all function in index administration GUI
 * Support for synonyms from file
+* Support for multiword synonyms
 * Support for all blob types (remove hardcoded FileBlob coupling)
+* Index unpublished content
 
 #### 11.7
 * ES 7 support

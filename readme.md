@@ -934,11 +934,6 @@ Custom objects do not require an `Id` property (or corresponding argument in the
 
 &nbsp;
 
-# Known issues
-* Content that is not indexed will not be returned by the providers in edit mode
-* Admin GUI and manual indexing is not working properly with Windows authentication
-
-
 # See also
 * [Installation](setup.md)
 * [Changelog](changelog.md)
