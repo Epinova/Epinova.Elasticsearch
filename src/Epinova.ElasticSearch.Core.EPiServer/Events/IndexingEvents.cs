@@ -24,9 +24,9 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Events
             if (ContentReference.IsNullOrEmpty(e?.ContentLink))
                 return;
 
-            DeleteFromIndex(e.ContentLink);
+            DeleteFromIndex(e?.ContentLink);
 
-            if (e.DeletedDescendents != null)
+            if (e?.DeletedDescendents != null)
             {
                 foreach (var descendent in e.DeletedDescendents)
                 {
