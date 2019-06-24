@@ -82,10 +82,10 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Extensions
         }
 
         public static ContentSearchResult<T> GetContentResults<T>(this IElasticSearchService<T> service) where T : IContentData
-            => service.GetContentResults(false, null);
+            => service.GetContentResults(false, new string[0]);
 
         public static ContentSearchResult<T> GetContentResults<T>(this IElasticSearchService<T> service, bool requirePageTemplate) where T : IContentData
-            => service.GetContentResults(requirePageTemplate, null);
+            => service.GetContentResults(requirePageTemplate, new string[0]);
 
         public static ContentSearchResult<T> GetContentResults<T>(this IElasticSearchService<T> service, bool requirePageTemplate, string[] providerNames) where T : IContentData
             => service.GetContentResults(requirePageTemplate, false, providerNames, true, true);
@@ -143,6 +143,10 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Extensions
         {
             if(providerNames.Length > 0)
             {
+                content = GetContentForProviders<T>(hit, providerNames);
+            }
+            else
+            {
                 var contentLink = new ContentReference(hit.Id);
 
                 if(!String.IsNullOrEmpty(hit.Lang))
@@ -153,10 +157,6 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Extensions
                 {
                     ContentLoader.TryGet(contentLink, out content);
                 }
-            }
-            else
-            {
-                content = GetContentForProviders<T>(hit, providerNames);
             }
 
             return content != null && !ShouldFilter(content as IContent, requirePageTemplate, ignoreFilters);
