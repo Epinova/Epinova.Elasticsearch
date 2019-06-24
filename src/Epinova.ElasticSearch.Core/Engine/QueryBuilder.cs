@@ -268,7 +268,7 @@ namespace Epinova.ElasticSearch.Core.Engine
             List<Boost> boosting = GetBoosting(setup.Type, setup.BoostFields);
             if(boosting.Count > 0)
             {
-                var searchText = request.Query.SearchText.Replace("*", string.Empty);
+                var searchText = request.Query.SearchText.Replace("*", String.Empty);
                 if(!TextUtil.IsNumeric(searchText))
                 {
                     boosting.RemoveAll(b => b.FieldName.Equals(DefaultFields.Id));
@@ -305,7 +305,7 @@ namespace Epinova.ElasticSearch.Core.Engine
             }
 
             // Best Bets
-            if(setup.UseBestBets && !string.IsNullOrWhiteSpace(request.Query.SearchText))
+            if(setup.UseBestBets && !String.IsNullOrWhiteSpace(request.Query.SearchText))
             {
                 IEnumerable<string> terms = request.Query.SearchText
                     .Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries)
@@ -579,7 +579,7 @@ namespace Epinova.ElasticSearch.Core.Engine
                 var key = field.Key;
                 if(field.Value == MappingType.Text && !key.EndsWith(Models.Constants.KeywordSuffix))
                 {
-                    key = string.Concat(key, Models.Constants.KeywordSuffix);
+                    key = String.Concat(key, Models.Constants.KeywordSuffix);
                 }
 
                 aggregations.Add(key, new Bucket(key));

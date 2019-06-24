@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Epinova.ElasticSearch.Core.Settings.Configuration;
 using EPiServer.Logging;
 
@@ -24,7 +25,7 @@ namespace Epinova.ElasticSearch.Core.Conventions
                 return this;
             }
 
-            if(!string.IsNullOrWhiteSpace(extension))
+            if(!String.IsNullOrWhiteSpace(extension))
             {
                 Extensions.Add(extension.Trim(' ', '.').ToLower());
             }

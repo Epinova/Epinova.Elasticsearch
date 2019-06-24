@@ -388,8 +388,8 @@ namespace Core.Tests.Engine
         }
 
         [Theory]
-        [InlineData(int.MinValue)]
-        [InlineData(int.MaxValue)]
+        [InlineData(Int32.MinValue)]
+        [InlineData(Int32.MaxValue)]
         [InlineData(0)]
         [InlineData(1234)]
         public void Filter_ReturnsExpectedJsonForInteger(int value)
@@ -406,8 +406,8 @@ namespace Core.Tests.Engine
         }
 
         [Theory]
-        [InlineData(long.MinValue)]
-        [InlineData(long.MaxValue)]
+        [InlineData(Int64.MinValue)]
+        [InlineData(Int64.MaxValue)]
         [InlineData(0)]
         [InlineData(1234)]
         public void Filter_ReturnsExpectedJsonForLong(long value)
@@ -565,7 +565,7 @@ namespace Core.Tests.Engine
             var request = (QueryRequest)_builder.Search(new QuerySetup
             {
                 IsGetQuery = true,
-                SearchText = string.Empty
+                SearchText = String.Empty
             });
 
             var result = request.Query.Bool.Must.Cast<MatchAll>().Any();

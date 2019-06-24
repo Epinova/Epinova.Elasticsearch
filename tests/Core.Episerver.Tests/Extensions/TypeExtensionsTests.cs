@@ -79,7 +79,7 @@ namespace Core.Episerver.Tests.Extensions
             Type instance = null;
             string result = instance.GetTypeName();
 
-            Assert.Equal(string.Empty, result);
+            Assert.Equal(String.Empty, result);
         }
 
         [Theory]

@@ -24,7 +24,7 @@ namespace Epinova.ElasticSearch.Core.Admin
             return GetClusterHealth(json);
         }
 
-        internal static HealthInformation GetClusterHealth(string json) 
+        internal static HealthInformation GetClusterHealth(string json)
             => JsonConvert.DeserializeObject<HealthInformation[]>(json).FirstOrDefault();
 
         public virtual Node[] GetNodeInfo()
@@ -37,7 +37,7 @@ namespace Epinova.ElasticSearch.Core.Admin
             return GetNodeInfo(json);
         }
 
-        internal static Node[] GetNodeInfo(string json) 
+        internal static Node[] GetNodeInfo(string json)
             => JsonConvert.DeserializeObject<Node[]>(json);
     }
 }
