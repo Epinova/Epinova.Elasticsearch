@@ -50,19 +50,28 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Extensions
             "mp3", "aac", "wav", "flac", "ogg", "mka", "wma", "aif", "mpa"
         };
 
-        public static async Task<ContentSearchResult<T>> GetContentResultsAsync<T>(this IElasticSearchService<T> service, bool requirePageTemplate = false, string[] providerNames = null) where T : IContentData
-            => await GetContentResultsAsync(service, CancellationToken.None, requirePageTemplate, providerNames).ConfigureAwait(false);
+        public static Task<ContentSearchResult<T>> GetContentResultsAsync<T>(this IElasticSearchService<T> service) where T : IContentData
+            => service.GetContentResultsAsync(false, new string[0]);
+
+        public static Task<ContentSearchResult<T>> GetContentResultsAsync<T>(this IElasticSearchService<T> service, bool requirePageTemplate) where T : IContentData
+            => service.GetContentResultsAsync(requirePageTemplate, new string[0]);
+
+        public static Task<ContentSearchResult<T>> GetContentResultsAsync<T>(this IElasticSearchService<T> service, bool requirePageTemplate, string[] providerNames) where T : IContentData
+            => service.GetContentResultsAsync(CancellationToken.None, requirePageTemplate, false, providerNames, true, true);
 
         public static async Task<ContentSearchResult<T>> GetContentResultsAsync<T>(
             this IElasticSearchService<T> service,
             CancellationToken cancellationToken,
-            bool requirePageTemplate = false,
-            string[] providerNames = null) where T : IContentData
+            bool requirePageTemplate,
+            bool ignoreFilters,
+            string[] providerNames,
+            bool enableHighlighting,
+            bool enableDidYouMean) where T : IContentData
         {
-            SearchResult results = await service.GetResultsAsync(cancellationToken, DefaultFields.Id).ConfigureAwait(false);
+            SearchResult results = await service.GetResultsAsync(cancellationToken, enableHighlighting, enableDidYouMean, !ignoreFilters, DefaultFields.Id).ConfigureAwait(false);
 
             IEnumerable<Task<ContentSearchHit<T>>> tasks =
-                results.Hits.Select(h => FilterAsync<T>(h, requirePageTemplate, providerNames));
+                results.Hits.Select(h => FilterAsync<T>(h, requirePageTemplate, providerNames, ignoreFilters));
 
             ContentSearchHit<T>[] hits = await Task.WhenAll(tasks).ConfigureAwait(false);
             hits = hits.Where(h => h != null).ToArray();
@@ -125,11 +134,11 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Extensions
             return new ContentSearchResult<T>(results, hits);
         }
 
-        private static async Task<ContentSearchHit<T>> FilterAsync<T>(SearchHit hit, bool requirePageTemplate, string[] providerNames) where T : IContentData
+        private static async Task<ContentSearchHit<T>> FilterAsync<T>(SearchHit hit, bool requirePageTemplate, string[] providerNames, bool ignoreFilters = true) where T : IContentData
         {
             return await Task.Run(() =>
             {
-                if(!ShouldAdd(hit, requirePageTemplate, out T content, providerNames, false))
+                if(!ShouldAdd(hit, requirePageTemplate, out T content, providerNames, ignoreFilters))
                 {
                     return null;
                 }

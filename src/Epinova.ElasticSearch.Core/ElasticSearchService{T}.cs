@@ -313,20 +313,15 @@ namespace Epinova.ElasticSearch.Core
             return GetResults(query);
         }
 
-        public virtual SearchResult GetResults(int from, int size, bool enableHighlighting = true, bool enableDidYouMean = true, bool applyDefaultFilters = true, params string[] fields)
+        public async Task<SearchResult> GetResultsAsync(bool enableHighlighting = true, bool enableDidYouMean = true, bool applyDefaultFilters = true, params string[] fields)
+            => await GetResultsAsync(CancellationToken.None, enableHighlighting, enableDidYouMean, applyDefaultFilters, fields)
+                        .ConfigureAwait(false);
+
+        public async Task<SearchResult> GetResultsAsync(CancellationToken cancellationToken, bool enableHighlighting = true, bool enableDidYouMean = true, bool applyDefaultFilters = true, params string[] fields)
         {
-            FromValue = from;
-            SizeValue = size;
-
-            return GetResults(enableHighlighting, enableDidYouMean, applyDefaultFilters, fields);
-        }
-
-        public async Task<SearchResult> GetResultsAsync(params string[] fields)
-            => await GetResultsAsync(CancellationToken.None, fields).ConfigureAwait(false);
-
-        public async Task<SearchResult> GetResultsAsync(CancellationToken cancellationToken, params string[] fields)
-        {
-            QuerySetup query = CreateQuery(true, fields);
+            QuerySetup query = CreateQuery(applyDefaultFilters, fields);
+            query.EnableDidYouMean = enableDidYouMean;
+            query.EnableHighlighting = enableHighlighting;
 
             return await GetResultsAsync(query, cancellationToken).ConfigureAwait(false);
         }
