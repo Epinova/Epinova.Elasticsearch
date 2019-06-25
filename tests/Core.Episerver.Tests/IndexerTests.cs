@@ -274,5 +274,84 @@ namespace Core.Episerver.Tests
             _fixture.ServiceLocationMock.CoreIndexerMock
                 .Verify(m => m.Bulk(It.IsAny<IEnumerable<BulkOperation>>(), It.IsAny<Action<string>>()), Times.Once);
         }
+
+        [Fact]
+        public void ShouldHideFromSearch_ContentFolder_ReturnsTrue()
+        {
+            var content = new ContentFolder();
+            var result = _indexer.ShouldHideFromSearch(content);
+
+            Assert.True(result);
+        }
+
+        [Fact]
+        public void ShouldHideFromSearch_InTrash_ReturnsTrue()
+        {
+            var content = Factory.GetPageData(isNotInWaste: false);
+            var result = _indexer.ShouldHideFromSearch(content);
+
+            Assert.True(result);
+        }
+
+        [Fact]
+        public void ShouldHideFromSearch_ParentInTrash_ReturnsTrue()
+        {
+            var content = Factory.GetPageData(parentId: 1);
+            var result = _indexer.ShouldHideFromSearch(content);
+
+            Assert.True(result);
+        }
+
+        [Fact]
+        public void ShouldHideFromSearch_HideFromSearchPropertyIsTrue_ReturnsTrue()
+        {
+            var content = Factory.GetPageData();
+            content.Property.Add(new PropertyBoolean(true) { Name = "HideFromSearch" });
+            var result = _indexer.ShouldHideFromSearch(content);
+
+            Assert.True(result);
+        }
+
+        [Fact]
+        public void ShouldHideFromSearch_PageDeletedPropertyIsTrue_ReturnsTrue()
+        {
+            var content = Factory.GetPageData();
+            content.Property.Add(new PropertyBoolean(true) { Name = "PageDeleted" });
+            var result = _indexer.ShouldHideFromSearch(content);
+
+            Assert.True(result);
+        }
+
+        [Fact]
+        public void ShouldHideFromSearch_NotPageData_ReturnsFalse()
+        {
+            var content = new BasicContent();
+            var result = _indexer.ShouldHideFromSearch(content);
+
+            Assert.False(result);
+        }
+
+        [Theory]
+        [InlineData(PageShortcutType.Normal)]
+        [InlineData(PageShortcutType.FetchData)]
+        public void ShouldHideFromSearch_ValidPageLinkType_ReturnsFalse(PageShortcutType shortcutType)
+        {
+            var content = Factory.GetPageData(shortcutType: shortcutType);
+            var result = _indexer.ShouldHideFromSearch(content);
+
+            Assert.False(result);
+        }
+
+        [Theory]
+        [InlineData(PageShortcutType.External)]
+        [InlineData(PageShortcutType.Inactive)]
+        [InlineData(PageShortcutType.Shortcut)]
+        public void ShouldHideFromSearch_InvalidPageLinkType_ReturnsTrue(PageShortcutType shortcutType)
+        {
+            var content = Factory.GetPageData(shortcutType: shortcutType);
+            var result = _indexer.ShouldHideFromSearch(content);
+
+            Assert.True(result);
+        }
     }
 }
