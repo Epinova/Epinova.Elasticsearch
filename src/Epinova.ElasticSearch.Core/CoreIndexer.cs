@@ -226,26 +226,7 @@ namespace Epinova.ElasticSearch.Core
                 var jsonSettings = new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore };
                 oldJson = JsonConvert.SerializeObject(mapping, jsonSettings);
 
-                // Get indexable properties (string, XhtmlString, [Searchable(true)]) 
-                var indexableProperties = type.GetIndexableProps(false)
-                    .Select(p => new
-                    {
-                        p.Name,
-                        Type = p.PropertyType,
-                        Analyzable = ((p.PropertyType == typeof(string) || p.PropertyType == typeof(string[]))
-                                     && (p.GetCustomAttributes(typeof(StemAttribute)).Any() || WellKnownProperties.Analyze
-                                          .Select(w => w.ToLower())
-                                          .Contains(p.Name.ToLower())))
-                                     || (p.PropertyType == typeof(XhtmlString)
-                                     && p.GetCustomAttributes(typeof(ExcludeFromSearchAttribute), true).Length == 0)
-                    })
-                    .Where(p => p.Name != nameof(IndexItem.Type)
-                                && p.Name != nameof(IndexItem._bestbets)
-                                && p.Name != DefaultFields.DidYouMean
-                                && p.Name != DefaultFields.Suggest
-                                && p.Name != nameof(IndexItem.attachment)
-                                && p.Name != nameof(IndexItem._attachmentdata))
-                    .ToList();
+                var indexableProperties = GetIndexableProperties(type, false);
 
                 // Get well-known and Stemmed property-names
                 List<string> allAnalyzableProperties = indexableProperties.Where(i => i.Analyzable)
@@ -611,6 +592,8 @@ namespace Epinova.ElasticSearch.Core
             {
                 return name != nameof(IndexItem.Type)
                     && name != nameof(IndexItem._bestbets)
+                    && name != DefaultFields.DidYouMean
+                    && name != DefaultFields.Suggest
                     && name != nameof(IndexItem.attachment)
                     && name != nameof(IndexItem._attachmentdata);
             }
