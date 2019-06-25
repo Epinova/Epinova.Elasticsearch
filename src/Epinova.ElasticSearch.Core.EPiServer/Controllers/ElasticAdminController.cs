@@ -25,24 +25,13 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Controllers
             ILanguageBranchRepository languageBranchRepository,
             ICoreIndexer coreIndexer,
             IElasticSearchSettings settings,
-            IHttpClientHelper httpClientHelper) : base(settings, languageBranchRepository)
+            IHttpClientHelper httpClientHelper)
+            : base(settings, httpClientHelper, languageBranchRepository)
         {
             _coreIndexer = coreIndexer;
             _settings = settings;
             _healthHelper = new Health(settings, httpClientHelper);
             _httpClientHelper = httpClientHelper;
-        }
-
-        internal ElasticAdminController(
-            ILanguageBranchRepository languageBranchRepository,
-            ICoreIndexer coreIndexer,
-            IElasticSearchSettings settings,
-            Index indexHelper,
-            Health health) : base(indexHelper, languageBranchRepository)
-        {
-            _coreIndexer = coreIndexer;
-            _settings = settings;
-            _healthHelper = health;
         }
 
         [Authorize(Roles = RoleNames.ElasticsearchAdmins)]

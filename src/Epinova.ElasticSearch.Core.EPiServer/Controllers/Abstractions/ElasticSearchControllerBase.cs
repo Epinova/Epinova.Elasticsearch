@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Web.Mvc;
 using System.Web.Routing;
+using Epinova.ElasticSearch.Core.Contracts;
 using Epinova.ElasticSearch.Core.Models.Admin;
 using Epinova.ElasticSearch.Core.Settings;
 using Epinova.ElasticSearch.Core.Settings.Configuration;
@@ -22,22 +23,20 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Controllers.Abstractions
 
         protected string CurrentIndex;
         protected string CurrentLanguage;
-
-        protected ElasticSearchControllerBase(
-            Admin.Index indexHelper,
-            ILanguageBranchRepository languageBranchRepository)
-        {
-            _languageBranchRepository = languageBranchRepository;
-
-            Indices = GetIndices(indexHelper);
-            Languages = GetLanguages();
-        }
+        private readonly IElasticSearchSettings _settings;
+        private readonly IHttpClientHelper _httpClientHelper;
 
         protected ElasticSearchControllerBase(
             IElasticSearchSettings settings,
+            IHttpClientHelper httpClientHelper,
             ILanguageBranchRepository languageBranchRepository)
-            : this(new Admin.Index(settings), languageBranchRepository)
         {
+            _settings = settings;
+            _httpClientHelper = httpClientHelper;
+            _languageBranchRepository = languageBranchRepository;
+
+            Indices = GetIndices();
+            Languages = GetLanguages();
         }
 
         protected override void OnActionExecuting(ActionExecutingContext filterContext)
@@ -91,8 +90,10 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Controllers.Abstractions
             UserInterfaceLanguage.Instance.SetCulture(EPiServerProfile.Current?.Language);
         }
 
-        private List<IndexInformation> GetIndices(Admin.Index indexHelper)
+        private List<IndexInformation> GetIndices()
         {
+            var indexHelper = new Admin.Index(_settings, _httpClientHelper, "GetIndices-NA");
+
             var indices = indexHelper.GetIndices().ToList();
 
             var config = ElasticSearchSection.GetConfiguration();

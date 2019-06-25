@@ -16,7 +16,9 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Controllers
         public ElasticTrackingController(
             ILanguageBranchRepository languageBranchRepository,
             ITrackingRepository trackingRepository,
-            IElasticSearchSettings settings) : base(settings, languageBranchRepository)
+            IElasticSearchSettings settings,
+            IHttpClientHelper httpClientHelper)
+            : base(settings, httpClientHelper, languageBranchRepository)
         {
             _trackingRepository = trackingRepository;
         }

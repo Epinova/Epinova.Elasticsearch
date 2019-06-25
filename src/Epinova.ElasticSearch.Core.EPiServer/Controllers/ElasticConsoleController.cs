@@ -20,7 +20,8 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Controllers
         public ElasticConsoleController(
             ILanguageBranchRepository languageBranchRepository,
             IElasticSearchSettings settings,
-            IHttpClientHelper httpClientHelper) : base(settings, languageBranchRepository)
+            IHttpClientHelper httpClientHelper)
+            : base(settings, httpClientHelper, languageBranchRepository)
         {
             _settings = settings;
             _httpClientHelper = httpClientHelper;
@@ -30,7 +31,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Controllers
         [ValidateInput(false)]
         public ActionResult Index(string query, string index)
         {
-            var indexHelper = new Admin.Index(_settings);
+            var indexHelper = new Admin.Index(_settings, _httpClientHelper, index);
 
             List<string> indices = indexHelper.GetIndices()
                 .Select(i => i.Index).ToList();
@@ -80,7 +81,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Controllers
 
         private ActionResult GetJsonFromEndpoint(string index, string endpoint)
         {
-            var indexHelper = new Admin.Index(_settings);
+            var indexHelper = new Admin.Index(_settings, _httpClientHelper, index);
 
             var indices = indexHelper.GetIndices()
                 .Select(i => i.Index).ToList();

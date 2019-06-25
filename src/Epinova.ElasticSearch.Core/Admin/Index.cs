@@ -26,7 +26,7 @@ namespace Epinova.ElasticSearch.Core.Admin
         private readonly IElasticSearchSettings _settings;
         private readonly IHttpClientHelper _httpClientHelper;
 
-        public Index(IElasticSearchSettings settings, IHttpClientHelper httpClientHelper, string name) : this(settings)
+        public Index(IElasticSearchSettings settings, IHttpClientHelper httpClientHelper, string name)
         {
             if(String.IsNullOrWhiteSpace(name))
             {
@@ -37,12 +37,8 @@ namespace Epinova.ElasticSearch.Core.Admin
             _language = _name.Split('-').Last();
             _nameWithoutLanguage = _name.Substring(0, _name.Length - _language.Length - 1);
             _httpClientHelper = httpClientHelper;
-        }
-
-        internal Index(IElasticSearchSettings settings)
-        {
             _settings = settings;
-            _indexing = new Indexing(settings, _httpClientHelper);
+            _indexing = new Indexing(settings, httpClientHelper);
         }
 
         public virtual IEnumerable<IndexInformation> GetIndices()

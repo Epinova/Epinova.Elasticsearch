@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Web.Mvc;
+using Epinova.ElasticSearch.Core.Contracts;
 using Epinova.ElasticSearch.Core.EPiServer.Contracts;
 using Epinova.ElasticSearch.Core.EPiServer.Controllers.Abstractions;
 using Epinova.ElasticSearch.Core.EPiServer.Models;
@@ -19,15 +20,9 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Controllers
         public ElasticSynonymsController(
             ILanguageBranchRepository languageBranchRepository,
             ISynonymRepository synonymRepository,
-            IElasticSearchSettings settings) : base(settings, languageBranchRepository)
-        {
-            _synonymRepository = synonymRepository;
-        }
-
-        internal ElasticSynonymsController(
-            Admin.Index indexHelper,
-            ILanguageBranchRepository languageBranchRepository,
-            ISynonymRepository synonymRepository) : base(indexHelper, languageBranchRepository)
+            IElasticSearchSettings settings,
+            IHttpClientHelper httpClientHelper)
+            : base(settings, httpClientHelper, languageBranchRepository)
         {
             _synonymRepository = synonymRepository;
         }
