@@ -22,6 +22,10 @@ namespace Core.Tests
                 .Setup(m => m.GetDefaultIndexName("de"))
                 .Returns("my-index");
 
+            _fixture.ServiceLocationMock.SettingsMock
+                .Setup(m => m.GetDefaultIndexName("sv"))
+                .Returns("delete-me");
+
             _fixture.ServiceLocationMock.HttpClientMock
                 .Setup(m => m.Head(new Uri("http://example.com/bad-index")))
                 .Returns(HttpStatusCode.NotFound);
@@ -36,9 +40,16 @@ namespace Core.Tests
         }
 
         [Fact]
-        public void Bulk_NoOperations_ReturnsEmptyResult()
+        public void Bulk_EmptyOperations_ReturnsEmptyResult()
         {
             var result = _coreIndexer.Bulk(new BulkOperation[0]);
+            Assert.Empty(result.Batches);
+        }
+
+        [Fact]
+        public void Bulk_NullOperations_ReturnsEmptyResult()
+        {
+            var result = _coreIndexer.Bulk(null);
             Assert.Empty(result.Batches);
         }
 
@@ -63,7 +74,7 @@ namespace Core.Tests
         public void Delete_CallsClientHeadAndDelete()
         {
             var id = Factory.GetInteger().ToString();
-            _coreIndexer.Delete(id, "en", typeof(TestPage), "delete-me");
+            _coreIndexer.Delete(id, "sv", typeof(TestPage));
             var uri = new Uri($"http://example.com/delete-me/{typeof(TestPage).GetTypeName()}/{id}");
 
             _fixture.ServiceLocationMock.HttpClientMock
@@ -87,7 +98,17 @@ namespace Core.Tests
             _coreIndexer.Update(id, new { Foo = 42 }, "my-index");
 
             _fixture.ServiceLocationMock.HttpClientMock
-                .Verify(m => m.Put(It.IsAny<Uri>(), It.IsAny<byte[]>()), Times.Once);
+                .Verify(m => m.Put(new Uri($"http://example.com/my-index/AnonymousType/{id}"), It.IsAny<byte[]>()), Times.Once);
+        }
+
+        [Fact]
+        public void Update_WithTypes_CallsClientPut()
+        {
+            var id = Factory.GetInteger().ToString();
+            _coreIndexer.Update(id, new { Foo = 42, Types = new[] { "foo", "bar" } }, "my-index");
+
+            _fixture.ServiceLocationMock.HttpClientMock
+                .Verify(m => m.Put(new Uri($"http://example.com/my-index/AnonymousType/{id}"), It.IsAny<byte[]>()), Times.Once);
         }
 
         [Fact]
@@ -160,6 +181,6 @@ namespace Core.Tests
                 .Verify(m => m.GetString(new Uri("http://example.com/my-index/_refresh")), Times.AtLeastOnce);
         }
 
-        //TODO: Tests for UpdateMapping
+        //TODO: Tests for UpdateMapping and CreateX
     }
 }
