@@ -80,17 +80,6 @@ namespace Epinova.ElasticSearch.Core
 
         public CultureInfo CurrentLanguage => SearchLanguage;
 
-        ///// <summary>
-        ///// Initializes a new instance of the ElasticSearchService class
-        ///// </summary>
-        ///// <exception cref="ConfigurationErrorsException"></exception>
-        //internal ElasticSearchService()
-        //    : this(
-        //          ServiceLocator.Current.GetInstance<IElasticSearchSettings>(),
-        //          ServiceLocator.Current.GetInstance<IHttpClientHelper>())
-        //{
-        //}
-
         internal ElasticSearchService(IElasticSearchSettings settings, IHttpClientHelper httpClientHelper)
         {
             SearchLanguage = CultureInfo.CurrentCulture;
