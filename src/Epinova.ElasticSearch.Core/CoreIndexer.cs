@@ -261,41 +261,7 @@ namespace Epinova.ElasticSearch.Core
             }
             catch(Exception ex)
             {
-                HandleError(ex);
-            }
-
-            void HandleError(Exception ex)
-            {
-                Logger.Error($"Failed to update mappings for content of type '{type.Name}'\n. Properties with the same name but different type, " +
-                            "where one of the types is analyzable and the other is not, is often the cause of this error. Ie. 'string MainIntro' vs 'XhtmlString MainIntro'. \n" +
-                            "All properties with equal name must be of the same type or ignored from indexing with [Searchable(false)]. \n" +
-                            "Enable debug-logging to view further details.", ex);
-
-                if(Logger.IsDebugEnabled())
-                {
-                    Logger.Debug("Old mapping:\n" + JToken.Parse(oldJson ?? String.Empty).ToString(Formatting.Indented));
-                    Logger.Debug("New mapping:\n" + JToken.Parse(json ?? String.Empty).ToString(Formatting.Indented));
-
-                    try
-                    {
-                        IndexMapping oldMappings = JsonConvert.DeserializeObject<IndexMapping>(oldJson);
-
-                        foreach(KeyValuePair<string, IndexMappingProperty> oldMapping in oldMappings.Properties)
-                        {
-                            if(mapping?.Properties.ContainsKey(oldMapping.Key) == true
-                                && !oldMapping.Value.Equals(mapping.Properties[oldMapping.Key]))
-                            {
-                                Logger.Error("Property '" + oldMapping.Key + "' has different mapping across different types");
-                                Logger.Debug("Old: \n" + JsonConvert.SerializeObject(oldMapping.Value));
-                                Logger.Debug("New: \n" + JsonConvert.SerializeObject(mapping.Properties[oldMapping.Key]));
-                            }
-                        }
-                    }
-                    catch(Exception e)
-                    {
-                        Logger.Error("Failed to compare mappings", e);
-                    }
-                }
+                HandleMappingError(type, ex, json, oldJson, mapping);
             }
         }
 
@@ -647,6 +613,40 @@ namespace Epinova.ElasticSearch.Core
         {
             return objectToUpdate is IDictionary<string, object> dict
                    && dict.TryGetValue(DefaultFields.AttachmentData, out _);
+        }
+
+        private void HandleMappingError(in Type type, in Exception ex, in string json, in string oldJson, in IndexMapping mapping)
+        {
+            Logger.Error($"Failed to update mappings for content of type '{type.Name}'\n. Properties with the same name but different type, " +
+                        "where one of the types is analyzable and the other is not, is often the cause of this error. Ie. 'string MainIntro' vs 'XhtmlString MainIntro'. \n" +
+                        "All properties with equal name must be of the same type or ignored from indexing with [Searchable(false)]. \n" +
+                        "Enable debug-logging to view further details.", ex);
+
+            if(Logger.IsDebugEnabled())
+            {
+                Logger.Debug("Old mapping:\n" + JToken.Parse(oldJson ?? String.Empty).ToString(Formatting.Indented));
+                Logger.Debug("New mapping:\n" + JToken.Parse(json ?? String.Empty).ToString(Formatting.Indented));
+
+                try
+                {
+                    IndexMapping oldMappings = JsonConvert.DeserializeObject<IndexMapping>(oldJson);
+
+                    foreach(KeyValuePair<string, IndexMappingProperty> oldMapping in oldMappings.Properties)
+                    {
+                        if(mapping?.Properties.ContainsKey(oldMapping.Key) == true
+                            && !oldMapping.Value.Equals(mapping.Properties[oldMapping.Key]))
+                        {
+                            Logger.Error("Property '" + oldMapping.Key + "' has different mapping across different types");
+                            Logger.Debug("Old: \n" + JsonConvert.SerializeObject(oldMapping.Value));
+                            Logger.Debug("New: \n" + JsonConvert.SerializeObject(mapping.Properties[oldMapping.Key]));
+                        }
+                    }
+                }
+                catch(Exception e)
+                {
+                    Logger.Error("Failed to compare mappings", e);
+                }
+            }
         }
     }
 }
