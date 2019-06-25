@@ -7,7 +7,6 @@ using Epinova.ElasticSearch.Core.EPiServer.Extensions;
 using Epinova.ElasticSearch.Core.Extensions;
 using Epinova.ElasticSearch.Core.Models;
 using Epinova.ElasticSearch.Core.Settings;
-using Epinova.ElasticSearch.Core.Utilities;
 using EPiServer.DataAbstraction;
 using EPiServer.ServiceLocation;
 using Newtonsoft.Json;
@@ -20,16 +19,18 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Services
     {
         private readonly IElasticSearchSettings _elasticSearchSettings;
         private readonly IContentTypeRepository _contentTypeRepository;
+        private readonly IHttpClientHelper _httpClientHelper;
 
         internal InspectorRepository()
         {
             _elasticSearchSettings = ServiceLocator.Current.GetInstance<IElasticSearchSettings>();
         }
 
-        public InspectorRepository(IElasticSearchSettings settings, IContentTypeRepository contentTypeRepository)
+        public InspectorRepository(IElasticSearchSettings settings, IHttpClientHelper httpClientHelper, IContentTypeRepository contentTypeRepository)
         {
             _elasticSearchSettings = settings;
             _contentTypeRepository = contentTypeRepository;
+            _httpClientHelper = httpClientHelper;
         }
 
         public List<InspectItem> Search(string languageId, string searchText, int size, string type = null, string selectedIndex = null)
@@ -48,7 +49,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Services
                 uri += "&rest_total_hits_as_int=true";
             }
 
-            string response = HttpClientHelper.GetString(new Uri(uri));
+            string response = _httpClientHelper.GetString(new Uri(uri));
             dynamic parsedResponse = JObject.Parse(response);
             JArray hits = parsedResponse.hits.hits;
 
@@ -67,7 +68,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Services
             object query = CreateTypeQuery(searchText);
             string json = JsonConvert.SerializeObject(query, new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore });
             byte[] data = Encoding.UTF8.GetBytes(json);
-            byte[] returnData = HttpClientHelper.Post(new Uri(uri), data);
+            byte[] returnData = _httpClientHelper.Post(new Uri(uri), data);
             string response = Encoding.UTF8.GetString(returnData);
 
             dynamic agg = JObject.Parse(response);

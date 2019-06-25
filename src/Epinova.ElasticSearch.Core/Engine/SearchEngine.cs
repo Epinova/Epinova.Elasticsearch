@@ -7,6 +7,7 @@ using System.Net;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Epinova.ElasticSearch.Core.Contracts;
 using Epinova.ElasticSearch.Core.Conventions;
 using Epinova.ElasticSearch.Core.Extensions;
 using Epinova.ElasticSearch.Core.Models;
@@ -25,10 +26,12 @@ namespace Epinova.ElasticSearch.Core.Engine
     {
         private static readonly ILogger Logger = LogManager.GetLogger(typeof(SearchEngine));
         private readonly IElasticSearchSettings _settings;
+        private readonly IHttpClientHelper _httpClientHelper;
 
-        internal SearchEngine(IElasticSearchSettings settings)
+        internal SearchEngine(IElasticSearchSettings settings, IHttpClientHelper httpClientHelper)
         {
             _settings = settings;
+            _httpClientHelper = httpClientHelper;
         }
 
         /// <summary>
@@ -351,7 +354,7 @@ namespace Epinova.ElasticSearch.Core.Engine
             try
             {
                 var data = Encoding.UTF8.GetBytes(request.ToString());
-                var returnData = await HttpClientHelper.PostAsync(new Uri(endpoint), data, cancellationToken);
+                var returnData = await _httpClientHelper.PostAsync(new Uri(endpoint), data, cancellationToken);
                 if(returnData == null)
                 {
                     throw new InvalidOperationException("Failed to POST to " + endpoint);
@@ -380,7 +383,7 @@ namespace Epinova.ElasticSearch.Core.Engine
             try
             {
                 var data = Encoding.UTF8.GetBytes(request.ToString());
-                var returnData = HttpClientHelper.Post(new Uri(endpoint), data);
+                var returnData = _httpClientHelper.Post(new Uri(endpoint), data);
                 if(returnData == null)
                 {
                     throw new InvalidOperationException($"Failed to POST to '{endpoint}'");

@@ -40,7 +40,8 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Extensions
         public static string[] GetSuggestions<T>(this IElasticSearchService<T> service, string searchText)
         {
             var settings = ServiceLocator.Current.GetInstance<IElasticSearchSettings>();
-            var engine = new SearchEngine(settings);
+            var client = ServiceLocator.Current.GetInstance<IHttpClientHelper>();
+            var engine = new SearchEngine(settings, client);
 
             return GetSuggestions(service, searchText, engine);
         }

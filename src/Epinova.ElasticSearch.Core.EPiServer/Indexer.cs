@@ -27,8 +27,10 @@ namespace Epinova.ElasticSearch.Core.EPiServer
         private const string FallbackLanguage = "en";
         private static readonly ILogger Logger = LogManager.GetLogger(typeof(Indexer));
         private readonly ICoreIndexer _coreIndexer;
+        private readonly ContentAssetHelper _contentAssetHelper;
         private readonly IContentLoader _contentLoader;
         private readonly IElasticSearchSettings _elasticSearchSettings;
+        private readonly ISiteDefinitionRepository _siteDefinitionRepository;
 
         // Avoid dependency on Episerver.Forms for this simple functionallity
         internal const string FormsUploadNamespace = "EPiServer.Forms.Core.IFileUploadElementBlock";
@@ -38,11 +40,18 @@ namespace Epinova.ElasticSearch.Core.EPiServer
 
         private Func<ContentReference, int[]> _getContentPath = ContentExtensions.GetContentPath;
 
-        public Indexer(ICoreIndexer coreIndexer, IElasticSearchSettings elasticSearchSettings, IContentLoader contentLoader)
+        public Indexer(
+            ICoreIndexer coreIndexer,
+            IElasticSearchSettings elasticSearchSettings,
+            ISiteDefinitionRepository siteDefinitionRepository,
+            IContentLoader contentLoader,
+            ContentAssetHelper contentAssetHelper)
         {
             _coreIndexer = coreIndexer;
             _elasticSearchSettings = elasticSearchSettings;
+            _siteDefinitionRepository = siteDefinitionRepository;
             _contentLoader = contentLoader;
+            _contentAssetHelper = contentAssetHelper;
         }
 
         public BulkBatchResult BulkUpdate(IEnumerable<IContent> contents, Action<string> logger, string indexName = null)
@@ -173,7 +182,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer
             return Indexing.ExcludedRoots.Intersect(ancestors).Any();
         }
 
-        internal static bool IsExludedType(IContent content)
+        public bool IsExludedType(IContent content)
         {
             return IsExludedType(content.GetUnproxiedType())
                 || IsExludedType(content?.GetType());
@@ -191,7 +200,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer
                    || DerivesFromExludedType(type);
         }
 
-        internal static bool ShouldHideFromSearch(IContent content)
+        public bool ShouldHideFromSearch(IContent content)
         {
             if(content is ContentFolder)
             {
@@ -262,7 +271,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer
             return false;
         }
 
-        private static string GetFallbackLanguage()
+        private string GetFallbackLanguage()
         {
             if(!HostingEnvironment.IsHosted)
             {
@@ -273,8 +282,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer
             if(startPageLink == null || startPageLink == ContentReference.EmptyReference)
             {
                 // Fallback to first defined site if StartPage is empty (no context or star-mapping)
-                var siteDefinitionRepository = ServiceLocator.Current.GetInstance<ISiteDefinitionRepository>();
-                var firstSite = siteDefinitionRepository.List().FirstOrDefault();
+                var firstSite = _siteDefinitionRepository.List().FirstOrDefault();
                 if(firstSite != null)
                 {
                     startPageLink = firstSite.StartPage;
@@ -314,11 +322,9 @@ namespace Epinova.ElasticSearch.Core.EPiServer
         private static bool GetEpiserverBoolProperty(PropertyData content)
             => content is PropertyBoolean property && property.Boolean.GetValueOrDefault(false);
 
-        private static bool IsFormUpload(IContent content)
+        private bool IsFormUpload(IContent content)
         {
-            var contentAssetHelper = ServiceLocator.Current.GetInstance<ContentAssetHelper>();
-
-            IContent owner = contentAssetHelper.GetAssetOwner(content.ContentLink);
+            IContent owner = _contentAssetHelper.GetAssetOwner(content.ContentLink);
 
             if(owner == null)
             {

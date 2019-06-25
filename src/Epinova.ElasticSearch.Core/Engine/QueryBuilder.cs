@@ -25,6 +25,7 @@ namespace Epinova.ElasticSearch.Core.Engine
     internal class QueryBuilder
     {
         private static readonly ILogger Log = LogManager.GetLogger(typeof(SearchEngine));
+        private readonly Mapping _mapping;
         private const int BestBetMultiplier = 10000; //TODO: Expose in config?
         private readonly IBoostingRepository _boostingRepository;
         private readonly IElasticSearchSettings _settings;
@@ -36,9 +37,10 @@ namespace Epinova.ElasticSearch.Core.Engine
             nameof(MappingType.Attachment).ToLower()
         };
 
-        public QueryBuilder(IElasticSearchSettings settings)
+        public QueryBuilder(IElasticSearchSettings settings, IHttpClientHelper httpClientHelper)
         {
             _settings = settings;
+            _mapping = new Mapping(settings, httpClientHelper);
             ServiceLocator.Current?.TryGetExistingInstance(out _boostingRepository);
         }
 
@@ -56,7 +58,7 @@ namespace Epinova.ElasticSearch.Core.Engine
             {
                 Log.Debug("No mapped fields found, lookup with Mapping.GetIndexMapping");
 
-                _mappedFields = Mapping.GetIndexMapping(type, language, index)
+                _mappedFields = _mapping.GetIndexMapping(type, language, index)
                     .Properties
                     .Where(m => _searchableFieldTypes.Contains(m.Value.Type)
                         && !m.Key.EndsWith(Models.Constants.KeywordSuffix))

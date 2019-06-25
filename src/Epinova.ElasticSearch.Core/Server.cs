@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using Epinova.ElasticSearch.Core.Contracts;
 using Epinova.ElasticSearch.Core.Models.Admin;
 using Epinova.ElasticSearch.Core.Settings;
-using Epinova.ElasticSearch.Core.Utilities;
 using EPiServer.Logging;
 using EPiServer.ServiceLocation;
 using Newtonsoft.Json;
@@ -11,6 +11,7 @@ namespace Epinova.ElasticSearch.Core
 {
     public static class Server
     {
+        private static readonly IHttpClientHelper _httpClientHelper = ServiceLocator.Current.GetInstance<IHttpClientHelper>();
         public static readonly ServerInfo Info = SetupInfo();
         public static readonly IEnumerable<Plugin> Plugins = SetupPlugins();
 
@@ -19,7 +20,7 @@ namespace Epinova.ElasticSearch.Core
             try
             {
                 string uri = $"{GetHost()}/_cat/plugins?h=component,version&format=json";
-                string json = HttpClientHelper.GetString(new Uri(uri));
+                string json = _httpClientHelper.GetString(new Uri(uri));
                 return JsonConvert.DeserializeObject<Plugin[]>(json);
             }
             catch(Exception ex)
@@ -40,7 +41,7 @@ namespace Epinova.ElasticSearch.Core
         {
             try
             {
-                string response = HttpClientHelper.GetString(new Uri(GetHost()));
+                string response = _httpClientHelper.GetString(new Uri(GetHost()));
                 return JsonConvert.DeserializeObject<ServerInfo>(response);
             }
             catch(Exception ex)

@@ -27,14 +27,18 @@ using Newtonsoft.Json.Linq;
 namespace Epinova.ElasticSearch.Core
 {
     [ServiceConfiguration(typeof(ICoreIndexer))]
-    public class CoreIndexer : ICoreIndexer
+    internal class CoreIndexer : ICoreIndexer
     {
         private static readonly ILogger Logger = LogManager.GetLogger(typeof(CoreIndexer));
         private readonly IElasticSearchSettings _settings;
+        private readonly IHttpClientHelper _httpClientHelper;
+        private readonly Mapping _mapping;
 
-        public CoreIndexer(IElasticSearchSettings settings)
+        public CoreIndexer(IElasticSearchSettings settings, IHttpClientHelper httpClientHelper)
         {
             _settings = settings;
+            _httpClientHelper = httpClientHelper;
+            _mapping = new Mapping(settings, httpClientHelper);
         }
 
         public static event OnBeforeUpdateItem BeforeUpdateItem;
@@ -124,7 +128,7 @@ namespace Epinova.ElasticSearch.Core
                         logger(JToken.Parse(debugJson).ToString(Formatting.Indented));
                     }
 
-                    var results = HttpClientHelper.Post(new Uri(uri), Encoding.UTF8.GetBytes(payload));
+                    var results = _httpClientHelper.Post(new Uri(uri), Encoding.UTF8.GetBytes(payload));
                     var stringReader = new StringReader(Encoding.UTF8.GetString(results));
 
                     var bulkResult = serializer.Deserialize<BulkResult>(new JsonTextReader(stringReader));
@@ -155,11 +159,11 @@ namespace Epinova.ElasticSearch.Core
 
             var uri = $"{_settings.Host}/{indexName}/{type.GetTypeName()}/{id}";
 
-            var exists = HttpClientHelper.Head(new Uri(uri)) == HttpStatusCode.OK;
+            var exists = _httpClientHelper.Head(new Uri(uri)) == HttpStatusCode.OK;
 
             if(exists)
             {
-                HttpClientHelper.Delete(new Uri(uri));
+                _httpClientHelper.Delete(new Uri(uri));
                 Refresh(language);
             }
         }
@@ -194,6 +198,188 @@ namespace Epinova.ElasticSearch.Core
             PerformUpdate(id, updateItem, objectType, indexName);
         }
 
+        public void CreateAnalyzedMappingsIfNeeded(Type type, string language, string indexName = null)
+        {
+            Logger.Debug("Checking if analyzable mappings needs updating");
+
+            string json = null;
+            string oldJson = null;
+            IndexMapping mapping = null;
+
+            try
+            {
+                if(String.IsNullOrWhiteSpace(indexName))
+                {
+                    indexName = _settings.GetDefaultIndexName(language);
+                }
+
+                // Get mappings from server
+                mapping = _mapping.GetIndexMapping(typeof(IndexItem), language, indexName);
+
+                // Ignore special mappings
+                mapping.Properties.Remove(DefaultFields.AttachmentData);
+                mapping.Properties.Remove(DefaultFields.BestBets);
+                mapping.Properties.Remove(DefaultFields.DidYouMean);
+                mapping.Properties.Remove(DefaultFields.Suggest);
+                mapping.Properties.Remove(nameof(IndexItem.attachment));
+
+                var jsonSettings = new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore };
+                oldJson = JsonConvert.SerializeObject(mapping, jsonSettings);
+
+                // Get indexable properties (string, XhtmlString, [Searchable(true)]) 
+                var indexableProperties = type.GetIndexableProps(false)
+                    .Select(p => new
+                    {
+                        p.Name,
+                        Type = p.PropertyType,
+                        Analyzable = ((p.PropertyType == typeof(string) || p.PropertyType == typeof(string[]))
+                                     && (p.GetCustomAttributes(typeof(StemAttribute)).Any() || WellKnownProperties.Analyze
+                                          .Select(w => w.ToLower())
+                                          .Contains(p.Name.ToLower())))
+                                     || (p.PropertyType == typeof(XhtmlString)
+                                     && p.GetCustomAttributes(typeof(ExcludeFromSearchAttribute), true).Length == 0)
+                    })
+                    .Where(p => p.Name != nameof(IndexItem.Type)
+                                && p.Name != nameof(IndexItem._bestbets)
+                                && p.Name != DefaultFields.DidYouMean
+                                && p.Name != DefaultFields.Suggest
+                                && p.Name != nameof(IndexItem.attachment)
+                                && p.Name != nameof(IndexItem._attachmentdata))
+                    .ToList();
+
+                // Get well-known and Stemmed property-names
+                List<string> allAnalyzableProperties = indexableProperties.Where(i => i.Analyzable)
+                    .Select(i => i.Name)
+                    .ToList();
+
+                allAnalyzableProperties.ForEach(p =>
+                {
+                    IndexMappingProperty propertyMapping = Language.GetPropertyMapping(language, typeof(string), true);
+
+                    mapping.AddOrUpdateProperty(p, propertyMapping);
+                });
+
+                if(!mapping.IsDirty)
+                {
+                    // No change, quit.
+                    Logger.Debug("No change");
+                    return;
+                }
+
+                json = JsonConvert.SerializeObject(mapping, jsonSettings);
+                var data = Encoding.UTF8.GetBytes(json);
+                var uri = $"{_settings.Host}/{indexName}/_mapping/{typeof(IndexItem).GetTypeName()}";
+                if(Server.Info.Version.Major >= 7)
+                {
+                    uri += "?include_type_name=true";
+                }
+
+                Logger.Debug("Update mapping:\n" + JToken.Parse(json).ToString(Formatting.Indented));
+
+                _httpClientHelper.Put(new Uri(uri), data);
+            }
+            catch(Exception ex)
+            {
+                Logger.Error(
+                    $"Failed to update mappings for content of type '{type.Name}'\n. Properties with the same name but different type, " +
+                    "where one of the types is analyzable and the other is not, is often the cause of this error. Ie. 'string MainIntro' vs 'XhtmlString MainIntro'. \n" +
+                    "All properties with equal name must be of the same type or ignored from indexing with [Searchable(false)]. \n" +
+                    "Enable debug-logging to view further details.", ex);
+
+                if(Logger.IsDebugEnabled())
+                {
+                    Logger.Debug("Old mapping:\n" + JToken.Parse(oldJson ?? String.Empty).ToString(Formatting.Indented));
+                    Logger.Debug("New mapping:\n" + JToken.Parse(json ?? String.Empty).ToString(Formatting.Indented));
+
+                    try
+                    {
+                        IndexMapping oldMappings = JsonConvert.DeserializeObject<IndexMapping>(oldJson);
+
+                        foreach(KeyValuePair<string, IndexMappingProperty> oldMapping in oldMappings.Properties)
+                        {
+                            if(mapping?.Properties.ContainsKey(oldMapping.Key) == true
+                                && !oldMapping.Value.Equals(mapping.Properties[oldMapping.Key]))
+                            {
+                                Logger.Error("Property '" + oldMapping.Key + "' has different mapping across different types");
+                                Logger.Debug("Old: \n" + JsonConvert.SerializeObject(oldMapping.Value));
+                                Logger.Debug("New: \n" + JsonConvert.SerializeObject(mapping.Properties[oldMapping.Key]));
+                            }
+                        }
+                    }
+                    catch(Exception e)
+                    {
+                        Logger.Error("Failed to compare mappings", e);
+                    }
+                }
+            }
+        }
+
+        public void CreateDidYouMeanMappingsIfNeeded(Type type, string language, string indexName = null)
+        {
+            Logger.Debug("Checking if DidYouMean mappings needs updating");
+
+            var stringProperties = type.GetIndexableProps(false)
+                .Where(p => p.PropertyType == typeof(string) || p.PropertyType == typeof(string[]) || p.PropertyType == typeof(XhtmlString))
+                .Select(p => p.Name)
+                .ToList();
+
+            string json = null;
+            string oldJson = null;
+
+            try
+            {
+                IndexMapping mapping = _mapping.GetIndexMapping(typeof(IndexItem), language, indexName);
+
+                var jsonSettings = new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore };
+                oldJson = JsonConvert.SerializeObject(mapping, jsonSettings);
+
+                IEnumerable<string> filtered = stringProperties
+                    .Except(WellKnownProperties.IgnoreDidYouMean)
+                    .Except(WellKnownProperties.Ignore);
+
+                foreach(string prop in filtered)
+                {
+                    mapping.Properties.TryGetValue(prop, out IndexMappingProperty property);
+                    mapping.AddOrUpdateProperty(prop, property);
+                }
+
+                if(!mapping.IsDirty)
+                {
+                    // No change, quit.
+                    Logger.Debug("No change");
+                    return;
+                }
+
+                json = JsonConvert.SerializeObject(mapping, jsonSettings);
+                var data = Encoding.UTF8.GetBytes(json);
+
+                if(String.IsNullOrWhiteSpace(indexName))
+                {
+                    indexName = _settings.GetDefaultIndexName(language);
+                }
+
+                var uri = $"{_settings.Host}/{indexName}/_mapping/{typeof(IndexItem).GetTypeName()}";
+                if(Server.Info.Version.Major >= 7)
+                {
+                    uri += "?include_type_name=true";
+                }
+
+                Logger.Debug("Update mapping:\n" + JToken.Parse(json).ToString(Formatting.Indented));
+
+                _httpClientHelper.Put(new Uri(uri), data);
+            }
+            catch(Exception ex)
+            {
+                Logger.Error("Failed to update mappings", ex);
+
+                if(Logger.IsDebugEnabled())
+                {
+                    Logger.Debug("Old mapping:\n" + JToken.Parse(oldJson ?? String.Empty).ToString(Formatting.Indented));
+                    Logger.Debug("New mapping:\n" + JToken.Parse(json ?? String.Empty).ToString(Formatting.Indented));
+                }
+            }
+        }
+
         public void ClearBestBets(string indexName, Type indexType, string id)
         {
             var request = new BestBetsRequest(new string[0]);
@@ -204,7 +390,7 @@ namespace Epinova.ElasticSearch.Core
 
             Logger.Information($"Clearing BestBets for id '{id}'");
 
-            HttpClientHelper.Post(new Uri(uri), data);
+            _httpClientHelper.Post(new Uri(uri), data);
 
             if(AfterUpdateBestBet != null)
             {
@@ -228,7 +414,7 @@ namespace Epinova.ElasticSearch.Core
 
             Logger.Information("Update BestBets:\n" + JToken.Parse(json).ToString(Formatting.Indented));
 
-            HttpClientHelper.Post(new Uri(uri), data);
+            _httpClientHelper.Post(new Uri(uri), data);
 
             if(AfterUpdateBestBet != null)
             {
@@ -258,7 +444,7 @@ namespace Epinova.ElasticSearch.Core
             Logger.Information("IndexableProperties for " + type?.Name + ": " + String.Join(", ", indexableProperties.Select(p => p.Name)));
 
             // Get existing mapping
-            IndexMapping mapping = Mapping.GetIndexMapping(indexType, null, index);
+            IndexMapping mapping = _mapping.GetIndexMapping(indexType, null, index);
 
             // Ignore special mappings
             mapping.Properties.Remove(DefaultFields.AttachmentData);
@@ -347,7 +533,7 @@ namespace Epinova.ElasticSearch.Core
 
                 Logger.Information("Update mapping:\n" + JToken.Parse(json).ToString(Formatting.Indented));
 
-                HttpClientHelper.Put(new Uri(uri), data);
+                _httpClientHelper.Put(new Uri(uri), data);
             }
             catch(Exception ex)
             {
@@ -378,7 +564,7 @@ namespace Epinova.ElasticSearch.Core
             Logger.Information($"Refreshing index {indexName}");
             var endpointUri = $"{_settings.Host}/{indexName}/_refresh";
 
-            HttpClientHelper.GetString(new Uri(endpointUri));
+            _httpClientHelper.GetString(new Uri(endpointUri));
         }
 
         private static List<IndexableProperty> GetIndexableProperties(Type type, bool optIn)
@@ -441,7 +627,7 @@ namespace Epinova.ElasticSearch.Core
 
         private void PerformUpdate(string id, object objectToUpdate, Type objectType, string indexName)
         {
-            var indexing = new Indexing(_settings);
+            var indexing = new Indexing(_settings, _httpClientHelper);
             if(!indexing.IndexExists(indexName))
             {
                 throw new InvalidOperationException($"Index '{indexName}' not found");
@@ -465,7 +651,7 @@ namespace Epinova.ElasticSearch.Core
             var json = Serialization.Serialize(objectToUpdate);
             var data = Encoding.UTF8.GetBytes(json);
 
-            HttpClientHelper.Put(new Uri(endpointUri), data);
+            _httpClientHelper.Put(new Uri(endpointUri), data);
 
             RefreshIndex(indexName);
         }
