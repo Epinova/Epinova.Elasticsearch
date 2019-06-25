@@ -31,14 +31,19 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Controllers
         [ValidateInput(false)]
         public ActionResult Index(string query, string index)
         {
+            if(String.IsNullOrWhiteSpace(index))
+            {
+                index = CurrentIndex;
+            }
+
             var indexHelper = new Admin.Index(_settings, _httpClientHelper, index);
 
             List<string> indices = indexHelper.GetIndices()
                 .Select(i => i.Index).ToList();
 
-            if(String.IsNullOrWhiteSpace(index) || !indices.Contains(index))
+            if(!indices.Contains(index))
             {
-                index = _settings.Index + "-*";
+                index = CurrentIndex;
             }
 
             ViewBag.Indices = indices;
@@ -81,6 +86,11 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Controllers
 
         private ActionResult GetJsonFromEndpoint(string index, string endpoint)
         {
+            if(String.IsNullOrWhiteSpace(index))
+            {
+                index = CurrentIndex;
+            }
+
             var indexHelper = new Admin.Index(_settings, _httpClientHelper, index);
 
             var indices = indexHelper.GetIndices()
@@ -89,7 +99,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Controllers
             ViewBag.Indices = indices;
             ViewBag.Endpoint = endpoint;
 
-            if(String.IsNullOrWhiteSpace(index) || !indices.Contains(index))
+            if(!indices.Contains(index))
             {
                 return View("~/Views/ElasticSearchAdmin/Console/_JsonDump.cshtml");
             }
