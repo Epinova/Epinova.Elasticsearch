@@ -280,11 +280,15 @@ namespace Epinova.ElasticSearch.Core
             }
             catch(Exception ex)
             {
-                Logger.Error(
-                    $"Failed to update mappings for content of type '{type.Name}'\n. Properties with the same name but different type, " +
-                    "where one of the types is analyzable and the other is not, is often the cause of this error. Ie. 'string MainIntro' vs 'XhtmlString MainIntro'. \n" +
-                    "All properties with equal name must be of the same type or ignored from indexing with [Searchable(false)]. \n" +
-                    "Enable debug-logging to view further details.", ex);
+                HandleError(ex);
+            }
+
+            void HandleError(Exception ex)
+            {
+                Logger.Error($"Failed to update mappings for content of type '{type.Name}'\n. Properties with the same name but different type, " +
+                            "where one of the types is analyzable and the other is not, is often the cause of this error. Ie. 'string MainIntro' vs 'XhtmlString MainIntro'. \n" +
+                            "All properties with equal name must be of the same type or ignored from indexing with [Searchable(false)]. \n" +
+                            "Enable debug-logging to view further details.", ex);
 
                 if(Logger.IsDebugEnabled())
                 {
