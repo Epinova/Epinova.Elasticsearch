@@ -1,11 +1,8 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
 using System.Web.Mvc;
-using Epinova.ElasticSearch.Core.Admin;
 using Epinova.ElasticSearch.Core.EPiServer.Controllers;
 using Epinova.ElasticSearch.Core.EPiServer.Models;
 using Epinova.ElasticSearch.Core.EPiServer.Models.ViewModels;
-using Epinova.ElasticSearch.Core.Models.Admin;
 using Moq;
 using TestData;
 using Xunit;
@@ -21,18 +18,13 @@ namespace Core.Episerver.Tests.Controllers
         public SynonymsControllerTests(ServiceLocatorFixture fixture)
         {
             _fixture = fixture;
-
-            var indexHelperMock = new Mock<Index>(
-                _fixture.ServiceLocationMock.SettingsMock.Object);
-
-            indexHelperMock
-                .Setup(m => m.GetIndices())
-                .Returns(Enumerable.Empty<IndexInformation>());
+            _fixture.MockInfoEndpoints();
 
             _controller = new ElasticSynonymsController(
-                indexHelperMock.Object,
                 _fixture.ServiceLocationMock.LanguageBranchRepositoryMock.Object,
-                _fixture.ServiceLocationMock.SynonymRepositoryMock.Object);
+                _fixture.ServiceLocationMock.SynonymRepositoryMock.Object,
+                _fixture.ServiceLocationMock.SettingsMock.Object,
+                _fixture.ServiceLocationMock.HttpClientMock.Object);
         }
 
         [Theory]

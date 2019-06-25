@@ -2,31 +2,28 @@
 using System.Globalization;
 using System.Web.Mvc;
 using System.Web.Routing;
-using Epinova.ElasticSearch.Core.Admin;
+using Epinova.ElasticSearch.Core.Contracts;
 using Epinova.ElasticSearch.Core.EPiServer.Controllers.Abstractions;
 using Epinova.ElasticSearch.Core.Models.Admin;
 using Epinova.ElasticSearch.Core.Settings;
 using EPiServer.DataAbstraction;
 using Moq;
+using TestData;
 using Xunit;
 
 namespace Core.Episerver.Tests.Controllers.Abstractions
 {
-    public class ElasticSearchControllerBaseTests
+    public class ElasticSearchControllerBaseTests : IClassFixture<ServiceLocatorFixture>
     {
-        private ControllerStub _controller;
+        private readonly ControllerStub _controller;
         private readonly Mock<ILanguageBranchRepository> _languageBranchRepositoryMock;
-        private readonly Mock<Index> _indexHelperMock;
         private readonly Mock<ActionExecutingContext> _actionExecutingContextMock;
 
-        public ElasticSearchControllerBaseTests()
+        public ElasticSearchControllerBaseTests(ServiceLocatorFixture fixture)
         {
+            fixture.MockInfoEndpoints();
+
             _actionExecutingContextMock = new Mock<ActionExecutingContext>();
-
-            var settingsMock = new Mock<IElasticSearchSettings>();
-
-            _indexHelperMock = new Mock<Index>(settingsMock.Object);
-            _indexHelperMock.Setup(m => m.GetIndices()).Returns(new[] { new IndexInformation { Index = "Foo" } });
 
             _languageBranchRepositoryMock = new Mock<ILanguageBranchRepository>();
             _languageBranchRepositoryMock
@@ -35,28 +32,22 @@ namespace Core.Episerver.Tests.Controllers.Abstractions
                     new LanguageBranch(new CultureInfo("en")),
                     new LanguageBranch(new CultureInfo("no"))
                 });
+
+            _controller = new ControllerStub(
+                fixture.ServiceLocationMock.SettingsMock.Object,
+                fixture.ServiceLocationMock.HttpClientMock.Object,
+                _languageBranchRepositoryMock.Object);
         }
 
         [Fact]
-        public void Ctor_PopulatesLanguages()
-        {
-            _controller = new ControllerStub(_indexHelperMock.Object, _languageBranchRepositoryMock.Object);
-
-            Assert.NotEmpty(_controller.Languages);
-        }
+        public void Ctor_PopulatesLanguages() => Assert.NotEmpty(_controller.Languages);
 
         [Fact]
-        public void Ctor_PopulatesIndices()
-        {
-            _controller = new ControllerStub(_indexHelperMock.Object, _languageBranchRepositoryMock.Object);
-
-            Assert.NotEmpty(_controller.Indices);
-        }
+        public void Ctor_PopulatesIndices() => Assert.NotEmpty(_controller.Indices);
 
         [Fact]
         public void OnActionExecuting_FallsBackToFirstLanguage()
         {
-            _controller = new ControllerStub(_indexHelperMock.Object, _languageBranchRepositoryMock.Object);
             _controller.OnActionExecuting(_actionExecutingContextMock.Object);
 
             Assert.Equal(_controller.CurrentLanguage, "en");
@@ -64,11 +55,11 @@ namespace Core.Episerver.Tests.Controllers.Abstractions
 
         private class ControllerStub : ElasticSearchControllerBase
         {
-            public ControllerStub(Index indexHelper, ILanguageBranchRepository languageBranchRepository) : base(indexHelper, languageBranchRepository)
-            {
-            }
-
-            public ControllerStub(IElasticSearchSettings settings, ILanguageBranchRepository languageBranchRepository) : base(settings, languageBranchRepository)
+            public ControllerStub(
+                IElasticSearchSettings settings,
+                IHttpClientHelper httpClientHelper,
+                ILanguageBranchRepository languageBranchRepository)
+                : base(settings, httpClientHelper, languageBranchRepository)
             {
             }
 

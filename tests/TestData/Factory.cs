@@ -78,6 +78,7 @@ namespace TestData
             settings.Setup(m => m.EnableFileIndexing).Returns(true);
             settings.Setup(m => m.IgnoreXhtmlStringContentFragments).Returns(false);
             settings.Setup(m => m.Index).Returns(ElasticFixtureSettings.IndexName);
+            settings.Setup(m => m.Indices).Returns(new[] { ElasticFixtureSettings.IndexNameWithoutLang });
             settings.Setup(m => m.GetLanguage(It.IsAny<string>())).Returns("no");
             settings.Setup(m => m.GetDefaultIndexName(It.IsAny<string>()))
                 .Returns(ElasticFixtureSettings.IndexName);

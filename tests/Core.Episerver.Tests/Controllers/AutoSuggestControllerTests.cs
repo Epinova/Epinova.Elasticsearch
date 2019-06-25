@@ -11,17 +11,20 @@ using Epinova.ElasticSearch.Core.Models.Admin;
 using Epinova.ElasticSearch.Core.Settings;
 using EPiServer.DataAbstraction;
 using Moq;
+using TestData;
 using Xunit;
 
 namespace Core.Episerver.Tests.Controllers
 {
-    public class AutoSuggestControllerTests
+    public class AutoSuggestControllerTests : IClassFixture<ServiceLocatorFixture>
     {
         private readonly ElasticAutoSuggestController _controller;
         private readonly Mock<IAutoSuggestRepository> _autoSuggestRepositoryMock;
 
-        public AutoSuggestControllerTests()
+        public AutoSuggestControllerTests(ServiceLocatorFixture fixture)
         {
+            fixture.MockInfoEndpoints();
+
             _autoSuggestRepositoryMock = new Mock<IAutoSuggestRepository>();
 
             var languageBranchRepositoryMock = new Mock<ILanguageBranchRepository>();
@@ -32,15 +35,15 @@ namespace Core.Episerver.Tests.Controllers
                     new LanguageBranch(new CultureInfo("no"))
                 });
 
-            var indexHelperMock = new Mock<Index>(
-                new Mock<IElasticSearchSettings>().Object);
+            var indexHelperMock = new Mock<Index>(new Mock<IElasticSearchSettings>().Object);
 
             indexHelperMock.Setup(m => m.GetIndices()).Returns(Enumerable.Empty<IndexInformation>());
 
             _controller = new ElasticAutoSuggestController(
-                indexHelperMock.Object,
                 languageBranchRepositoryMock.Object,
-                _autoSuggestRepositoryMock.Object);
+                _autoSuggestRepositoryMock.Object,
+                fixture.ServiceLocationMock.SettingsMock.Object,
+                fixture.ServiceLocationMock.HttpClientMock.Object);
         }
 
         [Fact]
