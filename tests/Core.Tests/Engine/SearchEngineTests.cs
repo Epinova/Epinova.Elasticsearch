@@ -26,7 +26,11 @@ namespace Core.Tests.Engine
 
         public void Dispose() => _engine = null;
 
-        private void SetupEngineMock(string jsonFile) => _engine = new TestableSearchEngine(jsonFile, _fixture.ServiceLocationMock.SettingsMock.Object);
+        private void SetupEngineMock(string jsonFile) =>
+            _engine = new TestableSearchEngine(
+                jsonFile,
+                _fixture.ServiceLocationMock.SettingsMock.Object,
+                _fixture.ServiceLocationMock.HttpClientMock.Object);
 
         [Fact]
         public void GetSuggestions_InvalidResult_ReturnEmptyArray()

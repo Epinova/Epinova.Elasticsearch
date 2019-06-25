@@ -28,6 +28,10 @@ namespace Epinova.ElasticSearch.Core.Contracts
         /// </summary>
         void UpdateBestBets(string indexName, Type indexType, string id, string[] terms);
 
+        void CreateAnalyzedMappingsIfNeeded(Type type, string language, string indexName = null);
+
+        void CreateDidYouMeanMappingsIfNeeded(Type type, string language, string indexName = null);
+
         /// <summary>
         /// Removes best bets for document of type <paramref name="indexType"/>, with id <paramref name="id"/>
         /// </summary>

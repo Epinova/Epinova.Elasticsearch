@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Configuration;
 using System.Globalization;
 using System.Linq;
 using System.Linq.Expressions;
@@ -18,7 +17,6 @@ using Epinova.ElasticSearch.Core.Settings;
 using Epinova.ElasticSearch.Core.Utilities;
 using EPiServer.Logging;
 using EPiServer.Security;
-using EPiServer.ServiceLocation;
 
 #pragma warning disable 693
 namespace Epinova.ElasticSearch.Core
@@ -71,6 +69,8 @@ namespace Epinova.ElasticSearch.Core
 
         private string _indexName;
         private PrincipalInfo _aclPrincipal;
+        private readonly IHttpClientHelper _httpClientHelper;
+        private readonly IElasticSearchSettings _settings;
 
         public string IndexName
         {
@@ -80,15 +80,7 @@ namespace Epinova.ElasticSearch.Core
 
         public CultureInfo CurrentLanguage => SearchLanguage;
 
-        /// <summary>
-        /// Initializes a new instance of the ElasticSearchService class
-        /// </summary>
-        /// <exception cref="ConfigurationErrorsException"></exception>
-        internal ElasticSearchService() : this(ServiceLocator.Current.GetInstance<IElasticSearchSettings>())
-        {
-        }
-
-        internal ElasticSearchService(IElasticSearchSettings settings)
+        internal ElasticSearchService(IElasticSearchSettings settings, IHttpClientHelper httpClientHelper)
         {
             SearchLanguage = CultureInfo.CurrentCulture;
             SizeValue = 10;
@@ -104,11 +96,13 @@ namespace Epinova.ElasticSearch.Core
             PostFilters = new List<Filter>();
             PostFilterGroups = new Dictionary<string, FilterGroupQuery>();
             _ranges = new List<RangeBase>();
-            _engine = new SearchEngine(settings);
-            _builder = new QueryBuilder(settings);
+            _engine = new SearchEngine(settings, httpClientHelper);
+            _builder = new QueryBuilder(settings, httpClientHelper);
             _excludedTypes = new List<Type>();
             ExcludedRoots = new Dictionary<int, bool>();
             _usePostfilters = true;
+            _httpClientHelper = httpClientHelper;
+            _settings = settings;
         }
 
         public IElasticSearchService<T> Boost(Expression<Func<T, object>> fieldSelector, byte weight)
@@ -260,7 +254,7 @@ namespace Epinova.ElasticSearch.Core
 
         public IElasticSearchService<T> Get<T>()
         {
-            return new ElasticSearchService<T>
+            return new ElasticSearchService<T>(_settings, _httpClientHelper)
             {
                 Type = typeof(T),
                 SearchLanguage = SearchLanguage,
@@ -285,7 +279,7 @@ namespace Epinova.ElasticSearch.Core
         public IElasticSearchService<T> Search<T>(string searchText, string facetFieldName,
             Operator @operator = Operator.Or)
         {
-            return new ElasticSearchService<T>
+            return new ElasticSearchService<T>(_settings, _httpClientHelper)
             {
                 Type = typeof(T),
                 SearchText = searchText,
@@ -434,7 +428,7 @@ namespace Epinova.ElasticSearch.Core
 
         public IElasticSearchService<T> MoreLikeThis<T>(string id, int minimumTermFrequency = 1, int maxQueryTerms = 25, int minimumDocFrequency = 3, int minimumWordLength = 3)
         {
-            return new ElasticSearchService<T>
+            return new ElasticSearchService<T>(_settings, _httpClientHelper)
             {
                 MoreLikeId = id,
                 MltMinTermFreq = minimumTermFrequency,
@@ -456,7 +450,7 @@ namespace Epinova.ElasticSearch.Core
 
         public IElasticSearchService<T> WildcardSearch<T>(string searchText)
         {
-            return new ElasticSearchService<T>
+            return new ElasticSearchService<T>(_settings, _httpClientHelper)
             {
                 Type = typeof(T),
                 SearchText = searchText,

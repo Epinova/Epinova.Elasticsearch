@@ -5,7 +5,6 @@ using System.Text;
 using Epinova.ElasticSearch.Core.Admin;
 using Epinova.ElasticSearch.Core.Contracts;
 using Epinova.ElasticSearch.Core.EPiServer.Contracts;
-using Epinova.ElasticSearch.Core.EPiServer.Extensions;
 using Epinova.ElasticSearch.Core.Events;
 using Epinova.ElasticSearch.Core.Extensions;
 using Epinova.ElasticSearch.Core.Models;
@@ -33,6 +32,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Plugin
         private readonly IIndexer _indexer;
         private readonly ILanguageBranchRepository _languageBranchRepository;
         private readonly IElasticSearchSettings _settings;
+        private readonly IHttpClientHelper _httpClientHelper;
         protected string CustomIndexName;
 
         public IndexEPiServerContent(
@@ -40,13 +40,15 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Plugin
             ICoreIndexer coreIndexer,
             IIndexer indexer,
             ILanguageBranchRepository languageBranchRepository,
-            IElasticSearchSettings settings)
+            IElasticSearchSettings settings,
+            IHttpClientHelper httpClientHelper)
         {
             _indexer = indexer;
             _coreIndexer = coreIndexer;
             _contentLoader = contentLoader;
             _languageBranchRepository = languageBranchRepository;
             _settings = settings;
+            _httpClientHelper = httpClientHelper;
             IsStoppable = true;
         }
 
@@ -106,8 +108,8 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Plugin
 
                     var contents = GetDescendentContents(contentReferences.Take(_settings.BulkSize).ToList(), languages);
 
-                    contents.RemoveAll(Indexer.ShouldHideFromSearch);
-                    contents.RemoveAll(Indexer.IsExludedType);
+                    contents.RemoveAll(_indexer.ShouldHideFromSearch);
+                    contents.RemoveAll(_indexer.IsExludedType);
 
                     contentList.AddRange(contents);
                     var removeCount = contentReferences.Count >= _settings.BulkSize ? _settings.BulkSize : contentReferences.Count;
@@ -243,7 +245,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Plugin
             foreach(var language in languages.Select(l => l.LanguageID))
             {
                 var indexName = GetIndexName(language);
-                var index = new Index(_settings, indexName);
+                var index = new Index(_settings, _httpClientHelper, indexName);
                 if(!index.Exists)
                 {
                     return false;
@@ -259,7 +261,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Plugin
             foreach(var language in languages.Select(l => l.LanguageID))
             {
                 var indexName = GetIndexName(language);
-                var index = new Index(_settings, indexName);
+                var index = new Index(_settings, _httpClientHelper, indexName);
                 count += index.GetDocumentCount();
             }
 
@@ -279,8 +281,8 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Plugin
                     foreach(var type in contentTypes)
                     {
                         _coreIndexer.UpdateMapping(type, typeof(IndexItem), indexName);
-                        ContentExtensions.CreateAnalyzedMappingsIfNeeded(type, language, indexName);
-                        ContentExtensions.CreateDidYouMeanMappingsIfNeeded(type, language, indexName);
+                        _coreIndexer.CreateAnalyzedMappingsIfNeeded(type, language, indexName);
+                        _coreIndexer.CreateDidYouMeanMappingsIfNeeded(type, language, indexName);
                     }
                 }
                 catch(Exception ex)

@@ -14,7 +14,6 @@ namespace Epinova.ElasticSearch.Core.Models.Bulk
     public class BulkOperation
     {
         private static readonly ILogger Logger = LogManager.GetLogger(typeof(BulkOperation));
-        private static readonly IElasticSearchSettings ElasticSearchSettings = ServiceLocator.Current.GetInstance<IElasticSearchSettings>();
 
         private static readonly NumberFormatInfo DotSeparatorFormat = new NumberFormatInfo
         {
@@ -81,7 +80,8 @@ namespace Epinova.ElasticSearch.Core.Models.Bulk
 
             if(String.IsNullOrWhiteSpace(index))
             {
-                index = ElasticSearchSettings.GetDefaultIndexName(language);
+                var settings = ServiceLocator.Current.GetInstance<IElasticSearchSettings>();
+                index = settings.GetDefaultIndexName(language);
             }
 
             MetaData = new BulkMetadata

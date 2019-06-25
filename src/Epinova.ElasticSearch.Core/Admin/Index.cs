@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Epinova.ElasticSearch.Core.Contracts;
 using Epinova.ElasticSearch.Core.Extensions;
 using Epinova.ElasticSearch.Core.Models;
 using Epinova.ElasticSearch.Core.Models.Admin;
@@ -23,8 +24,9 @@ namespace Epinova.ElasticSearch.Core.Admin
         private readonly Indexing _indexing;
         private static readonly ILogger Logger = LogManager.GetLogger(typeof(Index));
         private readonly IElasticSearchSettings _settings;
+        private readonly IHttpClientHelper _httpClientHelper;
 
-        public Index(IElasticSearchSettings settings, string name) : this(settings)
+        public Index(IElasticSearchSettings settings, IHttpClientHelper httpClientHelper, string name) : this(settings)
         {
             if(String.IsNullOrWhiteSpace(name))
             {
@@ -34,18 +36,19 @@ namespace Epinova.ElasticSearch.Core.Admin
             _name = name.ToLower();
             _language = _name.Split('-').Last();
             _nameWithoutLanguage = _name.Substring(0, _name.Length - _language.Length - 1);
+            _httpClientHelper = httpClientHelper;
         }
 
         internal Index(IElasticSearchSettings settings)
         {
             _settings = settings;
-            _indexing = new Indexing(settings);
+            _indexing = new Indexing(settings, _httpClientHelper);
         }
 
         public virtual IEnumerable<IndexInformation> GetIndices()
         {
             var uri = $"{_settings.Host}/_cat/indices?format=json";
-            var json = HttpClientHelper.GetJson(new Uri(uri));
+            var json = _httpClientHelper.GetJson(new Uri(uri));
 
             var serializerSettings = new JsonSerializerSettings
             {
@@ -59,7 +62,7 @@ namespace Epinova.ElasticSearch.Core.Admin
 
             foreach(var indexInfo in indices)
             {
-                var index = new Index(_settings, indexInfo.Index);
+                var index = new Index(_settings, _httpClientHelper, indexInfo.Index);
                 indexInfo.Tokenizer = index.GetTokenizer();
             }
 
@@ -75,7 +78,7 @@ namespace Epinova.ElasticSearch.Core.Admin
                 return String.Empty;
             }
 
-            var json = HttpClientHelper.GetString(_indexing.GetUri(_name, "_settings"));
+            var json = _httpClientHelper.GetString(_indexing.GetUri(_name, "_settings"));
             var languageAnalyzer = Language.GetLanguageAnalyzer(_settings.GetLanguage(_name));
 
             if(String.IsNullOrWhiteSpace(languageAnalyzer))
@@ -104,7 +107,7 @@ namespace Epinova.ElasticSearch.Core.Admin
 
             try
             {
-                var response = HttpClientHelper.GetString(new Uri(uri));
+                var response = _httpClientHelper.GetString(new Uri(uri));
 
                 IndexStatus indexStatus = JsonConvert.DeserializeObject<IndexStatus>(response);
 
@@ -129,7 +132,7 @@ namespace Epinova.ElasticSearch.Core.Admin
 
             try
             {
-                var response = HttpClientHelper.GetString(uri);
+                var response = _httpClientHelper.GetString(uri);
                 var result = JsonConvert.DeserializeAnonymousType(response, model);
                 return result.hits.total;
             }
@@ -184,7 +187,7 @@ namespace Epinova.ElasticSearch.Core.Admin
             Logger.Information($"PUT: {uri}");
             Logger.Information(JToken.Parse(json).ToString(Formatting.Indented));
 
-            HttpClientHelper.Put(uri, data);
+            _httpClientHelper.Put(uri, data);
         }
 
         internal void ChangeTokenizer(string tokenizer)
@@ -193,7 +196,7 @@ namespace Epinova.ElasticSearch.Core.Admin
             var json = Serialization.Serialize(body);
             var data = Encoding.UTF8.GetBytes(json);
             var uri = _indexing.GetUri(_name, "_settings");
-            HttpClientHelper.Put(uri, data);
+            _httpClientHelper.Put(uri, data);
 
             Logger.Information($"Adding tri-gram tokenizer:\n{json}");
         }
@@ -209,7 +212,7 @@ namespace Epinova.ElasticSearch.Core.Admin
             Logger.Information($"PUT: {uri}");
             Logger.Information(JToken.Parse(json).ToString(Formatting.Indented));
 
-            HttpClientHelper.Put(uri, data);
+            _httpClientHelper.Put(uri, data);
         }
 
         private void CreateStandardMappings()
@@ -223,7 +226,7 @@ namespace Epinova.ElasticSearch.Core.Admin
             Logger.Information($"PUT: {uri}");
             Logger.Information(JToken.Parse(json).ToString(Formatting.Indented));
 
-            HttpClientHelper.Put(uri, data);
+            _httpClientHelper.Put(uri, data);
         }
 
         private void CreateStandardSettings()
@@ -235,7 +238,7 @@ namespace Epinova.ElasticSearch.Core.Admin
             Logger.Information($"Creating standard settings. Language: {_name}");
             Logger.Information(JToken.Parse(json).ToString(Formatting.Indented));
 
-            HttpClientHelper.Put(uri, data);
+            _httpClientHelper.Put(uri, data);
         }
 
         private void CreateAnalyzerSettings()
@@ -250,7 +253,7 @@ namespace Epinova.ElasticSearch.Core.Admin
             Logger.Information($"Creating analyzer settings. Language: {_name}");
             Logger.Information(JToken.Parse(json).ToString(Formatting.Indented));
 
-            HttpClientHelper.Put(uri, data);
+            _httpClientHelper.Put(uri, data);
         }
 
         private void CreateAttachmentPipeline()
@@ -262,7 +265,7 @@ namespace Epinova.ElasticSearch.Core.Admin
             Logger.Information("Creating Attachment Pipeline");
             Logger.Information(JToken.Parse(json).ToString(Formatting.Indented));
 
-            HttpClientHelper.Put(uri, data);
+            _httpClientHelper.Put(uri, data);
         }
 
         private void EnableClosing()
@@ -272,7 +275,7 @@ namespace Epinova.ElasticSearch.Core.Admin
             var data = Encoding.UTF8.GetBytes(json);
 
             var uri = new Uri(String.Concat(_settings.Host.TrimEnd('/'), "/_cluster/settings"));
-            HttpClientHelper.Put(uri, data);
+            _httpClientHelper.Put(uri, data);
 
             Logger.Information($"Enabling cluster index closing:\n{json}");
         }

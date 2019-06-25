@@ -337,6 +337,7 @@
     <Compile Include="Utilities\ArrayHelper.cs" />
     <Compile Include="Utilities\DbHelper.cs" />
     <Compile Include="Utilities\HttpClientHelper.cs" />
+    <Compile Include="Contracts\IHttpClientHelper.cs" />
     <Compile Include="Utilities\Indexing.cs" />
     <Compile Include="Utilities\Language.cs" />
     <Compile Include="Utilities\Mapping.cs" />

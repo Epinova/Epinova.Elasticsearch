@@ -19,15 +19,18 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Controllers
         private readonly ICoreIndexer _coreIndexer;
         private readonly IElasticSearchSettings _settings;
         private readonly Health _healthHelper;
+        private readonly IHttpClientHelper _httpClientHelper;
 
         public ElasticAdminController(
             ILanguageBranchRepository languageBranchRepository,
             ICoreIndexer coreIndexer,
-            IElasticSearchSettings settings) : base(settings, languageBranchRepository)
+            IElasticSearchSettings settings,
+            IHttpClientHelper httpClientHelper) : base(settings, languageBranchRepository)
         {
             _coreIndexer = coreIndexer;
             _settings = settings;
-            _healthHelper = new Health(settings);
+            _healthHelper = new Health(settings, httpClientHelper);
+            _httpClientHelper = httpClientHelper;
         }
 
         internal ElasticAdminController(
@@ -70,7 +73,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Controllers
                     var indexName = _settings.GetCustomIndexName(indexConfig.Name, lang.Key);
                     Type indexType = GetIndexType(indexConfig, config);
 
-                    var index = new Index(_settings, indexName);
+                    var index = new Index(_settings, _httpClientHelper, indexName);
 
                     if(!index.Exists)
                     {
@@ -88,7 +91,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Controllers
                     else if(_settings.CommerceEnabled)
                     {
                         indexName = _settings.GetCustomIndexName($"{indexConfig.Name}-{Constants.CommerceProviderName}", lang.Key);
-                        index = new Index(_settings, indexName);
+                        index = new Index(_settings, _httpClientHelper, indexName);
                         if(!index.Exists)
                         {
                             index.Initialize(indexType);
@@ -106,7 +109,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Controllers
         [Authorize(Roles = RoleNames.ElasticsearchAdmins)]
         public ActionResult DeleteIndex(string indexName)
         {
-            var indexing = new Indexing(_settings);
+            var indexing = new Indexing(_settings, _httpClientHelper);
             indexing.DeleteIndex(indexName);
 
             return RedirectToAction("Index");
@@ -116,7 +119,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Controllers
         [Authorize(Roles = RoleNames.ElasticsearchAdmins)]
         public ActionResult DeleteAll()
         {
-            var indexing = new Indexing(_settings);
+            var indexing = new Indexing(_settings, _httpClientHelper);
 
             foreach(var index in Indices)
             {
@@ -129,8 +132,8 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Controllers
         [Authorize(Roles = RoleNames.ElasticsearchAdmins)]
         public ActionResult ChangeTokenizer(string indexName, string tokenizer)
         {
-            var indexing = new Indexing(_settings);
-            var index = new Index(_settings, indexName);
+            var indexing = new Indexing(_settings, _httpClientHelper);
+            var index = new Index(_settings, _httpClientHelper, indexName);
 
             indexing.Close(indexName);
             index.ChangeTokenizer(tokenizer);

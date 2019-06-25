@@ -9,19 +9,23 @@ using Epinova.ElasticSearch.Core.Models.Admin;
 using Epinova.ElasticSearch.Core.Settings;
 using EPiServer.DataAbstraction;
 using Moq;
+using TestData;
 using Xunit;
 
 namespace Core.Episerver.Tests.Controllers
 {
-    public class ElasticAdminControllerTests
+    [Collection(nameof(ServiceLocatiorCollection))]
+    public class ElasticAdminControllerTests : IClassFixture<ServiceLocatorFixture>
     {
         private readonly ElasticAdminController _controller;
 
-        public ElasticAdminControllerTests()
+        public ElasticAdminControllerTests(ServiceLocatorFixture fixture)
         {
             var indexerMock = new Mock<ICoreIndexer>();
-            var settingsMock = new Mock<IElasticSearchSettings>();
-            var healthMock = new Mock<Health>(settingsMock.Object);
+            var healthMock = new Mock<Health>(
+                fixture.ServiceLocationMock.SettingsMock.Object,
+                fixture.ServiceLocationMock.HttpClientMock.Object);
+
             healthMock.Setup(m => m.GetClusterHealth()).Returns(new HealthInformation());
             healthMock.Setup(m => m.GetNodeInfo()).Returns(new[] { new Node() });
 
@@ -41,7 +45,7 @@ namespace Core.Episerver.Tests.Controllers
             _controller = new ElasticAdminController(
                 languageBranchRepositoryMock.Object,
                 indexerMock.Object,
-                settingsMock.Object,
+                fixture.ServiceLocationMock.SettingsMock.Object,
                 indexHelperMock.Object,
                 healthMock.Object);
         }

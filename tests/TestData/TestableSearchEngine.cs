@@ -1,5 +1,6 @@
 ﻿using System.Globalization;
 using System.IO;
+using Epinova.ElasticSearch.Core.Contracts;
 using Epinova.ElasticSearch.Core.Engine;
 using Epinova.ElasticSearch.Core.Models;
 using Epinova.ElasticSearch.Core.Models.Query;
@@ -13,14 +14,14 @@ namespace TestData
         private readonly string[] _suggestions;
         private readonly string _jsonFile;
 
-        public TestableSearchEngine(string jsonFile, IElasticSearchSettings settings)
-            : base(settings)
+        public TestableSearchEngine(string jsonFile, IElasticSearchSettings settings, IHttpClientHelper httpClientHelper)
+            : base(settings, httpClientHelper)
         {
             _jsonFile = jsonFile;
         }
 
-        public TestableSearchEngine(string[] suggestions, IElasticSearchSettings settings)
-            : base(settings)
+        public TestableSearchEngine(string[] suggestions, IElasticSearchSettings settings, IHttpClientHelper httpClientHelper)
+            : base(settings, httpClientHelper)
         {
             _suggestions = suggestions;
         }

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using Epinova.ElasticSearch.Core.Contracts;
 using Epinova.ElasticSearch.Core.EPiServer.Contracts;
 using Epinova.ElasticSearch.Core.EPiServer.Models;
 using Epinova.ElasticSearch.Core.Settings;
@@ -26,15 +27,18 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Services
         private readonly IBlobFactory _blobFactory;
         private readonly IContentRepository _contentRepository;
         private readonly IElasticSearchSettings _settings;
+        private readonly IHttpClientHelper _httpClientHelper;
 
         public SynonymRepository(
             IContentRepository contentRepository,
             IBlobFactory blobFactory,
-            IElasticSearchSettings settings)
+            IElasticSearchSettings settings,
+            IHttpClientHelper httpClientHelper)
         {
             _contentRepository = contentRepository;
             _blobFactory = blobFactory;
             _settings = settings;
+            _httpClientHelper = httpClientHelper;
         }
 
         public void SetSynonyms(string languageId, string analyzer, List<Synonym> synonymsToAdd, string index)
@@ -44,7 +48,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Services
                 index = _settings.GetDefaultIndexName(languageId);
             }
 
-            var indexing = new Indexing(_settings);
+            var indexing = new Indexing(_settings, _httpClientHelper);
             indexing.Close(index);
 
             string[] synonymPairs = synonymsToAdd
@@ -96,7 +100,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Services
             var data = Encoding.UTF8.GetBytes(json);
             var uri = indexing.GetUri(index, "_settings");
 
-            HttpClientHelper.Put(uri, data);
+            _httpClientHelper.Put(uri, data);
 
             indexing.Open(index);
         }
@@ -108,14 +112,14 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Services
                 index = _settings.GetDefaultIndexName(languageId);
             }
 
-            var indexing = new Indexing(_settings);
+            var indexing = new Indexing(_settings, _httpClientHelper);
 
             if(!indexing.IndexExists(index))
             {
                 return null;
             }
 
-            var json = HttpClientHelper.GetString(indexing.GetUri(index, "_settings"));
+            var json = _httpClientHelper.GetString(indexing.GetUri(index, "_settings"));
 
             var jpath = $"{index}.settings.index.analysis.filter.{Language.GetLanguageAnalyzer(languageId)}_synonym_filter.synonyms_path";
 
@@ -132,14 +136,14 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Services
                 index = _settings.GetDefaultIndexName(languageId);
             }
 
-            var indexing = new Indexing(_settings);
+            var indexing = new Indexing(_settings, _httpClientHelper);
 
             if(!indexing.IndexExists(index))
             {
                 return synonyms;
             }
 
-            var json = HttpClientHelper.GetString(indexing.GetUri(index, "_settings"));
+            var json = _httpClientHelper.GetString(indexing.GetUri(index, "_settings"));
 
             var jpath = $"{index}.settings.index.analysis.filter.{Language.GetLanguageAnalyzer(languageId)}_synonym_filter.synonyms";
 

@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Web.Mvc;
+using Epinova.ElasticSearch.Core.Contracts;
 using Epinova.ElasticSearch.Core.EPiServer.Controllers.Abstractions;
 using Epinova.ElasticSearch.Core.Settings;
-using Epinova.ElasticSearch.Core.Utilities;
 using EPiServer.DataAbstraction;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -15,12 +15,15 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Controllers
     public class ElasticConsoleController : ElasticSearchControllerBase
     {
         private readonly IElasticSearchSettings _settings;
+        private readonly IHttpClientHelper _httpClientHelper;
 
         public ElasticConsoleController(
             ILanguageBranchRepository languageBranchRepository,
-            IElasticSearchSettings settings) : base(settings, languageBranchRepository)
+            IElasticSearchSettings settings,
+            IHttpClientHelper httpClientHelper) : base(settings, languageBranchRepository)
         {
             _settings = settings;
+            _httpClientHelper = httpClientHelper;
         }
 
         [Authorize(Roles = RoleNames.ElasticsearchAdmins)]
@@ -59,7 +62,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Controllers
             }
 
             byte[] data = Encoding.UTF8.GetBytes(query);
-            byte[] returnData = HttpClientHelper.Post(new Uri(uri), data);
+            byte[] returnData = _httpClientHelper.Post(new Uri(uri), data);
             string response = Encoding.UTF8.GetString(returnData);
 
             ViewBag.Result = JToken.Parse(response).ToString(Formatting.Indented);
@@ -93,7 +96,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Controllers
             ViewBag.SelectedIndex = index;
 
             string uri = $"{_settings.Host}/{index}/_{endpoint}";
-            string response = HttpClientHelper.GetJson(new Uri(uri));
+            string response = _httpClientHelper.GetJson(new Uri(uri));
 
             ViewBag.Result = JToken.Parse(response).ToString(Formatting.Indented);
 

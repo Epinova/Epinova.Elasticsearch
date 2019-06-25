@@ -11,13 +11,12 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Web.Hosting;
 using Castle.DynamicProxy;
-using Epinova.ElasticSearch.Core.Attributes;
 using Epinova.ElasticSearch.Core.Contracts;
 using Epinova.ElasticSearch.Core.Conventions;
+using Epinova.ElasticSearch.Core.EPiServer.Contracts;
 using Epinova.ElasticSearch.Core.EPiServer.Providers;
 using Epinova.ElasticSearch.Core.Extensions;
 using Epinova.ElasticSearch.Core.Models;
-using Epinova.ElasticSearch.Core.Models.Mapping;
 using Epinova.ElasticSearch.Core.Settings;
 using Epinova.ElasticSearch.Core.Utilities;
 using EPiServer;
@@ -28,8 +27,6 @@ using EPiServer.Filters;
 using EPiServer.Logging;
 using EPiServer.Security;
 using EPiServer.ServiceLocation;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using Indexing = Epinova.ElasticSearch.Core.Conventions.Indexing;
 
 namespace Epinova.ElasticSearch.Core.EPiServer.Extensions
@@ -41,6 +38,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Extensions
         private static readonly IContentLoader ContentLoader = ServiceLocator.Current.GetInstance<IContentLoader>();
         private static readonly IElasticSearchSettings ElasticSearchSettings = ServiceLocator.Current.GetInstance<IElasticSearchSettings>();
         private static readonly ITrackingRepository TrackingRepository = ServiceLocator.Current.GetInstance<ITrackingRepository>();
+        private static readonly IIndexer Indexer = ServiceLocator.Current.GetInstance<IIndexer>();
 
         private static readonly string[] BinaryExtensions = new[]
         {
@@ -168,7 +166,8 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Extensions
                 }
             }
 
-            return content != null && !ShouldFilter(content as IContent, requirePageTemplate, ignoreFilters);
+            return content != null
+                && !ShouldFilter(content as IContent, requirePageTemplate, ignoreFilters);
         }
 
         private static T GetContentForProviders<T>(SearchHit hit, string[] providerNames) where T : IContentData
@@ -541,193 +540,11 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Extensions
             return Serialization.Serialize(value);
         }
 
-        internal static void CreateDidYouMeanMappingsIfNeeded(Type type, string language, string indexName = null)
-        {
-            Logger.Debug("Checking if DidYouMean mappings needs updating");
-
-            var stringProperties = type.GetIndexableProps(false)
-                .Where(p => p.PropertyType == typeof(string) || p.PropertyType == typeof(string[]) || p.PropertyType == typeof(XhtmlString))
-                .Select(p => p.Name)
-                .ToList();
-
-            string json = null;
-            string oldJson = null;
-
-            try
-            {
-                IndexMapping mapping = Mapping.GetIndexMapping(typeof(IndexItem), language, indexName);
-
-                var jsonSettings = new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore };
-                oldJson = JsonConvert.SerializeObject(mapping, jsonSettings);
-
-                IEnumerable<string> filtered = stringProperties
-                    .Except(WellKnownProperties.IgnoreDidYouMean)
-                    .Except(WellKnownProperties.Ignore);
-
-                foreach(string prop in filtered)
-                {
-                    mapping.Properties.TryGetValue(prop, out IndexMappingProperty property);
-                    mapping.AddOrUpdateProperty(prop, property);
-                }
-
-                if(!mapping.IsDirty)
-                {
-                    // No change, quit.
-                    Logger.Debug("No change");
-                    return;
-                }
-
-                json = JsonConvert.SerializeObject(mapping, jsonSettings);
-                var data = Encoding.UTF8.GetBytes(json);
-
-                if(String.IsNullOrWhiteSpace(indexName))
-                {
-                    indexName = ElasticSearchSettings.GetDefaultIndexName(language);
-                }
-
-                var uri = $"{ElasticSearchSettings.Host}/{indexName}/_mapping/{typeof(IndexItem).GetTypeName()}";
-                if(Server.Info.Version.Major >= 7)
-                {
-                    uri += "?include_type_name=true";
-                }
-
-                Logger.Debug("Update mapping:\n" + JToken.Parse(json).ToString(Formatting.Indented));
-
-                HttpClientHelper.Put(new Uri(uri), data);
-            }
-            catch(Exception ex)
-            {
-                Logger.Error("Failed to update mappings", ex);
-
-                if(Logger.IsDebugEnabled())
-                {
-                    Logger.Debug("Old mapping:\n" + JToken.Parse(oldJson ?? String.Empty).ToString(Formatting.Indented));
-                    Logger.Debug("New mapping:\n" + JToken.Parse(json ?? String.Empty).ToString(Formatting.Indented));
-                }
-            }
-        }
-
         private static List<CustomProperty> GetCustomPropertiesForType(Type contentType)
         {
             return Indexing.CustomProperties
                 .Where(c => c.OwnerType == contentType || c.OwnerType.IsAssignableFrom(contentType))
                 .ToList();
-        }
-
-        internal static void CreateAnalyzedMappingsIfNeeded(Type type, string language, string indexName = null)
-        {
-            Logger.Debug("Checking if analyzable mappings needs updating");
-
-            string json = null;
-            string oldJson = null;
-            IndexMapping mapping = null;
-
-            try
-            {
-                if(String.IsNullOrWhiteSpace(indexName))
-                {
-                    indexName = ElasticSearchSettings.GetDefaultIndexName(language);
-                }
-
-                // Get mappings from server
-                mapping = Mapping.GetIndexMapping(typeof(IndexItem), language, indexName);
-
-                // Ignore special mappings
-                mapping.Properties.Remove(DefaultFields.AttachmentData);
-                mapping.Properties.Remove(DefaultFields.BestBets);
-                mapping.Properties.Remove(DefaultFields.DidYouMean);
-                mapping.Properties.Remove(DefaultFields.Suggest);
-                mapping.Properties.Remove(nameof(IndexItem.attachment));
-
-                var jsonSettings = new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore };
-                oldJson = JsonConvert.SerializeObject(mapping, jsonSettings);
-
-                // Get indexable properties (string, XhtmlString, [Searchable(true)]) 
-                var indexableProperties = type.GetIndexableProps(false)
-                    .Select(p => new
-                    {
-                        p.Name,
-                        Type = p.PropertyType,
-                        Analyzable = ((p.PropertyType == typeof(string) || p.PropertyType == typeof(string[]))
-                                     && (p.GetCustomAttributes(typeof(StemAttribute)).Any() || WellKnownProperties.Analyze
-                                          .Select(w => w.ToLower())
-                                          .Contains(p.Name.ToLower())))
-                                     || (p.PropertyType == typeof(XhtmlString)
-                                     && p.GetCustomAttributes(typeof(ExcludeFromSearchAttribute), true).Length == 0)
-                    })
-                    .Where(p => p.Name != nameof(IndexItem.Type)
-                                && p.Name != nameof(IndexItem._bestbets)
-                                && p.Name != DefaultFields.DidYouMean
-                                && p.Name != DefaultFields.Suggest
-                                && p.Name != nameof(IndexItem.attachment)
-                                && p.Name != nameof(IndexItem._attachmentdata))
-                    .ToList();
-
-                // Get well-known and Stemmed property-names
-                List<string> allAnalyzableProperties = indexableProperties.Where(i => i.Analyzable)
-                    .Select(i => i.Name)
-                    .ToList();
-
-                allAnalyzableProperties.ForEach(p =>
-                {
-                    IndexMappingProperty propertyMapping = Language.GetPropertyMapping(language, typeof(string), true);
-
-                    mapping.AddOrUpdateProperty(p, propertyMapping);
-                });
-
-                if(!mapping.IsDirty)
-                {
-                    // No change, quit.
-                    Logger.Debug("No change");
-                    return;
-                }
-
-                json = JsonConvert.SerializeObject(mapping, jsonSettings);
-                var data = Encoding.UTF8.GetBytes(json);
-                var uri = $"{ElasticSearchSettings.Host}/{indexName}/_mapping/{typeof(IndexItem).GetTypeName()}";
-                if(Server.Info.Version.Major >= 7)
-                {
-                    uri += "?include_type_name=true";
-                }
-
-                Logger.Debug("Update mapping:\n" + JToken.Parse(json).ToString(Formatting.Indented));
-
-                HttpClientHelper.Put(new Uri(uri), data);
-            }
-            catch(Exception ex)
-            {
-                Logger.Error(
-                    $"Failed to update mappings for content of type '{type.Name}'\n. Properties with the same name but different type, " +
-                    "where one of the types is analyzable and the other is not, is often the cause of this error. Ie. 'string MainIntro' vs 'XhtmlString MainIntro'. \n" +
-                    "All properties with equal name must be of the same type or ignored from indexing with [Searchable(false)]. \n" +
-                    "Enable debug-logging to view further details.", ex);
-
-                if(Logger.IsDebugEnabled())
-                {
-                    Logger.Debug("Old mapping:\n" + JToken.Parse(oldJson ?? String.Empty).ToString(Formatting.Indented));
-                    Logger.Debug("New mapping:\n" + JToken.Parse(json ?? String.Empty).ToString(Formatting.Indented));
-
-                    try
-                    {
-                        IndexMapping oldMappings = JsonConvert.DeserializeObject<IndexMapping>(oldJson);
-
-                        foreach(KeyValuePair<string, IndexMappingProperty> oldMapping in oldMappings.Properties)
-                        {
-                            if(mapping?.Properties.ContainsKey(oldMapping.Key) == true
-                                && !oldMapping.Value.Equals(mapping.Properties[oldMapping.Key]))
-                            {
-                                Logger.Error("Property '" + oldMapping.Key + "' has different mapping across different types");
-                                Logger.Debug("Old: \n" + JsonConvert.SerializeObject(oldMapping.Value));
-                                Logger.Debug("New: \n" + JsonConvert.SerializeObject(mapping.Properties[oldMapping.Key]));
-                            }
-                        }
-                    }
-                    catch(Exception e)
-                    {
-                        Logger.Error("Failed to compare mappings", e);
-                    }
-                }
-            }
         }
 
         private static object GetIndexValue(IContentData content, PropertyInfo p, bool ignoreXhtmlStringContentFragments = false)
@@ -814,20 +631,17 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Extensions
 
                     foreach(ContentFragment fragment in xhtml.GetFragments(principal))
                     {
-                        if(fragment.ContentLink != null && fragment.ContentLink != ContentReference.EmptyReference)
+                        if(IsValidFragment(fragment, out var fragmentContent))
                         {
-                            if(ContentLoader.TryGet(fragment.ContentLink, out IContent fragmentContent) && !Indexer.IsExludedType(fragmentContent))
-                            {
-                                Type fragmentType = GetContentType(fragmentContent);
+                            Type fragmentType = GetContentType(fragmentContent);
 
-                                List<PropertyInfo> indexableProperties = fragmentType.GetIndexableProps(false);
-                                indexableProperties.ForEach(property =>
-                                {
-                                    var indexValue = GetIndexValue(fragmentContent, property, ignoreXhtmlStringContentFragments: true);
-                                    indexText.Append(indexValue);
-                                    indexText.Append(" ");
-                                });
-                            }
+                            List<PropertyInfo> indexableProperties = fragmentType.GetIndexableProps(false);
+                            indexableProperties.ForEach(property =>
+                            {
+                                var indexValue = GetIndexValue(fragmentContent, property, ignoreXhtmlStringContentFragments: true);
+                                indexText.Append(indexValue);
+                                indexText.Append(" ");
+                            });
                         }
                     }
 
@@ -858,6 +672,17 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Extensions
                 Logger.Warning($"GetIndexValue failed for id '{id}'. Type={type}, Name={name}", ex);
                 return null;
             }
+        }
+
+        private static bool IsValidFragment(ContentFragment fragment, out IContent fragmentContent)
+        {
+            fragmentContent = null;
+
+            return fragment.ContentLink != null
+                && fragment.ContentLink != ContentReference.EmptyReference
+                && ContentLoader.TryGet(fragment.ContentLink, out fragmentContent)
+                && fragmentContent != null
+                && !Indexer.IsExludedType(fragmentContent);
         }
 
         private static string GetAttachmentData(IContent content, out bool extensionNotAllowed)

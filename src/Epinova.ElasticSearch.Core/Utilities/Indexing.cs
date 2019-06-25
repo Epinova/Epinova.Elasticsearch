@@ -2,6 +2,7 @@
 using System.Net;
 using System.Text;
 using Epinova.ElasticSearch.Core.Admin;
+using Epinova.ElasticSearch.Core.Contracts;
 using Epinova.ElasticSearch.Core.Settings;
 using EPiServer.Logging;
 
@@ -11,10 +12,12 @@ namespace Epinova.ElasticSearch.Core.Utilities
     {
         private static readonly ILogger Logger = LogManager.GetLogger(typeof(Indexing));
         private readonly IElasticSearchSettings _settings;
+        private readonly IHttpClientHelper _httpClientHelper;
 
-        public Indexing(IElasticSearchSettings settings)
+        public Indexing(IElasticSearchSettings settings, IHttpClientHelper httpClientHelper)
         {
             _settings = settings;
+            _httpClientHelper = httpClientHelper;
         }
 
         public void DeleteIndex(string indexName)
@@ -23,7 +26,7 @@ namespace Epinova.ElasticSearch.Core.Utilities
 
             Logger.Information("Deleting index '" + indexName + "'");
 
-            HttpClientHelper.Delete(new Uri(uri));
+            _httpClientHelper.Delete(new Uri(uri));
         }
 
         internal void CreateIndex(string indexName)
@@ -42,12 +45,12 @@ namespace Epinova.ElasticSearch.Core.Utilities
             string json = Serialization.Serialize(settings);
             byte[] data = Encoding.UTF8.GetBytes(json);
 
-            HttpClientHelper.Put(GetUri(indexName), data);
+            _httpClientHelper.Put(GetUri(indexName), data);
         }
 
         public bool IndexExists(string indexName)
         {
-            HttpStatusCode status = HttpClientHelper.Head(GetUri(indexName));
+            HttpStatusCode status = _httpClientHelper.Head(GetUri(indexName));
 
             return status == HttpStatusCode.OK;
         }
@@ -56,9 +59,9 @@ namespace Epinova.ElasticSearch.Core.Utilities
         {
             Logger.Information("Opening index");
 
-            HttpClientHelper.Post(GetUri(indexName, "_open"));
+            _httpClientHelper.Post(GetUri(indexName, "_open"));
 
-            var index = new Index(_settings, indexName);
+            var index = new Index(_settings, _httpClientHelper, indexName);
             index.WaitForStatus();
         }
 
@@ -66,9 +69,9 @@ namespace Epinova.ElasticSearch.Core.Utilities
         {
             Logger.Information($"Closing index with delay of {_settings.CloseIndexDelay} ms");
 
-            HttpClientHelper.Post(GetUri(indexName, "_close"));
+            _httpClientHelper.Post(GetUri(indexName, "_close"));
 
-            var index = new Index(_settings, indexName);
+            var index = new Index(_settings, _httpClientHelper, indexName);
             index.WaitForStatus();
         }
 

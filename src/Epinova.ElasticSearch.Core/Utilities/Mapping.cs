@@ -2,23 +2,20 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
+using Epinova.ElasticSearch.Core.Contracts;
 using Epinova.ElasticSearch.Core.Enums;
 using Epinova.ElasticSearch.Core.Extensions;
 using Epinova.ElasticSearch.Core.Models.Mapping;
 using Epinova.ElasticSearch.Core.Models.Properties;
 using Epinova.ElasticSearch.Core.Settings;
 using EPiServer.Logging;
-using EPiServer.ServiceLocation;
 using Newtonsoft.Json;
 
 namespace Epinova.ElasticSearch.Core.Utilities
 {
-    internal static class Mapping
+    internal class Mapping
     {
         private static readonly ILogger Logger = LogManager.GetLogger(typeof(Mapping));
-        private static readonly IElasticSearchSettings ElasticSearchSettings =
-            ServiceLocator.Current.GetInstance<IElasticSearchSettings>();
 
         private static readonly Dictionary<MappingType, Type[]> TypeRegister = new Dictionary<MappingType, Type[]>
         {
@@ -29,6 +26,15 @@ namespace Epinova.ElasticSearch.Core.Utilities
             {MappingType.Integer, new[] { typeof(Enum), typeof(byte?), typeof(byte), typeof(int), typeof (int?), typeof (uint), typeof (uint?), typeof (short), typeof (short?)}},
             {MappingType.Long, new[] {typeof (long), typeof (long?)}}
         };
+
+        private readonly IElasticSearchSettings _settings;
+        private readonly IHttpClientHelper _httpClientHelper;
+
+        public Mapping(IElasticSearchSettings settings, IHttpClientHelper httpClientHelper)
+        {
+            _settings = settings;
+            _httpClientHelper = httpClientHelper;
+        }
 
         internal static MappingType GetMappingType(Type type)
         {
@@ -105,48 +111,11 @@ namespace Epinova.ElasticSearch.Core.Utilities
         /// <summary>
         /// Gets all property mappings for the configured index and the supplied type
         /// </summary>
-        internal static async Task<IndexMapping> GetIndexMappingAsync(Type type, string language, string index)
+        internal IndexMapping GetIndexMapping(Type type, string language, string index)
         {
             if(String.IsNullOrEmpty(index))
             {
-                index = ElasticSearchSettings.GetDefaultIndexName(language);
-            }
-
-            index = index.ToLower();
-
-            string typeName = type.GetTypeName();
-            string mappingUri = GetMappingUri(index, typeName);
-            IndexMapping mappings;
-
-            Logger.Debug($"GetIndexMapping for: {typeName}. Uri: {mappingUri}");
-
-            try
-            {
-                string mappingJson = await HttpClientHelper.GetStringAsync(new Uri(mappingUri));
-                mappings = BuildIndexMapping(mappingJson, index, typeName);
-            }
-            catch(Exception ex)
-            {
-                Logger.Debug("Failed to get existing mapping from uri '" + mappingUri + "'", ex);
-                mappings = new IndexMapping();
-            }
-
-            if(mappings.Properties == null)
-            {
-                mappings.Properties = new Dictionary<string, IndexMappingProperty>();
-            }
-
-            return mappings;
-        }
-
-        /// <summary>
-        /// Gets all property mappings for the configured index and the supplied type
-        /// </summary>
-        internal static IndexMapping GetIndexMapping(Type type, string language, string index)
-        {
-            if(String.IsNullOrEmpty(index))
-            {
-                index = ElasticSearchSettings.GetDefaultIndexName(language);
+                index = _settings.GetDefaultIndexName(language);
             }
 
             string typeName = type.GetTypeName();
@@ -157,7 +126,7 @@ namespace Epinova.ElasticSearch.Core.Utilities
 
             try
             {
-                mappings = BuildIndexMapping(HttpClientHelper.GetString(new Uri(mappingUri)), index, typeName);
+                mappings = BuildIndexMapping(_httpClientHelper.GetString(new Uri(mappingUri)), index, typeName);
             }
             catch(Exception ex)
             {
@@ -188,9 +157,9 @@ namespace Epinova.ElasticSearch.Core.Utilities
             return JsonConvert.DeserializeObject<IndexMapping>(mappingJson);
         }
 
-        private static string GetMappingUri(string index, string typeName)
+        private string GetMappingUri(string index, string typeName)
         {
-            var url = $"{ElasticSearchSettings.Host}/{index}/{typeName}/_mapping";
+            var url = $"{_settings.Host}/{index}/{typeName}/_mapping";
             if(Server.Info.Version.Major >= 7)
             {
                 url += "?include_type_name=true";

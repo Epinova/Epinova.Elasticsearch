@@ -31,6 +31,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Providers
 
         protected readonly IElasticSearchService<TSearchType> _elasticSearchService;
         protected readonly IElasticSearchSettings _elasticSearchSettings = ServiceLocator.Current.GetInstance<IElasticSearchSettings>();
+        protected readonly IHttpClientHelper _httpClientHelper = ServiceLocator.Current.GetInstance<IHttpClientHelper>();
         protected readonly LocalizationService _localizationService = ServiceLocator.Current.GetInstance<LocalizationService>();
 
         protected SearchProviderBase(string categoryKey)
@@ -46,7 +47,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Providers
                 ServiceLocator.Current.GetInstance<UIDescriptorRegistry>())
         {
             _categoryKey = categoryKey;
-            _elasticSearchService = new ElasticSearchService<TSearchType>();
+            _elasticSearchService = new ElasticSearchService<TSearchType>(_elasticSearchSettings, _httpClientHelper);
         }
 
         public override string Area => AreaName;
