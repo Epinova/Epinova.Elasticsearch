@@ -4,11 +4,6 @@ namespace Epinova.ElasticSearch.Core.Models.Bulk
 {
     public sealed class BulkBatchResult
     {
-        public BulkBatchResult()
-        {
-            Batches = new List<BulkResult>();
-        }
-
-        public List<BulkResult> Batches { get; }
+        public List<BulkResult> Batches { get; } = new List<BulkResult>();
     }
 }
