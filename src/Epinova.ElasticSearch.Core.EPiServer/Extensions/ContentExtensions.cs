@@ -631,21 +631,17 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Extensions
 
                     foreach(ContentFragment fragment in xhtml.GetFragments(principal))
                     {
-                        if(fragment.ContentLink != null && fragment.ContentLink != ContentReference.EmptyReference)
+                        if(IsValidFragment(fragment, out var fragmentContent))
                         {
-                            if(ContentLoader.TryGet(fragment.ContentLink, out IContent fragmentContent)
-                                && !Indexer.IsExludedType(fragmentContent))
-                            {
-                                Type fragmentType = GetContentType(fragmentContent);
+                            Type fragmentType = GetContentType(fragmentContent);
 
-                                List<PropertyInfo> indexableProperties = fragmentType.GetIndexableProps(false);
-                                indexableProperties.ForEach(property =>
-                                {
-                                    var indexValue = GetIndexValue(fragmentContent, property, ignoreXhtmlStringContentFragments: true);
-                                    indexText.Append(indexValue);
-                                    indexText.Append(" ");
-                                });
-                            }
+                            List<PropertyInfo> indexableProperties = fragmentType.GetIndexableProps(false);
+                            indexableProperties.ForEach(property =>
+                            {
+                                var indexValue = GetIndexValue(fragmentContent, property, ignoreXhtmlStringContentFragments: true);
+                                indexText.Append(indexValue);
+                                indexText.Append(" ");
+                            });
                         }
                     }
 
@@ -676,6 +672,17 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Extensions
                 Logger.Warning($"GetIndexValue failed for id '{id}'. Type={type}, Name={name}", ex);
                 return null;
             }
+        }
+
+        private static bool IsValidFragment(ContentFragment fragment, out IContent fragmentContent)
+        {
+            fragmentContent = null;
+
+            return fragment.ContentLink != null
+                && fragment.ContentLink != ContentReference.EmptyReference
+                && ContentLoader.TryGet(fragment.ContentLink, out fragmentContent)
+                && fragmentContent != null
+                && !Indexer.IsExludedType(fragmentContent);
         }
 
         private static string GetAttachmentData(IContent content, out bool extensionNotAllowed)
