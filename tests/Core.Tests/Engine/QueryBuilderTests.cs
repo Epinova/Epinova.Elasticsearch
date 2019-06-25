@@ -28,7 +28,7 @@ namespace Core.Tests.Engine
         {
             _console = console;
             _language = new CultureInfo("en-US");
-            _builder = new QueryBuilder(null);
+            _builder = new QueryBuilder(null, null);
             _builder.SetMappedFields(new[] { "bar" });
 
             Epinova.ElasticSearch.Core.Conventions.Indexing.Roots.Clear();
@@ -59,7 +59,7 @@ namespace Core.Tests.Engine
         [Fact]
         public void Search_ExcludeMultipleFields_AddsMustNotMatches()
         {
-            var builder = new QueryBuilder(null);
+            var builder = new QueryBuilder(null, null);
             builder.SetMappedFields(new[] { "bar" });
 
             var request = (QueryRequest)builder.Search(new QuerySetup
@@ -131,7 +131,7 @@ namespace Core.Tests.Engine
         {
             var expected = RemoveWhitespace(GetJsonTestData(testFile));
 
-            var builder = new QueryBuilder(null);
+            var builder = new QueryBuilder(null, null);
             builder.SetMappedFields(new[] { "bar" });
 
             var result = RemoveWhitespace(Serialize(builder.Search(new QuerySetup
@@ -176,7 +176,7 @@ namespace Core.Tests.Engine
             const string expected1 = "function_score";
             const string expected2 = "\"gauss\":{\"foo\":{\"scale\":\"1337s\",\"offset\":\"42s\"}}";
 
-            var builder = new QueryBuilder(null);
+            var builder = new QueryBuilder(null, null);
             builder.SetMappedFields(new[] { "bar" });
 
             var querySetup = new QuerySetup
@@ -204,7 +204,7 @@ namespace Core.Tests.Engine
             const string expected1 = "function_score";
             const string expected2 = "\"gauss\":{";
 
-            var builder = new QueryBuilder(null);
+            var builder = new QueryBuilder(null, null);
             builder.SetMappedFields(new[] { "bar" });
 
             var querySetup = new QuerySetup
@@ -225,7 +225,7 @@ namespace Core.Tests.Engine
             const string expected1 = "function_score";
             const string expected2 = "\"script_score\":{\"script\":{\"lang\":\"painless\",\"source\":\"_score*2\"}}";
 
-            var builder = new QueryBuilder(null);
+            var builder = new QueryBuilder(null, null);
             builder.SetMappedFields(new[] { "bar" });
 
             var querySetup = new QuerySetup
@@ -254,7 +254,7 @@ namespace Core.Tests.Engine
             const string expected1 = "function_score";
             const string expected2 = "\"script_score\":{";
 
-            var builder = new QueryBuilder(null);
+            var builder = new QueryBuilder(null, null);
             builder.SetMappedFields(new[] { "bar" });
 
             var querySetup = new QuerySetup

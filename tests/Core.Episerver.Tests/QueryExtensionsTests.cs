@@ -18,7 +18,9 @@ namespace Core.Episerver.Tests
         public QueryExtensionsTests(ServiceLocatorFixture fixture)
         {
             _fixture = fixture;
-            _serviceStub = new ElasticSearchService(fixture.ServiceLocationMock.SettingsMock.Object);
+            _serviceStub = new ElasticSearchService(
+                fixture.ServiceLocationMock.SettingsMock.Object,
+                fixture.ServiceLocationMock.HttpClientMock.Object);
         }
 
         [Fact]
@@ -71,7 +73,8 @@ namespace Core.Episerver.Tests
 
             var engine = new TestableSearchEngine(
                 new[] { "foo", "bar", "baz" },
-                _fixture.ServiceLocationMock.SettingsMock.Object);
+                _fixture.ServiceLocationMock.SettingsMock.Object,
+                _fixture.ServiceLocationMock.HttpClientMock.Object);
 
             var results = _serviceStub.GetSuggestions("foo", engine);
             Assert.Contains("foo", results);

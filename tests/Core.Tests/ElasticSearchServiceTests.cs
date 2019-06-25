@@ -11,13 +11,15 @@ using Xunit;
 namespace Core.Tests
 {
     [Collection(nameof(ServiceLocatiorCollection))]
-    public class ElasticSearchServiceTests
+    public class ElasticSearchServiceTests : IClassFixture<ServiceLocatorFixture>
     {
         private readonly ElasticSearchService<ComplexType> _service;
 
-        public ElasticSearchServiceTests()
+        public ElasticSearchServiceTests(ServiceLocatorFixture fixture)
         {
-            _service = new ElasticSearchService<ComplexType>();
+            _service = new ElasticSearchService<ComplexType>(
+                fixture.ServiceLocationMock.SettingsMock.Object,
+                fixture.ServiceLocationMock.HttpClientMock.Object);
         }
 
         [Theory]

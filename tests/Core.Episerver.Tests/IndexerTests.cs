@@ -6,6 +6,7 @@ using Epinova.ElasticSearch.Core.EPiServer;
 using Epinova.ElasticSearch.Core.EPiServer.Enums;
 using Epinova.ElasticSearch.Core.Models.Bulk;
 using EPiServer.Core;
+using EPiServer.Web;
 using Moq;
 using TestData;
 using Xunit;
@@ -15,7 +16,7 @@ namespace Core.Episerver.Tests
     [Collection(nameof(ServiceLocatiorCollection))]
     public class IndexerTests : IClassFixture<ServiceLocatorFixture>
     {
-        private readonly Indexer _indexer;
+        private Indexer _indexer;
         private readonly ServiceLocatorFixture _fixture;
 
         public IndexerTests(ServiceLocatorFixture fixture)
@@ -24,7 +25,9 @@ namespace Core.Episerver.Tests
             _indexer = new Indexer(
                 fixture.ServiceLocationMock.CoreIndexerMock.Object,
                 fixture.ServiceLocationMock.SettingsMock.Object,
-                fixture.ServiceLocationMock.ContentLoaderMock.Object);
+                new Mock<ISiteDefinitionRepository>().Object,
+                fixture.ServiceLocationMock.ContentLoaderMock.Object,
+                new Mock<ContentAssetHelper>().Object);
         }
 
         [Fact]
@@ -238,9 +241,12 @@ namespace Core.Episerver.Tests
                 .Setup(m => m.GetAssetOwner(media.ContentLink))
                 .Returns(page);
 
-            _fixture.ServiceLocationMock.ServiceLocatorMock
-                .Setup(m => m.GetInstance<ContentAssetHelper>())
-                .Returns(assetHelperMock.Object);
+            _indexer = new Indexer(
+                _fixture.ServiceLocationMock.CoreIndexerMock.Object,
+                _fixture.ServiceLocationMock.SettingsMock.Object,
+                new Mock<ISiteDefinitionRepository>().Object,
+                _fixture.ServiceLocationMock.ContentLoaderMock.Object,
+                assetHelperMock.Object);
 
             IndexingStatus result = _indexer.Update(media);
 
