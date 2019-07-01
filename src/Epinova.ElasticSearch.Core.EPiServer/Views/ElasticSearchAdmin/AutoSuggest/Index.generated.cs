@@ -51,7 +51,6 @@ namespace ASP
 WriteLiteral("\r\n");
 
   
-    ViewBag.ContainerClass = String.Empty;
     Layout = "~/Views/ElasticSearchAdmin/_ElasticSearch.cshtml";
 
 WriteLiteral("\r\n\r\n");
@@ -95,9 +94,9 @@ WriteLiteral("            <div");
 
 WriteLiteral(" data-dojo-type=\"dijit/layout/ContentPane\"");
 
-WriteAttribute("title", Tuple.Create(" title=\"", 894), Tuple.Create("\"", 920)
-, Tuple.Create(Tuple.Create("", 902), Tuple.Create<System.Object, System.Int32>(lang.LanguageName
-, 902), false)
+WriteAttribute("title", Tuple.Create(" title=\"", 850), Tuple.Create("\"", 876)
+, Tuple.Create(Tuple.Create("", 858), Tuple.Create<System.Object, System.Int32>(lang.LanguageName
+, 858), false)
 );
 
 WriteLiteral(" data-dojo-props=\"");
@@ -122,9 +121,9 @@ WriteLiteral(" type=\"hidden\"");
 
 WriteLiteral(" name=\"LanguageId\"");
 
-WriteAttribute("value", Tuple.Create(" value=\"", 1223), Tuple.Create("\"", 1247)
-, Tuple.Create(Tuple.Create("", 1231), Tuple.Create<System.Object, System.Int32>(lang.LanguageId
-, 1231), false)
+WriteAttribute("value", Tuple.Create(" value=\"", 1179), Tuple.Create("\"", 1203)
+, Tuple.Create(Tuple.Create("", 1187), Tuple.Create<System.Object, System.Int32>(lang.LanguageId
+, 1187), false)
 );
 
 WriteLiteral(" />\r\n");
@@ -173,10 +172,10 @@ WriteLiteral("</h2>\r\n");
 
 WriteLiteral("                        <div");
 
-WriteAttribute("id", Tuple.Create(" id=\"", 1890), Tuple.Create("\"", 1923)
-, Tuple.Create(Tuple.Create("", 1895), Tuple.Create<System.Object, System.Int32>(lang.LanguageId
-, 1895), false)
-, Tuple.Create(Tuple.Create("", 1913), Tuple.Create("-wordsGrid", 1913), true)
+WriteAttribute("id", Tuple.Create(" id=\"", 1846), Tuple.Create("\"", 1879)
+, Tuple.Create(Tuple.Create("", 1851), Tuple.Create<System.Object, System.Int32>(lang.LanguageId
+, 1851), false)
+, Tuple.Create(Tuple.Create("", 1869), Tuple.Create("-wordsGrid", 1869), true)
 );
 
 WriteLiteral("></div>\r\n");

@@ -15,6 +15,7 @@
             min-width: 99%;
             max-width: 99%;
         }
+
         .Sleek .dijitReadOnly {
             opacity: .8;
         }
@@ -25,26 +26,28 @@
     string localizationPath = "/epinovaelasticsearch/console/";
 }
 
-@using (Html.BeginForm("Index", "ElasticConsole"))
-{
-    <h2>@Html.TranslateWithPath("query", localizationPath)</h2>
-    <label>
-        @Html.TranslateWithPathRaw("index", localizationPath)
-        <select data-dojo-type="dijit/form/Select" name="index">
-            @foreach (string index in ViewBag.Indices)
-            {
-                <option value="@index" selected="@(ViewBag.SelectedIndex == index ? "selected" : null)">@index</option>
-            }
-        </select>
-    </label>
-    <textarea name="query" data-dojo-type="dijit/form/SimpleTextarea" data-dojo-props="style:'height:100px;'">@ViewBag.Query</textarea>
-    <p>
-        <button data-dojo-type="dijit/form/Button" type="submit" class="epi-primary">@Html.TranslateWithPathRaw("execute", localizationPath)</button>
-    </p>
-}
+<div class="epi-padding-small">
+    @using (Html.BeginForm("Index", "ElasticConsole"))
+    {
+        <h2>@Html.TranslateWithPath("query", localizationPath)</h2>
+        <label>
+            @Html.TranslateWithPathRaw("index", localizationPath)
+            <select data-dojo-type="dijit/form/Select" name="index">
+                @foreach (string index in ViewBag.Indices)
+                {
+                    <option value="@index" selected="@(ViewBag.SelectedIndex == index ? "selected" : null)">@index</option>
+                }
+            </select>
+        </label>
+        <textarea name="query" data-dojo-type="dijit/form/SimpleTextarea" data-dojo-props="style:'height:100px;'">@ViewBag.Query</textarea>
+        <p>
+            <button data-dojo-type="dijit/form/Button" type="submit" class="epi-primary">@Html.TranslateWithPathRaw("execute", localizationPath)</button>
+        </p>
+    }
 
-@if (ViewBag.Result != null)
-{
-    <h2>@Html.TranslateWithPath("result", localizationPath)</h2>
-    <pre>@ViewBag.Result</pre>
-}
+    @if (ViewBag.Result != null)
+    {
+        <h2>@Html.TranslateWithPath("result", localizationPath)</h2>
+        <pre>@ViewBag.Result</pre>
+    }
+</div>

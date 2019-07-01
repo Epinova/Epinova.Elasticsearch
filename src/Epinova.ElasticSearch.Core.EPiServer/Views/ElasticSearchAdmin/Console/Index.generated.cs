@@ -59,8 +59,8 @@ WriteLiteral("\r\n\r\n");
 DefineSection("Styles", () => {
 
 WriteLiteral("\r\n    <style>\r\n        .Sleek .dijitTextArea {\r\n            width: 99%;\r\n        " +
-"    min-width: 99%;\r\n            max-width: 99%;\r\n        }\r\n        .Sleek .dij" +
-"itReadOnly {\r\n            opacity: .8;\r\n        }\r\n    </style>\r\n");
+"    min-width: 99%;\r\n            max-width: 99%;\r\n        }\r\n\r\n        .Sleek .d" +
+"ijitReadOnly {\r\n            opacity: .8;\r\n        }\r\n    </style>\r\n");
 
 });
 
@@ -69,24 +69,29 @@ WriteLiteral("\r\n");
   
     string localizationPath = "/epinovaelasticsearch/console/";
 
-WriteLiteral("\r\n\r\n");
+WriteLiteral("\r\n\r\n<div");
 
- using (Html.BeginForm("Index", "ElasticConsole"))
-{
+WriteLiteral(" class=\"epi-padding-small\"");
 
-WriteLiteral("    <h2>");
+WriteLiteral(">\r\n");
 
-   Write(Html.TranslateWithPath("query", localizationPath));
+    
+     using (Html.BeginForm("Index", "ElasticConsole"))
+    {
+
+WriteLiteral("        <h2>");
+
+       Write(Html.TranslateWithPath("query", localizationPath));
 
 WriteLiteral("</h2>\r\n");
 
-WriteLiteral("    <label>\r\n");
+WriteLiteral("        <label>\r\n");
 
-WriteLiteral("        ");
+WriteLiteral("            ");
 
-   Write(Html.TranslateWithPathRaw("index", localizationPath));
+       Write(Html.TranslateWithPathRaw("index", localizationPath));
 
-WriteLiteral("\r\n        <select");
+WriteLiteral("\r\n            <select");
 
 WriteLiteral(" data-dojo-type=\"dijit/form/Select\"");
 
@@ -94,33 +99,33 @@ WriteLiteral(" name=\"index\"");
 
 WriteLiteral(">\r\n");
 
-            
-             foreach (string index in ViewBag.Indices)
-            {
+                
+                 foreach (string index in ViewBag.Indices)
+                {
 
-WriteLiteral("                <option");
+WriteLiteral("                    <option");
 
-WriteAttribute("value", Tuple.Create(" value=\"", 909), Tuple.Create("\"", 923)
-, Tuple.Create(Tuple.Create("", 917), Tuple.Create<System.Object, System.Int32>(index
-, 917), false)
+WriteAttribute("value", Tuple.Create(" value=\"", 980), Tuple.Create("\"", 994)
+, Tuple.Create(Tuple.Create("", 988), Tuple.Create<System.Object, System.Int32>(index
+, 988), false)
 );
 
-WriteAttribute("selected", Tuple.Create(" selected=\"", 924), Tuple.Create("\"", 988)
-, Tuple.Create(Tuple.Create("", 935), Tuple.Create<System.Object, System.Int32>(ViewBag.SelectedIndex == index ? "selected" : null
-, 935), false)
+WriteAttribute("selected", Tuple.Create(" selected=\"", 995), Tuple.Create("\"", 1059)
+, Tuple.Create(Tuple.Create("", 1006), Tuple.Create<System.Object, System.Int32>(ViewBag.SelectedIndex == index ? "selected" : null
+, 1006), false)
 );
 
 WriteLiteral(">");
 
-                                                                                                   Write(index);
+                                                                                                       Write(index);
 
 WriteLiteral("</option>\r\n");
 
-            }
+                }
 
-WriteLiteral("        </select>\r\n    </label>\r\n");
+WriteLiteral("            </select>\r\n        </label>\r\n");
 
-WriteLiteral("    <textarea");
+WriteLiteral("        <textarea");
 
 WriteLiteral(" name=\"query\"");
 
@@ -130,11 +135,11 @@ WriteLiteral(" data-dojo-props=\"style:\'height:100px;\'\"");
 
 WriteLiteral(">");
 
-                                                                                                         Write(ViewBag.Query);
+                                                                                                             Write(ViewBag.Query);
 
 WriteLiteral("</textarea>\r\n");
 
-WriteLiteral("    <p>\r\n        <button");
+WriteLiteral("        <p>\r\n            <button");
 
 WriteLiteral(" data-dojo-type=\"dijit/form/Button\"");
 
@@ -144,30 +149,34 @@ WriteLiteral(" class=\"epi-primary\"");
 
 WriteLiteral(">");
 
-                                                                                Write(Html.TranslateWithPathRaw("execute", localizationPath));
+                                                                                    Write(Html.TranslateWithPathRaw("execute", localizationPath));
 
-WriteLiteral("</button>\r\n    </p>\r\n");
+WriteLiteral("</button>\r\n        </p>\r\n");
 
-}
+    }
 
 WriteLiteral("\r\n");
 
- if (ViewBag.Result != null)
-{
+    
+     if (ViewBag.Result != null)
+    {
 
-WriteLiteral("    <h2>");
+WriteLiteral("        <h2>");
 
-   Write(Html.TranslateWithPath("result", localizationPath));
+       Write(Html.TranslateWithPath("result", localizationPath));
 
 WriteLiteral("</h2>\r\n");
 
-WriteLiteral("    <pre>");
+WriteLiteral("        <pre>");
 
-    Write(ViewBag.Result);
+        Write(ViewBag.Result);
 
 WriteLiteral("</pre>\r\n");
 
-}
+    }
+
+WriteLiteral("</div>\r\n");
+
         }
     }
 }

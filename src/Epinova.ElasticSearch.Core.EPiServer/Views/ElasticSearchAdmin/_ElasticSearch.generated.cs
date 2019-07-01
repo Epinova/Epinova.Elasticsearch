@@ -161,24 +161,22 @@ WriteLiteral("\r\n</head>\r\n<body");
 
 WriteLiteral(" class=\"Sleek\"");
 
-WriteLiteral(">\r\n    <div");
+WriteLiteral(">\r\n");
+
+WriteLiteral("    ");
+
+Write(Html.Raw(ViewBag.Menu));
+
+WriteLiteral("\r\n    <div");
 
 WriteLiteral(" id=\"epi-globalDocument\"");
 
-WriteLiteral(">\r\n");
-
-WriteLiteral("        ");
-
-   Write(Html.Raw(Html.GlobalMenu()));
-
-WriteLiteral("\r\n        <div");
-
-WriteAttribute("class", Tuple.Create(" class=\"", 3677), Tuple.Create("\"", 3743)
-, Tuple.Create(Tuple.Create("", 3685), Tuple.Create<System.Object, System.Int32>(ViewBag.ContainerClass ?? "epi-paddingHorizontal-small"
-, 3685), false)
+WriteAttribute("class", Tuple.Create(" class=\"", 3653), Tuple.Create("\"", 3719)
+, Tuple.Create(Tuple.Create("", 3661), Tuple.Create<System.Object, System.Int32>(ViewBag.ContainerClass ?? "epi-paddingHorizontal-small"
+, 3661), false)
 );
 
-WriteLiteral(">\r\n");
+WriteLiteral(">\r\n        <div>\r\n");
 
 WriteLiteral("            ");
 
