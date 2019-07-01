@@ -116,9 +116,9 @@
     @RenderSection("Styles", false)
 </head>
 <body class="Sleek">
-    <div id="epi-globalDocument">
-        @Html.Raw(Html.GlobalMenu())
-        <div class="@(ViewBag.ContainerClass ?? "epi-paddingHorizontal-small")">
+    @Html.Raw(ViewBag.Menu)
+    <div id="epi-globalDocument" class="@(ViewBag.ContainerClass ?? "epi-paddingHorizontal-small")">
+        <div>
             @RenderBody()
         </div>
     </div>

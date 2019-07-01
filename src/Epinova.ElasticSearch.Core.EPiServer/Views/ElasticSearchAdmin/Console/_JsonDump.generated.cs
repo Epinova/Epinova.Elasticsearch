@@ -56,24 +56,29 @@ WriteLiteral("\r\n");
     string endpoint = ViewBag.Endpoint ?? "";
     string localizationPath = "/epinovaelasticsearch/console/";
 
-WriteLiteral("\r\n\r\n");
+WriteLiteral("\r\n\r\n<div");
 
- using (Html.BeginForm(endpoint, "ElasticConsole"))
-{
+WriteLiteral(" class=\"epi-padding-small\"");
 
-WriteLiteral("    <h2>");
+WriteLiteral(">\r\n");
 
-   Write(Html.TranslateWithPathRaw(endpoint, localizationPath));
+    
+     using (Html.BeginForm(endpoint, "ElasticConsole"))
+    {
+
+WriteLiteral("        <h2>");
+
+       Write(Html.TranslateWithPathRaw(endpoint, localizationPath));
 
 WriteLiteral("</h2>\r\n");
 
-WriteLiteral("    <p>\r\n        <label>\r\n");
+WriteLiteral("        <p>\r\n            <label>\r\n");
 
-WriteLiteral("            ");
+WriteLiteral("                ");
 
-       Write(Html.TranslateWithPathRaw("index", localizationPath));
+           Write(Html.TranslateWithPathRaw("index", localizationPath));
 
-WriteLiteral("\r\n            <select");
+WriteLiteral("\r\n                <select");
 
 WriteLiteral(" data-dojo-type=\"dijit/form/Select\"");
 
@@ -81,31 +86,31 @@ WriteLiteral(" name=\"index\"");
 
 WriteLiteral(">\r\n");
 
-                
-                 foreach (string index in ViewBag.Indices)
-                {
+                    
+                     foreach (string index in ViewBag.Indices)
+                    {
 
-WriteLiteral("                    <option");
+WriteLiteral("                        <option");
 
-WriteAttribute("value", Tuple.Create(" value=\"", 736), Tuple.Create("\"", 750)
-, Tuple.Create(Tuple.Create("", 744), Tuple.Create<System.Object, System.Int32>(index
-, 744), false)
+WriteAttribute("value", Tuple.Create(" value=\"", 809), Tuple.Create("\"", 823)
+, Tuple.Create(Tuple.Create("", 817), Tuple.Create<System.Object, System.Int32>(index
+, 817), false)
 );
 
-WriteAttribute("selected", Tuple.Create(" selected=\"", 751), Tuple.Create("\"", 815)
-, Tuple.Create(Tuple.Create("", 762), Tuple.Create<System.Object, System.Int32>(ViewBag.SelectedIndex == index ? "selected" : null
-, 762), false)
+WriteAttribute("selected", Tuple.Create(" selected=\"", 824), Tuple.Create("\"", 888)
+, Tuple.Create(Tuple.Create("", 835), Tuple.Create<System.Object, System.Int32>(ViewBag.SelectedIndex == index ? "selected" : null
+, 835), false)
 );
 
 WriteLiteral(">");
 
-                                                                                                       Write(index);
+                                                                                                           Write(index);
 
 WriteLiteral("</option>\r\n");
 
-                }
+                    }
 
-WriteLiteral("            </select>\r\n        </label>\r\n        <button");
+WriteLiteral("                </select>\r\n            </label>\r\n            <button");
 
 WriteLiteral(" data-dojo-type=\"dijit/form/Button\"");
 
@@ -115,24 +120,28 @@ WriteLiteral(" class=\"epi-primary\"");
 
 WriteLiteral(">");
 
-                                                                                Write(Html.TranslateWithPathRaw("show", localizationPath));
+                                                                                    Write(Html.TranslateWithPathRaw("show", localizationPath));
 
-WriteLiteral("</button>\r\n    </p>\r\n");
+WriteLiteral("</button>\r\n        </p>\r\n");
 
-}
+    }
 
 WriteLiteral("\r\n");
 
- if (ViewBag.Result != null)
-{
+    
+     if (ViewBag.Result != null)
+    {
 
-WriteLiteral("    <pre>");
+WriteLiteral("        <pre>");
 
-    Write(ViewBag.Result);
+        Write(ViewBag.Result);
 
 WriteLiteral("</pre>\r\n");
 
-}
+    }
+
+WriteLiteral("</div>");
+
         }
     }
 }

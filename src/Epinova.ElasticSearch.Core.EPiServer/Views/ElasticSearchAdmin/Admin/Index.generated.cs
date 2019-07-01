@@ -182,18 +182,23 @@ WriteLiteral("\r\n");
 
     string localizationPath = "/epinovaelasticsearch/indexes/";
 
-WriteLiteral("\r\n\r\n");
+WriteLiteral("\r\n\r\n<div");
 
- using (Html.BeginForm("AddNewIndex", "ElasticAdmin"))
-{
+WriteLiteral(" class=\"epi-padding-small\"");
 
-WriteLiteral("    <h1>");
+WriteLiteral(">\r\n");
 
-   Write(Html.TranslateWithPath("addorupdateindexes", localizationPath));
+    
+     using (Html.BeginForm("AddNewIndex", "ElasticAdmin"))
+    {
+
+WriteLiteral("        <h1>");
+
+       Write(Html.TranslateWithPath("addorupdateindexes", localizationPath));
 
 WriteLiteral("</h1>\r\n");
 
-WriteLiteral("    <p>\r\n        <button");
+WriteLiteral("        <p>\r\n            <button");
 
 WriteLiteral(" data-dojo-type=\"dijit/form/Button\"");
 
@@ -203,75 +208,77 @@ WriteLiteral(" class=\"epi-primary\"");
 
 WriteLiteral(">");
 
-                                                                                Write(IndexString("addorupdateindexesbutton"));
+                                                                                    Write(IndexString("addorupdateindexesbutton"));
 
 WriteLiteral("</button>\r\n");
 
-WriteLiteral("        ");
+WriteLiteral("            ");
 
-   Write(IndexString("addnewindexinfo"));
+       Write(IndexString("addnewindexinfo"));
 
-WriteLiteral("\r\n    </p>\r\n");
+WriteLiteral("\r\n        </p>\r\n");
 
-}
+    }
 
 WriteLiteral("\r\n");
 
- if (Model.ClusterHealth != null)
-{
+    
+     if (Model.ClusterHealth != null)
+    {
 
-WriteLiteral("    <h1>");
+WriteLiteral("        <h1>");
 
-   Write(ClusterString("heading"));
+       Write(ClusterString("heading"));
 
 WriteLiteral("</h1>\r\n");
 
-WriteLiteral("    <div");
+WriteLiteral("        <div");
 
 WriteLiteral(" id=\"clusterGrid\"");
 
 WriteLiteral("></div>\r\n");
 
-WriteLiteral("    <br />");
+WriteLiteral("        <br />");
 
 WriteLiteral("<br />\r\n");
 
-}
+    }
 
 WriteLiteral("\r\n");
 
- if (Model.NodeInfo != null)
-{
+    
+     if (Model.NodeInfo != null)
+    {
 
-WriteLiteral("    <h1>");
+WriteLiteral("        <h1>");
 
-   Write(NodeString("heading"));
+       Write(NodeString("heading"));
 
 WriteLiteral("</h1>\r\n");
 
-WriteLiteral("    <div");
+WriteLiteral("        <div");
 
 WriteLiteral(" id=\"nodeGrid\"");
 
 WriteLiteral("></div>\r\n");
 
-WriteLiteral("    <br />");
+WriteLiteral("        <br />");
 
 WriteLiteral("<br />\r\n");
 
-}
+    }
 
-WriteLiteral("\r\n<h1>");
+WriteLiteral("\r\n    <h1>");
 
-Write(IndexString("heading"));
+   Write(IndexString("heading"));
 
-WriteLiteral("</h1>\r\n<div");
+WriteLiteral("</h1>\r\n    <div");
 
 WriteLiteral(" id=\"indexGrid\"");
 
 WriteLiteral(@"></div>
-<br /><br />
-
+    <br /><br />
+</div>
 
 <script>
     require([
@@ -623,7 +630,8 @@ WriteLiteral(@"?indexName="" + object.index;
         }, ""indexGrid"");
         indexGrid.renderArray(indexData);
     });
-</script>");
+</script>
+");
 
         }
     }

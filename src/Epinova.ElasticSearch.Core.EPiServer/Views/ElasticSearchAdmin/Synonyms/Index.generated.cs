@@ -52,7 +52,6 @@ WriteLiteral("\r\n");
 WriteLiteral("\r\n");
 
   
-    ViewBag.ContainerClass = String.Empty;
     Layout = "~/Views/ElasticSearchAdmin/_ElasticSearch.cshtml";
 
 WriteLiteral("\r\n\r\n");
@@ -115,9 +114,9 @@ WriteLiteral("            <div");
 
 WriteLiteral(" data-dojo-type=\"dijit/layout/ContentPane\"");
 
-WriteAttribute("title", Tuple.Create(" title=\"", 1254), Tuple.Create("\"", 1280)
-, Tuple.Create(Tuple.Create("", 1262), Tuple.Create<System.Object, System.Int32>(lang.LanguageName
-, 1262), false)
+WriteAttribute("title", Tuple.Create(" title=\"", 1210), Tuple.Create("\"", 1236)
+, Tuple.Create(Tuple.Create("", 1218), Tuple.Create<System.Object, System.Int32>(lang.LanguageName
+, 1218), false)
 );
 
 WriteLiteral(" data-dojo-props=\"");
@@ -144,9 +143,9 @@ WriteLiteral(" type=\"hidden\"");
 
 WriteLiteral(" name=\"LanguageId\"");
 
-WriteAttribute("value", Tuple.Create(" value=\"", 1663), Tuple.Create("\"", 1687)
-, Tuple.Create(Tuple.Create("", 1671), Tuple.Create<System.Object, System.Int32>(lang.LanguageId
-, 1671), false)
+WriteAttribute("value", Tuple.Create(" value=\"", 1619), Tuple.Create("\"", 1643)
+, Tuple.Create(Tuple.Create("", 1627), Tuple.Create<System.Object, System.Int32>(lang.LanguageId
+, 1627), false)
 );
 
 WriteLiteral(" />\r\n");
@@ -172,14 +171,14 @@ WriteLiteral(">\r\n");
 
 WriteLiteral("                                            <option");
 
-WriteAttribute("value", Tuple.Create(" value=\"", 2131), Tuple.Create("\"", 2145)
-, Tuple.Create(Tuple.Create("", 2139), Tuple.Create<System.Object, System.Int32>(index
-, 2139), false)
+WriteAttribute("value", Tuple.Create(" value=\"", 2087), Tuple.Create("\"", 2101)
+, Tuple.Create(Tuple.Create("", 2095), Tuple.Create<System.Object, System.Int32>(index
+, 2095), false)
 );
 
-WriteAttribute("selected", Tuple.Create(" selected=\"", 2146), Tuple.Create("\"", 2210)
-, Tuple.Create(Tuple.Create("", 2157), Tuple.Create<System.Object, System.Int32>(ViewBag.SelectedIndex == index ? "selected" : null
-, 2157), false)
+WriteAttribute("selected", Tuple.Create(" selected=\"", 2102), Tuple.Create("\"", 2166)
+, Tuple.Create(Tuple.Create("", 2113), Tuple.Create<System.Object, System.Int32>(ViewBag.SelectedIndex == index ? "selected" : null
+, 2113), false)
 );
 
 WriteLiteral(">");
@@ -220,9 +219,9 @@ WriteLiteral(" type=\"hidden\"");
 
 WriteLiteral(" name=\"Index\"");
 
-WriteAttribute("value", Tuple.Create(" value=\"", 2770), Tuple.Create("\"", 2800)
-, Tuple.Create(Tuple.Create("", 2778), Tuple.Create<System.Object, System.Int32>(ViewBag.SelectedIndex
-, 2778), false)
+WriteAttribute("value", Tuple.Create(" value=\"", 2726), Tuple.Create("\"", 2756)
+, Tuple.Create(Tuple.Create("", 2734), Tuple.Create<System.Object, System.Int32>(ViewBag.SelectedIndex
+, 2734), false)
 );
 
 WriteLiteral(" />\r\n");
@@ -233,9 +232,9 @@ WriteLiteral(" type=\"hidden\"");
 
 WriteLiteral(" name=\"Analyzer\"");
 
-WriteAttribute("value", Tuple.Create(" value=\"", 2866), Tuple.Create("\"", 2888)
-, Tuple.Create(Tuple.Create("", 2874), Tuple.Create<System.Object, System.Int32>(lang.Analyzer
-, 2874), false)
+WriteAttribute("value", Tuple.Create(" value=\"", 2822), Tuple.Create("\"", 2844)
+, Tuple.Create(Tuple.Create("", 2830), Tuple.Create<System.Object, System.Int32>(lang.Analyzer
+, 2830), false)
 );
 
 WriteLiteral(" />\r\n");
@@ -246,9 +245,9 @@ WriteLiteral(" type=\"hidden\"");
 
 WriteLiteral(" name=\"LanguageId\"");
 
-WriteAttribute("value", Tuple.Create(" value=\"", 2956), Tuple.Create("\"", 2980)
-, Tuple.Create(Tuple.Create("", 2964), Tuple.Create<System.Object, System.Int32>(lang.LanguageId
-, 2964), false)
+WriteAttribute("value", Tuple.Create(" value=\"", 2912), Tuple.Create("\"", 2936)
+, Tuple.Create(Tuple.Create("", 2920), Tuple.Create<System.Object, System.Int32>(lang.LanguageId
+, 2920), false)
 );
 
 WriteLiteral(" />\r\n");
@@ -323,10 +322,10 @@ WriteLiteral("</h2>\r\n");
 
 WriteLiteral("                        <div");
 
-WriteAttribute("id", Tuple.Create(" id=\"", 3986), Tuple.Create("\"", 4022)
-, Tuple.Create(Tuple.Create("", 3991), Tuple.Create<System.Object, System.Int32>(lang.LanguageId
-, 3991), false)
-, Tuple.Create(Tuple.Create("", 4009), Tuple.Create("-synonymsGrid", 4009), true)
+WriteAttribute("id", Tuple.Create(" id=\"", 3942), Tuple.Create("\"", 3978)
+, Tuple.Create(Tuple.Create("", 3947), Tuple.Create<System.Object, System.Int32>(lang.LanguageId
+, 3947), false)
+, Tuple.Create(Tuple.Create("", 3965), Tuple.Create("-synonymsGrid", 3965), true)
 );
 
 WriteLiteral("></div>\r\n");
