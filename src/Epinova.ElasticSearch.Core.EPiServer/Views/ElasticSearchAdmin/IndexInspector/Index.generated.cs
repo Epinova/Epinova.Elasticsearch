@@ -99,9 +99,9 @@ WriteLiteral(@"
 
 });
 
-WriteLiteral("\r\n\r\n<div");
+WriteLiteral("\r\n<div");
 
-WriteLiteral(" class=\"epi-formArea\"");
+WriteLiteral(" class=\"epi-formArea epi-padding-small\"");
 
 WriteLiteral(">\r\n    <h1");
 
@@ -137,9 +137,9 @@ WriteLiteral("\'\"");
 
 WriteLiteral(" name=\"searchText\"");
 
-WriteAttribute("value", Tuple.Create(" value=\"", 1937), Tuple.Create("\"", 1962)
-                                                                                                              , Tuple.Create(Tuple.Create("", 1945), Tuple.Create<System.Object, System.Int32>(Model.SearchText
-, 1945), false)
+WriteAttribute("value", Tuple.Create(" value=\"", 1953), Tuple.Create("\"", 1978)
+                                                                                                              , Tuple.Create(Tuple.Create("", 1961), Tuple.Create<System.Object, System.Int32>(Model.SearchText
+, 1961), false)
 );
 
 WriteLiteral(" />\r\n                    <button");
@@ -200,10 +200,10 @@ WriteLiteral(">\r\n                                <h3>\r\n                     
 
 WriteLiteral(" type=\"button\"");
 
-WriteAttribute("aria-controls", Tuple.Create(" aria-controls=\"", 3008), Tuple.Create("\"", 3035)
-, Tuple.Create(Tuple.Create("", 3024), Tuple.Create("item-", 3024), true)
-, Tuple.Create(Tuple.Create("", 3029), Tuple.Create<System.Object, System.Int32>(index
-, 3029), false)
+WriteAttribute("aria-controls", Tuple.Create(" aria-controls=\"", 3024), Tuple.Create("\"", 3051)
+, Tuple.Create(Tuple.Create("", 3040), Tuple.Create("item-", 3040), true)
+, Tuple.Create(Tuple.Create("", 3045), Tuple.Create<System.Object, System.Int32>(index
+, 3045), false)
 );
 
 WriteLiteral(" aria-expanded=\"false\"");
@@ -225,10 +225,10 @@ WriteLiteral(" class=\"accordion-panel\"");
 
 WriteLiteral(" style=\"display: none;\"");
 
-WriteAttribute("id", Tuple.Create(" id=\"", 3253), Tuple.Create("\"", 3269)
-, Tuple.Create(Tuple.Create("", 3258), Tuple.Create("item-", 3258), true)
-             , Tuple.Create(Tuple.Create("", 3263), Tuple.Create<System.Object, System.Int32>(index
-, 3263), false)
+WriteAttribute("id", Tuple.Create(" id=\"", 3269), Tuple.Create("\"", 3285)
+, Tuple.Create(Tuple.Create("", 3274), Tuple.Create("item-", 3274), true)
+             , Tuple.Create(Tuple.Create("", 3279), Tuple.Create<System.Object, System.Int32>(index
+, 3279), false)
 );
 
 WriteLiteral(">\r\n                                    <pre><code>");
@@ -273,19 +273,19 @@ WriteLiteral(" type=\"radio\"");
 
 WriteLiteral(" data-dojo-type=\"dijit/form/RadioButton\"");
 
-WriteAttribute("name", Tuple.Create(" name=\"", 4014), Tuple.Create("\"", 4056)
-                      , Tuple.Create(Tuple.Create("", 4021), Tuple.Create<System.Object, System.Int32>(Html.NameFor(m => m.SelectedIndex)
-, 4021), false)
+WriteAttribute("name", Tuple.Create(" name=\"", 4030), Tuple.Create("\"", 4072)
+                      , Tuple.Create(Tuple.Create("", 4037), Tuple.Create<System.Object, System.Int32>(Html.NameFor(m => m.SelectedIndex)
+, 4037), false)
 );
 
-WriteAttribute("value", Tuple.Create(" value=\"", 4057), Tuple.Create("\"", 4071)
-                                                                  , Tuple.Create(Tuple.Create("", 4065), Tuple.Create<System.Object, System.Int32>(index
-, 4065), false)
+WriteAttribute("value", Tuple.Create(" value=\"", 4073), Tuple.Create("\"", 4087)
+                                                                  , Tuple.Create(Tuple.Create("", 4081), Tuple.Create<System.Object, System.Int32>(index
+, 4081), false)
 );
 
-WriteAttribute("checked", Tuple.Create(" checked=\"", 4072), Tuple.Create("\"", 4125)
-                                                                                    , Tuple.Create(Tuple.Create("", 4082), Tuple.Create<System.Object, System.Int32>(Model.SelectedIndex == index ? "" : null
-, 4082), false)
+WriteAttribute("checked", Tuple.Create(" checked=\"", 4088), Tuple.Create("\"", 4141)
+                                                                                    , Tuple.Create(Tuple.Create("", 4098), Tuple.Create<System.Object, System.Int32>(Model.SelectedIndex == index ? "" : null
+, 4098), false)
 );
 
 WriteLiteral(" /> ");
@@ -331,19 +331,19 @@ WriteLiteral(" type=\"radio\"");
 
 WriteLiteral(" data-dojo-type=\"dijit/form/RadioButton\"");
 
-WriteAttribute("name", Tuple.Create(" name=\"", 4871), Tuple.Create("\"", 4921)
-                  , Tuple.Create(Tuple.Create("", 4878), Tuple.Create<System.Object, System.Int32>(Html.NameFor(m => m.SelectedNumberOfItems)
-, 4878), false)
+WriteAttribute("name", Tuple.Create(" name=\"", 4887), Tuple.Create("\"", 4937)
+                  , Tuple.Create(Tuple.Create("", 4894), Tuple.Create<System.Object, System.Int32>(Html.NameFor(m => m.SelectedNumberOfItems)
+, 4894), false)
 );
 
-WriteAttribute("value", Tuple.Create(" value=\"", 4922), Tuple.Create("\"", 4944)
-                                                                      , Tuple.Create(Tuple.Create("", 4930), Tuple.Create<System.Object, System.Int32>(numberOfItems
-, 4930), false)
+WriteAttribute("value", Tuple.Create(" value=\"", 4938), Tuple.Create("\"", 4960)
+                                                                      , Tuple.Create(Tuple.Create("", 4946), Tuple.Create<System.Object, System.Int32>(numberOfItems
+, 4946), false)
 );
 
-WriteAttribute("checked", Tuple.Create(" checked=\"", 4945), Tuple.Create("\"", 5014)
-                                                                                                , Tuple.Create(Tuple.Create("", 4955), Tuple.Create<System.Object, System.Int32>(numberOfItems == Model.SelectedNumberOfItems ? "" : null
-, 4955), false)
+WriteAttribute("checked", Tuple.Create(" checked=\"", 4961), Tuple.Create("\"", 5030)
+                                                                                                , Tuple.Create(Tuple.Create("", 4971), Tuple.Create<System.Object, System.Int32>(numberOfItems == Model.SelectedNumberOfItems ? "" : null
+, 4971), false)
 );
 
 WriteLiteral(" /> ");
@@ -391,19 +391,19 @@ WriteLiteral(" type=\"radio\"");
 
 WriteLiteral(" data-dojo-type=\"dijit/form/RadioButton\"");
 
-WriteAttribute("name", Tuple.Create(" name=\"", 5839), Tuple.Create("\"", 5884)
-                      , Tuple.Create(Tuple.Create("", 5846), Tuple.Create<System.Object, System.Int32>(Html.NameFor(m => m.SelectedLanguage)
-, 5846), false)
+WriteAttribute("name", Tuple.Create(" name=\"", 5855), Tuple.Create("\"", 5900)
+                      , Tuple.Create(Tuple.Create("", 5862), Tuple.Create<System.Object, System.Int32>(Html.NameFor(m => m.SelectedLanguage)
+, 5862), false)
 );
 
-WriteAttribute("value", Tuple.Create(" value=\"", 5885), Tuple.Create("\"", 5913)
-                                                                     , Tuple.Create(Tuple.Create("", 5893), Tuple.Create<System.Object, System.Int32>(language.LanguageID
-, 5893), false)
+WriteAttribute("value", Tuple.Create(" value=\"", 5901), Tuple.Create("\"", 5929)
+                                                                     , Tuple.Create(Tuple.Create("", 5909), Tuple.Create<System.Object, System.Int32>(language.LanguageID
+, 5909), false)
 );
 
-WriteAttribute("checked", Tuple.Create(" checked=\"", 5914), Tuple.Create("\"", 5984)
-                                                                                                     , Tuple.Create(Tuple.Create("", 5924), Tuple.Create<System.Object, System.Int32>(Model.SelectedLanguage == language.LanguageID ? "" : null
-, 5924), false)
+WriteAttribute("checked", Tuple.Create(" checked=\"", 5930), Tuple.Create("\"", 6000)
+                                                                                                     , Tuple.Create(Tuple.Create("", 5940), Tuple.Create<System.Object, System.Int32>(Model.SelectedLanguage == language.LanguageID ? "" : null
+, 5940), false)
 );
 
 WriteLiteral(" /> ");
@@ -461,19 +461,19 @@ WriteLiteral(" type=\"radio\"");
 
 WriteLiteral(" data-dojo-type=\"dijit/form/RadioButton\"");
 
-WriteAttribute("name", Tuple.Create(" name=\"", 6865), Tuple.Create("\"", 6906)
-                      , Tuple.Create(Tuple.Create("", 6872), Tuple.Create<System.Object, System.Int32>(Html.NameFor(m => m.SelectedType)
-, 6872), false)
+WriteAttribute("name", Tuple.Create(" name=\"", 6881), Tuple.Create("\"", 6922)
+                      , Tuple.Create(Tuple.Create("", 6888), Tuple.Create<System.Object, System.Int32>(Html.NameFor(m => m.SelectedType)
+, 6888), false)
 );
 
-WriteAttribute("value", Tuple.Create(" value=\"", 6907), Tuple.Create("\"", 6925)
-                                                                 , Tuple.Create(Tuple.Create("", 6915), Tuple.Create<System.Object, System.Int32>(type.Type
-, 6915), false)
+WriteAttribute("value", Tuple.Create(" value=\"", 6923), Tuple.Create("\"", 6941)
+                                                                 , Tuple.Create(Tuple.Create("", 6931), Tuple.Create<System.Object, System.Int32>(type.Type
+, 6931), false)
 );
 
-WriteAttribute("checked", Tuple.Create(" checked=\"", 6926), Tuple.Create("\"", 6982)
-                                                                                       , Tuple.Create(Tuple.Create("", 6936), Tuple.Create<System.Object, System.Int32>(Model.SelectedType == type.Type ? "" : null
-, 6936), false)
+WriteAttribute("checked", Tuple.Create(" checked=\"", 6942), Tuple.Create("\"", 6998)
+                                                                                       , Tuple.Create(Tuple.Create("", 6952), Tuple.Create<System.Object, System.Int32>(Model.SelectedType == type.Type ? "" : null
+, 6952), false)
 );
 
 WriteLiteral(" /> ");

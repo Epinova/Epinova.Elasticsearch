@@ -77,47 +77,48 @@
     string localizationPath = "/epinovaelasticsearch/indexes/";
 }
 
-@using (Html.BeginForm("AddNewIndex", "ElasticAdmin"))
-{
-    <h1>@Html.TranslateWithPath("addorupdateindexes", localizationPath)</h1>
-    <p>
-        <button data-dojo-type="dijit/form/Button" type="submit" class="epi-primary">@IndexString("addorupdateindexesbutton")</button>
-        @IndexString("addnewindexinfo")
-    </p>
-}
+<div class="epi-padding-small">
+    @using (Html.BeginForm("AddNewIndex", "ElasticAdmin"))
+    {
+        <h1>@Html.TranslateWithPath("addorupdateindexes", localizationPath)</h1>
+        <p>
+            <button data-dojo-type="dijit/form/Button" type="submit" class="epi-primary">@IndexString("addorupdateindexesbutton")</button>
+            @IndexString("addnewindexinfo")
+        </p>
+    }
 
-@if (Model.ClusterHealth != null)
-{
-    <h1>@ClusterString("heading")</h1>
-    <div id="clusterGrid"></div>
+    @if (Model.ClusterHealth != null)
+    {
+        <h1>@ClusterString("heading")</h1>
+        <div id="clusterGrid"></div>
+        <br /><br />
+    }
+
+    @if (Model.NodeInfo != null)
+    {
+        <h1>@NodeString("heading")</h1>
+        <div id="nodeGrid"></div>
+        <br /><br />
+    }
+
+    <h1>@IndexString("heading")</h1>
+    <div id="indexGrid"></div>
+
+    @if (Model.AllIndexes.Any())
+    {
+            using (Html.BeginForm("DeleteAll", "ElasticAdmin"))
+            {
+                <div class="epi-paddingVertical-small epi-alignRight">
+                    <button data-dojo-type="dijit/form/Button" 
+                            type="submit" 
+                            class="epi-danger" 
+                            onclick="return confirm('@IndexString("confirmDeleteAll")');">@IndexString("deleteAll")</button>
+                </div>
+            }
+    }
+
     <br /><br />
-}
-
-@if (Model.NodeInfo != null)
-{
-    <h1>@NodeString("heading")</h1>
-    <div id="nodeGrid"></div>
-    <br /><br />
-}
-
-<h1>@IndexString("heading")</h1>
-<div id="indexGrid"></div>
-
-@if (Model.AllIndexes.Any())
-{
-        using (Html.BeginForm("DeleteAll", "ElasticAdmin"))
-        {
-            <div class="epi-paddingVertical-small epi-alignRight">
-                <button data-dojo-type="dijit/form/Button" 
-                        type="submit" 
-                        class="epi-danger" 
-                        onclick="return confirm('@IndexString("confirmDeleteAll")');">@IndexString("deleteAll")</button>
-            </div>
-        }
-}
-
-<br /><br />
-
+</div>
 
 <script>
     require([

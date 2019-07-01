@@ -182,18 +182,23 @@ WriteLiteral("\r\n");
 
     string localizationPath = "/epinovaelasticsearch/indexes/";
 
-WriteLiteral("\r\n\r\n");
+WriteLiteral("\r\n\r\n<div");
 
- using (Html.BeginForm("AddNewIndex", "ElasticAdmin"))
-{
+WriteLiteral(" class=\"epi-padding-small\"");
 
-WriteLiteral("    <h1>");
+WriteLiteral(">\r\n");
 
-   Write(Html.TranslateWithPath("addorupdateindexes", localizationPath));
+    
+     using (Html.BeginForm("AddNewIndex", "ElasticAdmin"))
+    {
+
+WriteLiteral("        <h1>");
+
+       Write(Html.TranslateWithPath("addorupdateindexes", localizationPath));
 
 WriteLiteral("</h1>\r\n");
 
-WriteLiteral("    <p>\r\n        <button");
+WriteLiteral("        <p>\r\n            <button");
 
 WriteLiteral(" data-dojo-type=\"dijit/form/Button\"");
 
@@ -203,111 +208,114 @@ WriteLiteral(" class=\"epi-primary\"");
 
 WriteLiteral(">");
 
-                                                                                Write(IndexString("addorupdateindexesbutton"));
+                                                                                    Write(IndexString("addorupdateindexesbutton"));
 
 WriteLiteral("</button>\r\n");
 
-WriteLiteral("        ");
+WriteLiteral("            ");
 
-   Write(IndexString("addnewindexinfo"));
+       Write(IndexString("addnewindexinfo"));
 
-WriteLiteral("\r\n    </p>\r\n");
+WriteLiteral("\r\n        </p>\r\n");
 
-}
+    }
 
 WriteLiteral("\r\n");
 
- if (Model.ClusterHealth != null)
-{
+    
+     if (Model.ClusterHealth != null)
+    {
 
-WriteLiteral("    <h1>");
+WriteLiteral("        <h1>");
 
-   Write(ClusterString("heading"));
+       Write(ClusterString("heading"));
 
 WriteLiteral("</h1>\r\n");
 
-WriteLiteral("    <div");
+WriteLiteral("        <div");
 
 WriteLiteral(" id=\"clusterGrid\"");
 
 WriteLiteral("></div>\r\n");
 
-WriteLiteral("    <br />");
+WriteLiteral("        <br />");
 
 WriteLiteral("<br />\r\n");
 
-}
+    }
 
 WriteLiteral("\r\n");
 
- if (Model.NodeInfo != null)
-{
+    
+     if (Model.NodeInfo != null)
+    {
 
-WriteLiteral("    <h1>");
+WriteLiteral("        <h1>");
 
-   Write(NodeString("heading"));
+       Write(NodeString("heading"));
 
 WriteLiteral("</h1>\r\n");
 
-WriteLiteral("    <div");
+WriteLiteral("        <div");
 
 WriteLiteral(" id=\"nodeGrid\"");
 
 WriteLiteral("></div>\r\n");
 
-WriteLiteral("    <br />");
+WriteLiteral("        <br />");
 
 WriteLiteral("<br />\r\n");
 
-}
+    }
 
-WriteLiteral("\r\n<h1>");
+WriteLiteral("\r\n    <h1>");
 
-Write(IndexString("heading"));
+   Write(IndexString("heading"));
 
-WriteLiteral("</h1>\r\n<div");
+WriteLiteral("</h1>\r\n    <div");
 
 WriteLiteral(" id=\"indexGrid\"");
 
 WriteLiteral("></div>\r\n\r\n");
 
- if (Model.AllIndexes.Any())
-{
-        using (Html.BeginForm("DeleteAll", "ElasticAdmin"))
-        {
+    
+     if (Model.AllIndexes.Any())
+    {
+            using (Html.BeginForm("DeleteAll", "ElasticAdmin"))
+            {
 
-WriteLiteral("            <div");
+WriteLiteral("                <div");
 
 WriteLiteral(" class=\"epi-paddingVertical-small epi-alignRight\"");
 
-WriteLiteral(">\r\n                <button");
+WriteLiteral(">\r\n                    <button");
 
 WriteLiteral(" data-dojo-type=\"dijit/form/Button\"");
 
-WriteLiteral(" \r\n                        type=\"submit\"");
+WriteLiteral(" \r\n                            type=\"submit\"");
 
-WriteLiteral(" \r\n                        class=\"epi-danger\"");
+WriteLiteral(" \r\n                            class=\"epi-danger\"");
 
-WriteAttribute("onclick", Tuple.Create(" \r\n                        onclick=\"", 2825), Tuple.Create("\"", 2912)
-, Tuple.Create(Tuple.Create("", 2861), Tuple.Create("return", 2861), true)
-, Tuple.Create(Tuple.Create(" ", 2867), Tuple.Create("confirm(\'", 2868), true)
-, Tuple.Create(Tuple.Create("", 2877), Tuple.Create<System.Object, System.Int32>(IndexString("confirmDeleteAll")
-, 2877), false)
-, Tuple.Create(Tuple.Create("", 2909), Tuple.Create("\');", 2909), true)
+WriteAttribute("onclick", Tuple.Create(" \r\n                            onclick=\"", 2978), Tuple.Create("\"", 3069)
+, Tuple.Create(Tuple.Create("", 3018), Tuple.Create("return", 3018), true)
+, Tuple.Create(Tuple.Create(" ", 3024), Tuple.Create("confirm(\'", 3025), true)
+, Tuple.Create(Tuple.Create("", 3034), Tuple.Create<System.Object, System.Int32>(IndexString("confirmDeleteAll")
+, 3034), false)
+, Tuple.Create(Tuple.Create("", 3066), Tuple.Create("\');", 3066), true)
 );
 
 WriteLiteral(">");
 
-                                                                                 Write(IndexString("deleteAll"));
+                                                                                     Write(IndexString("deleteAll"));
 
-WriteLiteral("</button>\r\n            </div>\r\n");
+WriteLiteral("</button>\r\n                </div>\r\n");
 
-        }
-}
+            }
+    }
 
 WriteLiteral(@"
-<br /><br />
-
+    <br /><br />
+</div>
 
 <script>
     require([
@@ -667,7 +675,8 @@ WriteLiteral(@"?indexName="" + object.index;
         }, ""indexGrid"");
         indexGrid.renderArray(indexData);
     });
-</script>");
+</script>
+");
 
         }
     }

@@ -53,7 +53,6 @@ WriteLiteral("\r\n");
 WriteLiteral("\r\n");
 
   
-    ViewBag.ContainerClass = String.Empty;
     Layout = "~/Views/ElasticSearchAdmin/_ElasticSearch.cshtml";
 
 WriteLiteral("\r\n\r\n");
@@ -116,9 +115,9 @@ WriteLiteral("            <div");
 
 WriteLiteral(" data-dojo-type=\"dijit/layout/ContentPane\"");
 
-WriteAttribute("title", Tuple.Create(" title=\"", 1302), Tuple.Create("\"", 1328)
-, Tuple.Create(Tuple.Create("", 1310), Tuple.Create<System.Object, System.Int32>(lang.LanguageName
-, 1310), false)
+WriteAttribute("title", Tuple.Create(" title=\"", 1258), Tuple.Create("\"", 1284)
+, Tuple.Create(Tuple.Create("", 1266), Tuple.Create<System.Object, System.Int32>(lang.LanguageName
+, 1266), false)
 );
 
 WriteLiteral(" data-dojo-props=\"");
@@ -197,13 +196,13 @@ WriteLiteral("                                    <a");
 
 WriteLiteral(" class=\"epi-visibleLink\"");
 
-WriteAttribute("href", Tuple.Create(" href=\"", 2748), Tuple.Create("\"", 2800)
-, Tuple.Create(Tuple.Create("", 2755), Tuple.Create("?index=", 2755), true)
-, Tuple.Create(Tuple.Create("", 2762), Tuple.Create<System.Object, System.Int32>(indexName
-, 2762), false)
-, Tuple.Create(Tuple.Create("", 2772), Tuple.Create("&languageId=", 2772), true)
-                  , Tuple.Create(Tuple.Create("", 2784), Tuple.Create<System.Object, System.Int32>(lang.LanguageId
-, 2784), false)
+WriteAttribute("href", Tuple.Create(" href=\"", 2704), Tuple.Create("\"", 2756)
+, Tuple.Create(Tuple.Create("", 2711), Tuple.Create("?index=", 2711), true)
+, Tuple.Create(Tuple.Create("", 2718), Tuple.Create<System.Object, System.Int32>(indexName
+, 2718), false)
+, Tuple.Create(Tuple.Create("", 2728), Tuple.Create("&languageId=", 2728), true)
+                  , Tuple.Create(Tuple.Create("", 2740), Tuple.Create<System.Object, System.Int32>(lang.LanguageId
+, 2740), false)
 );
 
 WriteLiteral(">");
@@ -231,9 +230,9 @@ WriteLiteral(" type=\"hidden\"");
 
 WriteLiteral(" name=\"Index\"");
 
-WriteAttribute("value", Tuple.Create(" value=\"", 3094), Tuple.Create("\"", 3117)
-, Tuple.Create(Tuple.Create("", 3102), Tuple.Create<System.Object, System.Int32>(lang.IndexName
-, 3102), false)
+WriteAttribute("value", Tuple.Create(" value=\"", 3050), Tuple.Create("\"", 3073)
+, Tuple.Create(Tuple.Create("", 3058), Tuple.Create<System.Object, System.Int32>(lang.IndexName
+, 3058), false)
 );
 
 WriteLiteral(" />\r\n");
@@ -244,9 +243,9 @@ WriteLiteral(" type=\"hidden\"");
 
 WriteLiteral(" name=\"Analyzer\"");
 
-WriteAttribute("value", Tuple.Create(" value=\"", 3183), Tuple.Create("\"", 3205)
-, Tuple.Create(Tuple.Create("", 3191), Tuple.Create<System.Object, System.Int32>(lang.Analyzer
-, 3191), false)
+WriteAttribute("value", Tuple.Create(" value=\"", 3139), Tuple.Create("\"", 3161)
+, Tuple.Create(Tuple.Create("", 3147), Tuple.Create<System.Object, System.Int32>(lang.Analyzer
+, 3147), false)
 );
 
 WriteLiteral(" />\r\n");
@@ -257,9 +256,9 @@ WriteLiteral(" type=\"hidden\"");
 
 WriteLiteral(" name=\"LanguageId\"");
 
-WriteAttribute("value", Tuple.Create(" value=\"", 3273), Tuple.Create("\"", 3297)
-, Tuple.Create(Tuple.Create("", 3281), Tuple.Create<System.Object, System.Int32>(lang.LanguageId
-, 3281), false)
+WriteAttribute("value", Tuple.Create(" value=\"", 3229), Tuple.Create("\"", 3253)
+, Tuple.Create(Tuple.Create("", 3237), Tuple.Create<System.Object, System.Int32>(lang.LanguageId
+, 3237), false)
 );
 
 WriteLiteral(" />\r\n");
@@ -278,10 +277,10 @@ WriteLiteral(" data-dojo-type=\"dijit/form/ValidationTextBox\"");
 
 WriteLiteral(" name=\"from\"");
 
-WriteAttribute("id", Tuple.Create(" id=\"", 3516), Tuple.Create("\"", 3542)
-, Tuple.Create(Tuple.Create("", 3521), Tuple.Create("from_", 3521), true)
-                      , Tuple.Create(Tuple.Create("", 3526), Tuple.Create<System.Object, System.Int32>(lang.LanguageId
-, 3526), false)
+WriteAttribute("id", Tuple.Create(" id=\"", 3472), Tuple.Create("\"", 3498)
+, Tuple.Create(Tuple.Create("", 3477), Tuple.Create("from_", 3477), true)
+                      , Tuple.Create(Tuple.Create("", 3482), Tuple.Create<System.Object, System.Int32>(lang.LanguageId
+, 3482), false)
 );
 
 WriteLiteral(" data-dojo-props=\"placeholder:\'");
@@ -346,10 +345,10 @@ WriteLiteral("</h2>\r\n");
 
 WriteLiteral("                        <div");
 
-WriteAttribute("id", Tuple.Create(" id=\"", 4471), Tuple.Create("\"", 4507)
-, Tuple.Create(Tuple.Create("", 4476), Tuple.Create<System.Object, System.Int32>(lang.LanguageId
-, 4476), false)
-, Tuple.Create(Tuple.Create("", 4494), Tuple.Create("-synonymsGrid", 4494), true)
+WriteAttribute("id", Tuple.Create(" id=\"", 4427), Tuple.Create("\"", 4463)
+, Tuple.Create(Tuple.Create("", 4432), Tuple.Create<System.Object, System.Int32>(lang.LanguageId
+, 4432), false)
+, Tuple.Create(Tuple.Create("", 4450), Tuple.Create("-synonymsGrid", 4450), true)
 );
 
 WriteLiteral("></div>\r\n");
