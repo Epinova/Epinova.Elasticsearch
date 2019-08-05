@@ -95,6 +95,14 @@ namespace Core.Tests
         }
 
         [Fact]
+        public void SortByDescending_GeoPoint_AddsCorrectSort()
+        {
+            _service.SortByDescending(x => x.GeoPointProperty);
+
+            Assert.True(_service.SortFields.OfType<GeoSort>().Any(x => x.Direction == "desc"));
+        }
+
+        [Fact]
         public void SortBy_CalledTwice_ThrowsUp()
         {
             Assert.Throws<InvalidOperationException>(() =>
