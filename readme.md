@@ -3,7 +3,6 @@
 ![Tests](https://img.shields.io/appveyor/tests/Epinova_AppVeyor_Team/epinova-elasticsearch/master.svg)
 
 
-
 # Introduction
 
 A search plugin for Episerver CMS and Commerce
@@ -199,6 +198,72 @@ SearchResult result = service
 ```csharp
 SearchResult result = service
    .WildcardSearch<ArticlePage>("me?t")
+   .GetResults();
+```
+
+### Geo-point datatype
+
+Using properties of the type `Epinova.ElasticSearch.Core.Models.Properties.GeoPoint` allows you to perform geo-based filtering. 
+
+Example model:
+
+```csharp
+public class OfficePage : StandardPage
+{
+    [Display]
+    public virtual double Lat { get; set; }
+
+    [Display]
+    public virtual double Lon { get; set; }
+
+    // Helper property, you could always roll an editor for this
+    public GeoPoint Location => new GeoPoint(Lat, Lon);
+}
+```
+
+#### Filtering options
+
+##### Bounding box
+Find points inside a square area based on its top-left and bottom-right corners.
+
+```csharp
+var topLeft = (59.9277542, 10.7190847);
+var bottomRight = (59.8881646, 10.7983952);
+
+SearchResult result = service
+   .Get<OfficePage>()
+   .FilterGeoBoundingBox(x => x.Location, , topLeft, bottomRight)
+   .GetResults();
+```
+
+##### Distance
+Find points inside a circle given a center point and the distance of the radius. 
+
+```csharp
+var center = (59.9277542, 10.7190847);
+var radius = "10km";
+
+SearchResult result = service
+   .Get<OfficePage>()
+   .FilterGeoDistance(x => x.Location, radius, center)
+   .GetResults();
+```
+
+##### Polygons
+Find points inside a polygon with an arbitrary amount of points. 
+The polygon points can for example be the outlines of a city, country or other types of areas.
+
+```csharp
+var polygons = new[]
+{
+    (59.9702837, 10.6149134),
+    (59.9459601, 11.0231964),
+    (59.7789455, 10.604809)
+};
+
+SearchResult result = service
+   .Get<OfficePage>()
+   .FilterGeoPolygon(x => x.Location, polygons)
    .GetResults();
 ```
 
@@ -467,6 +532,55 @@ public class ArticlePage : StandardPage
 }
 ```
 
+# Dictionary properties
+If a property is of type `IDictionary<string, object>` and marked '[Searchable]', it will be indexed as an 'object' in Elasticsearch.  
+This is useful in scenarios where you have dynamic key-value data which must be indexed, like from PIM-systems.  
+
+Standard property approach:
+
+```
+public class ProductPage
+{
+    [Searchable]
+    public IDictionary<string, object> Metadata { get; set; }
+}
+```
+
+The data itself will not be returned, but you can query it and make facets:
+
+```csharp
+SearchResult result = service
+   .Search<ProductPage>("bacon")
+   .InField(x => x.Metadata + ".SomeKey")
+   .FacetsFor(x => x.Metadata + ".SomeKey")
+   .GetResults();
+```
+
+Custom properties:
+
+```csharp
+public static class SearchConfig
+{
+    public static void Init()
+    {
+        Epinova.ElasticSearch.Core.Conventions.Indexing.Instance
+            .ForType<ProductPage>().IncludeField("Metadata", x => x.GetPimDataDictionary());
+    }
+}
+```
+
+This approach returns the data:
+
+```csharp
+SearchResult result = service
+   .Search<ProductPage>("bacon")
+   .GetResults();
+
+var hit = result.Hits.First();
+var dict = hit.Custom["Metadata"] as IDictionary<string, object>
+```
+
+
 
 &nbsp;
 
@@ -612,6 +726,13 @@ SearchResult result = service
    .ThenBy(p => p.Bar)
    .GetResults();
 ```
+
+&nbsp;
+
+#### Geo-points
+
+When sorting on a GeoPoint, there is one more mandatory argument; `compareTo`. 
+Items will be compared to these coordinates, and the resulting distances will be used as the sort values.
 
 &nbsp;
 
@@ -812,11 +933,6 @@ MessageHandler.Instance.SetMessageHandler(new AWSHandler());
 Custom objects do not require an `Id` property (or corresponding argument in the `BulkOperation` ctor), but this is recommended if you want control over versioning and updates/deletions.
 
 &nbsp;
-
-# Known issues
-* Content that is not indexed will not be returned by the providers in edit mode
-* Admin GUI and manual indexing is not working properly with Windows authentication
-
 
 # See also
 * [Installation](setup.md)

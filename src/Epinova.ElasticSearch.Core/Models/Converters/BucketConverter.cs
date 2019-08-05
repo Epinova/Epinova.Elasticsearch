@@ -7,20 +7,18 @@ namespace Epinova.ElasticSearch.Core.Models.Converters
     public class BucketConverter : JsonConverter
     {
         public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
-        {
-            return null;
-        }
+            => null;
 
         public override bool CanConvert(Type objectType)
-        {
-            return objectType  == typeof(Bucket);
-        }
+            => objectType == typeof(Bucket);
 
         public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
         {
             var bucket = value as Bucket;
-            if (bucket == null)
+            if(bucket == null)
+            {
                 return;
+            }
 
             writer.WriteStartObject();
             serializer.Serialize(writer, bucket);

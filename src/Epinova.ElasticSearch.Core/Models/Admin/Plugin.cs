@@ -24,8 +24,6 @@ namespace Epinova.ElasticSearch.Core.Models.Admin
 
 
         public override string ToString()
-        {
-            return $"{Component}: v{Version}";
-        }
+            => $"{Component}: v{Version}";
     }
 }

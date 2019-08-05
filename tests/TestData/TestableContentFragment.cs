@@ -30,15 +30,9 @@ namespace TestData
             ContentLink = content.ContentLink;
         }
 
-        public override IContent GetContent()
-        {
-            return _content;
-        }
+        public override IContent GetContent() => _content;
 
-        public override IContent GetContent(bool enableMasterLanguageFallback)
-        {
-            return _content;
-        }
+        public override IContent GetContent(bool enableMasterLanguageFallback) => _content;
 
         [Obsolete("Use GetContent() instead.", false)]
         public override IContent Content => _content;

@@ -76,7 +76,7 @@ Add the following configurations:
         replicas="1"
         trackingConnectionStringName="EPiServerDB">
         <indices>
-          <add name="my-index-name" />
+          <add name="my-index-name" displayName="My Index" synonymsFile="synonyms/mysynonyms.txt" />
         </indices>
         <files maxsize="50MB" enabled="true">
           <add extension="doc" />
@@ -104,6 +104,19 @@ Attribute details:
 
 
 Register your indices in the `<indices>` node, usually just one. If you have more than one, the default one used for IContent must be marked with `default="true"`. 
+
+Example:
+```xml
+<add name="my-index-name" displayName="My Index" synonymsFile="mysynonyms.txt" />
+```
+
+* `name` is the actual name of the index. It will automatically be post fixed with each available language.
+* `displayName` is the fiendly name of the index, used in scenarios exposed to the editor.
+* `synonymsFile` (optional) can be used if you have a predefined list of synonyms to be used instead of a manual list. 
+This refers to a path relative to the config-folder on the server and must exist upon creation of the index. 
+The files must be present on all nodes in the cluster, one for each available language, prefixed  with `<language-code>_`. 
+Eg. with Norwegian and Swedish active, setting `synonymsFile` to `mysynonyms.txt` expects `no_mysynonyms.txt` and `se_mysynonyms.txt` 
+to exist in the config-folder.
 
 The `<files>` node defines which file-types should be indexed.
   * `enabled` turns indexing on/off.

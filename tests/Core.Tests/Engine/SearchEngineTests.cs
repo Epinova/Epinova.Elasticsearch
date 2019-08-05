@@ -11,24 +11,26 @@ using Xunit;
 
 namespace Core.Tests.Engine
 {
-    public class SearchEngineTests : IDisposable
+    [Collection(nameof(ServiceLocatiorCollection))]
+    public class SearchEngineTests : IDisposable, IClassFixture<ServiceLocatorFixture>
     {
+        private readonly ServiceLocatorFixture _fixture;
         private TestableSearchEngine _engine;
+        private readonly QueryRequest _dummyQuery;
 
-        public SearchEngineTests()
+        public SearchEngineTests(ServiceLocatorFixture fixture)
         {
-            Factory.SetupServiceLocator();
+            _fixture = fixture;
+            _dummyQuery = new QueryRequest(new QuerySetup { SearchText = "foo" });
         }
 
-        public void Dispose()
-        {
-            _engine = null;
-        }
+        public void Dispose() => _engine = null;
 
-        private void SetupEngineMock(string jsonFile)
-        {
-            _engine = new TestableSearchEngine(jsonFile);
-        }
+        private void SetupEngineMock(string jsonFile) =>
+            _engine = new TestableSearchEngine(
+                jsonFile,
+                _fixture.ServiceLocationMock.SettingsMock.Object,
+                _fixture.ServiceLocationMock.HttpClientMock.Object);
 
         [Fact]
         public void GetSuggestions_InvalidResult_ReturnEmptyArray()
@@ -65,7 +67,7 @@ namespace Core.Tests.Engine
         {
             SetupEngineMock("I_Dont_Exists.json");
 
-            SearchResult result = _engine.Query(new QueryRequest(new QuerySetup()), CultureInfo.InvariantCulture);
+            SearchResult result = _engine.Query(_dummyQuery, CultureInfo.InvariantCulture);
 
             Assert.NotNull(result);
         }
@@ -75,7 +77,7 @@ namespace Core.Tests.Engine
         {
             SetupEngineMock("Results_No_Hits.json");
 
-            SearchResult result = _engine.Query(new QueryRequest(new QuerySetup()), CultureInfo.InvariantCulture);
+            SearchResult result = _engine.Query(_dummyQuery, CultureInfo.InvariantCulture);
 
             Assert.Equal(0, result.Hits.Count());
         }
@@ -85,7 +87,7 @@ namespace Core.Tests.Engine
         {
             SetupEngineMock("Results_No_Hits.json");
 
-            SearchResult result = _engine.Query(new QueryRequest(new QuerySetup()), CultureInfo.InvariantCulture);
+            SearchResult result = _engine.Query(_dummyQuery, CultureInfo.InvariantCulture);
 
             Assert.Equal(0, result.Facets.Length);
         }
@@ -97,7 +99,7 @@ namespace Core.Tests.Engine
         {
             SetupEngineMock(jsonFile);
 
-            SearchResult result = _engine.Query(new QueryRequest(new QuerySetup()), CultureInfo.InvariantCulture);
+            SearchResult result = _engine.Query(_dummyQuery, CultureInfo.InvariantCulture);
 
             Assert.NotEmpty(result.Hits);
         }
@@ -109,7 +111,7 @@ namespace Core.Tests.Engine
         {
             SetupEngineMock(jsonFile);
 
-            SearchResult result = _engine.Query(new QueryRequest(new QuerySetup()), CultureInfo.InvariantCulture);
+            SearchResult result = _engine.Query(_dummyQuery, CultureInfo.InvariantCulture);
 
             Assert.NotEmpty(result.Facets);
         }
@@ -118,7 +120,7 @@ namespace Core.Tests.Engine
         public void Query_ReturnsCustomProperties()
         {
             SetupEngineMock("Results_With_Custom_Properties.json");
-            DateTime date = DateTime.Parse("2015-03-31T23:01:04.2493062+02:00");
+            var date = DateTime.Parse("2015-03-31T23:01:04.2493062+02:00");
             const string text = "Lorem text";
             const double dec1 = 42.1;
             const long lng1 = 42;
@@ -133,7 +135,7 @@ namespace Core.Tests.Engine
                 .ForType<TestPage>().IncludeField("Array1", _ => arr1)
                 .ForType<TestPage>().IncludeField("Array2", _ => arr2);
 
-            SearchResult result = _engine.Query(new QueryRequest(new QuerySetup()), CultureInfo.InvariantCulture);
+            SearchResult result = _engine.Query(_dummyQuery, CultureInfo.InvariantCulture);
 
             Assert.Equal(date, result.Hits.First().CustomProperties["Date"]);
             Assert.Equal(text, result.Hits.First().CustomProperties["Text"]);
@@ -158,7 +160,7 @@ namespace Core.Tests.Engine
                 .ForType<TestPage>().IncludeField<object>("Array1", _ => null)
                 .ForType<TestPage>().IncludeField<object>("Array2", _ => null);
 
-            SearchResult result = _engine.Query(new QueryRequest(new QuerySetup()), CultureInfo.InvariantCulture);
+            SearchResult result = _engine.Query(_dummyQuery, CultureInfo.InvariantCulture);
 
             // Materialize ienumerable
             SearchHit[] hits = result.Hits.ToArray();

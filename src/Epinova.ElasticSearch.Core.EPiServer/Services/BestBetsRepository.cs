@@ -6,8 +6,6 @@ using System.Text;
 using Epinova.ElasticSearch.Core.Contracts;
 using Epinova.ElasticSearch.Core.Conventions;
 using Epinova.ElasticSearch.Core.EPiServer.Models;
-using Epinova.ElasticSearch.Core.Models;
-using Epinova.ElasticSearch.Core.Settings;
 using EPiServer;
 using EPiServer.Core;
 using EPiServer.DataAccess;
@@ -27,24 +25,20 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Services
         private static readonly ILogger Logger = LogManager.GetLogger(typeof(BestBetsRepository));
         private readonly IBlobFactory _blobFactory;
         private readonly ICoreIndexer _coreIndexer;
-        private readonly IElasticSearchSettings _settings;
         private readonly IContentRepository _contentRepository;
         private readonly UrlResolver _urlResolver;
 
         public BestBetsRepository(
-            IElasticSearchSettings settings,
             IContentRepository contentRepository,
             UrlResolver urlResolver,
             IBlobFactory blobFactory,
             ICoreIndexer coreIndexer)
         {
-            _settings = settings;
             _contentRepository = contentRepository;
             _urlResolver = urlResolver;
             _blobFactory = blobFactory;
             _coreIndexer = coreIndexer;
         }
-
 
         public void AddBestBet(string languageId, string phrase, ContentReference contentLink, string index, Type type)
         {
@@ -59,7 +53,9 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Services
             BestBet target = bestBets.FirstOrDefault(b => b.Phrase == phrase && b.Id == id);
 
             if(target == null)
+            {
                 return;
+            }
 
             bestBets.Remove(target);
             var result = bestBets.Where(b => !String.IsNullOrWhiteSpace(b.Phrase));
@@ -71,31 +67,43 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Services
         {
             return GetBestBets(languageId, index)
                 .Where(b => b.Id == contentId.ToString())
-                .SelectMany(b => b.Terms);
+                .SelectMany(b => b.GetTerms());
         }
 
         public IEnumerable<BestBet> GetBestBets(string languageId, string index)
         {
             var backup = GetBestBetsFile(GetFilename(languageId, index));
-            if (backup?.BinaryData == null)
-                return Enumerable.Empty<BestBet>();
-
-            using (var stream = backup.BinaryData.OpenRead())
+            if(backup?.BinaryData == null)
             {
-                using (var reader = new StreamReader(stream))
+                return Enumerable.Empty<BestBet>();
+            }
+
+            try
+            {
+                using(var stream = backup.BinaryData.OpenRead())
                 {
-                    string raw = reader.ReadToEnd();
+                    using(var reader = new StreamReader(stream))
+                    {
+                        string raw = reader.ReadToEnd();
 
-                    Logger.Information($"Raw data:\n{raw}");
+                        Logger.Information($"Raw data:\n{raw}");
 
-                    if (String.IsNullOrWhiteSpace(raw))
-                        return Enumerable.Empty<BestBet>();
+                        if(String.IsNullOrWhiteSpace(raw))
+                        {
+                            return Enumerable.Empty<BestBet>();
+                        }
 
-                    return raw.Split(RowDelim[0])
-                        .Where(IsValidRow)
-                        .Select(b => ParseRow(b, languageId))
-                        .Where(b => b != null);
+                        return raw.Split(RowDelim[0])
+                            .Where(IsValidRow)
+                            .Select(b => ParseRow(b, languageId))
+                            .Where(b => b != null);
+                    }
                 }
+            }
+            catch(Exception ex)
+            {
+                Logger.Warning($"Failed to load BestBet file {backup?.Name}", ex);
+                return Enumerable.Empty<BestBet>();
             }
         }
 
@@ -125,12 +133,14 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Services
                 ? _contentRepository.GetDefault<BestBetsFile>(GetBestBetsFolder().ContentLink)
                 : contentFile.CreateWritableClone() as BestBetsFile;
 
-            if (contentFile == null)
+            if(contentFile == null)
+            {
                 return;
+            }
 
             Logger.Information($"Saving BestBest for language:{languageId}");
 
-            using (Stream stream = contentFile.BinaryData?.OpenRead() ?? Stream.Null)
+            using(Stream stream = contentFile.BinaryData?.OpenRead() ?? Stream.Null)
             {
                 byte[] data = new byte[stream.Length];
                 stream.Read(data, 0, (int)stream.Length);
@@ -144,7 +154,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Services
             Logger.Information($"New content:\n{content}");
 
             Blob blob = _blobFactory.CreateBlob(contentFile.BinaryDataContainer, "." + BestBetsFile.Extension);
-            using (Stream stream = blob.OpenWrite())
+            using(Stream stream = blob.OpenWrite())
             {
                 var writer = new StreamWriter(stream);
                 writer.Write(content);
@@ -155,14 +165,12 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Services
             contentFile.BinaryData = blob;
             contentFile.LanguageId = languageId;
 
-            ContentReference current = _contentRepository.Save(contentFile, SaveAction.Publish, AccessLevel.NoAccess);
+            _contentRepository.Save(contentFile, SaveAction.Publish, AccessLevel.NoAccess);
             UpdateIndex(bestBetsToAdd, index, type);
         }
 
         private static string PhraseToRow(BestBet bestBet)
-        {
-            return $"{bestBet.Phrase}{PhraseDelim}{bestBet.Id}{PhraseDelim}{bestBet.Provider}";
-        }
+            => $"{bestBet.Phrase}{PhraseDelim}{bestBet.Id}{PhraseDelim}{bestBet.Provider}";
 
         private void UpdateIndex(in IEnumerable<BestBet> bestbets, string index, Type type)
         {
@@ -171,10 +179,10 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Services
                 .Select(x => new
                 {
                     Id = x.Key,
-                    Terms = x.SelectMany(z => z.Terms).ToArray()
+                    Terms = x.SelectMany(z => z.GetTerms()).ToArray()
                 });
 
-            foreach (var item in termsById)
+            foreach(var item in termsById)
             {
                 _coreIndexer.UpdateBestBets(index, type, item.Id, item.Terms);
             }
@@ -190,16 +198,14 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Services
         }
 
         private static string GetFilename(string languageId, string index)
-        {
-            return $"{languageId}_{index}.{BestBetsFile.Extension}";
-        }
+            => $"{languageId}_{index}.{BestBetsFile.Extension}";
 
         private BestBetsFileFolder GetBestBetsFolder()
         {
             var parent = ContentReference.RootPage;
 
             var backupFolder = _contentRepository.GetChildren<BestBetsFileFolder>(parent).FirstOrDefault();
-            if (backupFolder == null)
+            if(backupFolder == null)
             {
                 backupFolder = _contentRepository.GetDefault<BestBetsFileFolder>(parent);
                 backupFolder.Name = BestBetsFileFolder.ContentName;

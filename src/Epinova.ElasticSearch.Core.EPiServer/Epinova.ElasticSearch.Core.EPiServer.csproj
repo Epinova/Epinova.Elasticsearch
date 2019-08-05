@@ -23,7 +23,7 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
-    <LangVersion>7.2</LangVersion>
+    <LangVersion>default</LangVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -185,7 +185,7 @@
     <Compile Include="ContentSearchResult.cs" />
     <Compile Include="Contracts\IAutoSuggestRepository.cs" />
     <Compile Include="Contracts\IIndexer.cs" />
-    <Compile Include="Contracts\Indexer.cs" />
+    <Compile Include="Indexer.cs" />
     <Compile Include="Contracts\ISynonymRepository.cs" />
     <Compile Include="Controllers\Abstractions\ElasticSearchControllerBase.cs" />
     <Compile Include="Controllers\ElasticAdminController.cs" />
@@ -232,6 +232,7 @@
     <Compile Include="Models\ViewModels\LanguageSynonyms.cs" />
     <Compile Include="Models\ViewModels\SynonymsViewModel.cs" />
     <Compile Include="Models\ViewModels\TrackingByLanguage.cs" />
+    <Compile Include="Models\ViewModels\TrackingLanguage.cs" />
     <Compile Include="Models\ViewModels\TrackingViewModel.cs" />
     <Compile Include="Plugin\IndexEPiServerContent.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

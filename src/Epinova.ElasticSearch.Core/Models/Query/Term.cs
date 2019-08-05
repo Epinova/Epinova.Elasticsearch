@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using Epinova.ElasticSearch.Core.Models.Converters;
 using Newtonsoft.Json;
 
@@ -21,24 +21,16 @@ namespace Epinova.ElasticSearch.Core.Models.Query
         public TermItem TermItem { get; set; }
 
         public static Terms FromArrayFilter(Filter filter)
-        {
-            return new Terms(filter.FieldName, filter.Value, !filter.Raw, filter.Type);
-        }
+            => new Terms(filter.FieldName, filter.Value, !filter.Raw, filter.Type);
 
         public static Terms FromArrayFilter(Filter filter, object valueOverride)
-        {
-            return new Terms(filter.FieldName, valueOverride, !filter.Raw, filter.Type);
-        }
+            => new Terms(filter.FieldName, valueOverride, !filter.Raw, filter.Type);
 
         public static Term FromFilter(Filter filter)
-        {
-            return new Term(filter.FieldName, filter.Value, !filter.Raw, filter.Type);
-        }
+            => new Term(filter.FieldName, filter.Value, !filter.Raw, filter.Type);
 
         public static Term FromFilter(Filter filter, object valueOverride)
-        {
-            return new Term(filter.FieldName, valueOverride, !filter.Raw, filter.Type);
-        }
+            => new Term(filter.FieldName, valueOverride, !filter.Raw, filter.Type);
     }
 
     [JsonConverter(typeof(TermConverter))]

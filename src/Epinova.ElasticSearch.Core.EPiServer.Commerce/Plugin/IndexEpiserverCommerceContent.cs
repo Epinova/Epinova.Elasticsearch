@@ -19,7 +19,6 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Commerce.Plugin
     public class IndexEpiserverCommerceContent : IndexEPiServerContent
     {
         private readonly IContentLoader _contentLoader;
-        private readonly IElasticSearchSettings _settings;
         private readonly ReferenceConverter _referenceConverter;
 
         public IndexEpiserverCommerceContent(
@@ -28,13 +27,13 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Commerce.Plugin
             IIndexer indexer,
             ILanguageBranchRepository languageBranchRepository,
             IElasticSearchSettings settings,
+            IHttpClientHelper httpClientHelper,
             ReferenceConverter referenceConverter)
-            : base(contentLoader, coreIndexer, indexer, languageBranchRepository, settings)
+            : base(contentLoader, coreIndexer, indexer, languageBranchRepository, settings, httpClientHelper)
         {
             _contentLoader = contentLoader;
             _referenceConverter = referenceConverter;
-            _settings = settings;
-            CustomIndexName = $"{_settings.Index}-{Core.Constants.CommerceProviderName}";
+            CustomIndexName = $"{settings.Index}-{Constants.CommerceProviderName}";
         }
 
         protected override List<ContentReference> GetContentReferences()

@@ -3,6 +3,7 @@ using Epinova.ElasticSearch.Core.Attributes;
 using Epinova.ElasticSearch.Core.Models.Properties;
 using EPiServer.Core;
 using EPiServer.DataAnnotations;
+using EPiServer.Forms.Core;
 
 namespace TestData
 {
@@ -17,7 +18,7 @@ namespace TestData
         public virtual XhtmlString XhtmlString { get; set; }
     }
 
-    public class TestPage : PageData, ITestPage
+    public class TestPage : PageData, ITestPage, IFileUploadElementBlock
     {
         public virtual TestBlock LocalBlock { get; set; }
         [Searchable]
@@ -52,14 +53,8 @@ namespace TestData
 
     public static class TestPageExtensions
     {
-        public static string CustomStuff(this TestPage page)
-        {
-            return Factory.GetSentence();
-        }
+        public static string CustomStuff(this TestPage page) => Factory.GetSentence();
 
-        public static int Prize(this TestPage page)
-        {
-            return Factory.GetInteger();
-        }
+        public static int Prize(this TestPage page) => Factory.GetInteger();
     }
 }

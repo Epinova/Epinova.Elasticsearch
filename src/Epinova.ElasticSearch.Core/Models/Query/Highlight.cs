@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using Newtonsoft.Json;
 
@@ -15,14 +15,17 @@ namespace Epinova.ElasticSearch.Core.Models.Query
         public string Order => "score";
 
         [JsonProperty(JsonNames.PreTags)]
-        public string[] PreTags {
+        public string[] PreTags
+        {
             get
             {
                 string tag = Conventions.Indexing.HighlightTag;
-                if (String.IsNullOrEmpty(tag))
-                    return new [] { String.Empty };
+                if(String.IsNullOrEmpty(tag))
+                {
+                    return new[] { String.Empty };
+                }
 
-                return new[] {$"<{tag}>"};
+                return new[] { $"<{tag}>" };
             }
         }
 
@@ -32,10 +35,12 @@ namespace Epinova.ElasticSearch.Core.Models.Query
             get
             {
                 string tag = Conventions.Indexing.HighlightTag;
-                if (String.IsNullOrEmpty(tag))
+                if(String.IsNullOrEmpty(tag))
+                {
                     return new[] { String.Empty };
+                }
 
-                return new[] {$"</{tag}>"};
+                return new[] { $"</{tag}>" };
             }
         }
 

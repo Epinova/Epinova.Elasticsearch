@@ -103,6 +103,20 @@
 
     <h1>@IndexString("heading")</h1>
     <div id="indexGrid"></div>
+
+    @if (Model.AllIndexes.Any())
+    {
+            using (Html.BeginForm("DeleteAll", "ElasticAdmin"))
+            {
+                <div class="epi-paddingVertical-small epi-alignRight">
+                    <button data-dojo-type="dijit/form/Button" 
+                            type="submit" 
+                            class="epi-danger" 
+                            onclick="return confirm('@IndexString("confirmDeleteAll")');">@IndexString("deleteAll")</button>
+                </div>
+            }
+    }
+
     <br /><br />
 </div>
 
@@ -205,6 +219,7 @@
                 <text>
                 {
                     index:     "@index.Index",
+                    display:   "@index.DisplayName",
                     health:    "@index.HealthColor",
                     status:    "@index.Status",
                     type:      "@index.Type",
@@ -219,6 +234,7 @@
 
         var indexCols = {
             index: "@IndexString("Index")",
+            display: "@IndexString("displayName")",
             health: {
                 label: "@IndexString("Health")",
                 renderCell: function (object, value, node) {

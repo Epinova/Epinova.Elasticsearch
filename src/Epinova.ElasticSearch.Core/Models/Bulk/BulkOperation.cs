@@ -1,19 +1,20 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Dynamic;
+using System.Globalization;
+using System.Reflection;
 using Epinova.ElasticSearch.Core.Extensions;
-using EPiServer.Logging;
 using Epinova.ElasticSearch.Core.Settings;
 using Epinova.ElasticSearch.Core.Utilities;
+using EPiServer.Logging;
 using EPiServer.ServiceLocation;
-using System.Globalization;
 
 namespace Epinova.ElasticSearch.Core.Models.Bulk
 {
     public class BulkOperation
     {
         private static readonly ILogger Logger = LogManager.GetLogger(typeof(BulkOperation));
-        private static readonly IElasticSearchSettings ElasticSearchSettings = ServiceLocator.Current.GetInstance<IElasticSearchSettings>();
+
         private static readonly NumberFormatInfo DotSeparatorFormat = new NumberFormatInfo
         {
             NumberGroupSeparator = String.Empty,
@@ -36,88 +37,52 @@ namespace Epinova.ElasticSearch.Core.Models.Bulk
         /// </summary>
         internal BulkOperation(object data, Operation operation, string language = null, Type dataType = null, string id = null, string index = null)
         {
-            if (String.IsNullOrWhiteSpace(language) && String.IsNullOrWhiteSpace(index))
+            if(String.IsNullOrWhiteSpace(language) && String.IsNullOrWhiteSpace(index))
+            {
                 throw new InvalidOperationException("Either 'language' or 'index' must be specified.");
+            }
 
             dataType = dataType ?? data.GetType();
 
             id = GetId(id, dataType, data);
 
-
             // If we have no Types, this is a custom object and we must extract the properties from the data-object.
             // Standard IndexItems will already have needed data created by AsIndexItem
-            if (dataType.GetProperty(DefaultFields.Types) == null)
+            if(dataType.GetProperty(DefaultFields.Types) == null)
             {
                 dynamic indexItem = new ExpandoObject();
                 var dictionary = (IDictionary<string, object>)indexItem;
 
-                foreach (var property in data.GetType().GetProperties())
+                foreach(var property in data.GetType().GetProperties())
                 {
                     try
                     {
-                        var value = property.GetValue(data);
-                        if (value == null)
-                            continue;
-
-                        if (property.PropertyType == typeof(bool) || property.PropertyType == typeof(bool?))
+                        var value = GetPropertyValue(data, property);
+                        if(value != null)
                         {
-                            value = (bool)value;
+                            dictionary[property.Name] = value;
                         }
-                        else if (property.PropertyType.IsEnum)
-                        {
-                            value = (int)value;
-                        }
-                        else if (value is DateTime)
-                        {
-                            // Don't ToString or anything funky here
-                        }
-                        else if (value is decimal dec)
-                        {
-                            value = dec.ToString(DotSeparatorFormat);
-                        }
-                        else if (value is double dbl)
-                        {
-                            value = dbl.ToString(DotSeparatorFormat);
-                        }
-                        else if (value is float flt)
-                        {
-                            value = flt.ToString(DotSeparatorFormat);
-                        }
-                        else if (ArrayHelper.IsArrayCandidate(property))
-                        {
-                            value = ArrayHelper.ToArray(value);
-                        }
-                        else if (Utilities.Mapping.IsNumericType(property.PropertyType))
-                        {
-                            value = value.ToString().Trim('\"');
-                        }
-                        else if (property.PropertyType.IsValueType || property.PropertyType.IsPrimitive)
-                        {
-                            value = value.ToString().Trim('\"');
-                        }
-                        else
-                        {
-                            value = value.ToString().Trim('\"');
-                        }
-
-                        dictionary[property.Name] = value;
                     }
-                    catch (Exception ex)
+                    catch(Exception ex)
                     {
                         Logger.Error("Failed to apply object property: " + property.Name, ex);
                     }
                 }
 
                 dictionary[DefaultFields.Types] = dataType.GetInheritancHierarchyArray();
-                if (dataType.GetProperty(DefaultFields.Type) == null)
+                if(dataType.GetProperty(DefaultFields.Type) == null)
                 {
                     dictionary.Add(DefaultFields.Type, dataType.GetTypeName());
                 }
+
                 data = indexItem;
             }
 
-            if (String.IsNullOrWhiteSpace(index))
-                index = ElasticSearchSettings.GetDefaultIndexName(language);
+            if(String.IsNullOrWhiteSpace(index))
+            {
+                var settings = ServiceLocator.Current.GetInstance<IElasticSearchSettings>();
+                index = settings.GetDefaultIndexName(language);
+            }
 
             MetaData = new BulkMetadata
             {
@@ -131,18 +96,72 @@ namespace Epinova.ElasticSearch.Core.Models.Bulk
             Data = data;
         }
 
+        private static object GetPropertyValue(object data, PropertyInfo property)
+        {
+            var value = property.GetValue(data);
+            if(value == null)
+            {
+                return null;
+            }
+
+            if(property.PropertyType == typeof(bool) || property.PropertyType == typeof(bool?))
+            {
+                return (bool)value;
+            }
+            else if(property.PropertyType.IsEnum)
+            {
+                return (int)value;
+            }
+            else if(value is DateTime)
+            {
+                // Don't ToString or anything funky here
+                return value;
+            }
+            else if(value is decimal dec)
+            {
+                return dec.ToString(DotSeparatorFormat);
+            }
+            else if(value is double dbl)
+            {
+                return dbl.ToString(DotSeparatorFormat);
+            }
+            else if(value is float flt)
+            {
+                return flt.ToString(DotSeparatorFormat);
+            }
+            else if(ArrayHelper.IsArrayCandidate(property))
+            {
+                return ArrayHelper.ToArray(value);
+            }
+            else if(Utilities.Mapping.IsNumericType(property.PropertyType))
+            {
+                return value.ToString().Trim('\"');
+            }
+            else if(property.PropertyType.IsValueType || property.PropertyType.IsPrimitive)
+            {
+                return value.ToString().Trim('\"');
+            }
+            else
+            {
+                return value.ToString().Trim('\"');
+            }
+        }
 
         private string GetId(string id, Type dataType, object data)
         {
-            if (id != null)
+            if(id != null)
+            {
                 return id;
+            }
 
             var idProp = dataType.GetProperty(DefaultFields.Id);
-            if (idProp != null)
+            if(idProp != null)
             {
                 var idVal = idProp.GetValue(data);
-                if (idVal != null)
+                if(idVal != null)
+                {
                     return idVal.ToString();
+                }
             }
 
             return null;

@@ -40,7 +40,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Components.MoreLikeThis
             var queryText = HttpUtility.HtmlDecode(parameters.AllParameters["queryText"]);
             var area = ProviderConstants.PageArea;
             var contentLink = ContentReference.Parse(queryText);
-            if (contentLink.ProviderName == ProviderConstants.CatalogProviderKey)
+            if(contentLink.ProviderName == ProviderConstants.CatalogProviderKey)
             {
                 area = ProviderConstants.CommerceCatalogArea;
             }
@@ -51,7 +51,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Components.MoreLikeThis
             var contentReferences = Enumerable.Empty<ContentReference>();
             var searchProvider = _searchProvidersManager.GetEnabledProvidersByPriority(area, true).FirstOrDefault();
 
-            if (searchProvider != null)
+            if(searchProvider != null)
             {
                 contentReferences = searchProvider.Search(searchQuery)
                     .Select(r => ContentReference.Parse(r.Metadata["Id"]))

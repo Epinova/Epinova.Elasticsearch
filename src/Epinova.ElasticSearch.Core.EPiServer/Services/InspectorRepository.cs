@@ -7,7 +7,6 @@ using Epinova.ElasticSearch.Core.EPiServer.Extensions;
 using Epinova.ElasticSearch.Core.Extensions;
 using Epinova.ElasticSearch.Core.Models;
 using Epinova.ElasticSearch.Core.Settings;
-using Epinova.ElasticSearch.Core.Utilities;
 using EPiServer.DataAbstraction;
 using EPiServer.ServiceLocation;
 using Newtonsoft.Json;
@@ -19,32 +18,38 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Services
     public class InspectorRepository : IInspectorRepository
     {
         private readonly IElasticSearchSettings _elasticSearchSettings;
-        private static IContentTypeRepository _contentTypeRepository;
+        private readonly IContentTypeRepository _contentTypeRepository;
+        private readonly IHttpClientHelper _httpClientHelper;
 
         internal InspectorRepository()
         {
             _elasticSearchSettings = ServiceLocator.Current.GetInstance<IElasticSearchSettings>();
         }
 
-        public InspectorRepository(IElasticSearchSettings settings, IContentTypeRepository contentTypeRepository)
+        public InspectorRepository(IElasticSearchSettings settings, IHttpClientHelper httpClientHelper, IContentTypeRepository contentTypeRepository)
         {
             _elasticSearchSettings = settings;
             _contentTypeRepository = contentTypeRepository;
+            _httpClientHelper = httpClientHelper;
         }
 
         public List<InspectItem> Search(string languageId, string searchText, int size, string type = null, string selectedIndex = null)
         {
             if(String.IsNullOrWhiteSpace(searchText) && String.IsNullOrWhiteSpace(type))
+            {
                 return new List<InspectItem>();
+            }
 
             string query = CreateSearchQuery(searchText, type);
             string indexName = GetIndexName(languageId, selectedIndex);
 
             string uri = $"{_elasticSearchSettings.Host}/{indexName}/_search?q={query}&size={size}";
-            if (Server.Info.Version.Major >= 7)
+            if(Server.Info.Version.Major >= 7)
+            {
                 uri += "&rest_total_hits_as_int=true";
+            }
 
-            string response = HttpClientHelper.GetString(new Uri(uri));
+            string response = _httpClientHelper.GetString(new Uri(uri));
             dynamic parsedResponse = JObject.Parse(response);
             JArray hits = parsedResponse.hits.hits;
 
@@ -55,13 +60,15 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Services
         {
             string indexName = GetIndexName(languageId, selectedIndex);
             string uri = $"{_elasticSearchSettings.Host}/{indexName}/_search";
-            if (Server.Info.Version.Major >= 7)
+            if(Server.Info.Version.Major >= 7)
+            {
                 uri += "?rest_total_hits_as_int=true";
+            }
 
             object query = CreateTypeQuery(searchText);
             string json = JsonConvert.SerializeObject(query, new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore });
             byte[] data = Encoding.UTF8.GetBytes(json);
-            byte[] returnData = HttpClientHelper.Post(new Uri(uri), data);
+            byte[] returnData = _httpClientHelper.Post(new Uri(uri), data);
             string response = Encoding.UTF8.GetString(returnData);
 
             dynamic agg = JObject.Parse(response);
@@ -85,13 +92,17 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Services
         {
             string query = null;
 
-            if (!String.IsNullOrEmpty(searchText))
-                query = searchText;
-
-            if (!String.IsNullOrEmpty(type))
+            if(!String.IsNullOrEmpty(searchText))
             {
-                if (query != null)
+                query = searchText;
+            }
+
+            if(!String.IsNullOrEmpty(type))
+            {
+                if(query != null)
+                {
                     query += " AND ";
+                }
 
                 query += "Type:" + type;
             }
@@ -114,7 +125,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Services
             };
 
             object searchQuery = null;
-            if (!String.IsNullOrEmpty(searchText))
+            if(!String.IsNullOrEmpty(searchText))
             {
                 searchQuery = new
                 {
@@ -135,7 +146,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Services
             return query;
         }
 
-        private static TypeCount ToTypeCount(JToken instance)
+        private TypeCount ToTypeCount(JToken instance)
         {
             TypeCount typeCount = new TypeCount
             {
@@ -146,18 +157,18 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Services
             typeCount.ShortTypeName = typeCount.Type.GetShortTypeName();
             ContentType contentType = _contentTypeRepository.Load(typeCount.ShortTypeName);
 
-            if (contentType != null)
+            if(contentType != null)
             {
                 typeCount.Name = contentType.LocalizedName;
                 typeCount.Group = contentType.LocalizedGroupName;
             }
 
-            if (String.IsNullOrWhiteSpace(typeCount.Name))
+            if(String.IsNullOrWhiteSpace(typeCount.Name))
             {
                 typeCount.Name = typeCount.ShortTypeName;
             }
 
-            if (String.IsNullOrWhiteSpace(typeCount.Group))
+            if(String.IsNullOrWhiteSpace(typeCount.Group))
             {
                 typeCount.Group = " " + LocalizationExtensions.TranslateWithPath("nocategory", "/epinovaelasticsearch/indexinspector/");
             }

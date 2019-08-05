@@ -12,22 +12,30 @@ namespace Epinova.ElasticSearch.Core.Settings.Configuration
         {
             get
             {
-                if (Int64.TryParse(Maxsize, out long bytes))
+                if(Int64.TryParse(Maxsize, out long bytes))
+                {
                     return bytes;
+                }
 
                 string lowered = Maxsize.ToLower();
 
-                if (lowered.EndsWith("kb")
+                if(lowered.EndsWith("kb")
                     && Int64.TryParse(lowered.TrimEnd('k', 'b'), out long kbytes))
+                {
                     return kbytes * 1024;
+                }
 
-                if (lowered.EndsWith("mb")
+                if(lowered.EndsWith("mb")
                     && Int64.TryParse(lowered.TrimEnd('m', 'b'), out long mbytes))
+                {
                     return mbytes * (long)Math.Pow(1024, 2);
+                }
 
-                if (lowered.EndsWith("gb")
+                if(lowered.EndsWith("gb")
                     && Int64.TryParse(lowered.TrimEnd('g', 'b'), out long gbytes))
+                {
                     return gbytes * (long)Math.Pow(1024, 3);
+                }
 
                 return 10240000;
             }
@@ -41,7 +49,7 @@ namespace Epinova.ElasticSearch.Core.Settings.Configuration
             get => (FileConfiguration)BaseGet(index);
             set
             {
-                if (BaseGet(index) != null)
+                if(BaseGet(index) != null)
                 {
                     BaseRemoveAt(index);
                 }
@@ -50,38 +58,24 @@ namespace Epinova.ElasticSearch.Core.Settings.Configuration
         }
 
         public void Add(FileConfiguration serviceConfig)
-        {
-            BaseAdd(serviceConfig);
-        }
+            => BaseAdd(serviceConfig);
 
         public void Clear()
-        {
-            BaseClear();
-        }
+            => BaseClear();
 
         protected override ConfigurationElement CreateNewElement()
-        {
-            return new FileConfiguration();
-        }
+            => new FileConfiguration();
 
         protected override object GetElementKey(ConfigurationElement element)
-        {
-            return (FileConfiguration)element;
-        }
+            => (FileConfiguration)element;
 
         public void Remove(FileConfiguration serviceConfig)
-        {
-            BaseRemove(serviceConfig);
-        }
+            => BaseRemove(serviceConfig);
 
         public void RemoveAt(int index)
-        {
-            BaseRemoveAt(index);
-        }
+            => BaseRemoveAt(index);
 
         public void Remove(string name)
-        {
-            BaseRemove(name);
-        }
+            => BaseRemove(name);
     }
 }

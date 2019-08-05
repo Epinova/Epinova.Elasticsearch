@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
-using System.Web;
 using Epinova.ElasticSearch.Core.Contracts;
 using Epinova.ElasticSearch.Core.EPiServer.Extensions;
 using Epinova.ElasticSearch.Core.Settings;
@@ -30,13 +29,14 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Providers
         private readonly string _categoryKey;
         protected string IndexName;
 
-        private static Injected<LocalizationService> _localizationServiceHelper;
         protected readonly IElasticSearchService<TSearchType> _elasticSearchService;
         protected readonly IElasticSearchSettings _elasticSearchSettings = ServiceLocator.Current.GetInstance<IElasticSearchSettings>();
+        protected readonly IHttpClientHelper _httpClientHelper = ServiceLocator.Current.GetInstance<IHttpClientHelper>();
+        protected readonly LocalizationService _localizationService = ServiceLocator.Current.GetInstance<LocalizationService>();
 
         protected SearchProviderBase(string categoryKey)
             : base(
-                _localizationServiceHelper.Service,
+                ServiceLocator.Current.GetInstance<LocalizationService>(),
                 ServiceLocator.Current.GetInstance<ISiteDefinitionResolver>(),
                 ServiceLocator.Current.GetInstance<IContentTypeRepository<TContentType>>(),
                 ServiceLocator.Current.GetInstance<EditUrlResolver>(),
@@ -47,14 +47,14 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Providers
                 ServiceLocator.Current.GetInstance<UIDescriptorRegistry>())
         {
             _categoryKey = categoryKey;
-            _elasticSearchService = new ElasticSearchService<TSearchType>();
+            _elasticSearchService = new ElasticSearchService<TSearchType>(_elasticSearchSettings, _httpClientHelper);
         }
 
         public override string Area => AreaName;
 
         protected string AreaName { private get; set; }
 
-        public override string Category => _localizationServiceHelper.Service.GetString("/epinovaelasticsearch/providers/" + _categoryKey);
+        public override string Category => _localizationService.GetString("/epinovaelasticsearch/providers/" + _categoryKey);
 
         protected string IconClass { private get; set; }
 
@@ -67,22 +67,24 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Providers
             var contentSearchHits = new List<ContentSearchHit<TContentData>>();
             CultureInfo language = Language.GetRequestLanguage();
 
-            if (!query.SearchRoots.Any() || ForceRootLookup)
-                query.SearchRoots = new[] { GetSearchRoot() };
-
-            foreach (string searchRoot in query.SearchRoots)
+            if(!query.SearchRoots.Any() || ForceRootLookup)
             {
-                if(!Int32.TryParse(searchRoot, out int searchRootId))
+                query.SearchRoots = new[] { GetSearchRoot() };
+            }
+
+            foreach(string searchRoot in query.SearchRoots)
+            {
+                if(!Int32.TryParse(searchRoot, out int searchRootId) && searchRoot.Contains("__"))
                 {
-                    if (searchRoot.Contains("__"))
-                        Int32.TryParse(searchRoot.Split(new[] { "__" }, StringSplitOptions.None)[0], out searchRootId);
+                    Int32.TryParse(searchRoot.Split(new[] { "__" }, StringSplitOptions.None)[0], out searchRootId);
                 }
 
-                if (searchRootId != 0)
+                if(searchRootId != 0)
                 {
                     IElasticSearchService<TContentData> searchQuery = CreateQuery(query, language, searchRootId);
+
                     ContentSearchResult<TContentData> contentSearchResult =
-                        searchQuery.GetContentResults(false, GetProviderKeys());
+                        searchQuery.GetContentResults(false, true, GetProviderKeys(), false, false);
 
                     contentSearchHits.AddRange(contentSearchResult.Hits);
                 }
@@ -95,18 +97,14 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Providers
         }
 
         protected virtual string GetSearchRoot()
-        {
-            return ContentReference.RootPage.ID.ToString();
-        }
+            => ContentReference.RootPage.ID.ToString();
 
         protected virtual string[] GetProviderKeys()
-        {
-            return null;
-        }
+            => new string[0];
 
         private IElasticSearchService<TContentData> CreateQuery(Query query, CultureInfo language, int searchRootId)
         {
-            if (query.Parameters.TryGetValue(Core.Models.Constants.MoreLikeThisId, out object mltId) && mltId != null)
+            if(query.Parameters.TryGetValue(Core.Models.Constants.MoreLikeThisId, out object mltId) && mltId != null)
             {
                 var id = ContentReference.Parse(mltId.ToString()).ToReferenceWithoutVersion();
 
@@ -117,7 +115,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Providers
                     .StartFrom(searchRootId)
                     .Take(_elasticSearchSettings.ProviderMaxResults);
 
-                foreach (var field in Conventions.MoreLikeThis.ComponentFields.Keys.ToArray())
+                foreach(var field in Conventions.MoreLikeThis.ComponentFields.Keys.ToArray())
                 {
                     esQuery = esQuery.InField(_ => field);
                 }

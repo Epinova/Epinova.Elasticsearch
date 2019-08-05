@@ -1,5 +1,4 @@
-﻿using System;
-using Epinova.ElasticSearch.Core.Utilities;
+﻿using Epinova.ElasticSearch.Core.Utilities;
 using Xunit;
 
 namespace Core.Tests.Utilities
@@ -25,8 +24,8 @@ namespace Core.Tests.Utilities
         [Theory]
         [InlineData("0")]
         [InlineData("42")]
-        [InlineData(Int64.MaxValue)]
-        [InlineData(Int64.MinValue)]
+        [InlineData(System.Int64.MaxValue)]
+        [InlineData(System.Int64.MinValue)]
         public void IsNumeric_Number_ReturnsTrue(string instance)
         {
             bool result = TextUtil.IsNumeric(instance);

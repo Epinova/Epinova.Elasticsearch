@@ -1,9 +1,11 @@
-using System.Globalization;
+﻿using System.Globalization;
 using System.IO;
-using Newtonsoft.Json;
+using Epinova.ElasticSearch.Core.Contracts;
 using Epinova.ElasticSearch.Core.Engine;
 using Epinova.ElasticSearch.Core.Models;
 using Epinova.ElasticSearch.Core.Models.Query;
+using Epinova.ElasticSearch.Core.Settings;
+using Newtonsoft.Json;
 
 namespace TestData
 {
@@ -12,24 +14,19 @@ namespace TestData
         private readonly string[] _suggestions;
         private readonly string _jsonFile;
 
-        public TestableSearchEngine(string jsonFile)
+        public TestableSearchEngine(string jsonFile, IElasticSearchSettings settings, IHttpClientHelper httpClientHelper)
+            : base(settings, httpClientHelper)
         {
             _jsonFile = jsonFile;
         }
 
-        public TestableSearchEngine(string[] suggestions)
+        public TestableSearchEngine(string[] suggestions, IElasticSearchSettings settings, IHttpClientHelper httpClientHelper)
+            : base(settings, httpClientHelper)
         {
             _suggestions = suggestions;
         }
 
-
-        public override string[] GetSuggestions(SuggestRequest request, CultureInfo culture, string indexName = null)
-        {
-            if (_suggestions == null)
-                return base.GetSuggestions(request, culture, indexName);
-
-            return _suggestions;
-        }
+        public override string[] GetSuggestions(SuggestRequest request, CultureInfo culture, string indexName = null) => _suggestions ?? base.GetSuggestions(request, culture, indexName);
 
         public override JsonReader GetResponse(RequestBase request, string endpoint, out string rawJsonResult)
         {

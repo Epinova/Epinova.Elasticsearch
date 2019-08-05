@@ -6,6 +6,7 @@
         public const string Analyzer = "analyzer";
         public const string Bool = "bool";
         public const string Boost = "boost";
+        public const string BottomRight = "bottom_right";
         public const string Buckets = "buckets";
         public const string Cause = "caused_by";
         public const string ClusterName = "cluster_name";
@@ -14,8 +15,10 @@
         public const string Content = "content";
         public const string CopyTo = "copy_to";
         public const string DidYouMean = "dym";
+        public const string Distance = "distance";
         public const string Doc = "doc";
         public const string DocCount = "doc_count";
+        public const string Dynamic = "dynamic";
         public const string Error = "error";
         public const string Field = "field";
         public const string FieldData = "fielddata";
@@ -26,6 +29,9 @@
         public const string FunctionScore = "function_score";
         public const string Fuzziness = "fuzziness";
         public const string Gauss = "gauss";
+        public const string GeoBoundingBox = "geo_bounding_box";
+        public const string GeoDistance = "geo_distance";
+        public const string GeoPolygon = "geo_polygon";
         public const string Gte = "gte";
         public const string Highlight = "highlight";
         public const string Hits = "hits";
@@ -33,6 +39,7 @@
         public const string Id = "_id";
         public const string Inline = "inline";
         public const string IgnoreAbove = "ignore_above";
+        public const string IgnoreUnmapped = "ignore_unmapped";
         public const string Index = "_index";
         public const string Input = "input";
         public const string Key = "key";
@@ -42,6 +49,8 @@
         public const string Lenient = "lenient";
         public const string Like = "like";
         public const string Lte = "lte";
+        public const string Lat = "lat";
+        public const string Lon = "lon";
         public const string LuceneVersion = "lucene_version";
         public const string MappingIndex = "index";
         public const string Match = "match";
@@ -52,6 +61,7 @@
         public const string MinDocFreq = "min_doc_freq";
         public const string MinTermFreq = "min_term_freq";
         public const string MinWordLength = "min_word_length";
+        public const string Mode = "mode";
         public const string MoreLikeThis = "more_like_this";
         public const string MultiMatch = "multi_match";
         public const string Must = "must";
@@ -67,6 +77,7 @@
         public const string PreTags = "pre_tags";
         public const string Phrase = "phrase";
         public const string PluginVersion = "version";
+        public const string Points = "points";
         public const string Properties = "properties";
         public const string Query = "query";
         public const string Range = "range";
@@ -92,8 +103,10 @@
         public const string TermVector = "term_vector";
         public const string Text = "text";
         public const string TimedOut = "timed_out";
+        public const string TopLeft = "top_left";
         public const string Total = "total";
         public const string Type = "type";
+        public const string Unit = "unit";
         public const string Version = "_version";
         public const string Wildcard = "wildcard";
     }

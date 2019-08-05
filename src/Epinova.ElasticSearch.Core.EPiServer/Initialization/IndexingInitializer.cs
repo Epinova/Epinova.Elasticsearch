@@ -5,7 +5,6 @@ using EPiServer.Core;
 using EPiServer.DataAbstraction;
 using EPiServer.Framework;
 using EPiServer.Framework.Initialization;
-using EPiServer.ServiceLocation;
 
 namespace Epinova.ElasticSearch.Core.EPiServer.Initialization
 {
@@ -18,10 +17,12 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Initialization
             Indexing.Instance.ExcludeType<SynonymBackupFile>();
             Indexing.Instance.ExcludeType<SynonymBackupFileFolder>();
 
-            IContentEvents events = ServiceLocator.Current.GetInstance<IContentEvents>();
+            IContentEvents events = context.Locate.Advanced.GetInstance<IContentEvents>();
+
             events.PublishedContent += IndexingEvents.UpdateIndex;
             events.DeletingContent += IndexingEvents.DeleteFromIndex;
             events.MovedContent += IndexingEvents.UpdateIndex;
+            events.SavedContent += IndexingEvents.UpdateIndex;
 
             IContentSecurityRepository contentSecurityRepository = context.Locate.Advanced.GetInstance<IContentSecurityRepository>();
             contentSecurityRepository.ContentSecuritySaved += IndexingEvents.UpdateIndex;
@@ -29,6 +30,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Initialization
 
         public void Uninitialize(InitializationEngine context)
         {
+            // Not applicable
         }
     }
 }

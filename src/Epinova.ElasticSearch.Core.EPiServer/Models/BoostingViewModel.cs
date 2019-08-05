@@ -9,7 +9,6 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Models
             BoostingByType = new Dictionary<string, List<BoostItem>>();
         }
 
-
         public Dictionary<string, List<BoostItem>> BoostingByType { get; }
     }
 }

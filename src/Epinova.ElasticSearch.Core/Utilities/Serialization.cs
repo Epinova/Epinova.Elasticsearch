@@ -16,7 +16,7 @@ namespace Epinova.ElasticSearch.Core.Utilities
         {
             StringBuilder sb = new StringBuilder();
 
-            using (StringWriter tw = new StringWriter(sb))
+            using(StringWriter tw = new StringWriter(sb))
             {
                 Serializer.Serialize(tw, body);
             }

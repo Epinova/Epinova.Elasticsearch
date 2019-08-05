@@ -6,9 +6,9 @@ namespace Epinova.ElasticSearch.Core.Conventions
 {
     public sealed partial class Indexing
     {
-        internal readonly ConcurrentDictionary<Type, string[]> SearchableProperties;
+        internal ConcurrentDictionary<Type, string[]> SearchableProperties { get; } = new ConcurrentDictionary<Type, string[]>();
 
-        internal static List<CustomProperty> CustomProperties { get; }
+        internal static List<CustomProperty> CustomProperties { get; } = new List<CustomProperty>();
 
         /// <summary>
         /// Add a convention for the specified type
@@ -16,8 +16,6 @@ namespace Epinova.ElasticSearch.Core.Conventions
         /// <typeparam name="T">The type</typeparam>
         /// <returns>An instance of <see cref="CustomPropertyConvention{T}"/></returns>
         public CustomPropertyConvention<T> ForType<T>()
-        {
-            return new CustomPropertyConvention<T>(this);
-        }
+            => new CustomPropertyConvention<T>(this);
     }
 }

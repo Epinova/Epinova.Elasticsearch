@@ -1,0 +1,125 @@
+﻿{
+  "epialloy4-en": {
+    "settings": {
+      "index": {
+        "refresh_interval": "-1",
+        "number_of_shards": "5",
+        "provided_name": "epialloy4-en",
+        "creation_date": "1557489720050",
+        "analysis": {
+          "filter": {
+            "english_synonym_filter": {
+              "type": "synonym",
+              "synonyms": [
+                "example_from,example_to"
+              ]
+            },
+            "shingle_filter": {
+              "max_shingle_size": "4",
+              "min_shingle_size": "2",
+              "type": "shingle"
+            },
+            "english_stemmer": {
+              "type": "stemmer",
+              "language": "english"
+            },
+            "light_english_stemmer": {
+              "type": "stemmer",
+              "language": "light_english"
+            },
+            "english_possessive_stemmer": {
+              "type": "stemmer",
+              "language": "possessive_english"
+            },
+            "english_stop": {
+              "type": "stop",
+              "stopwords": "_english_"
+            }
+          },
+          "char_filter": {
+            "dot_strip": {
+              "pattern": "\\.",
+              "type": "pattern_replace",
+              "replacement": " "
+            }
+          },
+          "analyzer": {
+            "english": {
+              "filter": [
+                "english_possessive_stemmer",
+                "lowercase",
+                "english_stop",
+                "english_synonym_filter",
+                "english_stemmer"
+              ],
+              "char_filter": [
+                "html_strip",
+                "dot_strip"
+              ],
+              "tokenizer": "standard"
+            },
+            "english_simple": {
+              "filter": [
+                "english_possessive_stemmer",
+                "lowercase",
+                "english_stop",
+                "english_synonym_filter"
+              ],
+              "char_filter": [
+                "html_strip",
+                "dot_strip"
+              ],
+              "tokenizer": "standard"
+            },
+            "raw": {
+              "filter": [
+                "lowercase",
+                "asciifolding"
+              ],
+              "type": "custom",
+              "tokenizer": "keyword"
+            },
+            "english_suggest": {
+              "filter": [
+                "lowercase",
+                "shingle_filter",
+                "english_possessive_stemmer",
+                "english_stop",
+                "light_english_stemmer"
+              ],
+              "type": "custom",
+              "tokenizer": "standard"
+            },
+            "suggest": {
+              "filter": [
+                "lowercase",
+                "english_stop"
+              ],
+              "char_filter": [
+                "html_strip",
+                "dot_strip"
+              ],
+              "tokenizer": "uax_url_email"
+            }
+          },
+          "tokenizer": {
+            "trigram_tokenizer": {
+              "token_chars": [
+                "letter",
+                "digit"
+              ],
+              "min_gram": "3",
+              "type": "ngram",
+              "max_gram": "3"
+            }
+          }
+        },
+        "number_of_replicas": "1",
+        "uuid": "70EvIEYHSOi7iQnBxGcNWQ",
+        "version": {
+          "created": "5061099"
+        }
+      }
+    }
+  }
+}

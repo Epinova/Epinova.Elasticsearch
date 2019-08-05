@@ -10,15 +10,15 @@ namespace Epinova.ElasticSearch.Core
     {
         private readonly FilterGroupQuery _filterGroup;
 
-
         public FilterGroup(ElasticSearchService<T> service, string name)
         {
             if(!service.PostFilterGroups.ContainsKey(name))
+            {
                 service.PostFilterGroups[name] = new FilterGroupQuery();
+            }
 
             _filterGroup = service.PostFilterGroups[name];
         }
-
 
         public string Name { get; set; }
 
@@ -26,11 +26,8 @@ namespace Epinova.ElasticSearch.Core
 
         public Operator Operator { get; set; }
 
-
         public IFilterGroup<T> Or<TType>(Expression<Action<T>> fieldSelector, TType[] filterValues)
-        {
-            return Or(fieldSelector, filterValues, true);
-        }
+            => Or(fieldSelector, filterValues, true);
 
         public IFilterGroup<T> Or<TType>(Expression<Action<T>> fieldSelector, TType[] filterValues, bool raw)
         {
@@ -46,9 +43,7 @@ namespace Epinova.ElasticSearch.Core
         }
 
         public IFilterGroup<T> Or<TType>(Expression<Func<T, TType>> fieldSelector, TType[] filterValues)
-        {
-            return Or(fieldSelector, filterValues, true);
-        }
+            => Or(fieldSelector, filterValues, true);
 
         public IFilterGroup<T> Or<TType>(Expression<Func<T, TType>> fieldSelector, TType[] filterValues, bool raw)
         {
@@ -64,9 +59,7 @@ namespace Epinova.ElasticSearch.Core
         }
 
         public IFilterGroup<T> And<TType>(Expression<Action<T>> fieldSelector, TType[] filterValues)
-        {
-            return And(fieldSelector, filterValues, true);
-        }
+            => And(fieldSelector, filterValues, true);
 
         public IFilterGroup<T> And<TType>(Expression<Action<T>> fieldSelector, TType[] filterValues, bool raw)
         {
@@ -82,9 +75,7 @@ namespace Epinova.ElasticSearch.Core
         }
 
         public IFilterGroup<T> And<TType>(Expression<Func<T, TType[]>> fieldSelector, TType filterValue)
-        {
-            return And(fieldSelector, filterValue, true);
-        }
+            => And(fieldSelector, filterValue, true);
 
         public IFilterGroup<T> And<TType>(Expression<Func<T, TType[]>> fieldSelector, TType filterValue, bool raw)
         {
@@ -100,9 +91,7 @@ namespace Epinova.ElasticSearch.Core
         }
 
         public IFilterGroup<T> And<TType>(Expression<Func<T, TType>> fieldSelector, TType[] filterValues)
-        {
-            return And(fieldSelector, filterValues, true);
-        }
+            => And(fieldSelector, filterValues, true);
 
         public IFilterGroup<T> And<TType>(Expression<Func<T, TType>> fieldSelector, TType[] filterValues, bool raw)
         {
@@ -118,9 +107,7 @@ namespace Epinova.ElasticSearch.Core
         }
 
         public IFilterGroup<T> And<TType>(Expression<Func<T, TType>> fieldSelector, TType filterValue)
-        {
-            return And(fieldSelector, filterValue, true);
-        }
+            => And(fieldSelector, filterValue, true);
 
         public IFilterGroup<T> And<TType>(Expression<Func<T, TType>> fieldSelector, TType filterValue, bool raw)
         {

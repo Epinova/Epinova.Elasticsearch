@@ -15,7 +15,7 @@ namespace Epinova.ElasticSearch.Core.Conventions
         /// <returns>The <see cref="Indexing"/> instance</returns>
         public Indexing ExcludeRoot(int rootId)
         {
-            if (!Roots.Contains(rootId))
+            if(!Roots.Contains(rootId))
             {
                 Logger.Information($"Excluding root: {rootId}");
                 Roots.Add(rootId);

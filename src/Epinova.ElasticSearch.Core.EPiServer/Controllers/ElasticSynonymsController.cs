@@ -1,88 +1,35 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Web.Mvc;
+using Epinova.ElasticSearch.Core.Contracts;
 using Epinova.ElasticSearch.Core.EPiServer.Contracts;
 using Epinova.ElasticSearch.Core.EPiServer.Controllers.Abstractions;
 using Epinova.ElasticSearch.Core.EPiServer.Models;
 using Epinova.ElasticSearch.Core.EPiServer.Models.ViewModels;
+using Epinova.ElasticSearch.Core.Settings;
 using Epinova.ElasticSearch.Core.Utilities;
 using EPiServer.DataAbstraction;
-using System.Collections.Generic;
-using Epinova.ElasticSearch.Core.Settings;
 
 namespace Epinova.ElasticSearch.Core.EPiServer.Controllers
 {
     public class ElasticSynonymsController : ElasticSearchControllerBase
     {
-        private readonly ILanguageBranchRepository _languageBranchRepository;
         private readonly ISynonymRepository _synonymRepository;
-        private readonly Admin.Index _indexHelper;
-
-        internal ElasticSynonymsController(
-            ISynonymRepository synonymRepository,
-            ILanguageBranchRepository languageBranchRepository,
-            Admin.Index indexHelper)
-        {
-            _synonymRepository = synonymRepository;
-            _languageBranchRepository = languageBranchRepository;
-            _indexHelper = indexHelper;
-        }
 
         public ElasticSynonymsController(
-            ISynonymRepository synonymRepository,
             ILanguageBranchRepository languageBranchRepository,
-            IElasticSearchSettings settings)
-                : this(
-                      synonymRepository,
-                      languageBranchRepository,
-                      new Admin.Index(settings))
+            ISynonymRepository synonymRepository,
+            IElasticSearchSettings settings,
+            IHttpClientHelper httpClientHelper)
+            : base(settings, httpClientHelper, languageBranchRepository)
         {
+            _synonymRepository = synonymRepository;
         }
-
 
         [Authorize(Roles = RoleNames.ElasticsearchAdmins)]
-        public ActionResult Index(string index = null, string languageId = null)
-        {
-            var languages = _languageBranchRepository.ListEnabled()
-                .Select(lang => new { lang.LanguageID, lang.Name })
-                .ToArray();
-
-            var indices = _indexHelper.GetIndices()
-                .Select(i => i.Index).ToList();
-
-            if (String.IsNullOrWhiteSpace(index) || !indices.Contains(index))
-                index = indices.FirstOrDefault();
-
-            ViewBag.Indices = indices.Count > 1 ? indices : null;
-            ViewBag.SelectedIndex = index;
-
-            var model = new SynonymsViewModel(languageId);
-
-            foreach (var language in languages)
-            {
-                var name = language.Name;
-                name = String.Concat(name.Substring(0, 1).ToUpper(), name.Substring(1));
-
-                model.SynonymsByLanguage.Add(new LanguageSynonyms
-                {
-                    Analyzer = Language.GetLanguageAnalyzer(language.LanguageID),
-                    LanguageName = name,
-                    LanguageId = language.LanguageID,
-                    Synonyms = _synonymRepository.GetSynonyms(language.LanguageID, index)
-                        .Select(s =>
-                        {
-                            var key = s.From;
-                            if (key.Contains("=>"))
-                                key = key.Split(new[] { "=>" }, StringSplitOptions.None)[0].Trim();
-
-                            return new Synonym { From = key, To = s.To, TwoWay = s.TwoWay};
-                        })
-                        .ToList()
-                });
-            }
-
-            return View("~/Views/ElasticSearchAdmin/Synonyms/Index.cshtml", model);
-        }
+        public ActionResult Index()
+            => View("~/Views/ElasticSearchAdmin/Synonyms/Index.cshtml", GetModel());
 
         [Authorize(Roles = RoleNames.ElasticsearchAdmins)]
         public ActionResult Delete(Synonym synonym, string languageId, string analyzer, string index)
@@ -90,8 +37,16 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Controllers
             List<Synonym> synonyms = _synonymRepository.GetSynonyms(languageId, index);
             synonyms.RemoveAll(s =>
             {
-                string synonymFrom = synonym.From + (synonym.TwoWay ? null : "=>" + synonym.From);
-                return s.From == synonymFrom && s.To == synonym.To && s.TwoWay == synonym.TwoWay;
+                string synonymFrom = String.Join(",", synonym.From
+                    .Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries)
+                    .Select(w => w.Trim()));
+
+                if(!s.TwoWay && !s.MultiWord)
+                {
+                    synonymFrom += "=>" + synonymFrom;
+                }
+
+                return s.From == synonymFrom && s.To == synonym.To && s.TwoWay == synonym.TwoWay && s.MultiWord == synonym.MultiWord;
             });
 
             _synonymRepository.SetSynonyms(languageId, analyzer, synonyms, index);
@@ -103,12 +58,24 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Controllers
         [Authorize(Roles = RoleNames.ElasticsearchAdmins)]
         public ActionResult Add(Synonym synonym, string languageId, string analyzer, string index)
         {
-            if (!String.IsNullOrWhiteSpace(synonym.From) && !String.IsNullOrWhiteSpace(synonym.To))
+            if(!String.IsNullOrWhiteSpace(synonym.From) && !String.IsNullOrWhiteSpace(synonym.To))
             {
                 List<Synonym> synonyms = _synonymRepository.GetSynonyms(languageId, index);
 
-                if (!synonym.TwoWay)
+                var fromWords = synonym.From
+                    .Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries)
+                    .Select(s => s.Trim())
+                    .ToArray();
+
+                if(fromWords.Length > 1)
+                {
+                    synonym.MultiWord = true;
+                    synonym.From = String.Join(",", fromWords);
+                }
+                else if(!synonym.TwoWay)
+                {
                     synonym.From += "=>" + synonym.From;
+                }
 
                 synonyms.Add(synonym);
 
@@ -116,6 +83,43 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Controllers
             }
 
             return RedirectToAction("Index", new { index, languageId });
+        }
+
+        private SynonymsViewModel GetModel()
+        {
+            var model = new SynonymsViewModel(CurrentLanguage);
+
+            foreach(var language in Languages)
+            {
+                var name = language.Value;
+                name = String.Concat(name.Substring(0, 1).ToUpper(), name.Substring(1));
+                var indexName = SwapLanguage(CurrentIndex, language.Key);
+
+                model.SynonymsByLanguage.Add(new LanguageSynonyms
+                {
+                    Analyzer = Language.GetLanguageAnalyzer(language.Key),
+                    LanguageName = name,
+                    LanguageId = language.Key,
+                    IndexName = indexName,
+                    Indices = UniqueIndices,
+                    HasSynonymsFile = !String.IsNullOrWhiteSpace(_synonymRepository.GetSynonymsFilePath(language.Key, indexName)),
+                    Synonyms = _synonymRepository.GetSynonyms(language.Key, CurrentIndex)
+                        .Select(s =>
+                        {
+                            var key = s.From;
+                            if(key.Contains("=>"))
+                            {
+                                key = key.Split(new[] { "=>" }, StringSplitOptions.None)[0].Trim();
+                            }
+
+                            var fromDisplay = String.Join(", ", key.Split(','));
+                            return new Synonym { From = fromDisplay, To = s.To, TwoWay = s.TwoWay, MultiWord = s.MultiWord };
+                        })
+                        .ToList()
+                });
+            }
+
+            return model;
         }
     }
 }

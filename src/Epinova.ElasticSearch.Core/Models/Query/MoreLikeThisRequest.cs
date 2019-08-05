@@ -16,7 +16,7 @@ namespace Epinova.ElasticSearch.Core.Models.Query
             Query.QueryInternal.MaxQueryTerms = querySetup.MltMaxQueryTerms;
             Query.QueryInternal.Fields = querySetup.SearchFields.ToArray();
 
-            if (Query.QueryInternal.Fields.Length == 0)
+            if(Query.QueryInternal.Fields.Length == 0)
             {
                 Query.QueryInternal.Fields = WellKnownProperties.AutoAnalyze
                     .Concat(new[] { DefaultFields.Name })

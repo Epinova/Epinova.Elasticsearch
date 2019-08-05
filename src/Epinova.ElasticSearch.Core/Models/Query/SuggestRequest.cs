@@ -31,6 +31,10 @@ namespace Epinova.ElasticSearch.Core.Models.Query
         [JsonIgnore]
         public override int Size { get; internal set; }
 
+        public override bool ShouldSerializeFrom() => false;
+
+        public override bool ShouldSerializeSize() => false;
+
         [JsonProperty(JsonNames.Suggest)]
         internal SuggestionsWrapper Suggestions { get; set; }
 

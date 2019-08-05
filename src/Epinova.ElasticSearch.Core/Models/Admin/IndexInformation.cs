@@ -21,6 +21,9 @@ namespace Epinova.ElasticSearch.Core.Models.Admin
         public string Index { get; internal set; }
 
         [JsonIgnore]
+        public string DisplayName { get; internal set; }
+
+        [JsonIgnore]
         public string Tokenizer { get; internal set; }
 
         [JsonProperty("pri")]
@@ -47,12 +50,16 @@ namespace Epinova.ElasticSearch.Core.Models.Admin
             get
             {
                 // Unknown, probably closed
-                if (String.IsNullOrEmpty(Health))
+                if(String.IsNullOrEmpty(Health))
+                {
                     return "red";
+                }
 
                 // Poor contrast for "yellow"
-                if (Health == "yellow")
+                if(Health == "yellow")
+                {
                     return "orange";
+                }
 
                 return Health;
             }

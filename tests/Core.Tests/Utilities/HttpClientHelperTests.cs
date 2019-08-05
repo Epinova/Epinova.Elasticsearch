@@ -7,24 +7,41 @@ using Xunit;
 
 namespace Core.Tests.Utilities
 {
-    public class HttpClientHelperTests
+    [Collection(nameof(ServiceLocatiorCollection))]
+    public class HttpClientHelperTests : IClassFixture<ServiceLocatorFixture>
     {
-        [Fact(Skip = "Review static behaviour")]
-        public void CredentialsSet_SetsAuthHeader()
+        private const string Password = "bar";
+        private const string Username = "foo";
+        private const int Timeout = 42;
+
+        public HttpClientHelperTests(ServiceLocatorFixture fixture)
         {
-            const string password = "bar";
-            const string username = "foo";
+            fixture.ServiceLocationMock.SettingsMock
+                .Setup(m => m.Username).Returns(Username);
+            fixture.ServiceLocationMock.SettingsMock
+                .Setup(m => m.Password).Returns(Password);
+            fixture.ServiceLocationMock.SettingsMock
+                .Setup(m => m.ClientTimeoutSeconds).Returns(Timeout);
+        }
 
-            Factory.SetupServiceLocator(null, username, password);
-
-            HttpClientHelper.Initialize();
+        [Fact]
+        public void CredentialsIsSet_SetsAuthHeader()
+        {
             AuthenticationHeaderValue result = HttpClientHelper.Client.DefaultRequestHeaders.Authorization;
 
-            string expectedParam = Convert.ToBase64String(Encoding.UTF8.GetBytes(username + ":" + password));
+            var expectedParam = Convert.ToBase64String(Encoding.UTF8.GetBytes(Username + ":" + Password));
             const string expectedScheme = "Basic";
 
             Assert.Equal(expectedScheme, result.Scheme);
             Assert.Equal(expectedParam, result.Parameter);
+        }
+
+        [Fact]
+        public void TimeoutIsSet_SetsTimeout()
+        {
+            TimeSpan result = HttpClientHelper.Client.Timeout;
+
+            Assert.Equal(TimeSpan.FromSeconds(Timeout), result);
         }
     }
 }

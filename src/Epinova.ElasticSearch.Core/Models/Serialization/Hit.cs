@@ -26,13 +26,17 @@ namespace Epinova.ElasticSearch.Core.Models.Serialization
         {
             get
             {
-                if (HighlightList == null)
+                if(HighlightList == null)
+                {
                     return null;
+                }
 
                 KeyValuePair<string, string[]> firstHit = HighlightList.FirstOrDefault(h => h.Value != null && h.Value.Any());
 
-                if (firstHit.Value == null || !firstHit.Value.Any())
+                if(firstHit.Value == null || !firstHit.Value.Any())
+                {
                     return null;
+                }
 
                 return firstHit.Value[0];
             }

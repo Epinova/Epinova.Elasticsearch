@@ -8,7 +8,7 @@ namespace Epinova.ElasticSearch.Core.Conventions
     /// </summary>
     public class MessageHandler
     {
-        public static MessageHandler Instance = new MessageHandler();
+        public static readonly MessageHandler Instance = new MessageHandler();
 
         internal static HttpMessageHandler Handler;
 

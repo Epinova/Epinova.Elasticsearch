@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Linq;
 using Epinova.ElasticSearch.Core.Models.Query;
 using Newtonsoft.Json;
@@ -10,15 +10,11 @@ namespace Epinova.ElasticSearch.Core.Models.Converters
         public override bool CanRead => false;
 
         public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
-        {
-            return null;
-        }
+            => null;
 
 
         public override bool CanConvert(Type objectType)
-        {
-            return typeof(MatchBase).IsAssignableFrom(objectType);
-        }
+            => typeof(MatchBase).IsAssignableFrom(objectType);
 
 
         public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
@@ -47,7 +43,7 @@ namespace Epinova.ElasticSearch.Core.Models.Converters
             writer.WritePropertyName(fieldName);
 
             writer.WriteStartObject();
-            foreach (var property in properties)
+            foreach(var property in properties)
             {
                 var type = property.Type.IsGenericType
                     ? property.Type.GenericTypeArguments[0]

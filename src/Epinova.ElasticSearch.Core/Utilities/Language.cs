@@ -26,17 +26,16 @@ namespace Epinova.ElasticSearch.Core.Utilities
         };
 
         internal static string GetRequestLanguageCode()
-        {
-            return GetLanguageCode(GetRequestLanguage());
-        }
+            => GetLanguageCode(GetRequestLanguage());
 
         internal static string GetLanguageCode(CultureInfo cultureInfo)
         {
-            //INFO: This returns "nb" for norwegian EPiServer-language
-            //return cultureInfo.TwoLetterISOLanguageName;
+            //INFO: TwoLetterISOLanguageName returns "nb" for norwegian EPiServer-language
 
-            if (CultureInfo.InvariantCulture.Equals(cultureInfo))
+            if(CultureInfo.InvariantCulture.Equals(cultureInfo))
+            {
                 return "*";
+            }
 
             // Return same code for normal and neutral languages, by looking at parent
             string code = String.Concat(cultureInfo.Name, cultureInfo.Parent.Name, cultureInfo.Parent.Parent.Name).Trim();
@@ -48,7 +47,7 @@ namespace Epinova.ElasticSearch.Core.Utilities
         {
             string analyzer = null;
 
-            if (isAnalyzable && language != null)
+            if(isAnalyzable && language != null)
             {
                 analyzer = GetLanguageAnalyzer(language);
             }
@@ -66,19 +65,25 @@ namespace Epinova.ElasticSearch.Core.Utilities
         {
             string analyzer = GetLanguageAnalyzer(language);
 
-            if (analyzer == null)
+            if(analyzer == null)
+            {
                 return null;
+            }
 
             return analyzer + "_simple";
         }
 
         internal static string GetLanguageAnalyzer(string language)
         {
-            if (language == null)
+            if(language == null)
+            {
                 return null;
+            }
 
-            if (AnalyzerMappings.TryGetValue(language, out string analyzer))
+            if(AnalyzerMappings.TryGetValue(language, out string analyzer))
+            {
                 return analyzer;
+            }
 
             return null;
         }
@@ -87,8 +92,10 @@ namespace Epinova.ElasticSearch.Core.Utilities
         {
             var headers = HttpContext.Current?.Request?.Headers;
 
-            if (headers?.AllKeys.Contains("X-EPiContentLanguage") == true)
+            if(headers?.AllKeys.Contains("X-EPiContentLanguage") == true)
+            {
                 return CultureInfo.CreateSpecificCulture(headers["X-EPiContentLanguage"]);
+            }
 
             return CultureInfo.InvariantCulture;
         }

@@ -14,11 +14,15 @@ namespace Epinova.ElasticSearch.Core.Extensions
             string facet = ub.QueryCollection[facetName];
             ub.QueryCollection.Remove(facetName);
 
-            if (removeAllOtherFacets)
+            if(removeAllOtherFacets)
+            {
                 ub.QueryCollection = new NameValueCollection();
+            }
 
-            if (facetValue != null)
+            if(facetValue != null)
+            {
                 ub.QueryCollection.Add(facetName, replace || String.IsNullOrEmpty(facet) ? facetValue.ToString() : String.Concat(facet, "¤", facetValue));
+            }
 
             return ub.ToString();
         }

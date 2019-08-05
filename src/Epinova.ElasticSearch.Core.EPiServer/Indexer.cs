@@ -6,49 +6,57 @@ using System.Web.Hosting;
 using Epinova.ElasticSearch.Core.Attributes;
 using Epinova.ElasticSearch.Core.Contracts;
 using Epinova.ElasticSearch.Core.Conventions;
+using Epinova.ElasticSearch.Core.EPiServer.Contracts;
 using Epinova.ElasticSearch.Core.EPiServer.Enums;
 using Epinova.ElasticSearch.Core.EPiServer.Extensions;
 using Epinova.ElasticSearch.Core.Extensions;
-using EPiServer.Logging;
 using Epinova.ElasticSearch.Core.Models;
 using Epinova.ElasticSearch.Core.Models.Bulk;
 using Epinova.ElasticSearch.Core.Settings;
 using EPiServer;
 using EPiServer.Core;
+using EPiServer.Logging;
 using EPiServer.ServiceLocation;
 using EPiServer.Web;
 
-namespace Epinova.ElasticSearch.Core.EPiServer.Contracts
+namespace Epinova.ElasticSearch.Core.EPiServer
 {
     [ServiceConfiguration(typeof(IIndexer))]
     internal class Indexer : IIndexer
     {
         private const string FallbackLanguage = "en";
         private static readonly ILogger Logger = LogManager.GetLogger(typeof(Indexer));
-        private static ICoreIndexer _coreIndexer;
+        private readonly ICoreIndexer _coreIndexer;
+        private readonly ContentAssetHelper _contentAssetHelper;
         private readonly IContentLoader _contentLoader;
         private readonly IElasticSearchSettings _elasticSearchSettings;
+        private readonly ISiteDefinitionRepository _siteDefinitionRepository;
 
         // Avoid dependency on Episerver.Forms for this simple functionallity
-        internal static string FormsUploadNamespace = "EPiServer.Forms.Core.IFileUploadElementBlock";
+        internal const string FormsUploadNamespace = "EPiServer.Forms.Core.IFileUploadElementBlock";
 
         internal void SetContentPathGetter(Func<ContentReference, int[]> func)
-        {
-            _getContentPath = func;
-        }
+            => _getContentPath = func;
 
         private Func<ContentReference, int[]> _getContentPath = ContentExtensions.GetContentPath;
 
-        public Indexer(ICoreIndexer coreIndexer, IElasticSearchSettings elasticSearchSettings, IContentLoader contentLoader)
+        public Indexer(
+            ICoreIndexer coreIndexer,
+            IElasticSearchSettings elasticSearchSettings,
+            ISiteDefinitionRepository siteDefinitionRepository,
+            IContentLoader contentLoader,
+            ContentAssetHelper contentAssetHelper)
         {
             _coreIndexer = coreIndexer;
             _elasticSearchSettings = elasticSearchSettings;
+            _siteDefinitionRepository = siteDefinitionRepository;
             _contentLoader = contentLoader;
+            _contentAssetHelper = contentAssetHelper;
         }
 
         public BulkBatchResult BulkUpdate(IEnumerable<IContent> contents, Action<string> logger, string indexName = null)
         {
-            List<IContent> contentList = contents.ToList();
+            var contentList = contents.ToList();
             logger = logger ?? delegate { };
             var before = contentList.Count;
 
@@ -93,17 +101,17 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Contracts
             _coreIndexer.Delete(contentLink.ToReferenceWithoutVersion().ToString(), language, typeof(IndexItem), indexName);
         }
 
-        public void Delete(IContent content, string indexName)
+        public void Delete(IContent content, string indexName = null)
         {
             indexName = GetIndexname(content.ContentLink, indexName, GetLanguage(content));
 
             _coreIndexer.Delete(content.ContentLink.ToReferenceWithoutVersion().ToString(), GetLanguage(content), typeof(IndexItem), indexName);
         }
 
-        public IndexingStatus UpdateStructure(IContent root, string indexName)
+        public IndexingStatus UpdateStructure(IContent root, string indexName = null)
         {
             var language = CultureInfo.CurrentCulture;
-            if (root is ILocale locale && locale.Language != null && !CultureInfo.InvariantCulture.Equals(locale.Language))
+            if(root is ILocale locale && locale.Language != null && !CultureInfo.InvariantCulture.Equals(locale.Language))
             {
                 language = locale.Language;
             }
@@ -112,14 +120,15 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Contracts
 
             var status = Update(root, indexName);
             var descendents = _contentLoader.GetDescendents(root.ContentLink);
-            var contents = _contentLoader.GetItems(descendents, language);
 
-            foreach (var content in contents)
+            foreach(var content in _contentLoader.GetItems(descendents, language))
             {
                 var childStatus = Update(content, indexName);
 
-                if (childStatus == IndexingStatus.Error && status != IndexingStatus.Error)
+                if(childStatus == IndexingStatus.Error && status != IndexingStatus.Error)
+                {
                     status = IndexingStatus.PartialError;
+                }
             }
 
             return status;
@@ -129,18 +138,22 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Contracts
         {
             indexName = GetIndexname(content.ContentLink, indexName, GetLanguage(content));
 
-            if (ShouldHideFromSearch(content))
+            if(ShouldHideFromSearch(content))
             {
                 Delete(content, indexName);
                 return IndexingStatus.HideFromSearchProperty;
             }
 
-            if (IsExludedType(content))
+            if(IsExludedType(content))
+            {
                 return IndexingStatus.ExcludedByConvention;
+            }
 
-            if (IsExludedByRoot(content))
+            if(IsExludedByRoot(content))
+            {
                 return IndexingStatus.ExcludedByConvention;
-            
+            }
+
             _coreIndexer.Update(content.ContentLink.ToReferenceWithoutVersion().ToString(), content.AsIndexItem(), indexName, typeof(IndexItem));
 
             return IndexingStatus.Ok;
@@ -149,20 +162,27 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Contracts
         private bool IsExludedByRoot(IContent content)
         {
             // Check options less expensive than DB-lookup first
-            if (content.ContentLink != null && Indexing.ExcludedRoots.Contains(content.ContentLink.ID))
+            if(content.ContentLink != null && Indexing.ExcludedRoots.Contains(content.ContentLink.ID))
+            {
                 return true;
-            if (content.ParentLink != null && Indexing.ExcludedRoots.Contains(content.ParentLink.ID))
+            }
+
+            if(content.ParentLink != null && Indexing.ExcludedRoots.Contains(content.ParentLink.ID))
+            {
                 return true;
+            }
 
             var ancestors = _getContentPath(content.ContentLink);
 
-            if (ancestors == null)
+            if(ancestors == null)
+            {
                 return false;
+            }
 
             return Indexing.ExcludedRoots.Intersect(ancestors).Any();
         }
 
-        internal static bool IsExludedType(IContent content)
+        public bool IsExludedType(IContent content)
         {
             return IsExludedType(content.GetUnproxiedType())
                 || IsExludedType(content?.GetType());
@@ -170,90 +190,113 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Contracts
 
         internal static bool IsExludedType(Type type)
         {
-            if (type == null)
+            if(type == null)
+            {
                 return true;
+            }
 
             return Indexing.ExcludedTypes.Contains(type)
                    || type.GetCustomAttributes(typeof(ExcludeFromSearchAttribute), true).Length > 0
                    || DerivesFromExludedType(type);
         }
 
-        internal static bool ShouldHideFromSearch(IContent content)
+        public bool ShouldHideFromSearch(IContent content)
         {
-            if (content is ContentFolder)
+            if(content is ContentFolder)
+            {
                 return true;
+            }
 
-            if (ContentReference.WasteBasket.CompareToIgnoreWorkID(content.ParentLink))
+            if(ContentReference.WasteBasket.CompareToIgnoreWorkID(content.ParentLink))
+            {
                 return true;
+            }
 
-            if (ContentReference.WasteBasket.CompareToIgnoreWorkID(content.ContentLink))
+            if(ContentReference.WasteBasket.CompareToIgnoreWorkID(content.ContentLink))
+            {
                 return true;
+            }
 
-            if (IsFormUpload(content))
+            if(IsFormUpload(content))
+            {
                 return true;
+            }
 
             // Common property in Epinova template
-            bool hideFromSearch = GetEpiserverBoolProperty(content.Property["HideFromSearch"]);
-            if (hideFromSearch)
+            var hideFromSearch = GetEpiserverBoolProperty(content.Property["HideFromSearch"]);
+            if(hideFromSearch)
+            {
                 return true;
+            }
 
-            bool deleted = GetEpiserverBoolProperty(content.Property["PageDeleted"]);
-            if (deleted)
+            var deleted = GetEpiserverBoolProperty(content.Property["PageDeleted"]);
+            if(deleted)
+            {
                 return true;
-
-            DateTime stopPublish = GetEpiserverDateTimeProperty(content.Property["PageStopPublish"]);
-            if (stopPublish != default && stopPublish < DateTime.Now)
-                return true;
+            }
 
             if(IsPageWithInvalidLinkType(content))
+            {
                 return true;
+            }
 
             return false;
         }
 
         private static bool IsPageWithInvalidLinkType(IContent content)
         {
-            if (!(content is PageData))
+            if(!(content is PageData))
+            {
                 return false;
+            }
 
             var linkType = content.GetType().GetProperty("LinkType");
-            if (linkType == null)
+            if(linkType == null)
+            {
                 return true;
+            }
 
             var linkTypeValue = linkType.GetValue(content);
-            if (linkTypeValue == null)
+            if(linkTypeValue == null)
+            {
                 return true;
+            }
 
             var shortcutType = (PageShortcutType)linkTypeValue;
             if(shortcutType != PageShortcutType.Normal && shortcutType != PageShortcutType.FetchData)
+            {
                 return true;
+            }
 
             return false;
         }
 
-        private static string GetFallbackLanguage()
+        private string GetFallbackLanguage()
         {
-            if (!HostingEnvironment.IsHosted)
+            if(!HostingEnvironment.IsHosted)
+            {
                 return FallbackLanguage;
+            }
 
             ContentReference startPageLink = ContentReference.StartPage;
-            if (startPageLink == null || startPageLink == ContentReference.EmptyReference)
+            if(startPageLink == null || startPageLink == ContentReference.EmptyReference)
             {
                 // Fallback to first defined site if StartPage is empty (no context or star-mapping)
-                var siteDefinitionRepository = ServiceLocator.Current.GetInstance<ISiteDefinitionRepository>();
-                var firstSite = siteDefinitionRepository.List().FirstOrDefault();
-                if (firstSite != null)
+                var firstSite = _siteDefinitionRepository.List().FirstOrDefault();
+                if(firstSite != null)
                 {
                     startPageLink = firstSite.StartPage;
                 }
             }
 
             // Try to fetch master language from startpage
-            if (startPageLink != null && startPageLink != ContentReference.EmptyReference)
+            if(startPageLink != null && startPageLink != ContentReference.EmptyReference)
             {
                 var contentLoader = ServiceLocator.Current.GetInstance<IContentLoader>();
-                if (contentLoader.TryGet(startPageLink, out PageData startPage))
+                if(contentLoader.TryGet(startPageLink, out PageData startPage))
+                {
                     return startPage.MasterLanguage.Name;
+                }
             }
 
             Logger.Warning("Could not retrieve StartPage. Are you missing a wildcard mapping in CMS Admin -> Manage Websites?");
@@ -276,34 +319,26 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Contracts
                     || (type.IsInterface && type.IsAssignableFrom(typeToCheck)));
         }
 
-        private static DateTime GetEpiserverDateTimeProperty(PropertyData content)
-        {
-            if (!(content is PropertyDate property) || property.Value == null)
-                return default;
-
-            return ((DateTime?)property.Value).GetValueOrDefault();
-        }
-
         private static bool GetEpiserverBoolProperty(PropertyData content)
+            => content is PropertyBoolean property && property.Boolean.GetValueOrDefault(false);
+
+        private bool IsFormUpload(IContent content)
         {
-            return content is PropertyBoolean property && property.Boolean.GetValueOrDefault(false);
-        }
+            IContent owner = _contentAssetHelper.GetAssetOwner(content.ContentLink);
 
-        private static bool IsFormUpload(IContent content)
-        {
-            var contentAssetHelper = ServiceLocator.Current.GetInstance<ContentAssetHelper>();
-
-            IContent owner = contentAssetHelper.GetAssetOwner(content.ContentLink);
-
-            if (owner == null)
+            if(owner == null)
+            {
                 return false;
+            }
 
-            return owner.GetType().GetInterfaces().Select(i => i.FullName).Contains(FormsUploadNamespace);
+            return owner.GetType().GetInterfaces()
+                .Select(i => i.FullName)
+                .Contains(FormsUploadNamespace);
         }
 
         private string GetIndexname(ContentReference contentLink, string indexName, string language)
         {
-            if (String.IsNullOrWhiteSpace(indexName) && contentLink.ProviderName == null)
+            if(String.IsNullOrWhiteSpace(indexName) && contentLink.ProviderName == null)
             {
                 return _elasticSearchSettings.GetDefaultIndexName(language);
             }

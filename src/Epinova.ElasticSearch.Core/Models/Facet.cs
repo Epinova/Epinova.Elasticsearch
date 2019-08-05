@@ -15,8 +15,10 @@ namespace Epinova.ElasticSearch.Core.Models
         {
             get
             {
-                if (!String.IsNullOrWhiteSpace(KeyAsString))
+                if(!String.IsNullOrWhiteSpace(KeyAsString))
+                {
                     return KeyAsString;
+                }
 
                 return KeyDefault;
             }

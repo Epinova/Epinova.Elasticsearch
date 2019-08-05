@@ -1,56 +1,30 @@
 ﻿using System.Collections.Generic;
-using System.Globalization;
 using System.Web.Mvc;
-using Epinova.ElasticSearch.Core.EPiServer.Contracts;
 using Epinova.ElasticSearch.Core.EPiServer.Controllers;
 using Epinova.ElasticSearch.Core.EPiServer.Models;
 using Epinova.ElasticSearch.Core.EPiServer.Models.ViewModels;
-using EPiServer;
-using EPiServer.DataAbstraction;
 using Moq;
-using Xunit;
 using TestData;
-using Epinova.ElasticSearch.Core.Settings;
-using Epinova.ElasticSearch.Core.Admin;
-using Epinova.ElasticSearch.Core.Models.Admin;
+using Xunit;
 
 namespace Core.Episerver.Tests.Controllers
 {
-    public class SynonymsControllerTests
+    [Collection(nameof(ServiceLocatiorCollection))]
+    public class SynonymsControllerTests : IClassFixture<ServiceLocatorFixture>
     {
+        private readonly ServiceLocatorFixture _fixture;
         private readonly ElasticSynonymsController _controller;
-        private readonly Mock<ISynonymRepository> _synonymRepositoryMock;
 
-        public SynonymsControllerTests()
+        public SynonymsControllerTests(ServiceLocatorFixture fixture)
         {
-            Factory.SetupServiceLocator(testHost: "http://example.com");
-
-            _synonymRepositoryMock = new Mock<ISynonymRepository>();
-            _synonymRepositoryMock
-                .Setup(m => m.GetSynonyms(It.IsAny<string>(), It.IsAny<string>()))
-                .Returns(new List<Synonym>());
-
-            var languageBranchRepositoryMock = new Mock<ILanguageBranchRepository>();
-            languageBranchRepositoryMock
-                .Setup(m => m.ListEnabled())
-                .Returns(new List<LanguageBranch> {
-                    new LanguageBranch(new CultureInfo("en")),
-                    new LanguageBranch(new CultureInfo("no"))
-                });
-
-            var settingsMock = new Mock<IElasticSearchSettings>();
-
-            var indexMock = new Mock<Index>(settingsMock.Object, Factory.GetString());
-            indexMock
-                .Setup(m => m.GetIndices())
-                .Returns(new[] {
-                    new IndexInformation { Index = "" },
-                });
+            _fixture = fixture;
+            _fixture.MockInfoEndpoints();
 
             _controller = new ElasticSynonymsController(
-                _synonymRepositoryMock.Object,
-                languageBranchRepositoryMock.Object,
-                indexMock.Object);
+                _fixture.ServiceLocationMock.LanguageBranchRepositoryMock.Object,
+                _fixture.ServiceLocationMock.SynonymRepositoryMock.Object,
+                _fixture.ServiceLocationMock.SettingsMock.Object,
+                _fixture.ServiceLocationMock.HttpClientMock.Object);
         }
 
         [Theory]
@@ -59,9 +33,9 @@ namespace Core.Episerver.Tests.Controllers
         [InlineData(null, null)]
         public void Add_MissingInput_DoesNothing(string from, string to)
         {
-            _controller.Add(new Synonym {From = from, To = to, TwoWay = false}, "", "", "");
+            _controller.Add(new Synonym { From = from, To = to, TwoWay = false }, "", "", "");
 
-            _synonymRepositoryMock.Verify(m => m.GetSynonyms("", null), Times.Never);
+            _fixture.ServiceLocationMock.SynonymRepositoryMock.Verify(m => m.GetSynonyms("", null), Times.Never);
         }
 
         [Theory]
@@ -69,9 +43,12 @@ namespace Core.Episerver.Tests.Controllers
         [InlineData("omg", "lol", false)]
         public void Add_ValidInput_CallsRepository(string from, string to, bool twoway)
         {
-           _controller.Add(new Synonym{From = from, To = to, TwoWay = twoway}, "", "", "");
+            _fixture.ServiceLocationMock.SynonymRepositoryMock.Invocations.Clear();
 
-            _synonymRepositoryMock.Verify(m => m.SetSynonyms("", "", It.IsAny<List<Synonym>>(), ""), Times.Once);
+            _controller.Add(new Synonym { From = from, To = to, TwoWay = twoway }, "", "", "");
+
+            _fixture.ServiceLocationMock.SynonymRepositoryMock
+                .Verify(m => m.SetSynonyms("", "", It.IsAny<List<Synonym>>(), ""), Times.Once);
         }
 
         [Fact]
@@ -97,16 +74,16 @@ namespace Core.Episerver.Tests.Controllers
             };
 
             var expected = new List<Synonym>(synonyms);
-            string synonymFrom = from + (twoway ? null : "=>" + from);
+            var synonymFrom = from + (twoway ? null : "=>" + from);
             expected.RemoveAll(s => s.From == synonymFrom);
 
-            _synonymRepositoryMock
+            _fixture.ServiceLocationMock.SynonymRepositoryMock
                 .Setup(m => m.GetSynonyms(It.IsAny<string>(), ""))
                 .Returns(synonyms);
 
             _controller.Delete(new Synonym { From = from, To = to, TwoWay = twoway }, "", "", "");
 
-            _synonymRepositoryMock.Verify(m => m.SetSynonyms("", "", expected, ""), Times.Once);
+            _fixture.ServiceLocationMock.SynonymRepositoryMock.Verify(m => m.SetSynonyms("", "", expected, ""), Times.Once);
         }
     }
 }

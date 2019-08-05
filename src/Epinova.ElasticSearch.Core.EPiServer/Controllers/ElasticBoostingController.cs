@@ -4,6 +4,7 @@ using Epinova.ElasticSearch.Core.Contracts;
 using Epinova.ElasticSearch.Core.EPiServer.Controllers.Abstractions;
 using Epinova.ElasticSearch.Core.EPiServer.Models;
 using Epinova.ElasticSearch.Core.Extensions;
+using Epinova.ElasticSearch.Core.Settings;
 using EPiServer.DataAbstraction;
 
 namespace Epinova.ElasticSearch.Core.EPiServer.Controllers
@@ -14,13 +15,16 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Controllers
         private readonly IContentTypeRepository _pageTypeRepository;
 
         public ElasticBoostingController(
+            ILanguageBranchRepository languageBranchRepository,
             IBoostingRepository boostingRepository,
-            IContentTypeRepository pageTypeRepository)
+            IContentTypeRepository pageTypeRepository,
+            IElasticSearchSettings settings,
+            IHttpClientHelper httpClientHelper)
+            : base(settings, httpClientHelper, languageBranchRepository)
         {
             _boostingRepository = boostingRepository;
             _pageTypeRepository = pageTypeRepository;
         }
-
 
         [Authorize(Roles = RoleNames.ElasticsearchAdmins)]
         public ActionResult Index()
@@ -30,7 +34,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Controllers
                 .Where(p => p.ModelType != null)
                 .OrderBy(p => p.LocalizedName);
 
-            foreach (var type in pageTypes)
+            foreach(var type in pageTypes)
             {
                 var currentBoosting = _boostingRepository.GetByType(type.ModelType);
                 var indexableProps = type.ModelType
@@ -50,12 +54,18 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Controllers
                     })
                     .ToList();
 
-                foreach (var boost in currentBoosting)
-                    if (propsWithBoost.Any(p => p.TypeName == boost.Key))
+                foreach(var boost in currentBoosting)
+                {
+                    if(propsWithBoost.Any(p => p.TypeName == boost.Key))
+                    {
                         propsWithBoost.First(p => p.TypeName == boost.Key).Weight = boost.Value;
+                    }
+                }
 
-                if (propsWithBoost.Any())
+                if(propsWithBoost.Count > 0)
+                {
                     model.BoostingByType.Add(type.ModelType.GetTypeName(), propsWithBoost);
+                }
             }
 
             return View("~/Views/ElasticSearchAdmin/Boosting/Index.cshtml", model);

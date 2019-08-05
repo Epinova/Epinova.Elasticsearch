@@ -10,32 +10,32 @@ namespace Epinova.ElasticSearch.Core.Models.Converters
         public override bool CanRead => false;
 
         public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
-        {
-            return null;
-        }
+            => null;
 
         public override bool CanConvert(Type objectType)
-        {
-            return objectType == typeof(Term);
-        }
+            => objectType == typeof(Term);
 
         public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
         {
             var term = value as TermItem;
-            if (term == null)
+            if(term == null)
+            {
                 return;
+            }
 
             string name = term.Key;
-            if (!term.NonRaw && term.Type != null && term.Type == typeof(string))
+            if(!term.NonRaw && term.Type != null && term.Type == typeof(string))
+            {
                 name += Constants.KeywordSuffix;
+            }
 
             writer.WriteStartObject();
             writer.WritePropertyName(name);
 
-            if (ArrayHelper.IsArrayCandidate(term.Value.GetType()))
+            if(ArrayHelper.IsArrayCandidate(term.Value.GetType()))
             {
                 writer.WriteStartArray();
-                foreach (object item in ArrayHelper.ToArray(term.Value) as object[] ?? new object[0])
+                foreach(object item in ArrayHelper.ToArray(term.Value) as object[] ?? new object[0])
                 {
                     writer.WriteValue(item);
                 }

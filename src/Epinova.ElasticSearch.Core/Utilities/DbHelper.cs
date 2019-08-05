@@ -14,11 +14,11 @@ namespace Epinova.ElasticSearch.Core.Utilities
         {
             try
             {
-                using (var connection = new SqlConnection(connectionString))
+                using(var connection = new SqlConnection(connectionString))
                 {
                     var sql = $"SELECT COUNT(*) FROM INFORMATION_SCHEMA.COLUMNS WHERE [TABLE_SCHEMA] = '{schema}' AND [TABLE_NAME] = '{table}' AND [COLUMN_NAME] = '{column}'";
 
-                    using (var command = new SqlCommand(sql))
+                    using(var command = new SqlCommand(sql))
                     {
                         command.Connection = connection;
                         command.Connection.Open();
@@ -26,8 +26,8 @@ namespace Epinova.ElasticSearch.Core.Utilities
                         command.Connection.Close();
 
                         var count = Convert.ToInt32(result);
-                            
-                        if (count > 0)
+
+                        if(count > 0)
                         {
                             Log.Debug($"Column '{schema}.{table}.{column}' exists");
                             return true;
@@ -38,7 +38,7 @@ namespace Epinova.ElasticSearch.Core.Utilities
                     }
                 }
             }
-            catch (Exception exception)
+            catch(Exception exception)
             {
                 Log.Warning($"Issue when checking if column '{schema}.{table}.{column}' exists", exception);
                 return false;
@@ -49,11 +49,11 @@ namespace Epinova.ElasticSearch.Core.Utilities
         {
             try
             {
-                using (var connection = new SqlConnection(connectionString))
+                using(var connection = new SqlConnection(connectionString))
                 {
                     var sql = $"IF OBJECT_ID('{table}', 'U') IS NOT NULL SELECT 'true' ELSE SELECT 'false'";
 
-                    using (var command = new SqlCommand(sql))
+                    using(var command = new SqlCommand(sql))
                     {
                         command.Connection = connection;
                         command.Connection.Open();
@@ -67,7 +67,7 @@ namespace Epinova.ElasticSearch.Core.Utilities
                     }
                 }
             }
-            catch (Exception exception)
+            catch(Exception exception)
             {
                 Log.Warning($"Issue when checking if table '{table}' exists", exception);
                 return false;
@@ -80,9 +80,9 @@ namespace Epinova.ElasticSearch.Core.Utilities
 
             try
             {
-                using (var connection = new SqlConnection(connectionString))
+                using(var connection = new SqlConnection(connectionString))
                 {
-                    using (var command = new SqlCommand(sql))
+                    using(var command = new SqlCommand(sql))
                     {
                         command.Connection = connection;
                         command.Connection.Open();
@@ -93,7 +93,7 @@ namespace Epinova.ElasticSearch.Core.Utilities
                     }
                 }
             }
-            catch (SqlException exception)
+            catch(SqlException exception)
             {
                 Log.Warning($"Issue when trying to create table '{table}'", exception);
             }
@@ -105,18 +105,18 @@ namespace Epinova.ElasticSearch.Core.Utilities
             {
                 Log.Debug($"ExecuteCommand: '{sql}");
 
-                using (var connection = new SqlConnection(connectionString))
+                using(var connection = new SqlConnection(connectionString))
                 {
-                    using (var command = new SqlCommand(sql))
+                    using(var command = new SqlCommand(sql))
                     {
-                        if (parameters != null)
+                        if(parameters != null)
                         {
-                            foreach (KeyValuePair<string, object> kvp in parameters)
+                            foreach(KeyValuePair<string, object> kvp in parameters)
                             {
                                 command.Parameters.Add(new SqlParameter(kvp.Key, kvp.Value));
                             }
 
-                            if (Log.IsDebugEnabled())
+                            if(Log.IsDebugEnabled())
                             {
                                 Log.Debug($"Parameters:\n {String.Join("\n", parameters.Select(p => p.Key + "=" + p.Value))}");
                             }
@@ -133,7 +133,7 @@ namespace Epinova.ElasticSearch.Core.Utilities
                     }
                 }
             }
-            catch (SqlException exception)
+            catch(SqlException exception)
             {
                 Log.Warning("Issue when trying to execute command", exception);
                 return 0;
@@ -146,18 +146,18 @@ namespace Epinova.ElasticSearch.Core.Utilities
             {
                 Log.Debug($"ExecuteReader: '{sql}");
 
-                using (var connection = new SqlConnection(connectionString))
+                using(var connection = new SqlConnection(connectionString))
                 {
-                    using (var command = new SqlCommand(sql))
+                    using(var command = new SqlCommand(sql))
                     {
-                        if (parameters != null)
+                        if(parameters != null)
                         {
-                            foreach (var kvp in parameters)
+                            foreach(var kvp in parameters)
                             {
                                 command.Parameters.Add(new SqlParameter(kvp.Key, kvp.Value));
                             }
 
-                            if (Log.IsDebugEnabled())
+                            if(Log.IsDebugEnabled())
                             {
                                 Log.Debug($"Parameters:\n {String.Join("\n", parameters.Select(p => p.Key + "=" + p.Value))}");
                             }
@@ -169,11 +169,11 @@ namespace Epinova.ElasticSearch.Core.Utilities
 
                         var results = new List<Dictionary<string, object>>();
 
-                        while (reader.Read())
+                        while(reader.Read())
                         {
                             var row = new Dictionary<string, object>();
 
-                            for (var i = 0; i < reader.FieldCount; i++)
+                            for(var i = 0; i < reader.FieldCount; i++)
                             {
                                 row.Add(reader.GetName(i), reader.GetValue(i));
                             }
@@ -189,7 +189,7 @@ namespace Epinova.ElasticSearch.Core.Utilities
                     }
                 }
             }
-            catch (SqlException exception)
+            catch(SqlException exception)
             {
                 Log.Warning("Issue when trying to execute command", exception);
                 return null;

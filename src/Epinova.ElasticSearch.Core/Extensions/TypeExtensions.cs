@@ -5,10 +5,10 @@ using System.Reflection;
 using Castle.DynamicProxy;
 using Epinova.ElasticSearch.Core.Contracts;
 using Epinova.ElasticSearch.Core.Conventions;
-using EPiServer.Logging;
 using EPiServer.Core;
 using EPiServer.Data.Entity;
 using EPiServer.DataAnnotations;
+using EPiServer.Logging;
 
 namespace Epinova.ElasticSearch.Core.Extensions
 {
@@ -18,16 +18,20 @@ namespace Epinova.ElasticSearch.Core.Extensions
 
         public static string[] GetInheritancHierarchyArray(this Type type)
         {
-            if (type == null)
+            if(type == null)
+            {
                 return new string[0];
+            }
 
             return type.GetInheritancHierarchy().Select(GetTypeName).ToArray();
         }
 
         public static string GetShortTypeName(this string typeName)
         {
-            if (String.IsNullOrWhiteSpace(typeName) || typeName.IndexOf("_", StringComparison.OrdinalIgnoreCase) == -1)
+            if(String.IsNullOrWhiteSpace(typeName) || typeName.IndexOf("_", StringComparison.OrdinalIgnoreCase) == -1)
+            {
                 return typeName;
+            }
 
             return typeName.Split('_').Last();
         }
@@ -38,19 +42,25 @@ namespace Epinova.ElasticSearch.Core.Extensions
         /// <returns>The full namespace of the supplied type, with underscores instead of dots</returns>
         public static string GetTypeName(this Type type)
         {
-            if (type?.FullName == null)
+            if(type?.FullName == null)
+            {
                 return String.Empty;
+            }
 
-            if (type.IsAnonymousType())
+            if(type.IsAnonymousType())
+            {
                 return "AnonymousType";
+            }
 
             return type.FullName?.Replace(".", "_");
         }
 
         internal static Type GetUnproxiedType(this object source)
         {
-            if (!(source is IProxyTargetAccessor proxy))
+            if(!(source is IProxyTargetAccessor proxy))
+            {
                 return source?.GetType();
+            }
 
             return proxy.GetType().BaseType;
         }
@@ -77,49 +87,57 @@ namespace Epinova.ElasticSearch.Core.Extensions
 
         internal static IEnumerable<Type> GetInheritancHierarchy(this Type type)
         {
-            for (var current = type; current != null; current = current.BaseType)
+            for(var current = type; current != null; current = current.BaseType)
+            {
                 yield return current;
+            }
 
-            if (type == null)
+            if(type == null)
+            {
                 yield break;
+            }
 
             IEnumerable<Type> interfaces = type
                 .GetInterfaces()
                 .Cast<TypeInfo>()
                 .Where(i => !i.ImplementedInterfaces.Contains(typeof(IReadOnly)));
 
-            foreach (var i in interfaces)
+            foreach(var i in interfaces)
+            {
                 yield return i;
+            }
         }
 
         private static bool IsIndexable(Type contentType, PropertyInfo p, bool optIn)
         {
-            if (p == null || contentType == null)
+            if(p == null || contentType == null)
+            {
                 return false;
+            }
 
             Logger.Debug("IsIndexable: " + contentType.Name + " -> " + p.Name);
 
-            if (typeof(BlockData).IsAssignableFrom(p.PropertyType))
+            if(typeof(BlockData).IsAssignableFrom(p.PropertyType))
             {
                 Logger.Debug("Maybe: Local block");
                 return true;
             }
 
-            if (WellKnownProperties.Ignore.Contains(p.Name))
+            if(WellKnownProperties.Ignore.Contains(p.Name))
             {
                 Logger.Debug("No: WellKnownProperties.Ignore");
                 return false;
             }
 
             var explicitIncludes = Indexing.Instance.SearchableProperties;
-            if (explicitIncludes.ContainsKey(contentType) && explicitIncludes[contentType].Contains(p.Name))
+            if(explicitIncludes.ContainsKey(contentType) && explicitIncludes[contentType].Contains(p.Name))
             {
                 Logger.Debug("Yes: Explicit");
                 return true;
             }
 
             var searchable = p.GetCustomAttribute<SearchableAttribute>();
-            if (searchable != null)
+            if(searchable != null)
             {
                 Logger.Debug(searchable.IsSearchable
                     ? "Yes: Attribute"
@@ -128,22 +146,24 @@ namespace Epinova.ElasticSearch.Core.Extensions
                 return searchable.IsSearchable;
             }
 
-            if (optIn)
+            if(optIn)
+            {
                 return false;
+            }
 
-            if (p.PropertyType == typeof(ContentArea))
+            if(p.PropertyType == typeof(ContentArea))
             {
                 Logger.Debug("No: Unmarked ContentArea");
                 return false;
             }
 
-            if (p.PropertyType == typeof(string) || p.PropertyType == typeof(XhtmlString))
+            if(p.PropertyType == typeof(string) || p.PropertyType == typeof(XhtmlString))
             {
                 Logger.Debug("Yes: Implicit string");
                 return true;
             }
 
-            if (p.PropertyType.GetInterfaces().Contains(typeof(IProperty)))
+            if(p.PropertyType.GetInterfaces().Contains(typeof(IProperty)))
             {
                 Logger.Debug("Yes: IProperty implementation");
                 return true;

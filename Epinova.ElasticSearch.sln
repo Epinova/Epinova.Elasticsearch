@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.27004.2010
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.28803.452
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Epinova.ElasticSearch.Core", "src\Epinova.ElasticSearch.Core\Epinova.ElasticSearch.Core.csproj", "{7169966D-DF2C-42FB-970F-A412A92937F8}"
 EndProject
@@ -23,6 +23,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Docs", "Docs", "{2A760EEC-F
 		.gitignore = .gitignore
 		appveyor.yml = appveyor.yml
 		changelog.md = changelog.md
+		nuget.config = nuget.config
 		readme.md = readme.md
 		setup.md = setup.md
 	EndProjectSection

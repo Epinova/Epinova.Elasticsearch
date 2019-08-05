@@ -14,7 +14,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Initialization
     {
         public void Initialize(InitializationEngine context)
         {
-            if (context.Locate.Advanced.GetInstance<LocalizationService>() is ProviderBasedLocalizationService localizationService)
+            if(context.Locate.Advanced.GetInstance<LocalizationService>() is ProviderBasedLocalizationService localizationService)
             {
                 var ass = Assembly.GetAssembly(typeof(LocalizationInitialization));
 
@@ -23,7 +23,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Initialization
                         .Where(r => r.EndsWith(".xml", StringComparison.InvariantCultureIgnoreCase))
                         .ToArray();
 
-                foreach (string name in xmlResources)
+                foreach(string name in xmlResources)
                 {
                     Stream stream = ass.GetManifestResourceStream(name);
                     var provider = new XmlLocalizationProvider();
@@ -36,8 +36,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Initialization
 
         public void Uninitialize(InitializationEngine context)
         {
+            // Not applicable
         }
-
-        public void Preload(string[] parameters) { }
     }
 }

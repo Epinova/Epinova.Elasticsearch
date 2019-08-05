@@ -6,13 +6,9 @@ using Xunit;
 
 namespace Core.Tests.Utilities
 {
+    [Collection(nameof(ServiceLocatiorCollection))]
     public class MappingTests
     {
-        public MappingTests()
-        {
-            Factory.SetupServiceLocator();
-        }
-
         [Theory]
         [InlineData(typeof(string), MappingType.Text)]
         [InlineData(typeof(bool), MappingType.Boolean)]

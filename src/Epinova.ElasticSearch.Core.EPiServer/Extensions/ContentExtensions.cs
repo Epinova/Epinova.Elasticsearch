@@ -10,29 +10,24 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Web.Hosting;
-using Epinova.ElasticSearch.Core.Attributes;
+using Castle.DynamicProxy;
 using Epinova.ElasticSearch.Core.Contracts;
 using Epinova.ElasticSearch.Core.Conventions;
 using Epinova.ElasticSearch.Core.EPiServer.Contracts;
+using Epinova.ElasticSearch.Core.EPiServer.Providers;
 using Epinova.ElasticSearch.Core.Extensions;
-using EPiServer.Logging;
 using Epinova.ElasticSearch.Core.Models;
-using Epinova.ElasticSearch.Core.Models.Mapping;
 using Epinova.ElasticSearch.Core.Settings;
 using Epinova.ElasticSearch.Core.Utilities;
 using EPiServer;
 using EPiServer.Core;
 using EPiServer.Core.Html.StringParsing;
+using EPiServer.DataAccess.Internal;
 using EPiServer.Filters;
-using EPiServer.Framework.Blobs;
+using EPiServer.Logging;
 using EPiServer.Security;
 using EPiServer.ServiceLocation;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using Indexing = Epinova.ElasticSearch.Core.Conventions.Indexing;
-using Castle.DynamicProxy;
-using Epinova.ElasticSearch.Core.EPiServer.Providers;
-using EPiServer.DataAccess.Internal;
 
 namespace Epinova.ElasticSearch.Core.EPiServer.Extensions
 {
@@ -40,9 +35,10 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Extensions
     public static class ContentExtensions
     {
         private static readonly ILogger Logger = LogManager.GetLogger(typeof(ContentExtensions));
-        private static readonly IContentLoader ContentLoader;
-        private static readonly IElasticSearchSettings ElasticSearchSettings;
-        private static readonly ITrackingRepository TrackingRepository;
+        private static readonly IContentLoader ContentLoader = ServiceLocator.Current.GetInstance<IContentLoader>();
+        private static readonly IElasticSearchSettings ElasticSearchSettings = ServiceLocator.Current.GetInstance<IElasticSearchSettings>();
+        private static readonly ITrackingRepository TrackingRepository = ServiceLocator.Current.GetInstance<ITrackingRepository>();
+        private static readonly IIndexer Indexer = ServiceLocator.Current.GetInstance<IIndexer>();
 
         private static readonly string[] BinaryExtensions = new[]
         {
@@ -52,37 +48,35 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Extensions
             "mp3", "aac", "wav", "flac", "ogg", "mka", "wma", "aif", "mpa"
         };
 
-        static ContentExtensions()
-        {
-            ContentLoader = ServiceLocator.Current.GetInstance<IContentLoader>();
-            ElasticSearchSettings = ServiceLocator.Current.GetInstance<IElasticSearchSettings>();
-            TrackingRepository = ServiceLocator.Current.GetInstance<ITrackingRepository>();
-        }
+        public static Task<ContentSearchResult<T>> GetContentResultsAsync<T>(this IElasticSearchService<T> service) where T : IContentData
+            => service.GetContentResultsAsync(false, new string[0]);
 
-        public static async Task<ContentSearchResult<T>> GetContentResultsAsync<T>(
-            this IElasticSearchService<T> service,
-            bool requirePageTemplate = false, string[] providerNames = null) where T : IContentData
-        {
-            return await GetContentResultsAsync(service, CancellationToken.None, requirePageTemplate, providerNames).ConfigureAwait(false);
-        }
+        public static Task<ContentSearchResult<T>> GetContentResultsAsync<T>(this IElasticSearchService<T> service, bool requirePageTemplate) where T : IContentData
+            => service.GetContentResultsAsync(requirePageTemplate, new string[0]);
+
+        public static Task<ContentSearchResult<T>> GetContentResultsAsync<T>(this IElasticSearchService<T> service, bool requirePageTemplate, string[] providerNames) where T : IContentData
+            => service.GetContentResultsAsync(CancellationToken.None, requirePageTemplate, false, providerNames, true, true);
 
         public static async Task<ContentSearchResult<T>> GetContentResultsAsync<T>(
             this IElasticSearchService<T> service,
             CancellationToken cancellationToken,
-            bool requirePageTemplate = false,
-            string[] providerNames = null) where T : IContentData
+            bool requirePageTemplate,
+            bool ignoreFilters,
+            string[] providerNames,
+            bool enableHighlighting,
+            bool enableDidYouMean) where T : IContentData
         {
-            SearchResult results = await service.GetResultsAsync(cancellationToken, DefaultFields.Id).ConfigureAwait(false);
+            SearchResult results = await service.GetResultsAsync(cancellationToken, enableHighlighting, enableDidYouMean, !ignoreFilters, DefaultFields.Id).ConfigureAwait(false);
 
             IEnumerable<Task<ContentSearchHit<T>>> tasks =
-                results.Hits.Select(h => FilterAsync<T>(h, requirePageTemplate, providerNames));
+                results.Hits.Select(h => FilterAsync<T>(h, requirePageTemplate, providerNames, ignoreFilters));
 
             ContentSearchHit<T>[] hits = await Task.WhenAll(tasks).ConfigureAwait(false);
             hits = hits.Where(h => h != null).ToArray();
 
             results.TotalHits = hits.Length;
 
-            if (service.TrackSearch)
+            if(service.TrackSearch)
             {
                 TrackingRepository.AddSearch(
                     Language.GetLanguageCode(service.SearchLanguage),
@@ -94,66 +88,39 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Extensions
             return new ContentSearchResult<T>(results, hits);
         }
 
-        public static ContentSearchResult<T> GetContentResults<T>(
-            this IElasticSearchService<T> service) where T : IContentData
-        {
-            return service.GetContentResults(false, null);
-        }
+        public static ContentSearchResult<T> GetContentResults<T>(this IElasticSearchService<T> service) where T : IContentData
+            => service.GetContentResults(false, new string[0]);
 
-        public static ContentSearchResult<T> GetContentResults<T>(
-            this IElasticSearchService<T> service,
-            bool requirePageTemplate) where T : IContentData
-        {
-            return service.GetContentResults(requirePageTemplate, null);
-        }
-        
+        public static ContentSearchResult<T> GetContentResults<T>(this IElasticSearchService<T> service, bool requirePageTemplate) where T : IContentData
+            => service.GetContentResults(requirePageTemplate, new string[0]);
+
+        public static ContentSearchResult<T> GetContentResults<T>(this IElasticSearchService<T> service, bool requirePageTemplate, string[] providerNames) where T : IContentData
+            => service.GetContentResults(requirePageTemplate, false, providerNames, true, true);
+
         public static ContentSearchResult<T> GetContentResults<T>(
             this IElasticSearchService<T> service,
             bool requirePageTemplate,
-            string[] providerNames) where T : IContentData
-        {
-            SearchResult results = service.GetResults();
-            var hits = new List<ContentSearchHit<T>>();
-
-            foreach (SearchHit hit in results.Hits)
-            {
-                if (ShouldAdd(hit, requirePageTemplate, out T content, providerNames))
-                    hits.Add(new ContentSearchHit<T>(content, hit.CustomProperties, hit.QueryScore, hit.Highlight));
-                else
-                    results.TotalHits--;
-            }
-
-            if (service.TrackSearch)
-            {
-                TrackingRepository.AddSearch(
-                    Language.GetLanguageCode(service.SearchLanguage),
-                    service.SearchText,
-                    results.TotalHits == 0,
-                    GetIndexName(service));
-            }
-
-            return new ContentSearchResult<T>(results, hits);
-        }
-
-        internal static ContentSearchResult<T> GetContentResults<T>(
-            this IElasticSearchService<T> service,
-            bool requirePageTemplate,
+            bool ignoreFilters,
             string[] providerNames,
             bool enableHighlighting,
             bool enableDidYouMean) where T : IContentData
         {
-            SearchResult results = service.GetResults(enableHighlighting, enableDidYouMean);
+            SearchResult results = service.GetResults(enableHighlighting, enableDidYouMean, applyDefaultFilters: !ignoreFilters);
             var hits = new List<ContentSearchHit<T>>();
 
-            foreach (SearchHit hit in results.Hits)
+            foreach(SearchHit hit in results.Hits)
             {
-                if (ShouldAdd(hit, requirePageTemplate, out T content, providerNames))
+                if(ShouldAdd(hit, requirePageTemplate, out T content, providerNames, ignoreFilters))
+                {
                     hits.Add(new ContentSearchHit<T>(content, hit.CustomProperties, hit.QueryScore, hit.Highlight));
+                }
                 else
+                {
                     results.TotalHits--;
+                }
             }
 
-            if (service.TrackSearch)
+            if(service.TrackSearch)
             {
                 TrackingRepository.AddSearch(
                     Language.GetLanguageCode(service.SearchLanguage),
@@ -165,25 +132,31 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Extensions
             return new ContentSearchResult<T>(results, hits);
         }
 
-        private static async Task<ContentSearchHit<T>> FilterAsync<T>(SearchHit hit, bool requirePageTemplate, string[] providerNames) where T : IContentData
+        private static async Task<ContentSearchHit<T>> FilterAsync<T>(SearchHit hit, bool requirePageTemplate, string[] providerNames, bool ignoreFilters = true) where T : IContentData
         {
             return await Task.Run(() =>
             {
-                if (!ShouldAdd(hit, requirePageTemplate, out T content, providerNames))
+                if(!ShouldAdd(hit, requirePageTemplate, out T content, providerNames, ignoreFilters))
+                {
                     return null;
+                }
 
                 return new ContentSearchHit<T>(content, hit.CustomProperties, hit.QueryScore, hit.Highlight);
             }).ConfigureAwait(false);
         }
 
-        internal static bool ShouldAdd<T>(this SearchHit hit, bool requirePageTemplate, out T content, string[] providerNames)
+        internal static bool ShouldAdd<T>(this SearchHit hit, bool requirePageTemplate, out T content, string[] providerNames, bool ignoreFilters)
             where T : IContentData
         {
-            if (providerNames?.Any() != true)
+            if(providerNames.Length > 0)
+            {
+                content = GetContentForProviders<T>(hit, providerNames);
+            }
+            else
             {
                 var contentLink = new ContentReference(hit.Id);
 
-                if (!String.IsNullOrEmpty(hit.Lang))
+                if(!String.IsNullOrEmpty(hit.Lang))
                 {
                     ContentLoader.TryGet(contentLink, CultureInfo.GetCultureInfo(hit.Lang), out content);
                 }
@@ -192,51 +165,63 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Extensions
                     ContentLoader.TryGet(contentLink, out content);
                 }
             }
-            else
-            {
-                content = GetContentForProviders<T>(hit, providerNames);
-            }
 
-            return content != null && !ShouldFilter(content as IContent, requirePageTemplate);
+            return content != null
+                && !ShouldFilter(content as IContent, requirePageTemplate, ignoreFilters);
         }
 
         private static T GetContentForProviders<T>(SearchHit hit, string[] providerNames) where T : IContentData
         {
-            foreach (var name in providerNames)
+            foreach(var name in providerNames)
             {
                 ContentReference contentLink =
                     new[] { ProviderConstants.CmsProviderKey, ProviderConstants.DefaultProviderKey }.Contains(name)
                         ? new ContentReference(hit.Id)
                         : new ContentReference(hit.Id, 0, name);
 
-                if (!String.IsNullOrEmpty(hit.Lang))
+                if(!String.IsNullOrEmpty(hit.Lang))
                 {
-                    if (ContentLoader.TryGet(contentLink, CultureInfo.GetCultureInfo(hit.Lang), out T content))
+                    if(ContentLoader.TryGet(contentLink, CultureInfo.GetCultureInfo(hit.Lang), out T content))
+                    {
                         return content;
+                    }
                 }
                 else
                 {
-                    if (ContentLoader.TryGet(contentLink, out T content))
+                    if(ContentLoader.TryGet(contentLink, out T content))
+                    {
                         return content;
+                    }
                 }
             }
 
             return default;
         }
 
-        private static bool ShouldFilter(IContent content, bool requirePageTemplate)
+        private static bool ShouldFilter(IContent content, bool requirePageTemplate, bool ignoreFilters)
         {
-            if (content == null)
+            if(content == null)
+            {
                 return true;
+            }
 
-            if (Indexer.ShouldHideFromSearch(content))
+            if(ignoreFilters)
+            {
+                return false;
+            }
+
+            if(Indexer.ShouldHideFromSearch(content))
+            {
                 return true;
+            }
 
             var accessFilter = new FilterAccess();
             var publishedFilter = new FilterPublished();
 
-            if (publishedFilter.ShouldFilter(content) || accessFilter.ShouldFilter(content))
+            if(publishedFilter.ShouldFilter(content) || accessFilter.ShouldFilter(content))
+            {
                 return true;
+            }
 
             var templateFilter = new FilterTemplate();
 
@@ -248,11 +233,15 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Extensions
             ContentPath contentPath = ServiceLocator.Current.GetInstance<ContentPathDB>().GetContentPath(contentLink);
 
             // Commerce doesn't support ContentPath
-            if (contentLink.ProviderName == ProviderConstants.CatalogProviderKey)
+            if(contentLink.ProviderName == ProviderConstants.CatalogProviderKey)
+            {
                 return GetPathTheHardWay(contentLink);
+            }
 
-            if (contentPath?.Any() != true)
+            if(contentPath?.Any() != true)
+            {
                 return null;
+            }
 
             return contentPath
                 .ToString()
@@ -265,14 +254,18 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Extensions
         {
             var path = new List<int>();
             ContentReference current = contentLink;
-            while (current != null)
+            while(current != null)
             {
                 path.Add(current.ID);
 
-                if (ContentLoader.TryGet(current, out IContent content))
+                if(ContentLoader.TryGet(current, out IContent content))
+                {
                     current = content.ParentLink;
+                }
                 else
+                {
                     current = null;
+                }
             }
 
             path.Reverse();
@@ -288,8 +281,10 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Extensions
             dynamic indexItem = new ExpandoObject();
             var dictionary = (IDictionary<string, object>)indexItem;
 
-            if (!TryAddAttachmentData(content, dictionary))
+            if(!TryAddAttachmentData(content, dictionary))
+            {
                 return null;
+            }
 
             AppendDefaultFields(content, dictionary, contentType);
             AppendIndexableProperties(indexItem, content, contentType, dictionary);
@@ -304,31 +299,36 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Extensions
 
             Logger.Debug("CustomProperties count: " + customProperties.Count);
 
-            foreach (CustomProperty property in customProperties)
+            foreach(CustomProperty property in customProperties)
             {
                 try
                 {
                     object value;
                     Type returnType = property.Getter.Method.ReturnType;
                     bool isArrayCandidate = ArrayHelper.IsArrayCandidate(returnType);
+                    bool isDictionary = ArrayHelper.IsDictionary(returnType);
 
                     // Set returnType to underlying type for nullable value-types
-                    if (returnType.IsValueType && returnType.IsGenericType && returnType.GenericTypeArguments.Length > 0)
+                    if(returnType.IsValueType && returnType.IsGenericType && returnType.GenericTypeArguments.Length > 0)
                     {
                         returnType = returnType.GenericTypeArguments[0];
                     }
 
-                    if (returnType.IsValueType && !Mapping.IsNumericType(returnType))
+                    if(returnType.IsValueType && !Mapping.IsNumericType(returnType))
                     {
                         value = returnType == typeof(bool)
                             ? SerializeValue(property.Getter.DynamicInvoke(content))
                             : SerializeValue(property.Getter.DynamicInvoke());
                     }
-                    else if (isArrayCandidate)
+                    else if(isDictionary)
+                    {
+                        value = ArrayHelper.ToDictionary(property.Getter.DynamicInvoke(content));
+                    }
+                    else if(isArrayCandidate)
                     {
                         value = ArrayHelper.ToArray(property.Getter.DynamicInvoke(content));
 
-                        if (value is IEnumerable<object> arrayValue && !arrayValue.Any())
+                        if(value is IEnumerable<object> arrayValue && !arrayValue.Any())
                         {
                             Logger.Debug($"Value for '{property.Name}' is empty array value, skipping");
                             continue;
@@ -339,17 +339,19 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Extensions
                         value = SerializeValue(property.Getter.DynamicInvoke(content));
                     }
 
-                    if (returnType == typeof(CategoryList))
-                        returnType = typeof(int[]);
-
-                    if (value != null)
+                    if(returnType == typeof(CategoryList))
                     {
-                        if (!isArrayCandidate)
+                        returnType = typeof(int[]);
+                    }
+
+                    if(value != null)
+                    {
+                        if(!isArrayCandidate && !isDictionary)
                         {
                             Logger.Debug($"Changing type of value '{value}' to '{returnType.Name}'");
                             value = Convert.ChangeType(value, returnType, CultureInfo.InvariantCulture);
 
-                            if (returnType.IsAssignableFrom(typeof(String)))
+                            if(returnType.IsAssignableFrom(typeof(string)))
                             {
                                 value = value?.ToString().Trim('\"');
                             }
@@ -362,7 +364,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Extensions
                     Logger.Debug("Value: " + value);
                     Logger.Debug("Type: " + returnType.Name);
                 }
-                catch (Exception ex)
+                catch(Exception ex)
                 {
                     Logger.Error("Failed to index custom property: " + property.Name, ex);
                 }
@@ -372,11 +374,11 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Extensions
         private static void TryAddLanguageProperty(dynamic indexItem, IContent content, IDictionary<string, object> dictionary, out string language)
         {
             language = null;
-            if (content is ILocale locale && locale.Language != null && !CultureInfo.InvariantCulture.Equals(locale.Language))
+            if(content is ILocale locale && locale.Language != null && !CultureInfo.InvariantCulture.Equals(locale.Language))
             {
                 language = locale.Language.Name;
                 dictionary.Add(DefaultFields.Lang, language);
-                if (Logger.IsDebugEnabled())
+                if(Logger.IsDebugEnabled())
                 {
                     string lang = indexItem.Lang.ToString();
                     Logger.Debug("Language: " + lang);
@@ -391,11 +393,15 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Extensions
         private static bool TryAddAttachmentData(IContent content, IDictionary<string, object> dictionary)
         {
             string attachmentData = GetAttachmentData(content, out bool extensionNotAllowed);
-            if (extensionNotAllowed)
+            if(extensionNotAllowed)
+            {
                 return false;
+            }
 
-            if (attachmentData != null)
+            if(attachmentData != null)
+            {
                 dictionary.Add(DefaultFields.AttachmentData, attachmentData);
+            }
 
             return true;
         }
@@ -406,31 +412,34 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Extensions
 
             dictionary.Add(DefaultFields.Id, content.ContentLink.ID);
             dictionary.Add(DefaultFields.Indexed, DateTime.Now);
-            if (content.ParentLink != null)
+            if(content.ParentLink != null)
+            {
                 dictionary.Add(DefaultFields.ParentLink, content.ParentLink.ID);
+            }
+
             dictionary.Add(DefaultFields.Name, content.Name);
             dictionary.Add(DefaultFields.Type, typeName);
             dictionary.Add(DefaultFields.Types, contentType.GetInheritancHierarchyArray());
 
             int[] contentPath = GetContentPath(content.ContentLink);
-            if (contentPath != null)
+            if(contentPath != null)
             {
                 dictionary.Add(DefaultFields.Path, contentPath);
             }
 
-            if (content is IVersionable versionable)
+            if(content is IVersionable versionable)
             {
                 dictionary.Add(DefaultFields.StartPublish, versionable.StartPublish);
-                dictionary.Add(DefaultFields.StopPublish, versionable.StopPublish.GetValueOrDefault(DateTime.MaxValue));
+                dictionary.Add(DefaultFields.StopPublish, versionable.StopPublish ?? DateTime.MaxValue);
             }
 
-            if (content is IChangeTrackable trackable)
+            if(content is IChangeTrackable trackable)
             {
                 dictionary.Add(DefaultFields.Created, trackable.Created);
                 dictionary.Add(DefaultFields.Changed, trackable.Changed);
             }
 
-            if (content is ISecurable securable && securable.GetSecurityDescriptor() is IContentSecurityDescriptor acl)
+            if(content is ISecurable securable && securable.GetSecurityDescriptor() is IContentSecurityDescriptor acl)
             {
                 var entries = acl.Entries.Select(a => $"{a.EntityType.ToString()[0]}:{a.Name}");
                 dictionary.Add(DefaultFields.Acl, entries);
@@ -440,8 +449,11 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Extensions
         private static Type GetContentType(IContent content)
         {
             Type contentType = content.GetUnproxiedType();
-            if (contentType?.FullName?.StartsWith("Castle.") ?? false)
+            if(contentType?.FullName?.StartsWith("Castle.") ?? false)
+            {
                 contentType = ProxyUtil.GetUnproxiedInstance(content).GetType().BaseType;
+            }
+
             return contentType;
         }
 
@@ -454,10 +466,10 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Extensions
 
             indexableProperties.ForEach(property =>
             {
-                if (!dictionary.ContainsKey(property.Name))
+                if(!dictionary.ContainsKey(property.Name))
                 {
                     object indexValue = GetIndexValue(content, property, out bool isString, ignoreXhtmlStringContentFragments);
-                    if (indexValue != null)
+                    if(indexValue != null)
                     {
                         dictionary.Add(property.Name, indexValue);
                     }
@@ -475,18 +487,18 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Extensions
 
             Logger.Debug($"Found {suggestions.Count} suggestions");
 
-            if (suggestions.Count > 0)
+            if(suggestions.Count > 0)
             {
-                IndexItem.SuggestionItem suggestionItems = new IndexItem.SuggestionItem();
+                var suggestionItems = new IndexItem.SuggestionItem();
 
-                foreach (Suggestion suggestion in suggestions)
+                foreach(Suggestion suggestion in suggestions)
                 {
                     Logger.Debug(
                         $"Type: {suggestion.Type}, All: {suggestion.IncludeAllFields}, InputFields: {String.Join(", ", suggestion.InputFields)}");
 
                     List<PropertyInfo> suggestProperties = indexableProperties;
 
-                    if (!suggestion.IncludeAllFields)
+                    if(!suggestion.IncludeAllFields)
                     {
                         suggestProperties = suggestProperties
                             .Where(
@@ -501,7 +513,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Extensions
                             suggestProperties
                                 .Select(p =>
                                 {
-                                    object value = GetIndexValue(content, p);
+                                    var value = GetIndexValue(content, p);
                                     return value?.ToString();
                                 })
                                 .Where(p => p != null)
@@ -509,7 +521,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Extensions
                         .ToLowerInvariant()
                         .Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries)
                         .Select(v => v.Trim(trimChars))
-                        .Where(v => !String.IsNullOrWhiteSpace(v) && (!TextUtil.IsNumeric(v) & v.Length > 1))
+                        .Where(v => !String.IsNullOrWhiteSpace(v) && (!TextUtil.IsNumeric(v) && v.Length > 1))
                         .Distinct()
                         .ToArray();
                 }
@@ -520,72 +532,12 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Extensions
 
         private static object SerializeValue(object value)
         {
-            if (value == null)
+            if(value == null)
+            {
                 return null;
+            }
 
             return Serialization.Serialize(value);
-        }
-
-        internal static void CreateDidYouMeanMappingsIfNeeded(Type type, string language, string indexName = null)
-        {
-            Logger.Debug("Checking if DidYouMean mappings needs updating");
-
-            var stringProperties = type.GetIndexableProps(false)
-                .Where(p => p.PropertyType == typeof(string) || p.PropertyType == typeof(string[]) || p.PropertyType == typeof(XhtmlString))
-                .Select(p => p.Name)
-                .ToList();
-
-            string json = null;
-            string oldJson = null;
-
-            try
-            {
-                IndexMapping mapping = Mapping.GetIndexMapping(typeof(IndexItem), language, indexName);
-
-                var jsonSettings = new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore };
-                oldJson = JsonConvert.SerializeObject(mapping, jsonSettings);
-
-                IEnumerable<string> filtered = stringProperties
-                    .Except(WellKnownProperties.IgnoreDidYouMean)
-                    .Except(WellKnownProperties.Ignore);
-
-                foreach (string prop in filtered)
-                {
-                    mapping.Properties.TryGetValue(prop, out IndexMappingProperty property);
-                    mapping.AddOrUpdateProperty(prop, property);
-                }
-
-                if (!mapping.IsDirty)
-                {
-                    // No change, quit.
-                    Logger.Debug("No change");
-                    return;
-                }
-
-                json = JsonConvert.SerializeObject(mapping, jsonSettings);
-                byte[] data = Encoding.UTF8.GetBytes(json);
-
-                if (String.IsNullOrWhiteSpace(indexName))
-                    indexName = ElasticSearchSettings.GetDefaultIndexName(language);
-
-                var uri = $"{ElasticSearchSettings.Host}/{indexName}/_mapping/{typeof(IndexItem).GetTypeName()}";
-                if (Server.Info.Version.Major >= 7)
-                    uri += "?include_type_name=true";
-
-                Logger.Debug("Update mapping:\n" + JToken.Parse(json).ToString(Formatting.Indented));
-
-                HttpClientHelper.Put(new Uri(uri), data);
-            }
-            catch (Exception ex)
-            {
-                Logger.Error("Failed to update mappings", ex);
-
-                if (Logger.IsDebugEnabled())
-                {
-                    Logger.Debug("Old mapping:\n" + JToken.Parse(oldJson ?? String.Empty).ToString(Formatting.Indented));
-                    Logger.Debug("New mapping:\n" + JToken.Parse(json ?? String.Empty).ToString(Formatting.Indented));
-                }
-            }
         }
 
         private static List<CustomProperty> GetCustomPropertiesForType(Type contentType)
@@ -595,122 +547,8 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Extensions
                 .ToList();
         }
 
-        internal static void CreateAnalyzedMappingsIfNeeded(Type type, string language, string indexName = null)
-        {
-            Logger.Debug("Checking if analyzable mappings needs updating");
-
-            string json = null;
-            string oldJson = null;
-            IndexMapping mapping = null;
-
-            try
-            {
-                if (String.IsNullOrWhiteSpace(indexName))
-                    indexName = ElasticSearchSettings.GetDefaultIndexName(language);
-
-                // Get mappings from server
-                mapping = Mapping.GetIndexMapping(typeof(IndexItem), language, indexName);
-
-                // Ignore special mappings
-                mapping.Properties.Remove(DefaultFields.AttachmentData);
-                mapping.Properties.Remove(DefaultFields.BestBets);            
-                mapping.Properties.Remove(DefaultFields.DidYouMean);
-                mapping.Properties.Remove(DefaultFields.Suggest);
-                mapping.Properties.Remove(nameof(IndexItem.attachment));
-
-                var jsonSettings = new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore };
-                oldJson = JsonConvert.SerializeObject(mapping, jsonSettings);
-
-                // Get indexable properties (string, XhtmlString, [Searchable(true)]) 
-                var indexableProperties = type.GetIndexableProps(false)
-                    .Select(p => new
-                    {
-                        p.Name,
-                        Type = p.PropertyType,
-                        Analyzable = ((p.PropertyType == typeof(string) || p.PropertyType == typeof(string[]))
-                                     && (p.GetCustomAttributes(typeof(StemAttribute)).Any() || WellKnownProperties.Analyze
-                                          .Select(w => w.ToLower())
-                                          .Contains(p.Name.ToLower())))
-                                     || (p.PropertyType == typeof(XhtmlString)
-                                     && p.GetCustomAttributes(typeof(ExcludeFromSearchAttribute), true).Length == 0)
-                    })
-                    .Where(p => p.Name != nameof(IndexItem.Type) 
-                                && p.Name != nameof(IndexItem._bestbets) 
-                                && p.Name != DefaultFields.DidYouMean
-                                && p.Name != DefaultFields.Suggest
-                                && p.Name != nameof(IndexItem.attachment) 
-                                && p.Name != nameof(IndexItem._attachmentdata))
-                    .ToList();
-
-                // Get well-known and Stemmed property-names
-                List<string> allAnalyzableProperties = indexableProperties.Where(i => i.Analyzable)
-                    .Select(i => i.Name)
-                    .ToList();
-
-                allAnalyzableProperties.ForEach(p =>
-                {
-                    IndexMappingProperty propertyMapping = Language.GetPropertyMapping(language, typeof(string), true);
-
-                    mapping.AddOrUpdateProperty(p, propertyMapping);
-                });
-
-                if (!mapping.IsDirty)
-                {
-                    // No change, quit.
-                    Logger.Debug("No change");
-                    return;
-                }
-
-                json = JsonConvert.SerializeObject(mapping, jsonSettings);
-                var data = Encoding.UTF8.GetBytes(json);
-                var uri = $"{ElasticSearchSettings.Host}/{indexName}/_mapping/{typeof(IndexItem).GetTypeName()}";
-                if (Server.Info.Version.Major >= 7)
-                    uri += "?include_type_name=true";
-
-                Logger.Debug("Update mapping:\n" + JToken.Parse(json).ToString(Formatting.Indented));
-
-                HttpClientHelper.Put(new Uri(uri), data);
-            }
-            catch (Exception ex)
-            {
-                Logger.Error(
-                    $"Failed to update mappings for content of type '{type.Name}'\n. Properties with the same name but different type, " +
-                    "where one of the types is analyzable and the other is not, is often the cause of this error. Ie. 'string MainIntro' vs 'XhtmlString MainIntro'. \n" +
-                    "All properties with equal name must be of the same type or ignored from indexing with [Searchable(false)]. \n" +
-                    "Enable debug-logging to view further details.", ex);
-
-                if (Logger.IsDebugEnabled())
-                {
-                    Logger.Debug("Old mapping:\n" + JToken.Parse(oldJson ?? String.Empty).ToString(Formatting.Indented));
-                    Logger.Debug("New mapping:\n" + JToken.Parse(json ?? String.Empty).ToString(Formatting.Indented));
-
-                    try
-                    {
-                        IndexMapping oldMappings = JsonConvert.DeserializeObject<IndexMapping>(oldJson);
-
-                        foreach (KeyValuePair<string, IndexMappingProperty> oldMapping in oldMappings.Properties)
-                        {
-                            if (mapping?.Properties.ContainsKey(oldMapping.Key) == true
-                                && !oldMapping.Value.Equals(mapping.Properties[oldMapping.Key]))
-                            {
-                                Logger.Error("Property '" + oldMapping.Key + "' has different mapping across different types");
-                                Logger.Debug("Old: \n" + JsonConvert.SerializeObject(oldMapping.Value));
-                                Logger.Debug("New: \n" + JsonConvert.SerializeObject(mapping.Properties[oldMapping.Key]));
-                            }
-                        }
-                    }
-                    catch (Exception e)
-                    {
-                        Logger.Error("Failed to compare mappings", e);
-                    }
-                }
-            }
-        }
-
         private static object GetIndexValue(IContentData content, PropertyInfo p, bool ignoreXhtmlStringContentFragments = false)
-        {
-            return GetIndexValue(content, p, out _, ignoreXhtmlStringContentFragments);
-        }
+            => GetIndexValue(content, p, out _, ignoreXhtmlStringContentFragments);
 
         private static object GetIndexValue(IContentData content, PropertyInfo p, out bool isString, bool ignoreXhtmlStringContentFragments = false)
         {
@@ -724,55 +562,60 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Extensions
             {
                 type = content.GetType().Name;
 
-                if (content is IContent icontent)
+                if(content is IContent icontent)
                 {
                     id = icontent.ContentLink.ID.ToString();
                     name = icontent.Name;
                 }
 
                 object value = p.GetValue(content);
-                if (value == null)
+                if(value == null)
+                {
                     return null;
+                }
 
                 // Store IEnumerables as arrays
-                if (ArrayHelper.IsArrayCandidate(p))
+                if(ArrayHelper.IsArrayCandidate(p))
                 {
                     return ArrayHelper.ToArray(value);
                 }
 
-                if (value is string)
+                if(value is string)
                 {
                     isString = true;
                     return TextUtil.StripHtmlAndEntities(value.ToString());
                 }
 
-                if (value is ContentArea contentArea)
+                if(value is ContentArea contentArea)
                 {
-                    string indexText = null;
+                    var indexText = new StringBuilder();
 
-                    foreach (ContentAreaItem item in contentArea.FilteredItems)
+                    foreach(ContentAreaItem item in contentArea.FilteredItems)
                     {
                         IContent areaItemContent = item.GetContent();
 
-                        if (Indexer.IsExludedType(areaItemContent))
+                        if(Indexer.IsExludedType(areaItemContent))
+                        {
                             continue;
+                        }
 
                         Type areaItemType = GetContentType(areaItemContent);
                         List<PropertyInfo> indexableProperties = areaItemType.GetIndexableProps(false);
                         indexableProperties.ForEach(property =>
                         {
-                            object indexValue = GetIndexValue(areaItemContent, property);
-                            indexText += " " + indexValue;
+                            var indexValue = GetIndexValue(areaItemContent, property);
+                            indexText.Append(indexValue);
+                            indexText.Append(" ");
                         });
                     }
 
-                    return indexText;
+                    return indexText.ToString();
                 }
 
-                if (value is XhtmlString xhtml)
+                if(value is XhtmlString xhtml)
                 {
                     isString = true;
-                    string indexText = TextUtil.StripHtml(value.ToString());
+                    var indexText = new StringBuilder(TextUtil.StripHtml(value.ToString()));
 
                     IPrincipal principal = HostingEnvironment.IsHosted
                         ? PrincipalInfo.AnonymousPrincipal
@@ -781,98 +624,112 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Extensions
                     // Avoid infinite loop
                     // occurs when a page A have another page B in XhtmlString and page B as well have page A in XhtmlString
                     // or if page A have another page B in XhtmlString, page B have another page C in XhtmlString and page C have page A in XhtmlString
-                    if (ignoreXhtmlStringContentFragments)
-                        return indexText;
-
-                    foreach (ContentFragment fragment in xhtml.GetFragments(principal))
+                    if(ignoreXhtmlStringContentFragments)
                     {
-                        if (fragment.ContentLink != null && fragment.ContentLink != ContentReference.EmptyReference)
-                        {
-                            if (ContentLoader.TryGet(fragment.ContentLink, out IContent fragmentContent) && !Indexer.IsExludedType(fragmentContent))
-                            {
-                                Type fragmentType = GetContentType(fragmentContent);
+                        return indexText.ToString();
+                    }
 
-                                List<PropertyInfo> indexableProperties = fragmentType.GetIndexableProps(false);
-                                indexableProperties.ForEach(property =>
-                                {
-                                    object indexValue = GetIndexValue(fragmentContent, property, ignoreXhtmlStringContentFragments: true);
-                                    indexText += " " + indexValue;
-                                });
-                            }
+                    foreach(ContentFragment fragment in xhtml.GetFragments(principal))
+                    {
+                        if(IsValidFragment(fragment, out var fragmentContent))
+                        {
+                            Type fragmentType = GetContentType(fragmentContent);
+
+                            List<PropertyInfo> indexableProperties = fragmentType.GetIndexableProps(false);
+                            indexableProperties.ForEach(property =>
+                            {
+                                var indexValue = GetIndexValue(fragmentContent, property, ignoreXhtmlStringContentFragments: true);
+                                indexText.Append(indexValue);
+                                indexText.Append(" ");
+                            });
                         }
                     }
 
-                    return indexText;
+                    return indexText.ToString();
                 }
 
-                if (p.PropertyType.IsEnum)
+                if(p.PropertyType.IsEnum)
+                {
                     return (int)value;
+                }
 
                 // Local block
-                if (typeof(BlockData).IsAssignableFrom(p.PropertyType))
+                if(typeof(BlockData).IsAssignableFrom(p.PropertyType))
                 {
-                    string flattenedValue = null;
-                    foreach (PropertyInfo prop in p.PropertyType.GetIndexableProps(false))
+                    var flattenedValue = new StringBuilder();
+                    foreach(PropertyInfo prop in p.PropertyType.GetIndexableProps(false))
                     {
-                        flattenedValue += " " + GetIndexValue(value as IContentData, prop);
+                        flattenedValue.Append(GetIndexValue(value as IContentData, prop));
+                        flattenedValue.Append(" ");
                     }
-                    return flattenedValue;
+                    return flattenedValue.ToString();
                 }
 
                 return value;
             }
-            catch (Exception ex)
+            catch(Exception ex)
             {
                 Logger.Warning($"GetIndexValue failed for id '{id}'. Type={type}, Name={name}", ex);
                 return null;
             }
         }
 
+        private static bool IsValidFragment(ContentFragment fragment, out IContent fragmentContent)
+        {
+            fragmentContent = null;
+
+            return fragment.ContentLink != null
+                && fragment.ContentLink != ContentReference.EmptyReference
+                && ContentLoader.TryGet(fragment.ContentLink, out fragmentContent)
+                && fragmentContent != null
+                && !Indexer.IsExludedType(fragmentContent);
+        }
+
         private static string GetAttachmentData(IContent content, out bool extensionNotAllowed)
         {
             extensionNotAllowed = false;
 
-            if (!ElasticSearchSettings.EnableFileIndexing)
+            if(!ElasticSearchSettings.EnableFileIndexing)
+            {
                 return null;
-
-            string filePath = null;
+            }
 
             try
             {
-                if (content is MediaData mediaData)
+                if(content is MediaData mediaData)
                 {
-                    if (mediaData.BinaryData is FileBlob fileBlob)
+                    string extension = Path.GetExtension(mediaData.RouteSegment ?? String.Empty).Trim(' ', '.');
+
+                    if(!Indexing.IncludedFileExtensions.Contains(extension.ToLower()))
                     {
-                        filePath = fileBlob.FilePath;
-                        if (ElasticSearchSettings.DocumentMaxSize <= 0 || new FileInfo(fileBlob.FilePath).Length <= ElasticSearchSettings.DocumentMaxSize)
+                        extensionNotAllowed = true;
+                        return null;
+                    }
+
+                    if(IsBinary(extension))
+                    {
+                        Logger.Information($"Extension '{extension}' is a binary type, skipping its contents");
+                        return String.Empty;
+                    }
+
+                    using(var memoryStream = new MemoryStream())
+                    {
+                        mediaData.BinaryData.OpenRead().CopyTo(memoryStream);
+                        var bytes = memoryStream.ToArray();
+
+                        if(BlobIsTooLarge(bytes))
                         {
-                            string extension = Path.GetExtension(fileBlob.FilePath ?? String.Empty).Trim(' ', '.');
-                            if (!Indexing.IncludedFileExtensions.Contains(extension.ToLower()))
-                            {
-                                extensionNotAllowed = true;
-                                return null;
-                            }
-
-                            if (IsBinary(extension))
-                            {
-                                Logger.Information($"Extension '{extension}' is a binary type, skipping its contents");
-                                return String.Empty;
-                            }
-
-                            using (var memoryStream = new MemoryStream())
-                            {
-                                fileBlob.OpenRead()
-                                    .CopyTo(memoryStream);
-                                return Convert.ToBase64String(memoryStream.ToArray());
-                            }
+                            Logger.Information($"MediaData with id {content.ContentLink} and size {bytes.Length} was larger than configured maxsize {ElasticSearchSettings.DocumentMaxSize} bytes");
+                            return null;
                         }
+
+                        return Convert.ToBase64String(bytes);
                     }
                 }
             }
-            catch (Exception ex)
+            catch(Exception ex)
             {
-                Logger.Warning($"Could not index MediaData with id {content.ContentLink}. The blob is probably missing on disk. Path: {filePath}");
-                Logger.Debug("Details", ex);
+                Logger.Warning($"Could not index MediaData with id {content.ContentLink}.", ex);
                 extensionNotAllowed = true;
                 return null;
             }
@@ -888,12 +745,22 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Extensions
 
         private static string GetIndexName<T>(IElasticSearchService<T> service)
         {
-            if (!String.IsNullOrEmpty(service.IndexName))
+            if(!String.IsNullOrEmpty(service.IndexName))
             {
                 return service.IndexName;
             }
 
             return ElasticSearchSettings.GetDefaultIndexName(Language.GetLanguageCode(service.SearchLanguage));
+        }
+
+        private static bool BlobIsTooLarge(in byte[] bytes)
+        {
+            if(ElasticSearchSettings.DocumentMaxSize <= 0)
+            {
+                return true;
+            }
+
+            return bytes.Length <= ElasticSearchSettings.DocumentMaxSize;
         }
     }
 }

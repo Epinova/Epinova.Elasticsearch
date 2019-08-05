@@ -12,8 +12,10 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Commerce.Providers
     [SearchProvider]
     public class ProductSearchProvider : SearchProviderBase<IContent, IContent, ContentType>
     {
+#pragma warning disable RCS1170 // Use read-only auto-implemented property.
         private static Injected<DefaultContentProvider> DefaultContentProvider { get; set; }
         private static Injected<ReferenceConverter> ReferenceConverter { get; set; }
+#pragma warning restore RCS1170 // Use read-only auto-implemented property.
 
         public ProductSearchProvider() : base("product")
         {
@@ -24,14 +26,10 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Commerce.Providers
         }
 
         private string GetIndexName()
-        {
-            return $"{_elasticSearchSettings.Index}-{Constants.CommerceProviderName}-{Language.GetRequestLanguageCode()}";
-        }
+            => $"{_elasticSearchSettings.Index}-{Constants.CommerceProviderName}-{Language.GetRequestLanguageCode()}";
 
         protected override string GetSearchRoot()
-        {
-            return ReferenceConverter.Service.GetRootLink().ID.ToString();
-        }
+            => ReferenceConverter.Service.GetRootLink().ID.ToString();
 
         protected override string[] GetProviderKeys()
         {

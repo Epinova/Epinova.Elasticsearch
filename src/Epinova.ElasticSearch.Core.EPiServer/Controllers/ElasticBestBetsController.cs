@@ -20,103 +20,64 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Controllers
     {
         private readonly IContentLoader _contentLoader;
         private readonly IBestBetsRepository _bestBetsRepository;
-        private readonly ILanguageBranchRepository _languageBranchRepository;
-        private readonly Admin.Index _indexHelper;
-
-        internal ElasticBestBetsController(
-            IContentLoader contentLoader,
-            IBestBetsRepository bestBetsRepository,
-            ILanguageBranchRepository languageBranchRepository,
-            Admin.Index indexHelper)
-        {
-            _contentLoader = contentLoader;
-            _bestBetsRepository = bestBetsRepository;
-            _languageBranchRepository = languageBranchRepository;
-            _indexHelper = indexHelper;
-        }
 
         public ElasticBestBetsController(
             IContentLoader contentLoader,
             IBestBetsRepository bestBetsRepository,
             ILanguageBranchRepository languageBranchRepository,
-            IElasticSearchSettings settings)
-                : this(
-                      contentLoader,
-                      bestBetsRepository,
-                      languageBranchRepository,
-                      new Admin.Index(settings))
+            IElasticSearchSettings settings,
+            IHttpClientHelper httpClientHelper)
+            : base(settings, httpClientHelper, languageBranchRepository)
         {
             _contentLoader = contentLoader;
             _bestBetsRepository = bestBetsRepository;
-            _languageBranchRepository = languageBranchRepository;
         }
 
-
         [Authorize(Roles = RoleNames.ElasticsearchAdmins)]
-        public ActionResult Index(string index = null, string languageId = null)
+        public ActionResult Index()
         {
-            var languages = _languageBranchRepository.ListEnabled()
-                .Select(lang => new { lang.LanguageID, lang.Name })
-                .ToArray();
+            var model = new BestBetsViewModel(CurrentLanguage);
 
-            var indices = _indexHelper.GetIndices()
-                .Select(i => i.Index).ToList();
-
-            if (String.IsNullOrWhiteSpace(index) || !indices.Contains(index))
-                index = indices.FirstOrDefault();
-
-            ViewBag.Indices = indices.Count > 1 ? indices : null;
-            ViewBag.SelectedIndex = index;
-
-            var model = new BestBetsViewModel(languageId);
-
-            foreach (var language in languages)
+            foreach(var language in Languages)
             {
-                var name = language.Name;
+                var name = language.Value;
                 name = String.Concat(name.Substring(0, 1).ToUpper(), name.Substring(1));
+                var indexName = SwapLanguage(CurrentIndex, language.Key);
 
                 model.BestBetsByLanguage.Add(new BestBetsByLanguage
                 {
                     LanguageName = name,
-                    LanguageId = language.LanguageID,
-                    BestBets = GetBestBetsForLanguage(language.LanguageID, index)
+                    LanguageId = language.Key,
+                    Indices = UniqueIndices,
+                    BestBets = GetBestBetsForLanguage(language.Key, indexName)
                 });
             }
 
             var config = ElasticSearchSection.GetConfiguration();
 
-            foreach (ContentSelectorConfiguration entry in config.ContentSelector)
+            foreach(ContentSelectorConfiguration entry in config.ContentSelector)
             {
                 model.SelectorTypes.Add(entry.Type.ToLower());
                 model.SelectorRoots.Add(new ContentReference(entry.Id, entry.Provider));
             }
 
-            var currentType = config.IndicesParsed.FirstOrDefault(i => index.StartsWith(i.Name, StringComparison.InvariantCultureIgnoreCase))?.Type;
-            if (!String.IsNullOrEmpty(currentType))
+            var currentType = config.IndicesParsed.FirstOrDefault(i => CurrentIndex.StartsWith(i.Name, StringComparison.InvariantCultureIgnoreCase))?.Type;
+            if(!String.IsNullOrEmpty(currentType))
+            {
                 ViewBag.TypeName = Type.GetType(currentType).AssemblyQualifiedName;
+            }
             else
+            {
                 ViewBag.TypeName = typeof(IndexItem).AssemblyQualifiedName;
+            }
 
             return View("~/Views/ElasticSearchAdmin/BestBets/Index.cshtml", model);
-        }
-
-        private IEnumerable<BestBet> GetBestBetsForLanguage(string language, string index)
-        {
-            var bestBets = _bestBetsRepository.GetBestBets(language, index);
-
-            foreach (BestBet bestBet in bestBets)
-            {
-                var contentLink = new ContentReference(Convert.ToInt32(ContentReference.Parse(bestBet.Id).ID), bestBet.Provider);
-                if (_contentLoader.TryGet(contentLink, out IContent content))
-                    bestBet.Name = content.Name;
-                yield return bestBet;
-            }
         }
 
         [HttpPost]
         public ActionResult Add(string phrase, ContentReference contentId, string languageId, string index, string typeName)
         {
-            if (!String.IsNullOrWhiteSpace(phrase) && !ContentReference.IsNullOrEmpty(contentId))
+            if(!String.IsNullOrWhiteSpace(phrase) && !ContentReference.IsNullOrEmpty(contentId))
             {
                 phrase = phrase
                     .Replace("¤", String.Empty)
@@ -132,12 +93,28 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Controllers
 
         public ActionResult Delete(string languageId, string phrase, string contentId, string index, string typeName)
         {
-            if (!String.IsNullOrWhiteSpace(phrase))
+            if(!String.IsNullOrWhiteSpace(phrase))
+            {
                 _bestBetsRepository.DeleteBestBet(languageId, phrase, contentId, index, Type.GetType(typeName));
+            }
 
             Indexing.SetupBestBets();
 
             return RedirectToAction("Index", new { languageId });
+        }
+
+        private IEnumerable<BestBet> GetBestBetsForLanguage(string language, string index)
+        {
+            foreach(BestBet bestBet in _bestBetsRepository.GetBestBets(language, index))
+            {
+                var contentLink = new ContentReference(Convert.ToInt32(ContentReference.Parse(bestBet.Id).ID), bestBet.Provider);
+                if(_contentLoader.TryGet(contentLink, out IContent content))
+                {
+                    bestBet.Name = content.Name;
+                }
+
+                yield return bestBet;
+            }
         }
     }
 }

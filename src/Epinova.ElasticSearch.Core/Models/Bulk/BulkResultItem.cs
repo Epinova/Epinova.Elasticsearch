@@ -18,7 +18,7 @@ namespace Epinova.ElasticSearch.Core.Models.Bulk
 
         public Operation Operation { get; set; }
 
-        private int Version { get; set; }
+        public int Version { get; set; }
 
         public int Status { get; private set; }
 
@@ -27,7 +27,7 @@ namespace Epinova.ElasticSearch.Core.Models.Bulk
         {
             var result = $"Status: {Status}\nId: {Id}\nError: {Error?.Reason}";
 
-            if (Error?.Header?.Processor != null)
+            if(Error?.Header?.Processor != null)
             {
                 result += $"\nProcessor: {Error?.Header?.Processor}";
             }

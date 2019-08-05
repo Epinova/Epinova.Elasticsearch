@@ -2,7 +2,8 @@
 @using System.Web.Mvc.Html
 @using Epinova.ElasticSearch.Core.EPiServer.Extensions
 @using Epinova.ElasticSearch.Core.EPiServer.Models.ViewModels
-@using EPiServer.Framework.Localization;
+@using Epinova.ElasticSearch.Core.Models.Admin
+
 @model TrackingViewModel
 
 @{
@@ -34,30 +35,30 @@
 
 <div id="tabContainer">
     <div data-dojo-type="dijit/layout/TabContainer" doLayout="false">
-        @foreach (TrackingByLanguage lang in Model.SearchesByLanguage)
+        @foreach (TrackingLanguage lang in Model.Languages)
         {
             <div data-dojo-type="dijit/layout/ContentPane" title="@lang.LanguageName" data-dojo-props="@(lang.LanguageId == Model.CurrentLanguage ? "selected:true" : null)">
                 <div class="epi-padding-small">
-                    @if (ViewBag.Indices != null)
+                    @if (lang.Indices.Count > 1)
                     {
-                        using (Html.BeginForm("Index", "ElasticTracking"))
-                        {
-                            <input type="hidden" name="LanguageId" value="@lang.LanguageId" />
+                        <div class="epi-groupedButtonContainer">
                             <h2>@Html.TranslateWithPathRaw("index", localizationPath)</h2>
-                            <p>
-                                <label>
-                                    <select data-dojo-type="dijit/form/Select" name="index">
-                                        @foreach (string index in ViewBag.Indices)
-                                        {
-                                            <option value="@index" selected="@(ViewBag.SelectedIndex == index ? "selected" : null)">@index</option>
-                                        }
-                                    </select>
-                                </label>
-                                <button data-dojo-type="dijit/form/Button" type="submit" class="epi-primary">@Html.TranslateWithPathRaw("show", localizationPath)</button>
-                            </p>
-                        }
+
+                            @foreach (var index in lang.Indices)
+                            {
+                                var indexName = $"{index.Key}-{lang.LanguageId}";
+                                if (indexName == ViewBag.SelectedIndex)
+                                {
+                                    <span>@index.Value</span>
+                                }
+                                else
+                                {
+                                    <a class="epi-visibleLink" href="?index=@indexName&languageId=@lang.LanguageId">@index.Value</a>
+                                }
+                            }
+                        </div>
                     }
-                    
+
                     <h2>@Html.TranslateWithPath("searches", localizationPath)</h2>
                     <div id="@(lang.LanguageId)-wordsGrid"></div>
                     <h2>@Html.TranslateWithPath("searchesnohits", localizationPath)</h2>
@@ -72,7 +73,8 @@
                             <button data-dojo-type="dijit/form/Button"
                                     onClick="return confirm('@Html.TranslateWithPath("clearconfirm", localizationPath)');"
                                     type="submit"
-                                    class="epi-primary @(lang.Searches.Count == 0 ? "is-disabled" : null)">
+                                    class="epi-primary"
+                                    disabled="@(lang.Searches.Count == 0)">
                                 @Html.TranslateWithPath("clear", localizationPath)
                             </button>
                         </p>
@@ -93,7 +95,7 @@
     require(
         ["dojo/_base/declare", "dgrid/Grid", "dijit/form/Button", "dojo/domReady!"],
         function (declare, Grid) {
-            @foreach (TrackingByLanguage lang in Model.SearchesByLanguage)
+            @foreach (var lang in Model.Languages)
             {
                 <text>
                 new Grid({
@@ -104,16 +106,12 @@
                         }
                     }, "@(lang.LanguageId)-wordsGrid")
                     .renderArray([
-                        @foreach (KeyValuePair<string, long> search in lang.Searches)
-                        {
-                            <text>{ word: htmlDecode("@Html.Raw(search.Key)"), count: "@search.Value" }</text>
-                            @(search.Key != lang.Searches.Last().Key ? "," : null)
-                        }
+                        @Html.Raw(String.Join(",", lang.Searches.Select(s => String.Format("{{ word: '{0}', count: {1} }}", s.Key, s.Value))))
                     ]);
                 </text>
             }
 
-            @foreach (TrackingByLanguage lang in Model.SearchesWithoutHitsByLanguage)
+            @foreach (var lang in Model.Languages)
             {
                 <text>
                 new Grid({
@@ -124,11 +122,7 @@
                         }
                     }, "@(lang.LanguageId)-nohitsGrid")
                     .renderArray([
-                        @foreach (KeyValuePair<string, long> search in lang.Searches)
-                        {
-                            <text>{ word: htmlDecode("@Html.Raw(search.Key)"), count: "@search.Value" }</text>
-                            @(search.Key != lang.Searches.Last().Key ? "," : null)
-                        }
+                        @Html.Raw(String.Join(",", lang.SearchesWithoutHits.Select(s => String.Format("{{ word: '{0}', count: {1} }}", s.Key, s.Value))))
                     ]);
                 </text>
             }

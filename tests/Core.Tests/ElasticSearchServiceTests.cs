@@ -3,19 +3,23 @@ using System.Linq;
 using Epinova.ElasticSearch.Core;
 using Epinova.ElasticSearch.Core.Contracts;
 using Epinova.ElasticSearch.Core.Models;
+using Epinova.ElasticSearch.Core.Models.Properties;
+using Epinova.ElasticSearch.Core.Models.Query;
 using TestData;
 using Xunit;
 
 namespace Core.Tests
 {
-    public class ElasticSearchServiceTests
+    [Collection(nameof(ServiceLocatiorCollection))]
+    public class ElasticSearchServiceTests : IClassFixture<ServiceLocatorFixture>
     {
         private readonly ElasticSearchService<ComplexType> _service;
 
-        public ElasticSearchServiceTests()
+        public ElasticSearchServiceTests(ServiceLocatorFixture fixture)
         {
-            Factory.SetupServiceLocator();
-            _service = new ElasticSearchService<ComplexType>();
+            _service = new ElasticSearchService<ComplexType>(
+                fixture.ServiceLocationMock.SettingsMock.Object,
+                fixture.ServiceLocationMock.HttpClientMock.Object);
         }
 
         [Theory]
@@ -78,9 +82,34 @@ namespace Core.Tests
         public void SortBy_SetsCorrectField()
         {
             var result = _service.SortBy(x => x.StringProperty) as ElasticSearchService<ComplexType>;
-            const string fieldName = "StringProperty";
 
-            Assert.Equal(result.SortFields[0].FieldName, fieldName);
+            Assert.Equal(result.SortFields[0].FieldName, nameof(ComplexType.StringProperty));
+        }
+
+        [Fact]
+        public void SortBy_GeoPoint_AddsCorrectSort()
+        {
+            _service.SortBy(x => x.GeoPointProperty);
+
+            Assert.True(_service.SortFields.OfType<GeoSort>().Any());
+        }
+
+        [Fact]
+        public void SortByDescending_GeoPoint_AddsCorrectSort()
+        {
+            _service.SortByDescending(x => x.GeoPointProperty);
+
+            Assert.True(_service.SortFields.OfType<GeoSort>().Any(x => x.Direction == "desc"));
+        }
+
+        [Fact]
+        public void SortBy_CalledTwice_ThrowsUp()
+        {
+            Assert.Throws<InvalidOperationException>(() =>
+            {
+                _service.SortBy(x => x.StringProperty);
+                _service.SortBy(x => x.IntProperty);
+            });
         }
 
         [Fact]
@@ -148,7 +177,7 @@ namespace Core.Tests
             Filter result = service.PostFilters.Single(f => f.FieldName == "StringProperty");
 
             Assert.Equal(value, result.Value);
-            Assert.Equal(typeof(String).Name, result.Type.Name);
+            Assert.Equal(typeof(string).Name, result.Type.Name);
         }
 
         [Theory]
@@ -160,7 +189,7 @@ namespace Core.Tests
             Filter result = service.PostFilters.Single(f => f.FieldName == "BoolProperty");
 
             Assert.Equal(value, result.Value);
-            Assert.Equal(typeof(Boolean).Name, result.Type.Name);
+            Assert.Equal(typeof(bool).Name, result.Type.Name);
         }
 
         [Theory]
@@ -172,7 +201,7 @@ namespace Core.Tests
             Filter result = service.PostFilters.Single(f => f.FieldName == "LongProperty");
 
             Assert.Equal(value, result.Value);
-            Assert.Equal(typeof(Int64).Name, result.Type.Name);
+            Assert.Equal(typeof(long).Name, result.Type.Name);
         }
 
         [Theory]
@@ -184,7 +213,7 @@ namespace Core.Tests
             Filter result = service.PostFilters.Single(f => f.FieldName == "IntProperty");
 
             Assert.Equal(value, result.Value);
-            Assert.Equal(typeof(Int32).Name, result.Type.Name);
+            Assert.Equal(typeof(int).Name, result.Type.Name);
         }
 
         [Theory]
@@ -196,7 +225,7 @@ namespace Core.Tests
             Filter result = service.PostFilters.Single(f => f.FieldName == "DoubleProperty");
 
             Assert.Equal(value, result.Value);
-            Assert.Equal(typeof(Double).Name, result.Type.Name);
+            Assert.Equal(typeof(double).Name, result.Type.Name);
         }
 
         [Theory]
@@ -208,7 +237,7 @@ namespace Core.Tests
             Filter result = service.PostFilters.Single(f => f.FieldName == "FloatProperty");
 
             Assert.Equal(value, result.Value);
-            Assert.Equal(typeof(Single).Name, result.Type.Name);
+            Assert.Equal(typeof(float).Name, result.Type.Name);
         }
 
         [Fact]
@@ -221,6 +250,59 @@ namespace Core.Tests
 
             Assert.Equal(value, result.Value);
             Assert.Equal(typeof(DateTime).Name, result.Type.Name);
+        }
+
+        [Fact]
+        public void FilterGeoBoundingBox_SetsCorrectTypeAndCoords()
+        {
+            var topLeft = (59.9277542, 10.7190847);
+            var bottomRight = (59.8881646, 10.7983952);
+
+            var service = _service.FilterGeoBoundingBox(x => x.GeoPointProperty, topLeft, bottomRight) as ElasticSearchService<ComplexType>;
+            Filter result = service.PostFilters.Single(f => f.FieldName == nameof(ComplexType.GeoPointProperty));
+            var value = result.Value as GeoBoundingBox;
+
+            Assert.True(result.Type == typeof(GeoPoint));
+            Assert.Equal(topLeft.Item1, value.Box.TopLeft.Lat);
+            Assert.Equal(topLeft.Item2, value.Box.TopLeft.Lon);
+            Assert.Equal(bottomRight.Item1, value.Box.BottomRight.Lat);
+            Assert.Equal(bottomRight.Item2, value.Box.BottomRight.Lon);
+        }
+
+        [Fact]
+        public void FilterGeoDistance_SetsCorrectTypeAndCoords()
+        {
+            var center = (59.9277542, 10.7190847);
+
+            var service = _service.FilterGeoDistance(x => x.GeoPointProperty, "123km", center) as ElasticSearchService<ComplexType>;
+            Filter result = service.PostFilters.Single(f => f.FieldName == nameof(ComplexType.GeoPointProperty));
+            var value = result.Value as GeoDistance;
+
+            Assert.True(result.Type == typeof(GeoPoint));
+            Assert.Equal("123km", value.Distance);
+            Assert.Equal(center.Item1, value.Point.Lat);
+            Assert.Equal(center.Item2, value.Point.Lon);
+        }
+
+        [Fact]
+        public void FilterGeoPolygon_SetsCorrectTypeAndCoords()
+        {
+            var polygons = new[]
+            {
+                (59.9702837, 10.6149134),
+                (59.9459601, 11.0231964),
+                (59.7789455, 10.604809)
+            };
+
+            var service = _service.FilterGeoPolygon(x => x.GeoPointProperty, polygons) as ElasticSearchService<ComplexType>;
+            Filter result = service.PostFilters.Single(f => f.FieldName == nameof(ComplexType.GeoPointProperty));
+            var value = result.Value as GeoPolygon;
+
+            Assert.True(result.Type == typeof(GeoPoint));
+            Assert.Equal(polygons[0].Item1, value.Points.First().Lat);
+            Assert.Equal(polygons[0].Item2, value.Points.First().Lon);
+            Assert.Equal(polygons[2].Item1, value.Points.Last().Lat);
+            Assert.Equal(polygons[2].Item2, value.Points.Last().Lon);
         }
 
         [Fact]

@@ -2,18 +2,13 @@
 using Epinova.ElasticSearch.Core.Enums;
 using Epinova.ElasticSearch.Core.Models.Mapping;
 using Epinova.ElasticSearch.Core.Utilities;
-using TestData;
 using Xunit;
 
 namespace Core.Tests.Utilities
 {
+    [Collection(nameof(ServiceLocatiorCollection))]
     public class LanguageTests
     {
-        public LanguageTests()
-        {
-            Factory.SetupServiceLocator();
-        }
-
         [Theory]
         [InlineData("da", "da")]
         [InlineData("da-DK", "da")]

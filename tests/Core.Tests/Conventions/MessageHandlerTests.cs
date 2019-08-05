@@ -1,17 +1,12 @@
 ﻿using System.Net.Http;
 using Epinova.ElasticSearch.Core.Conventions;
-using TestData;
 using Xunit;
 
 namespace Core.Tests.Conventions
 {
+    [Collection(nameof(ServiceLocatiorCollection))]
     public class MessageHandlerTests
     {
-        public MessageHandlerTests()
-        {
-            Factory.SetupServiceLocator();
-        }
-
         [Fact]
         public void SetMessageHandler_IsCorrectType()
         {
@@ -24,7 +19,6 @@ namespace Core.Tests.Conventions
 
         private class MockHandler : DelegatingHandler
         {
-
         }
     }
 }

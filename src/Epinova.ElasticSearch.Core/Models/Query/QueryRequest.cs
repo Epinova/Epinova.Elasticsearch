@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using Epinova.ElasticSearch.Core.Enums;
 using Epinova.ElasticSearch.Core.Models.Converters;
+using Epinova.ElasticSearch.Core.Utilities;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
@@ -12,6 +13,9 @@ namespace Epinova.ElasticSearch.Core.Models.Query
 
         public QueryRequest(QuerySetup querySetup)
         {
+            querySetup.SearchText.EnsureNotNull(nameof(querySetup.SearchText));
+            Query.SearchText = querySetup.SearchText.ToLower();
+
             _sortFields = querySetup.SortFields;
             From = querySetup.From;
             Size = querySetup.Size;
@@ -23,23 +27,42 @@ namespace Epinova.ElasticSearch.Core.Models.Query
         {
             get
             {
-                if (_sortFields == null || _sortFields.Count == 0)
+                if(_sortFields == null || _sortFields.Count == 0)
+                {
                     return null;
+                }
 
                 var sorts = new JArray();
 
-                for (var i = 0; i < _sortFields.Count; i++)
+                for(var i = 0; i < _sortFields.Count; i++)
                 {
                     string sortField = _sortFields[i].FieldName;
 
-                    if (sortField[0] != '_' && _sortFields[i].IsStringField)
-                        sortField += Constants.KeywordSuffix;
+                    if(_sortFields[i].MappingType == MappingType.Geo_Point && _sortFields[i] is GeoSort geoSort)
+                    {
+                        sorts.Add(
+                            new JObject(
+                                new JProperty("_geo_distance",
+                                    new JObject(
+                                        new JProperty(sortField, new[] { geoSort.CompareTo.Lat, geoSort.CompareTo.Lon }),
+                                        new JProperty(JsonNames.Order, geoSort.Direction),
+                                        new JProperty(JsonNames.Unit, geoSort.Unit),
+                                        new JProperty(JsonNames.Mode, geoSort.Mode)
+                            ))));
+                    }
+                    else
+                    {
+                        if(sortField[0] != '_' && _sortFields[i].MappingType == MappingType.Text)
+                        {
+                            sortField += Constants.KeywordSuffix;
+                        }
 
-                    sorts.Add(
-                        new JObject(
-                            new JProperty(sortField,
-                                new JObject(new JProperty(JsonNames.Order, _sortFields[i].Direction))))
-                        );
+                        sorts.Add(
+                            new JObject(
+                                new JProperty(sortField,
+                                    new JObject(new JProperty(JsonNames.Order, _sortFields[i].Direction))))
+                            );
+                    }
                 }
 
                 return sorts;
@@ -75,13 +98,9 @@ namespace Epinova.ElasticSearch.Core.Models.Query
         public PostFilter PostFilter { get; set; } = new PostFilter();
 
         public bool ShouldSerializePostFilter()
-        {
-            return PostFilter?.ShouldSerializeBool() == true;
-        }
+            => PostFilter?.ShouldSerializeBool() == true;
 
         public bool ShouldSerializeAggregation()
-        {
-            return !IsPartOfFilteredQuery;
-        }
+            => !IsPartOfFilteredQuery;
     }
 }

@@ -18,9 +18,7 @@ namespace Epinova.ElasticSearch.Core.Conventions
         /// <para>Default value is "Name"</para>
         /// </summary>
         public void AddComponentField(string name)
-        {
-            ComponentFields.TryAdd(name, true);
-        }
+            => ComponentFields.TryAdd(name, true);
 
         internal static ConcurrentDictionary<string, bool> ComponentFields { get; }
             = new ConcurrentDictionary<string, bool>();

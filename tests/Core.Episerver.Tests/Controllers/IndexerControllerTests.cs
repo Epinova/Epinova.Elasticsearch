@@ -1,8 +1,8 @@
 ﻿using System.Web.Mvc;
 using Epinova.ElasticSearch.Core.EPiServer.Contracts;
-using EPiServer;
 using Epinova.ElasticSearch.Core.EPiServer.Controllers;
 using Epinova.ElasticSearch.Core.EPiServer.Enums;
+using EPiServer;
 using EPiServer.Core;
 using Moq;
 using TestData;
@@ -10,18 +10,20 @@ using Xunit;
 
 namespace Core.Episerver.Tests.Controllers
 {
-    public class IndexerControllerTests
+    public class IndexerControllerTests : IClassFixture<ServiceLocatorFixture>
     {
         private readonly ElasticIndexerController _controller;
         private readonly Mock<IContentLoader> _contentLoaderMock;
         private readonly Mock<IIndexer> _indexerMock;
+        private readonly ServiceLocatorFixture _fixture;
 
-        public IndexerControllerTests()
+        public IndexerControllerTests(ServiceLocatorFixture fixture)
         {
+            _fixture = fixture;
             _contentLoaderMock = new Mock<IContentLoader>();
             _indexerMock = new Mock<IIndexer>();
 
-            _controller = new ElasticIndexerController(_contentLoaderMock.Object, _indexerMock.Object, null);
+            _controller = new ElasticIndexerController(_fixture.ServiceLocationMock.ContentLoaderMock.Object, _indexerMock.Object, null);
         }
 
         [Theory]
@@ -41,7 +43,7 @@ namespace Core.Episerver.Tests.Controllers
         public void UpdateItem_ValidContent_ReturnsOk()
         {
             IContent content = Factory.GetPageData();
-            _contentLoaderMock.Setup(m => m.TryGet(It.IsAny<ContentReference>(), out content)).Returns(true);
+            _fixture.ServiceLocationMock.ContentLoaderMock.Setup(m => m.TryGet(It.IsAny<ContentReference>(), out content)).Returns(true);
             _indexerMock.Setup(m => m.Update(It.IsAny<IContent>(), null)).Returns(IndexingStatus.Ok);
 
             JsonResult response = _controller.UpdateItem("42");

@@ -14,6 +14,8 @@
         Double,
         Boolean,
         Date,
-        Integer_Range
+        Geo_Point,
+        Integer_Range,
+        Object
     }
 }

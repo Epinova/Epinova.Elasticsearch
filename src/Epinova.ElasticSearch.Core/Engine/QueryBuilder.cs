@@ -8,13 +8,14 @@ using Epinova.ElasticSearch.Core.Contracts;
 using Epinova.ElasticSearch.Core.Conventions;
 using Epinova.ElasticSearch.Core.Enums;
 using Epinova.ElasticSearch.Core.Extensions;
-using EPiServer.Logging;
 using Epinova.ElasticSearch.Core.Models;
+using Epinova.ElasticSearch.Core.Models.Properties;
 using Epinova.ElasticSearch.Core.Models.Query;
+using Epinova.ElasticSearch.Core.Settings;
 using Epinova.ElasticSearch.Core.Utilities;
 using EPiServer.Core;
+using EPiServer.Logging;
 using EPiServer.ServiceLocation;
-using Epinova.ElasticSearch.Core.Settings;
 
 namespace Epinova.ElasticSearch.Core.Engine
 {
@@ -24,41 +25,40 @@ namespace Epinova.ElasticSearch.Core.Engine
     internal class QueryBuilder
     {
         private static readonly ILogger Log = LogManager.GetLogger(typeof(SearchEngine));
+        private readonly Mapping _mapping;
         private const int BestBetMultiplier = 10000; //TODO: Expose in config?
         private readonly IBoostingRepository _boostingRepository;
         private readonly IElasticSearchSettings _settings;
         private static readonly string[] ExcludedFields = { DefaultFields.Suggest };
-        private Type _searchType;
         private string[] _mappedFields;
+
         private readonly string[] _searchableFieldTypes = {
             nameof(MappingType.Text).ToLower(),
             nameof(MappingType.Attachment).ToLower()
         };
 
-        public QueryBuilder(Type searchType, IElasticSearchSettings settings)
+        public QueryBuilder(IElasticSearchSettings settings, IHttpClientHelper httpClientHelper)
         {
-            _searchType = searchType;
             _settings = settings;
-            ServiceLocator.Current.TryGetExistingInstance(out _boostingRepository);
+            _mapping = new Mapping(settings, httpClientHelper);
+            ServiceLocator.Current?.TryGetExistingInstance(out _boostingRepository);
         }
 
         /// <summary>
         /// Used by tests
         /// </summary>
-        internal void SetMappedFields(string[] fields)
-        {
+        internal void SetMappedFields(string[] fields) =>
             _mappedFields = fields;
-        }
 
         private string[] GetMappedFields(string language, string index, Type type)
         {
             Log.Debug("Get mapped fields");
 
-            if (_mappedFields?.Any() != true)
+            if(_mappedFields?.Any() != true)
             {
                 Log.Debug("No mapped fields found, lookup with Mapping.GetIndexMapping");
 
-                _mappedFields = Mapping.GetIndexMapping(type, language, index)
+                _mappedFields = _mapping.GetIndexMapping(type, language, index)
                     .Properties
                     .Where(m => _searchableFieldTypes.Contains(m.Value.Type)
                         && !m.Key.EndsWith(Models.Constants.KeywordSuffix))
@@ -67,7 +67,7 @@ namespace Epinova.ElasticSearch.Core.Engine
                     .ToArray();
             }
 
-            if (Log.IsDebugEnabled())
+            if(Log.IsDebugEnabled())
             {
                 Log.Debug("Found:");
                 _mappedFields.ToList().ForEach(Log.Debug);
@@ -86,45 +86,30 @@ namespace Epinova.ElasticSearch.Core.Engine
             return TypedSearch(querySetup);
         }
 
-        public RequestBase TypedSearch(QuerySetup querySetup)
-        {
-            return SearchInternal(querySetup);
-        }
+        public RequestBase TypedSearch(QuerySetup querySetup) => SearchInternal(querySetup);
 
         /// <summary>
         /// A standard freetext search against all fields
         /// </summary>
         /// <param name="querySetup">The QuerySetup. <see cref="QuerySetup"/></param>
         public RequestBase Search(QuerySetup querySetup)
-        {
-            return SearchInternal(querySetup);
-        }
+            => SearchInternal(querySetup);
 
         internal RequestBase MoreLikeThis(QuerySetup setup)
-        {
-            return new MoreLikeThisRequest(setup);
-        }
+            => new MoreLikeThisRequest(setup);
 
         private RequestBase SearchInternal(QuerySetup setup)
         {
-            _searchType = setup.SearchType;
-
-            setup.SearchText.EnsureNotNull("searchText");
-
-            if (setup.From > 10000 || setup.Size > 10000)
-            {
-                throw new ArgumentOutOfRangeException(nameof(setup),
-                    "From (skip) and size (take) must be less than or equal to: 10000. If you really must, this limit can be set by changing the [index.max_result_window] index level parameter");
-            }
+            CheckSize(setup);
 
             var request = new QueryRequest(setup);
 
-            request.Query.SearchText = setup.SearchText.ToLower();
-
-            if (setup.SearchFields.Count == 0)
+            if(setup.SearchFields.Count == 0)
+            {
                 setup.SearchFields.AddRange(GetMappedFields(Language.GetLanguageCode(setup.Language), setup.IndexName, setup.SearchType));
+            }
 
-            if (Log.IsDebugEnabled())
+            if(Log.IsDebugEnabled())
             {
                 Log.Debug("SearchFields:");
                 setup.SearchFields.ForEach(f => Log.Debug(f));
@@ -133,7 +118,7 @@ namespace Epinova.ElasticSearch.Core.Engine
             SetupAttachmentFields(setup);
             SetupSourceFields(request, setup);
 
-            if (setup.IsGetQuery)
+            if(setup.IsGetQuery)
             {
                 request.Query.Bool.Must.Add(new MatchAll());
             }
@@ -144,7 +129,7 @@ namespace Epinova.ElasticSearch.Core.Engine
 
                 // Boost hits that starts with searchtext, ie. when searching for "*foo*", 
                 // hits on "foobar" will score higher than hits on "barfoo"
-                if (request.Query.SearchText.StartsWith("*"))
+                if(request.Query.SearchText.StartsWith("*"))
                 {
                     setup.SearchFields.ForEach(field =>
                         request.Query.Bool.Should.Add(new Wildcard(field, request.Query.SearchText.TrimStart('*'), 10)));
@@ -179,8 +164,10 @@ namespace Epinova.ElasticSearch.Core.Engine
 
             SetupBoosting(setup, request);
 
-            if (setup.FacetFieldNames.Count > 0)
+            if(setup.FacetFieldNames.Count > 0)
+            {
                 request.Aggregation = GetAggregationQuery(setup.FacetFieldNames);
+            }
 
             SetupFilters(setup, request);
 
@@ -194,22 +181,24 @@ namespace Epinova.ElasticSearch.Core.Engine
             }
 
             // Did-you-mean
-            if (setup.EnableDidYouMean)
+            if(setup.EnableDidYouMean)
             {
                 request.DidYouMeanSuggest = new DidYouMeanSuggest(request.Query.SearchText);
             }
 
             // function_score. Must be the last operation in this method.
             // Cannot use Gauss and ScriptScore simultaneously
-            if (setup.ScriptScore != null && setup.Gauss.Count > 0)
-                throw new Exception("Cannot use Gauss and ScriptScore simultaneously");
+            if(setup.ScriptScore != null && setup.Gauss.Count > 0)
+            {
+                throw new InvalidOperationException("Cannot use Gauss and ScriptScore simultaneously");
+            }
 
-            if (setup.ScriptScore != null)
+            if(setup.ScriptScore != null)
             {
                 request.Query = new FunctionScoreQuery(request.Query, setup.ScriptScore);
             }
 
-            if (setup.Gauss.Count > 0)
+            if(setup.Gauss.Count > 0)
             {
                 request.Query = new FunctionScoreQuery(request.Query, setup.Gauss);
             }
@@ -217,9 +206,18 @@ namespace Epinova.ElasticSearch.Core.Engine
             return request;
         }
 
+        private void CheckSize(in QuerySetup setup)
+        {
+            if(setup.From > 10000 || setup.Size > 10000)
+            {
+                throw new ArgumentOutOfRangeException(nameof(setup),
+                    "From (skip) and size (take) must be less than or equal to 10000 according to default [index.max_result_window] setting.");
+            }
+        }
+
         private void SetupSourceFields(QueryRequest request, QuerySetup setup)
         {
-            if (setup.SourceFields == null)
+            if(setup.SourceFields == null)
             {
                 request.SourceFields = null;
                 return;
@@ -227,6 +225,8 @@ namespace Epinova.ElasticSearch.Core.Engine
 
             var fields = setup.SourceFields.ToList();
             fields.AddRange(setup.SearchFields);
+
+            fields.AddRange(Conventions.Indexing.CustomProperties.Select(c => c.Name));
 
             fields.Add(DefaultFields.Id);
             fields.Add(DefaultFields.Indexed);
@@ -253,22 +253,28 @@ namespace Epinova.ElasticSearch.Core.Engine
         {
             if(type.GetInheritancHierarchy().Contains(typeof(IVersionable)))
             {
-                var stopPublishFilter = new Range<DateTime>(DefaultFields.StopPublish, true) {RangeSetting = {Gte = DateTime.Now}};
+                var stopPublishFilter = new Range<DateTime>(DefaultFields.StopPublish, true) { RangeSetting = { Gte = DateTime.Now } };
                 query.Bool.Filter.Add(stopPublishFilter);
+                var startPublishFilter = new Range<DateTime>(DefaultFields.StartPublish, true) { RangeSetting = { Lte = DateTime.Now } };
+                query.Bool.Filter.Add(startPublishFilter);
             }
         }
 
         private void SetupBoosting(QuerySetup setup, QueryRequest request)
         {
-            if (!setup.UseBoosting)
+            if(!setup.UseBoosting)
+            {
                 return;
+            }
 
             List<Boost> boosting = GetBoosting(setup.Type, setup.BoostFields);
-            if (boosting.Count > 0)
+            if(boosting.Count > 0)
             {
                 var searchText = request.Query.SearchText.Replace("*", String.Empty);
-                if (!TextUtil.IsNumeric(searchText))
+                if(!TextUtil.IsNumeric(searchText))
+                {
                     boosting.RemoveAll(b => b.FieldName.Equals(DefaultFields.Id));
+                }
 
                 request.Query.Bool.Should.AddRange(
                     boosting.Select(b =>
@@ -277,7 +283,7 @@ namespace Epinova.ElasticSearch.Core.Engine
             }
 
             // Boosting by type
-            if (setup.BoostTypes.Count > 0)
+            if(setup.BoostTypes.Count > 0)
             {
                 request.Query.Bool.Should.AddRange(
                     setup.BoostTypes.Select(b =>
@@ -289,7 +295,7 @@ namespace Epinova.ElasticSearch.Core.Engine
                         new MatchWithBoost(DefaultFields.Type, b.Key.GetTypeName(), b.Value + 1, setup.Operator)));
             }
 
-            if (setup.BoostAncestors.Count > 0)
+            if(setup.BoostAncestors.Count > 0)
             {
                 request.Query.Bool.Should.AddRange(
                     setup.BoostAncestors.Select(b =>
@@ -301,19 +307,21 @@ namespace Epinova.ElasticSearch.Core.Engine
             }
 
             // Best Bets
-            if (setup.UseBestBets && !String.IsNullOrWhiteSpace(request.Query.SearchText))
+            if(setup.UseBestBets && !String.IsNullOrWhiteSpace(request.Query.SearchText))
             {
                 IEnumerable<string> terms = request.Query.SearchText
-                    .Split(new[] {' '}, StringSplitOptions.RemoveEmptyEntries)
+                    .Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries)
                     .Select(t => t.Trim().Trim('*'));
 
                 var key = setup.IndexName ?? _settings.GetDefaultIndexName(Language.GetLanguageCode(setup.Language));
 
-                if (!Conventions.Indexing.BestBets.TryGetValue(key, out var bestBetsForLanguage))
+                if(!Conventions.Indexing.BestBets.TryGetValue(key, out List<BestBet> bestBetsForLanguage))
+                {
                     return;
+                }
 
                 IEnumerable<BestBet> bestBets = bestBetsForLanguage
-                    .Where(b => b.Terms.Any(t => terms.Contains(t)));
+                    .Where(b => b.GetTerms().Any(t => terms.Contains(t)));
 
                 request.Query.Bool.Should.AddRange(
                     bestBets.Select(_ =>
@@ -327,45 +335,47 @@ namespace Epinova.ElasticSearch.Core.Engine
             var filterQuery = new NestedBoolQuery();
 
             // Filter away excluded types
-            if (setup.ExcludedTypes.Count > 0)
+            if(setup.ExcludedTypes.Count > 0)
             {
                 filterQuery.Bool.MustNot.AddRange(setup.ExcludedTypes.Select(e => new MatchSimple(DefaultFields.Types, e.GetTypeName().ToLower())));
             }
 
-            foreach (var ex in GetExcludedRoots(setup))
+            foreach(var ex in GetExcludedRoots(setup))
             {
                 filterQuery.Bool.MustNot.Add(new MatchSimple(DefaultFields.Id, ex.Key.ToString()));
 
-                if (ex.Value)
+                if(ex.Value)
+                {
                     filterQuery.Bool.MustNot.Add(new MatchSimple(DefaultFields.Path, ex.Key.ToString()));
+                }
             }
 
             // Filter on type
-            if (setup.Type != null)
+            if(setup.Type != null)
             {
-                var term = CreateTerm(new Filter(DefaultFields.Types, setup.Type.GetTypeName().ToLower(), null, false, Operator.And));
+                Term term = CreateTerm(new Filter(DefaultFields.Types, setup.Type.GetTypeName().ToLower(), null, false, Operator.And));
                 filterQuery.Bool.Must.Add(term);
             }
 
             // Filter on ranges
-            if (setup.Ranges.Count > 0)
+            if(setup.Ranges.Count > 0)
             {
                 request.Query.Bool.Filter.AddRange(setup.Ranges);
             }
 
             // Filter on root-id
-            if (setup.RootId != 0)
+            if(setup.RootId != 0)
             {
                 var term = new Term(DefaultFields.Path, Convert.ToString(setup.RootId), true);
                 filterQuery.Bool.Must.Add(term);
             }
 
             // Filter on ACL
-            if (setup.AppendAclFilters && setup.AclPrincipal != null)
+            if(setup.AppendAclFilters && setup.AclPrincipal != null)
             {
                 var boolQuery = new NestedBoolQuery();
 
-                foreach (var role in setup.AclPrincipal.RoleList)
+                foreach(var role in setup.AclPrincipal.RoleList)
                 {
                     var roleTerm = new MatchSimple(DefaultFields.Acl, $"R:{role}");
                     boolQuery.Bool.Should.Add(roleTerm);
@@ -379,21 +389,21 @@ namespace Epinova.ElasticSearch.Core.Engine
                 request.Query.Bool.Filter.Add(boolQuery);
             }
 
-            if (setup.FilterGroups.Count > 0)
+            if(setup.FilterGroups.Count > 0)
             {
-                foreach (var filterGroup in setup.FilterGroups)
+                foreach(var filterGroup in setup.FilterGroups)
                 {
-                    foreach (var filter in filterGroup.Value.Filters)
+                    foreach(var filter in filterGroup.Value.Filters)
                     {
                         var boolQuery = new BoolQuery();
-                        if (filter.Operator == Operator.Or)
+                        if(filter.Operator == Operator.Or)
                         {
                             boolQuery.MinimumNumberShouldMatch = 1;
                             boolQuery.Should = new List<MatchBase>();
 
-                            if (ArrayHelper.IsArrayCandidate(filter.Value.GetType()))
+                            if(ArrayHelper.IsArrayCandidate(filter.Value.GetType()))
                             {
-                                foreach (object value in (IEnumerable)ArrayHelper.ToArray(filter.Value))
+                                foreach(var value in (IEnumerable)ArrayHelper.ToArray(filter.Value))
                                 {
                                     boolQuery.Should.Add(Term.FromFilter(filter, value));
                                 }
@@ -403,13 +413,13 @@ namespace Epinova.ElasticSearch.Core.Engine
                                 boolQuery.Should.Add(Term.FromFilter(filter));
                             }
                         }
-                        else if (filter.Operator == Operator.And)
+                        else if(filter.Operator == Operator.And)
                         {
                             boolQuery.Must = new List<MatchBase>();
 
-                            if (ArrayHelper.IsArrayCandidate(filter.Value.GetType()))
+                            if(ArrayHelper.IsArrayCandidate(filter.Value.GetType()))
                             {
-                                foreach (object value in (IEnumerable)ArrayHelper.ToArray(filter.Value))
+                                foreach(var value in (IEnumerable)ArrayHelper.ToArray(filter.Value))
                                 {
                                     boolQuery.Must.Add(Term.FromFilter(filter, value));
                                 }
@@ -421,65 +431,94 @@ namespace Epinova.ElasticSearch.Core.Engine
                         }
 
                         // Use regular or post filter?
-                        if (!setup.UsePostfilters)
+                        if(!setup.UsePostfilters)
                         {
                             request.Query.Bool.Filter.Add(Term.FromArrayFilter(filter));
                         }
                         else
                         {
-                            if (filterGroup.Value.Operator == Operator.And)
+                            if(filterGroup.Value.Operator == Operator.And)
+                            {
                                 request.PostFilter.Bool.Must.Add(new NestedBoolQuery(boolQuery));
-                            else if (filterGroup.Value.Operator == Operator.Or)
+                            }
+                            else if(filterGroup.Value.Operator == Operator.Or)
+                            {
                                 request.PostFilter.Bool.Should.Add(new NestedBoolQuery(boolQuery));
+                            }
                         }
                     }
                 }
             }
 
-            if (setup.Filters.Count > 0)
+            if(setup.Filters.Count > 0)
             {
                 // Add not-filters as regular filter regardless of post-filter value
                 IEnumerable<Filter> notFilters = setup.Filters.Where(f => f.Not).ToArray();
                 filterQuery.Bool.MustNot.AddRange(notFilters.Select(CreateTerm));
 
+                // GeoFilters
+                IEnumerable<Filter> geoFilters = setup.Filters.Where(f => f.Type == typeof(GeoPoint)).ToArray();
+
                 // Use regular or post filter?
-                if (!setup.UsePostfilters)
+                if(!setup.UsePostfilters)
                 {
                     request.Query.Bool.Filter.AddRange(
                         setup.Filters
                             .Except(notFilters)
+                            .Except(geoFilters)
                             .Select(CreateTerm));
+
+                    request.Query.Bool.Filter.AddRange(
+                        geoFilters.Select(g => g.Value as MatchBase));
                 }
                 else
                 {
                     request.PostFilter.Bool.Must.AddRange(
                         setup.Filters
                           .Except(notFilters)
+                          .Except(geoFilters)
                           .Where(f => f.Operator == Operator.And && !f.Not)
                           .Select(CreateTerm));
+
+                    request.PostFilter.Bool.Must.AddRange(
+                        geoFilters.Select(g => g.Value as MatchBase));
 
                     request.PostFilter.Bool.Should.AddRange(
                         setup.Filters
                           .Except(notFilters)
+                          .Except(geoFilters)
                           .Where(f => f.Operator == Operator.Or && !f.Not)
                           .Select(CreateTerm));
                 }
             }
 
             if(filterQuery.HasAnyValues())
+            {
                 request.Query.Bool.Filter.Add(filterQuery);
+            }
 
-            AppendDefaultFilters(request.Query, setup.Type);
+            if(setup.ApplyDefaultFilters)
+            {
+                AppendDefaultFilters(request.Query, setup.Type);
+            }
 
-            if (request.Query.Bool.Should.Count > 1 && request.Query.Bool.Must.Count == 0)
+            if(request.Query.Bool.Should.Count > 1 && request.Query.Bool.Must.Count == 0)
+            {
                 request.Query.Bool.MinimumNumberShouldMatch = 1;
+            }
             else
+            {
                 request.Query.Bool.MinimumNumberShouldMatch = null;
+            }
 
-            if (request.PostFilter.Bool.Should.Count > 0 && request.PostFilter.Bool.Must.Count == 0)
+            if(request.PostFilter.Bool.Should.Count > 0 && request.PostFilter.Bool.Must.Count == 0)
+            {
                 request.PostFilter.Bool.MinimumNumberShouldMatch = 1;
+            }
             else
+            {
                 request.PostFilter.Bool.MinimumNumberShouldMatch = null;
+            }
         }
 
         private static Dictionary<int, bool> GetExcludedRoots(QuerySetup setup)
@@ -501,12 +540,14 @@ namespace Epinova.ElasticSearch.Core.Engine
         {
             object settings = new { fragment_size = Conventions.Indexing.HighlightFragmentSize };
 
-            var fields = WellKnownProperties.Highlight.ToDictionary(x => x, _ => settings);
+            var fields = WellKnownProperties.Analyze.ToDictionary(x => x, _ => settings);
 
             Conventions.Indexing.Highlights.ToList().ForEach(h =>
             {
-                if (!fields.ContainsKey(h))
+                if(!fields.ContainsKey(h))
+                {
                     fields.Add(h, settings);
+                }
             });
 
             return fields;
@@ -528,15 +569,17 @@ namespace Epinova.ElasticSearch.Core.Engine
         {
             var sortedFields = fields.Reverse().ToDictionary(pair => pair.Key, pair => pair.Value);
 
-            if (sortedFields.Count == 0)
+            if(sortedFields.Count == 0)
+            {
                 return null;
+            }
 
             var aggregations = new Dictionary<string, Bucket>();
 
-            foreach (KeyValuePair<string, MappingType> field in sortedFields)
+            foreach(KeyValuePair<string, MappingType> field in sortedFields)
             {
                 var key = field.Key;
-                if (field.Value == MappingType.Text)
+                if(field.Value == MappingType.Text && !key.EndsWith(Models.Constants.KeywordSuffix))
                 {
                     key = String.Concat(key, Models.Constants.KeywordSuffix);
                 }
@@ -557,8 +600,10 @@ namespace Epinova.ElasticSearch.Core.Engine
                 })
                 .ToList();
 
-            if (type == null)
+            if(type == null)
+            {
                 return boost;
+            }
 
             var boostingFromAttributes = type
                 .GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.FlattenHierarchy)
@@ -573,10 +618,12 @@ namespace Epinova.ElasticSearch.Core.Engine
 
             boost.AddRange(boostingFromAttributes);
 
-            if (_boostingRepository == null)
+            if(_boostingRepository == null)
+            {
                 return boost;
+            }
 
-            List<Boost> boostingFromDb = _boostingRepository.GetByType(type)
+            var boostingFromDb = _boostingRepository.GetByType(type)
                 .Select(p => new Boost
                 {
                     FieldName = p.Key,
@@ -585,9 +632,9 @@ namespace Epinova.ElasticSearch.Core.Engine
                 .ToList();
 
             // Editorial entries has presedence
-            foreach (var dbBoost in boostingFromDb)
+            foreach(Boost dbBoost in boostingFromDb)
             {
-                if (boost.Any(b => b.FieldName == dbBoost.FieldName))
+                if(boost.Any(b => b.FieldName == dbBoost.FieldName))
                 {
                     boost.First(b => b.FieldName == dbBoost.FieldName).Weight =
                         Math.Max(boost.First(b => b.FieldName == dbBoost.FieldName).Weight, dbBoost.Weight);

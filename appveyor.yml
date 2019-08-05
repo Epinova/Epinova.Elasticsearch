@@ -1,4 +1,4 @@
-version: 11.7.0.{build}
+version: 11.7.1.{build}
 skip_tags: true
 image: Visual Studio 2017
 configuration: Release
@@ -8,8 +8,6 @@ environment:
   sonarcloudproj: Epinova_Epinova.Elasticsearch
   sonarcloudkey:
     secure: 0VvcxYCPLglmyB87e5B1vRk0nHq8KUX0ND/qLkCs1RaGULzo1Q+XPHOZgioTbEPZ
-init:
-- cmd: nuget sources add -Name Episerver -Source http://nuget.episerver.com/feed/packages.svc/
 assembly_info:
   patch: true
   file: '**\AssemblyInfo.*'
@@ -39,12 +37,33 @@ before_package:
     cd $env:APPVEYOR_BUILD_FOLDER\src\Epinova.ElasticSearch.Core.EPiServer.Commerce;
     (Get-Content Epinova.ElasticSearch.Core.EPiServer.Commerce.nuspec) -replace '\[11\.2.*12\)', $env:APPVEYOR_BUILD_VERSION | Out-File Epinova.ElasticSearch.Core.EPiServer.Commerce.nuspec;
     cd $env:APPVEYOR_BUILD_FOLDER;
-deploy:
-  provider: NuGet
-  api_key:
-    secure: M+b7dlgbK5GWibG7RSV5AtkA4EkVGF6+RC49j5bVeJwTbKxKgSkeEiE60J4uYEVf
-  skip_symbols: false
-  artifact: /.*\.nupkg/
-  on:
-    branch: master
-    APPVEYOR_REPO_BRANCH: master
+
+for:
+-
+  branches:
+    only:
+      - vnext
+
+  init:
+  - ps: >-
+      Update-AppveyorBuild -Version "$env:APPVEYOR_BUILD_VERSION-$env:APPVEYOR_REPO_BRANCH";
+      if ($LastExitCode -ne 0) { $host.SetShouldExit($LastExitCode)  }
+
+  deploy:
+    provider: NuGet
+    api_key:
+      secure: M+b7dlgbK5GWibG7RSV5AtkA4EkVGF6+RC49j5bVeJwTbKxKgSkeEiE60J4uYEVf
+    skip_symbols: false
+    artifact: /.*\.nupkg/
+
+-
+  branches:
+    only:
+      - master
+
+  deploy:
+    provider: NuGet
+    api_key:
+      secure: M+b7dlgbK5GWibG7RSV5AtkA4EkVGF6+RC49j5bVeJwTbKxKgSkeEiE60J4uYEVf
+    skip_symbols: false
+    artifact: /.*\.nupkg/

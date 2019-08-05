@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using Newtonsoft.Json;
 
 namespace Epinova.ElasticSearch.Core.Models.Admin
@@ -28,8 +28,6 @@ namespace Epinova.ElasticSearch.Core.Models.Admin
         }
 
         public override string ToString()
-        {
-            return $"{Name} ({Cluster}): v{Version}";
-        }
+            => $"{Name} ({Cluster}): v{Version}";
     }
 }

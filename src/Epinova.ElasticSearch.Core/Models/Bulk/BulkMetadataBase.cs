@@ -21,6 +21,6 @@ namespace Epinova.ElasticSearch.Core.Models.Bulk
         public Type DataType { get; set; }
 
         [JsonProperty(JsonNames.Id)]
-        public string Id { get; set; }    
+        public string Id { get; set; }
     }
 }

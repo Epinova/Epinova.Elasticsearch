@@ -276,7 +276,44 @@ WriteLiteral("</h1>\r\n    <div");
 
 WriteLiteral(" id=\"indexGrid\"");
 
-WriteLiteral(@"></div>
+WriteLiteral("></div>\r\n\r\n");
+
+    
+     if (Model.AllIndexes.Any())
+    {
+            using (Html.BeginForm("DeleteAll", "ElasticAdmin"))
+            {
+
+WriteLiteral("                <div");
+
+WriteLiteral(" class=\"epi-paddingVertical-small epi-alignRight\"");
+
+WriteLiteral(">\r\n                    <button");
+
+WriteLiteral(" data-dojo-type=\"dijit/form/Button\"");
+
+WriteLiteral(" \r\n                            type=\"submit\"");
+
+WriteLiteral(" \r\n                            class=\"epi-danger\"");
+
+WriteAttribute("onclick", Tuple.Create(" \r\n                            onclick=\"", 2978), Tuple.Create("\"", 3069)
+, Tuple.Create(Tuple.Create("", 3018), Tuple.Create("return", 3018), true)
+, Tuple.Create(Tuple.Create(" ", 3024), Tuple.Create("confirm(\'", 3025), true)
+, Tuple.Create(Tuple.Create("", 3034), Tuple.Create<System.Object, System.Int32>(IndexString("confirmDeleteAll")
+, 3034), false)
+, Tuple.Create(Tuple.Create("", 3066), Tuple.Create("\');", 3066), true)
+);
+
+WriteLiteral(">");
+
+                                                                                     Write(IndexString("deleteAll"));
+
+WriteLiteral("</button>\r\n                </div>\r\n");
+
+            }
+    }
+
+WriteLiteral(@"
     <br /><br />
 </div>
 
@@ -495,6 +532,10 @@ WriteLiteral("\r\n                {\r\n                    index:     \"");
 
                            Write(index.Index);
 
+WriteLiteral("\",\r\n                    display:   \"");
+
+                           Write(index.DisplayName);
+
 WriteLiteral("\",\r\n                    health:    \"");
 
                            Write(index.HealthColor);
@@ -536,6 +577,10 @@ WriteLiteral("\r\n");
 WriteLiteral("        ];\r\n\r\n        var indexCols = {\r\n            index: \"");
 
                Write(IndexString("Index"));
+
+WriteLiteral("\",\r\n            display: \"");
+
+                 Write(IndexString("displayName"));
 
 WriteLiteral("\",\r\n            health: {\r\n                label: \"");
 

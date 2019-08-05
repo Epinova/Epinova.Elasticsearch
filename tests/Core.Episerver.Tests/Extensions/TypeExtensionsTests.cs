@@ -1,5 +1,5 @@
-﻿using Epinova.ElasticSearch.Core.Extensions;
-using System;
+﻿using System;
+using Epinova.ElasticSearch.Core.Extensions;
 using EPiServer.Core;
 using TestData;
 using Xunit;
@@ -96,7 +96,7 @@ namespace Core.Episerver.Tests.Extensions
         [Fact]
         public void IsAnonymousType_AnonymousType_ReturnsTrue()
         {
-            var instance = new {Foo = 1, Bar = "2"};
+            var instance = new { Foo = 1, Bar = "2" };
             bool result = instance.GetType().IsAnonymousType();
 
             Assert.True(result);

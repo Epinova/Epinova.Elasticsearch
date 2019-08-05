@@ -6,9 +6,9 @@ using System.Web.Mvc;
 using System.Web.Routing;
 using Epinova.ElasticSearch.Core.Attributes;
 using Epinova.ElasticSearch.Core.Settings.Configuration;
-using EPiServer.Logging;
 using EPiServer.Framework;
 using EPiServer.Framework.Initialization;
+using EPiServer.Logging;
 using IndexingConvention = Epinova.ElasticSearch.Core.Conventions.Indexing;
 using InitializationModule = EPiServer.Web.InitializationModule;
 
@@ -58,7 +58,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Initialization
         {
             try
             {
-                RouteTable.Routes.MapRoute("ElasticSearchAdmin", "ElasticSearchAdmin/{controller}/{action}", new { controller = "ElasticAdmin", action = "Index"}, new { controller = GetControllers() });
+                RouteTable.Routes.MapRoute("ElasticSearchAdmin", "ElasticSearchAdmin/{controller}/{action}", new { controller = "ElasticAdmin", action = "Index" }, new { controller = GetControllers() });
 
                 Logger.Information($"Initializing Elasticsearch.\n{Server.Info}\nPlugins:\n{String.Join("\n", Server.Plugins.Select(p => p.ToString()))}");
 
@@ -69,7 +69,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Initialization
                     .ToList()
                     .ForEach(ext => IndexingConvention.Instance.IncludeFileType(ext));
             }
-            catch (Exception ex)
+            catch(Exception ex)
             {
                 // Swallow exception and fail silently. This init module shouldn't crash the site 
                 // because an index is missing or the like.
@@ -79,6 +79,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Initialization
 
         public void Uninitialize(InitializationEngine context)
         {
+            // Not applicable
         }
 
         private static string GetControllers()
@@ -96,7 +97,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Initialization
         {
             ElasticSearchSection config = ElasticSearchSection.GetConfiguration();
 
-            if (!config.Files.Enabled)
+            if(!config.Files.Enabled)
             {
                 Logger.Information("File indexing disabled");
                 yield break;
@@ -104,7 +105,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Initialization
 
             Logger.Information($"Adding allowed file extensions from config. Max size is {config.Files.ParsedMaxsize}");
 
-            foreach (FileConfiguration file in config.Files)
+            foreach(FileConfiguration file in config.Files)
             {
                 Logger.Information($"Found: {file.Extension}");
                 yield return file.Extension;
@@ -119,7 +120,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Initialization
             AssemblyBlacklist.ToList().ForEach(
                 b => assemblies.RemoveAll(a => a.FullName.StartsWith(b, StringComparison.OrdinalIgnoreCase)));
 
-            foreach (var assembly in assemblies)
+            foreach(var assembly in assemblies)
             {
                 try
                 {
@@ -127,7 +128,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Initialization
                         assembly.GetTypes()
                             .Where(t => t.GetCustomAttributes(typeof(ExcludeFromSearchAttribute)).Any()));
                 }
-                catch (ReflectionTypeLoadException ex)
+                catch(ReflectionTypeLoadException ex)
                 {
                     Logger.Error($"Error while scanning assembly '{assembly.FullName}'");
                     ex.LoaderExceptions.ToList().ForEach(e => Logger.Error("LoaderException", e));
@@ -139,10 +140,6 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Initialization
             }
 
             return types;
-        }
-
-        public void Preload(string[] parameters)
-        {
         }
     }
 }

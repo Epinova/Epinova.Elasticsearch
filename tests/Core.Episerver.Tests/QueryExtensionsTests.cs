@@ -2,7 +2,6 @@
 using Epinova.ElasticSearch.Core;
 using Epinova.ElasticSearch.Core.EPiServer.Contracts;
 using Epinova.ElasticSearch.Core.EPiServer.Extensions;
-using Epinova.ElasticSearch.Core.Settings;
 using EPiServer.Core;
 using Moq;
 using TestData;
@@ -10,16 +9,19 @@ using Xunit;
 
 namespace Core.Episerver.Tests
 {
-    public class QueryExtensionsTests
+    [Collection(nameof(ServiceLocatiorCollection))]
+    public class QueryExtensionsTests : IClassFixture<ServiceLocatorFixture>
     {
+        private readonly ServiceLocatorFixture _fixture;
         private readonly ElasticSearchService _serviceStub;
 
-        public QueryExtensionsTests()
+        public QueryExtensionsTests(ServiceLocatorFixture fixture)
         {
-            var settingsMock = new Mock<IElasticSearchSettings>();
-            _serviceStub = new ElasticSearchService(settingsMock.Object);
+            _fixture = fixture;
+            _serviceStub = new ElasticSearchService(
+                fixture.ServiceLocationMock.SettingsMock.Object,
+                fixture.ServiceLocationMock.HttpClientMock.Object);
         }
-
 
         [Fact]
         public void StartFrom_UsesContentReferenceId()
@@ -30,7 +32,6 @@ namespace Core.Episerver.Tests
             Assert.Equal(42, instance.RootId);
         }
 
-
         [Fact]
         public void Exclude_UsesContentReferenceId()
         {
@@ -38,7 +39,6 @@ namespace Core.Episerver.Tests
             _serviceStub.Exclude(contentLink);
             Assert.Contains(42, _serviceStub.ExcludedRoots.Keys);
         }
-
 
         [Fact]
         public void Exclude_UsesContentId()
@@ -52,7 +52,6 @@ namespace Core.Episerver.Tests
             Assert.Contains(42, _serviceStub.ExcludedRoots.Keys);
         }
 
-
         [Fact]
         public void BoostByAncestor_UsesContentReferenceId()
         {
@@ -61,20 +60,21 @@ namespace Core.Episerver.Tests
             Assert.Contains(42, _serviceStub.BoostAncestors.Keys);
         }
 
-
         [Fact]
         public void GetSuggestions_ReturnsHits()
         {
-            var serviceLocationMock = Factory.SetupServiceLocator();
             var repoMock = new Mock<IAutoSuggestRepository>();
             repoMock.Setup(m => m.GetWords(It.IsAny<string>()))
                 .Returns(new List<string>());
 
-            serviceLocationMock.ServiceLocatorMock
+            _fixture.ServiceLocationMock.ServiceLocatorMock
                 .Setup(m => m.GetInstance<IAutoSuggestRepository>())
                 .Returns(repoMock.Object);
 
-            var engine = new TestableSearchEngine(new[] {"foo", "bar", "baz"});
+            var engine = new TestableSearchEngine(
+                new[] { "foo", "bar", "baz" },
+                _fixture.ServiceLocationMock.SettingsMock.Object,
+                _fixture.ServiceLocationMock.HttpClientMock.Object);
 
             var results = _serviceStub.GetSuggestions("foo", engine);
             Assert.Contains("foo", results);

@@ -67,14 +67,8 @@ namespace Epinova.ElasticSearch.Core.Utilities
                     Created = new { type = "date" },
                     Changed = new { type = "date" },
                     Indexed = new { type = "date" },
-                    Name = new {
-                        type = TextType,
-                        fields = Fields
-                    },
-                    _bestbets = new {
-                        type = TextType,
-                        fields = Fields
-                    },
+                    Name = new { type = TextType, fields = Fields },
+                    _bestbets = new { type = TextType, fields = Fields },
                     ParentLink = new { type = "long" },
                     Path = new { type = "long" },
                     Lang = new { type = TextType },
