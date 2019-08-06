@@ -27,6 +27,7 @@ namespace ASP
     using System.Web.Security;
     using System.Web.UI;
     using System.Web.WebPages;
+    using Epinova.ElasticSearch.Core.EPiServer.Extensions;
     using EPiServer;
     using EPiServer.Core;
     using EPiServer.Editor;
@@ -52,7 +53,12 @@ namespace ASP
 WriteLiteral("\r\n");
 
 WriteLiteral("<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\" \"http://www.w3.org" +
-"/TR/xhtml1/DTD/xhtml1-transitional.dtd\">\r\n<html>\r\n<head>\r\n    <!-- Shell -->\r\n");
+"/TR/xhtml1/DTD/xhtml1-transitional.dtd\">\r\n<html>\r\n<head>\r\n    <title>Episerver C" +
+"MS - ");
+
+                      Write(Html.TranslateWithPath("heading", "/epinovaelasticsearch/"));
+
+WriteLiteral("</title>\r\n\r\n    <!-- Shell -->\r\n");
 
 WriteLiteral("    ");
 
@@ -84,18 +90,18 @@ Write(Html.Raw(ClientResources.RenderResources("DojoDashboardCompatibility", new
 
 WriteLiteral("\r\n\r\n    <!-- Sleek theme -->\r\n    <link");
 
-WriteAttribute("href", Tuple.Create(" href=\"", 826), Tuple.Create("\"", 923)
-, Tuple.Create(Tuple.Create("", 833), Tuple.Create<System.Object, System.Int32>(EPiServer.Shell.Paths.ToShellClientResource("ClientResources/epi/themes/sleek/sleek.css")
-, 833), false)
+WriteAttribute("href", Tuple.Create(" href=\"", 981), Tuple.Create("\"", 1078)
+, Tuple.Create(Tuple.Create("", 988), Tuple.Create<System.Object, System.Int32>(EPiServer.Shell.Paths.ToShellClientResource("ClientResources/epi/themes/sleek/sleek.css")
+, 988), false)
 );
 
 WriteLiteral(" rel=\"stylesheet\"");
 
 WriteLiteral(" />\r\n    <link");
 
-WriteAttribute("href", Tuple.Create(" href=\"", 955), Tuple.Create("\"", 1055)
-, Tuple.Create(Tuple.Create("", 962), Tuple.Create<System.Object, System.Int32>(EPiServer.Shell.Paths.ToShellClientResource("ClientResources/epi/themes/sleek/document.css")
-, 962), false)
+WriteAttribute("href", Tuple.Create(" href=\"", 1110), Tuple.Create("\"", 1210)
+, Tuple.Create(Tuple.Create("", 1117), Tuple.Create<System.Object, System.Int32>(EPiServer.Shell.Paths.ToShellClientResource("ClientResources/epi/themes/sleek/document.css")
+, 1117), false)
 );
 
 WriteLiteral(" rel=\"stylesheet\"");
@@ -114,17 +120,17 @@ Write(Html.Raw(DojoConfigurationHelper.ConfigureDojo(null,
 
 WriteLiteral("\r\n\r\n    <script");
 
-WriteAttribute("src", Tuple.Create(" src=\"", 1323), Tuple.Create("\"", 1405)
-, Tuple.Create(Tuple.Create("", 1329), Tuple.Create<System.Object, System.Int32>(EPiServer.Shell.Paths.ToShellClientResource("ClientResources/dojo/dojo.js")
-, 1329), false)
+WriteAttribute("src", Tuple.Create(" src=\"", 1478), Tuple.Create("\"", 1560)
+, Tuple.Create(Tuple.Create("", 1484), Tuple.Create<System.Object, System.Int32>(EPiServer.Shell.Paths.ToShellClientResource("ClientResources/dojo/dojo.js")
+, 1484), false)
 );
 
 WriteLiteral("></script>\r\n\r\n    <script>\r\n        require([\"dojo/parser\"]);\r\n    </script>\r\n\r\n " +
 "   <script");
 
-WriteAttribute("src", Tuple.Create(" src=\"", 1497), Tuple.Create("\"", 1586)
-, Tuple.Create(Tuple.Create("", 1503), Tuple.Create<System.Object, System.Int32>(EPiServer.Shell.Paths.ToShellClientResource("ClientResources/dojox/grid/_Grid.js")
-, 1503), false)
+WriteAttribute("src", Tuple.Create(" src=\"", 1652), Tuple.Create("\"", 1741)
+, Tuple.Create(Tuple.Create("", 1658), Tuple.Create<System.Object, System.Int32>(EPiServer.Shell.Paths.ToShellClientResource("ClientResources/dojox/grid/_Grid.js")
+, 1658), false)
 );
 
 WriteLiteral("></script>\r\n\r\n    <style>\r\n        /* Override document.css */\r\n        html, bod" +
@@ -171,9 +177,9 @@ WriteLiteral("\r\n    <div");
 
 WriteLiteral(" id=\"epi-globalDocument\"");
 
-WriteAttribute("class", Tuple.Create(" class=\"", 3653), Tuple.Create("\"", 3719)
-, Tuple.Create(Tuple.Create("", 3661), Tuple.Create<System.Object, System.Int32>(ViewBag.ContainerClass ?? "epi-paddingHorizontal-small"
-, 3661), false)
+WriteAttribute("class", Tuple.Create(" class=\"", 3808), Tuple.Create("\"", 3874)
+, Tuple.Create(Tuple.Create("", 3816), Tuple.Create<System.Object, System.Int32>(ViewBag.ContainerClass ?? "epi-paddingHorizontal-small"
+, 3816), false)
 );
 
 WriteLiteral(">\r\n        <div>\r\n");

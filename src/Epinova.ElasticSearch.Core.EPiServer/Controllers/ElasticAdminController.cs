@@ -1,7 +1,4 @@
-﻿using System;
-using System.Linq;
-using System.Web.Mvc;
-using Epinova.ElasticSearch.Core.Admin;
+﻿using Epinova.ElasticSearch.Core.Admin;
 using Epinova.ElasticSearch.Core.Contracts;
 using Epinova.ElasticSearch.Core.EPiServer.Controllers.Abstractions;
 using Epinova.ElasticSearch.Core.EPiServer.Models.ViewModels;
@@ -11,6 +8,9 @@ using Epinova.ElasticSearch.Core.Settings;
 using Epinova.ElasticSearch.Core.Settings.Configuration;
 using Epinova.ElasticSearch.Core.Utilities;
 using EPiServer.DataAbstraction;
+using System;
+using System.Linq;
+using System.Web.Mvc;
 
 namespace Epinova.ElasticSearch.Core.EPiServer.Controllers
 {
@@ -67,27 +67,30 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Controllers
                     if(!index.Exists)
                     {
                         index.Initialize(indexType);
-                        index.WaitForStatus();
-                        index.DisableDynamicMapping(indexType);
-                        index.WaitForStatus();
                     }
 
                     if(IsCustomType(indexType))
                     {
-                        _coreIndexer.UpdateMapping(indexType, indexType, indexName, lang.Key, true);
+                        _coreIndexer.UpdateMapping(indexType, indexType, indexName, lang.Key, false);
                         index.WaitForStatus();
                     }
                     else if(_settings.CommerceEnabled)
                     {
-                        indexName = _settings.GetCustomIndexName($"{indexConfig.Name}-{Constants.CommerceProviderName}", lang.Key);
-                        index = new Index(_settings, _httpClientHelper, indexName);
-                        if(!index.Exists)
+                        var commerceIndexName = _settings.GetCustomIndexName($"{indexConfig.Name}-{Constants.CommerceProviderName}", lang.Key);
+                        var commerceIndex = new Index(_settings, _httpClientHelper, commerceIndexName);
+                        if(!commerceIndex.Exists)
                         {
-                            index.Initialize(indexType);
-                            index.WaitForStatus();
-                            index.DisableDynamicMapping(indexType);
-                            index.WaitForStatus();
+                            commerceIndex.Initialize(indexType);
+                            commerceIndex.WaitForStatus();
+                            commerceIndex.DisableDynamicMapping(indexType);
+                            commerceIndex.WaitForStatus();
                         }
+                    }
+                    else
+                    {
+                        index.WaitForStatus();
+                        index.DisableDynamicMapping(indexType);
+                        index.WaitForStatus();
                     }
                 }
             }
