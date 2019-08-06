@@ -1,7 +1,4 @@
-﻿using System;
-using System.Linq;
-using System.Web.Mvc;
-using Epinova.ElasticSearch.Core.Admin;
+﻿using Epinova.ElasticSearch.Core.Admin;
 using Epinova.ElasticSearch.Core.Contracts;
 using Epinova.ElasticSearch.Core.EPiServer.Controllers.Abstractions;
 using Epinova.ElasticSearch.Core.EPiServer.Models.ViewModels;
@@ -11,6 +8,9 @@ using Epinova.ElasticSearch.Core.Settings;
 using Epinova.ElasticSearch.Core.Settings.Configuration;
 using Epinova.ElasticSearch.Core.Utilities;
 using EPiServer.DataAbstraction;
+using System;
+using System.Linq;
+using System.Web.Mvc;
 
 namespace Epinova.ElasticSearch.Core.EPiServer.Controllers
 {
