@@ -67,27 +67,30 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Controllers
                     if(!index.Exists)
                     {
                         index.Initialize(indexType);
-                        index.WaitForStatus();
-                        index.DisableDynamicMapping(indexType);
-                        index.WaitForStatus();
                     }
 
                     if(IsCustomType(indexType))
                     {
-                        _coreIndexer.UpdateMapping(indexType, indexType, indexName, lang.Key, true);
+                        _coreIndexer.UpdateMapping(indexType, indexType, indexName, lang.Key, false);
                         index.WaitForStatus();
                     }
                     else if(_settings.CommerceEnabled)
                     {
-                        indexName = _settings.GetCustomIndexName($"{indexConfig.Name}-{Constants.CommerceProviderName}", lang.Key);
-                        index = new Index(_settings, _httpClientHelper, indexName);
-                        if(!index.Exists)
+                        var commerceIndexName = _settings.GetCustomIndexName($"{indexConfig.Name}-{Constants.CommerceProviderName}", lang.Key);
+                        var commerceIndex = new Index(_settings, _httpClientHelper, commerceIndexName);
+                        if(!commerceIndex.Exists)
                         {
-                            index.Initialize(indexType);
-                            index.WaitForStatus();
-                            index.DisableDynamicMapping(indexType);
-                            index.WaitForStatus();
+                            commerceIndex.Initialize(indexType);
+                            commerceIndex.WaitForStatus();
+                            commerceIndex.DisableDynamicMapping(indexType);
+                            commerceIndex.WaitForStatus();
                         }
+                    }
+                    else
+                    {
+                        index.WaitForStatus();
+                        index.DisableDynamicMapping(indexType);
+                        index.WaitForStatus();
                     }
                 }
             }
