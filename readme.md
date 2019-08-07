@@ -533,7 +533,7 @@ public class ArticlePage : StandardPage
 ```
 
 # Dictionary properties
-If a property is of type `IDictionary<string, object>` and marked '[Searchable]', it will be indexed as an 'object' in Elasticsearch.  
+If a property is of type `IDictionary<string, object>` and marked `[Searchable]`, it will be indexed as an `object` in Elasticsearch.  
 This is useful in scenarios where you have dynamic key-value data which must be indexed, like from PIM-systems.  
 
 Standard property approach:
