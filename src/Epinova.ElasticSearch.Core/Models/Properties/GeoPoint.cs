@@ -26,7 +26,7 @@ namespace Epinova.ElasticSearch.Core.Models.Properties
         [JsonProperty(JsonNames.Lon)]
         public double Lon { get; set; }
 
-        public override string ToString() => $"{FormattableString.Invariant($"{Lat}")},{FormattableString.Invariant($"{Lon}")}";
+        public override string ToString() => FormattableString.Invariant($"{Lat},{Lon}");
 
         /// <summary>
         /// Parse a lat-lon string as a <see cref="GeoPoint" />. 
