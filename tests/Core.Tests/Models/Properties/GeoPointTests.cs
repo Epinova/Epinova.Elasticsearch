@@ -27,5 +27,14 @@ namespace Core.Tests.Models.Properties
             var result = GeoPoint.Parse(input);
             Assert.NotNull(result);
         }
+
+        [Fact]
+        public void ToString_UsesInvariantCommaSeparator()
+        {
+            var coords = "35.6681625,139.6007856";
+            var instance = GeoPoint.Parse(coords);
+            var result = instance.ToString();
+            Assert.Equal(coords, result);
+        }
     }
 }
