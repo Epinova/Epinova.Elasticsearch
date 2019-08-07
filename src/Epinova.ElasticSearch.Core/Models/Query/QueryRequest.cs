@@ -44,7 +44,12 @@ namespace Epinova.ElasticSearch.Core.Models.Query
                             new JObject(
                                 new JProperty("_geo_distance",
                                     new JObject(
-                                        new JProperty(sortField, new[] { geoSort.CompareTo.Lat, geoSort.CompareTo.Lon }),
+                                        // NOTE: the order of lon/lat here in order to conform with GeoJSON.
+                                        new JProperty(sortField, new[]
+                                        {
+                                            geoSort.CompareTo.Lon,
+                                            geoSort.CompareTo.Lat
+                                        }),
                                         new JProperty(JsonNames.Order, geoSort.Direction),
                                         new JProperty(JsonNames.Unit, geoSort.Unit),
                                         new JProperty(JsonNames.Mode, geoSort.Mode)
