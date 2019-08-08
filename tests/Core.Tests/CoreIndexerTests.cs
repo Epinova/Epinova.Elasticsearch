@@ -60,7 +60,7 @@ namespace Core.Tests
             _coreIndexer.Bulk(new BulkOperation(new { Foo = "bar" }, "en", id, "my-index"));
 
             _fixture.ServiceLocationMock.HttpClientMock
-                .Verify(m => m.Post(new Uri($"http://example.com/_bulk?pipeline={Epinova.ElasticSearch.Core.Pipelines.Attachment.Name}"), It.IsAny<byte[]>()), Times.Once);
+                .Verify(m => m.Post(new Uri($"http://example.com/_bulk?pipeline={Epinova.ElasticSearch.Core.Pipelines.Attachment.Name}"), It.IsAny<byte[]>()), Times.AtLeastOnce);
         }
 
         [Fact]
