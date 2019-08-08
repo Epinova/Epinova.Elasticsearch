@@ -15,15 +15,16 @@ namespace Core.Episerver.Tests.Controllers
         private readonly ElasticIndexerController _controller;
         private readonly Mock<IContentLoader> _contentLoaderMock;
         private readonly Mock<IIndexer> _indexerMock;
-        private readonly ServiceLocatorFixture _fixture;
 
-        public IndexerControllerTests(ServiceLocatorFixture fixture)
+        public IndexerControllerTests()
         {
-            _fixture = fixture;
             _contentLoaderMock = new Mock<IContentLoader>();
             _indexerMock = new Mock<IIndexer>();
 
-            _controller = new ElasticIndexerController(_fixture.ServiceLocationMock.ContentLoaderMock.Object, _indexerMock.Object, null);
+            _controller = new ElasticIndexerController(
+                _contentLoaderMock.Object,
+                _indexerMock.Object,
+                null);
         }
 
         [Theory]
@@ -43,7 +44,7 @@ namespace Core.Episerver.Tests.Controllers
         public void UpdateItem_ValidContent_ReturnsOk()
         {
             IContent content = Factory.GetPageData();
-            _fixture.ServiceLocationMock.ContentLoaderMock.Setup(m => m.TryGet(It.IsAny<ContentReference>(), out content)).Returns(true);
+            _contentLoaderMock.Setup(m => m.TryGet(It.IsAny<ContentReference>(), out content)).Returns(true);
             _indexerMock.Setup(m => m.Update(It.IsAny<IContent>(), null)).Returns(IndexingStatus.Ok);
 
             JsonResult response = _controller.UpdateItem("42");

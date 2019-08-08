@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Globalization;
 using Epinova.ElasticSearch.Core.Contracts;
+using Epinova.ElasticSearch.Core.Models.Converters;
 using Newtonsoft.Json;
 
 namespace Epinova.ElasticSearch.Core.Models.Properties
@@ -8,6 +9,7 @@ namespace Epinova.ElasticSearch.Core.Models.Properties
     /// <summary>
     /// Type representing a geopoint, with latitude and longitude. 
     /// </summary>
+    [JsonConverter(typeof(GeoPointConverter))]
     public class GeoPoint : IProperty
     {
         public GeoPoint(double lat, double lon)
@@ -26,7 +28,7 @@ namespace Epinova.ElasticSearch.Core.Models.Properties
         [JsonProperty(JsonNames.Lon)]
         public double Lon { get; set; }
 
-        public override string ToString() => $"{FormattableString.Invariant($"{Lat}")},{FormattableString.Invariant($"{Lon}")}";
+        public override string ToString() => FormattableString.Invariant($"{Lat},{Lon}");
 
         /// <summary>
         /// Parse a lat-lon string as a <see cref="GeoPoint" />. 

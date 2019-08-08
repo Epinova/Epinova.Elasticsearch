@@ -26,12 +26,13 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <DebugType>pdbonly</DebugType>
+    <DebugType>full</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <DebugSymbols>true</DebugSymbols>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Castle.Core, Version=4.0.0.0, Culture=neutral, PublicKeyToken=407dd0808d44fbdc, processorArchitecture=MSIL">
@@ -193,6 +194,7 @@
     <Compile Include="Engine\QueryBuilderTests.cs" />
     <Compile Include="Engine\SearchEngineTests.cs" />
     <Compile Include="Extensions\TypeExtensionsTests.cs" />
+    <Compile Include="Models\Converters\GeoPointConverterTests.cs" />
     <Compile Include="Models\Converters\GeoPolygonConverterTests.cs" />
     <Compile Include="Models\Converters\GeoDistanceConverterTests.cs" />
     <Compile Include="Models\Converters\GeoBoundingBoxConverterTests.cs" />

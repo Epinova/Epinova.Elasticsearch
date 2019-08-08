@@ -6,6 +6,7 @@ using Xunit;
 
 namespace Core.Episerver.Tests.Extensions
 {
+    [Collection(nameof(ServiceLocatiorCollection))]
     public class TypeExtensionsTests
     {
         [Fact]
