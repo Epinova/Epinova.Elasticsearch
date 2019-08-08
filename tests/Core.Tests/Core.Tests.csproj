@@ -193,6 +193,7 @@
     <Compile Include="Engine\QueryBuilderTests.cs" />
     <Compile Include="Engine\SearchEngineTests.cs" />
     <Compile Include="Extensions\TypeExtensionsTests.cs" />
+    <Compile Include="Models\Converters\GeoPointConverterTests.cs" />
     <Compile Include="Models\Converters\GeoPolygonConverterTests.cs" />
     <Compile Include="Models\Converters\GeoDistanceConverterTests.cs" />
     <Compile Include="Models\Converters\GeoBoundingBoxConverterTests.cs" />

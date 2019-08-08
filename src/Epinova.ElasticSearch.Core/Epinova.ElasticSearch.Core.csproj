@@ -239,6 +239,7 @@
     <Compile Include="Models\Bulk\ErrorRootCause.cs" />
     <Compile Include="Models\Bulk\Operation.cs" />
     <Compile Include="Models\Constants.cs" />
+    <Compile Include="Models\Converters\GeoPointConverter.cs" />
     <Compile Include="Models\Converters\AggregationConverter.cs" />
     <Compile Include="Models\Converters\GeoPolygonConverter.cs" />
     <Compile Include="Models\Converters\GeoDistanceConverter.cs" />
