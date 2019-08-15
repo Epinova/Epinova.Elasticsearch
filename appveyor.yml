@@ -18,10 +18,10 @@ nuget:
   project_feed: true
 before_build:
 - cmd: nuget restore
-- cmd: choco install xunit -y
+- cmd: choco install xunit -y --no-progress
 - ps: >-
     If ("$env:sonarcloudkey".Length -gt 0) {
-      choco install sonarscanner-msbuild-net46 opencover.portable -y
+      choco install sonarscanner-msbuild-net46 opencover.portable -y --no-progress
       SonarScanner.MSBuild.exe begin /k:"$env:sonarcloudproj" /d:"sonar.host.url=https://sonarcloud.io" /o:"$env:sonarcloudorg" /d:"sonar.branch.name=$env:APPVEYOR_REPO_BRANCH" /d:"sonar.login=$env:sonarcloudkey" /d:sonar.cs.opencover.reportsPaths="$env:APPVEYOR_BUILD_FOLDER\xunit.opencover.results.xml" /d:sonar.cs.xunit.reportsPaths="$env:APPVEYOR_BUILD_FOLDER\xunit.test.results.xml"
     }
 after_test:
@@ -32,7 +32,7 @@ build:
   publish_nuget: true
   verbosity: minimal
 test_script:
-- cmd: 'OpenCover.Console.exe -register:user -returntargetcode -target:"%ChocolateyInstall%\bin\xunit.console.exe" -targetargs:"tests\Core.Tests\bin\Core.Tests.dll tests\Core.Episerver.Tests\bin\Core.Episerver.Tests.dll -noshadow -xml %APPVEYOR_BUILD_FOLDER%\xunit.test.results.xml -appveyor" -output:%APPVEYOR_BUILD_FOLDER%\xunit.opencover.results.xml -coverbytest:*Tests.dll'
+- cmd: 'OpenCover.Console.exe -register:user -returntargetcode -target:"%ChocolateyInstall%\bin\xunit.console.exe" -targetargs:"tests\Core.Tests\bin\Core.Tests.dll tests\Core.Episerver.Tests\bin\Core.Episerver.Tests.dll -noshadow -xml '%APPVEYOR_BUILD_FOLDER%\xunit.test.results.xml' -appveyor" -output:'%APPVEYOR_BUILD_FOLDER%\xunit.opencover.results.xml' -coverbytest:*Tests.dll'
 artifacts:
 - path: '**/xunit.*.results.xml'
 cache:
