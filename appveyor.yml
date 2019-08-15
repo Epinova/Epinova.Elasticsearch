@@ -38,7 +38,7 @@ artifacts:
 - path: 'xunit.xml'
 cache:
   - packages -> **\packages.config
-  - '%USERPROFILE%\.nuget\packages' -> **\packages.config
+  - %USERPROFILE%\.nuget\packages -> **\packages.config
   - C:\ProgramData\chocolatey\bin -> appveyor.yml
   - C:\ProgramData\chocolatey\lib -> appveyor.yml
 before_package:
