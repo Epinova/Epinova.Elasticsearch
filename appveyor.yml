@@ -21,7 +21,7 @@ before_build:
 - ps: >-
     If ("$env:sonarcloudkey".Length -gt 0) {
       choco install sonarscanner-msbuild-net46 opencover.portable -y
-      SonarScanner.MSBuild.exe begin /k:"%sonarcloudproj%" /d:"sonar.host.url=https://sonarcloud.io" /o:"%sonarcloudorg%" /d:"sonar.branch.name=%APPVEYOR_REPO_BRANCH%" /d:"sonar.login=%sonarcloudkey%" /d:sonar.cs.opencover.reportsPaths="%APPVEYOR_BUILD_FOLDER%\xunit.opencover.results.xml" /d:sonar.cs.xunit.reportsPaths="%APPVEYOR_BUILD_FOLDER%\xunit.test.results.xml"
+      SonarScanner.MSBuild.exe begin /k:"$env:sonarcloudproj" /d:"sonar.host.url=https://sonarcloud.io" /o:"$env:sonarcloudorg" /d:"sonar.branch.name=$env:APPVEYOR_REPO_BRANCH" /d:"sonar.login=$env:sonarcloudkey" /d:sonar.cs.opencover.reportsPaths="$env:APPVEYOR_BUILD_FOLDER\xunit.opencover.results.xml" /d:sonar.cs.xunit.reportsPaths="$env:APPVEYOR_BUILD_FOLDER\xunit.test.results.xml"
     }
 after_test:
 - cmd: IF DEFINED sonarcloudkey SonarScanner.MSBuild.exe end /d:"sonar.login=%sonarcloudkey%"
