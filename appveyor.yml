@@ -4,8 +4,8 @@ image: Visual Studio 2017
 configuration: Release
 platform: Any CPU
 environment:
-  coverage_path: '%APPVEYOR_BUILD_FOLDER%\xunit.opencover.results.xml'
-  testresult_path: '%APPVEYOR_BUILD_FOLDER%\xunit.test.results.xml'
+  coverage_path: 'xunit.opencover.results.xml'
+  testresult_path: 'xunit.test.results.xml'
   sonarcloudorg: epinova
   sonarcloudproj: Epinova_Epinova.Elasticsearch
   sonarcloudkey:
