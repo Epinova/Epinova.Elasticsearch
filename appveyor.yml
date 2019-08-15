@@ -28,6 +28,7 @@ build:
   verbosity: minimal
 test_script:
 - cmd: 'OpenCover.Console.exe -register:user -returntargetcode -target:"%xunit20%\xunit.console.exe" -targetargs:"tests\Core.Tests\bin\Core.Tests.dll tests\Core.Episerver.Tests\bin\Core.Episerver.Tests.dll -noshadow -xml xunit.test.results.xml -appveyor" -output:xunit.opencover.results.xml -coverbytest:*Tests.dll'
+- cmd: dir /a /s *.pdb
 artifacts:
 - path: 'xunit.test.results.xml'
 - path: 'xunit.opencover.results.xml'
