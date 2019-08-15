@@ -17,8 +17,8 @@ assembly_info:
 nuget:
   project_feed: true
 before_build:
+- cmd: nuget restore
 - ps: >-
-    nuget restore
     If ("$env:sonarcloudkey".Length -gt 0) {
       choco install sonarscanner-msbuild-net46 opencover.portable -y
       SonarScanner.MSBuild.exe begin /k:"%sonarcloudproj%" /d:"sonar.host.url=https://sonarcloud.io" /o:"%sonarcloudorg%" /d:"sonar.branch.name=%APPVEYOR_REPO_BRANCH%" /d:"sonar.login=%sonarcloudkey%" /d:sonar.cs.opencover.reportsPaths="%APPVEYOR_BUILD_FOLDER%\xunit.opencover.results.xml" /d:sonar.cs.xunit.reportsPaths="%APPVEYOR_BUILD_FOLDER%\xunit.test.results.xml"
