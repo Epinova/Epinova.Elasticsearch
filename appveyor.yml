@@ -21,7 +21,7 @@ before_build:
 - ps: >-
     If ("$env:sonarcloudkey".Length -gt 0) {
       choco install sonarscanner-msbuild-net46 dotcover-cli -y --no-progress
-      SonarScanner.MSBuild.exe begin /k:"$env:sonarcloudproj" /d:"sonar.host.url=https://sonarcloud.io" /o:"$env:sonarcloudorg" /d:"sonar.branch.name=$env:APPVEYOR_REPO_BRANCH" /d:"sonar.login=$env:sonarcloudkey" /d:sonar.cs.dotcover.reportsPaths="$env:APPVEYOR_BUILD_FOLDER\dotcover.xml" /d:sonar.cs.xunit.reportsPaths="$env:APPVEYOR_BUILD_FOLDER\xunit.xml"
+      SonarScanner.MSBuild.exe begin /k:"$env:sonarcloudproj" /d:"sonar.host.url=https://sonarcloud.io" /o:"$env:sonarcloudorg" /d:"sonar.branch.name=$env:APPVEYOR_REPO_BRANCH" /d:"sonar.login=$env:sonarcloudkey" /d:sonar.cs.dotcover.reportsPaths="$env:APPVEYOR_BUILD_FOLDER\dotcover.html" /d:sonar.cs.xunit.reportsPaths="$env:APPVEYOR_BUILD_FOLDER\xunit.xml"
     }
 after_test:
 - cmd: IF DEFINED sonarcloudkey SonarScanner.MSBuild.exe end /d:"sonar.login=%sonarcloudkey%"
@@ -31,10 +31,9 @@ build:
   publish_nuget: true
   verbosity: minimal
 test_script:
-- cmd: 'dotcover cover /TargetExecutable=%xunit20%\xunit.console.exe /TargetArguments="%APPVEYOR_BUILD_FOLDER%\tests\Core.Tests\bin\Core.Tests.dll %APPVEYOR_BUILD_FOLDER%\tests\Core.Episerver.Tests\bin\Core.Episerver.Tests.dll -noshadow -xml %APPVEYOR_BUILD_FOLDER%\xunit.xml" /Output="%APPVEYOR_BUILD_FOLDER%\dotcover.xml" /ReportType="XML"'
-
+- cmd: 'dotcover cover /TargetExecutable=%xunit20%\xunit.console.exe /TargetArguments="%APPVEYOR_BUILD_FOLDER%\tests\Core.Tests\bin\Core.Tests.dll %APPVEYOR_BUILD_FOLDER%\tests\Core.Episerver.Tests\bin\Core.Episerver.Tests.dll -noshadow -xml %APPVEYOR_BUILD_FOLDER%\xunit.xml" /Output="%APPVEYOR_BUILD_FOLDER%\dotcover.html" /ReportType="HTML"'
 artifacts:
-- path: 'dotcover.xml'
+- path: 'dotcover.html'
 - path: 'xunit.xml'
 cache:
   - packages -> **\packages.config
