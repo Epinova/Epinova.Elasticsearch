@@ -21,7 +21,7 @@ before_build:
 - ps: >-
     If ("$env:sonarcloudkey".Length -gt 0) {
       choco install sonarscanner-msbuild-net46 dotcover-cli -y --no-progress
-      SonarScanner.MSBuild.exe begin /k:"$env:sonarcloudproj" /d:"sonar.host.url=https://sonarcloud.io" /o:"$env:sonarcloudorg" /d:"sonar.branch.name=$env:APPVEYOR_REPO_BRANCH" /d:"sonar.login=$env:sonarcloudkey" /d:sonar.cs.dotcover.reportsPaths="$env:APPVEYOR_BUILD_FOLDER\dotcover.xml" /d:sonar.cs.xunit.reportsPaths="$env:APPVEYOR_BUILD_FOLDER\xunit.xml"
+      SonarScanner.MSBuild.exe begin /k:"$env:sonarcloudproj" /d:"sonar.host.url=https://sonarcloud.io" /o:"$env:sonarcloudorg" /d:"sonar.branch.name=$env:APPVEYOR_REPO_BRANCH" /d:"sonar.login=$env:sonarcloudkey" /d:sonar.cs.dotcover.reportsPaths="$env:APPVEYOR_BUILD_FOLDER\dotcover.html" /d:sonar.cs.xunit.reportsPaths="$env:APPVEYOR_BUILD_FOLDER\xunit.xml"
     }
 after_test:
 - cmd: IF DEFINED sonarcloudkey SonarScanner.MSBuild.exe end /d:"sonar.login=%sonarcloudkey%"
