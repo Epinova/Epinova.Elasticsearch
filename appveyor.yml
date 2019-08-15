@@ -29,14 +29,15 @@ build:
   publish_nuget: true
   verbosity: minimal
 test_script:
-- cmd: 'OpenCover.Console.exe -log:Error -register:user -returntargetcode -target:"%xunit20%\xunit.console.exe" -targetargs:"tests\Core.Tests\bin\Core.Tests.dll tests\Core.Episerver.Tests\bin\Core.Episerver.Tests.dll -noshadow -xml %testresult_path% -appveyor" -output:%coverage_path% -coverbytest:*Tests.dll'
+- cmd: 'OpenCover.Console.exe -register:user -returntargetcode -target:"%xunit20%\xunit.console.exe" -targetargs:"tests\Core.Tests\bin\Core.Tests.dll tests\Core.Episerver.Tests\bin\Core.Episerver.Tests.dll -noshadow -xml %testresult_path% -appveyor" -output:%coverage_path% -coverbytest:*Tests.dll -oldStyle'
 artifacts:
-- path: '**\xunit.*.results.xml'
+- path: '%testresult_path%'
+- path: '%coverage_path%'
 cache:
   - packages -> **\packages.config
   - '%USERPROFILE%\.nuget\packages'
-  - C:\ProgramData\chocolatey\bin -> appveyor.yml
-  - C:\ProgramData\chocolatey\lib -> appveyor.yml
+  - C:\ProgramData\chocolatey\bin-> appveyor.yml
+  - C:\ProgramData\chocolatey\lib-> appveyor.yml
 before_package:
 - ps: >-
     cd $env:APPVEYOR_BUILD_FOLDER\src\Epinova.ElasticSearch.Core.EPiServer;
