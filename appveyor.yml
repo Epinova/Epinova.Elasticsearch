@@ -34,8 +34,7 @@ build:
 test_script:
 - cmd: 'OpenCover.Console.exe -register:user -returntargetcode -target:"xunit.console.exe" -targetargs:"tests\Core.Tests\bin\Core.Tests.dll tests\Core.Episerver.Tests\bin\Core.Episerver.Tests.dll -noshadow -xml %APPVEYOR_BUILD_FOLDER%\xunit.test.results.xml -appveyor" -output:%APPVEYOR_BUILD_FOLDER%\xunit.opencover.results.xml -coverbytest:*Tests.dll'
 artifacts:
-- path: '%APPVEYOR_BUILD_FOLDER%\xunit.test.results.xml'
-- path: '%APPVEYOR_BUILD_FOLDER%\xunit.opencover.results.xml'
+- path: **/xunit.*.xml'
 cache:
   - packages -> **\packages.config
   - '%USERPROFILE%\.nuget\packages'
