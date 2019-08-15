@@ -32,7 +32,7 @@ build:
   publish_nuget: true
   verbosity: minimal
 test_script:
-- cmd: 'OpenCover.Console.exe -register:user -returntargetcode -target:"%ChocolateyInstall%\bin\xunit.console.exe" -targetargs:"tests\Core.Tests\bin\Core.Tests.dll tests\Core.Episerver.Tests\bin\Core.Episerver.Tests.dll -noshadow -xml %APPVEYOR_BUILD_FOLDER%\xunit.test.results.xml -appveyor" -output:'%APPVEYOR_BUILD_FOLDER%\xunit.opencover.results.xml' -coverbytest:*Tests.dll'
+- cmd: 'OpenCover.Console.exe -register:user -returntargetcode -target:"%ChocolateyInstall%\bin\xunit.console.exe" -targetargs:"tests\Core.Tests\bin\Core.Tests.dll tests\Core.Episerver.Tests\bin\Core.Episerver.Tests.dll -noshadow -xml \"%APPVEYOR_BUILD_FOLDER%\xunit.test.results.xml\" -appveyor" -output:"%APPVEYOR_BUILD_FOLDER%\xunit.opencover.results.xml" -coverbytest:*Tests.dll'
 artifacts:
 - path: '**/xunit.*.results.xml'
 cache:
