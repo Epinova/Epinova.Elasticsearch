@@ -18,6 +18,7 @@ nuget:
   project_feed: true
 before_build:
 - cmd: nuget restore
+- cmd: choco install xunit -y
 - ps: >-
     If ("$env:sonarcloudkey".Length -gt 0) {
       choco install sonarscanner-msbuild-net46 opencover.portable -y
