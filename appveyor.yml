@@ -4,8 +4,6 @@ image: Visual Studio 2017
 configuration: Release
 platform: Any CPU
 environment:
-  coverage_path: 'xunit.opencover.results.xml'
-  testresult_path: 'xunit.test.results.xml'
   sonarcloudorg: epinova
   sonarcloudproj: Epinova_Epinova.Elasticsearch
   sonarcloudkey:
@@ -20,7 +18,7 @@ nuget:
   project_feed: true
 before_build:
 - cmd: nuget restore
-- cmd: IF DEFINED sonarcloudkey choco install sonarscanner-msbuild-net46 opencover.portable -y && SonarScanner.MSBuild.exe begin /k:"%sonarcloudproj%" /d:"sonar.host.url=https://sonarcloud.io" /o:"%sonarcloudorg%" /d:"sonar.branch.name=%APPVEYOR_REPO_BRANCH%" /d:"sonar.login=%sonarcloudkey%" /d:sonar.cs.opencover.reportsPaths="%coverage_path%" /d:sonar.cs.xunit.reportsPaths="%testresult_path%"
+- cmd: IF DEFINED sonarcloudkey choco install sonarscanner-msbuild-net46 opencover.portable -y && SonarScanner.MSBuild.exe begin /k:"%sonarcloudproj%" /d:"sonar.host.url=https://sonarcloud.io" /o:"%sonarcloudorg%" /d:"sonar.branch.name=%APPVEYOR_REPO_BRANCH%" /d:"sonar.login=%sonarcloudkey%" /d:sonar.cs.opencover.reportsPaths="xunit.opencover.results.xml" /d:sonar.cs.xunit.reportsPaths="xunit.test.results.xml"
 after_test:
 - cmd: IF DEFINED sonarcloudkey SonarScanner.MSBuild.exe end /d:"sonar.login=%sonarcloudkey%"
 pull_requests:
@@ -29,10 +27,10 @@ build:
   publish_nuget: true
   verbosity: minimal
 test_script:
-- cmd: 'OpenCover.Console.exe -register:user -returntargetcode -target:"%xunit20%\xunit.console.exe" -targetargs:"tests\Core.Tests\bin\Core.Tests.dll tests\Core.Episerver.Tests\bin\Core.Episerver.Tests.dll -noshadow -xml %testresult_path% -appveyor" -output:%coverage_path% -coverbytest:*Tests.dll -oldStyle'
+- cmd: 'OpenCover.Console.exe -register:user -returntargetcode -target:"%xunit20%\xunit.console.exe" -targetargs:"tests\Core.Tests\bin\Core.Tests.dll tests\Core.Episerver.Tests\bin\Core.Episerver.Tests.dll -noshadow -xml xunit.test.results.xml -appveyor" -output:xunit.opencover.results.xml -coverbytest:*Tests.dll'
 artifacts:
-- path: '%testresult_path%'
-- path: '%coverage_path%'
+- path: 'xunit.test.results.xml'
+- path: 'xunit.opencover.results.xml'
 cache:
   - packages -> **\packages.config
   - '%USERPROFILE%\.nuget\packages'
