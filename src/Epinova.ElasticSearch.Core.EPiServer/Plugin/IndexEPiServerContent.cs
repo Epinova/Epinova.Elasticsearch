@@ -282,7 +282,6 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Plugin
                     {
                         _coreIndexer.UpdateMapping(type, typeof(IndexItem), indexName);
                         _coreIndexer.CreateAnalyzedMappingsIfNeeded(type, language, indexName);
-                        _coreIndexer.CreateDidYouMeanMappingsIfNeeded(type, language, indexName);
                     }
                 }
                 catch(Exception ex)

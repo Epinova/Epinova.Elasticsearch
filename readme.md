@@ -750,6 +750,16 @@ SearchResult result = service
 string[] didYouMean = result.DidYouMean; // [ "alloy", "all" ]
 ```
 
+Any properties that should act as a source for suggestions must be marked with `[DidYouMeanSource]`.
+
+```csharp
+public class StandardPage : SitePageData
+{
+    [DidYouMeanSource]
+    public virtual XhtmlString MainBody { get; set; }
+}
+```
+
 &nbsp;
 
 
@@ -868,8 +878,7 @@ var obj1 = new ComplexType { StringProperty = "this is myobj 1" };
 var obj2 = new ComplexType { StringProperty = "this is myobj 2" };
 var obj3 = new ComplexType { StringProperty = "this is myobj 3" };
 
-IElasticSearchSettings settings = ServiceLocator.Current.GetInstance<IElasticSearchSettings>(); // Can also be injected
-ICoreIndexer indexer = new Epinova.ElasticSearch.Core.CoreIndexer(settings);
+ICoreIndexer indexer = ServiceLocator.Current.GetInstance<ICoreIndexer>(); // Can also be injected
 
 BulkBatchResult bulk = indexer.Bulk(new[]
 {
@@ -893,8 +902,7 @@ var obj1 = new ComplexType { StringProperty = "this is myobj 1" };
 var obj2 = new ComplexType { StringProperty = "this is myobj 2" };
 var obj3 = new ComplexType { StringProperty = "this is myobj 3" };
 
-IElasticSearchSettings settings = ServiceLocator.Current.GetInstance<IElasticSearchSettings>(); // Can also be injected
-ICoreIndexer indexer = new Epinova.ElasticSearch.Core.CoreIndexer(settings);
+ICoreIndexer indexer = ServiceLocator.Current.GetInstance<ICoreIndexer>(); // Can also be injected
 
 string indexName = "my-uber-custom-name-no";
 

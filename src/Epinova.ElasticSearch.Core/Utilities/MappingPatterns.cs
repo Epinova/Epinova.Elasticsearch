@@ -72,7 +72,7 @@ namespace Epinova.ElasticSearch.Core.Utilities
                     ParentLink = new { type = "long" },
                     Path = new { type = "long" },
                     Lang = new { type = TextType },
-                    DidYouMean = new { type = TextType, analyzer = languageName + "_suggest", fields = new { raw = new { analyzer = "raw", type = TextType } } },
+                    DidYouMean = new { type = TextType, analyzer = languageName + "_suggest", fields = new { keyword = new { ignore_above = 8191, type = JsonNames.Keyword } } },
                     Suggest = SuggestMapping,
                     Type = new { type = TextType, analyzer = "raw" },
                     Types = new { type = TextType, analyzer = "raw" },

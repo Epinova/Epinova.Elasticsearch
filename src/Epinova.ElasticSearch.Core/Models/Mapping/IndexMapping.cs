@@ -94,21 +94,9 @@ namespace Epinova.ElasticSearch.Core.Models.Mapping
                 Properties[name].Type = property.Type;
             }
 
-            if(IncludeInDidYouMean(name, property))
+            if(Properties[name].CopyTo != null && !Properties[name].CopyTo.SequenceEqual(property.CopyTo))
             {
-                Logger.Debug("Should include in DidYouMean");
-
-                if(property.CopyTo == null || property.CopyTo.Length == 0)
-                {
-                    property.CopyTo = new[] { DefaultFields.DidYouMean };
-                    IsDirty = true;
-                }
-                else if(!property.CopyTo.Contains(DefaultFields.DidYouMean))
-                {
-                    property.CopyTo = property.CopyTo.Concat(new[] { DefaultFields.DidYouMean }).ToArray();
-                    IsDirty = true;
-                }
-
+                IsDirty = true;
                 Properties[name].CopyTo = property.CopyTo;
             }
 
@@ -116,13 +104,6 @@ namespace Epinova.ElasticSearch.Core.Models.Mapping
             {
                 Logger.Debug("CopyTo: " + String.Join(", ", Properties[name].CopyTo));
             }
-        }
-
-        private static bool IncludeInDidYouMean(string name, IndexMappingProperty property)
-        {
-            return name != null
-                   && property.Type == nameof(MappingType.Text).ToLower()
-                   && !WellKnownProperties.IgnoreDidYouMean.Contains(name);
         }
     }
 }

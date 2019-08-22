@@ -265,72 +265,6 @@ namespace Epinova.ElasticSearch.Core
             }
         }
 
-        public void CreateDidYouMeanMappingsIfNeeded(Type type, string language, string indexName = null)
-        {
-            Logger.Debug("Checking if DidYouMean mappings needs updating");
-
-            var stringProperties = type.GetIndexableProps(false)
-                .Where(p => p.PropertyType == typeof(string) || p.PropertyType == typeof(string[]) || p.PropertyType == typeof(XhtmlString))
-                .Select(p => p.Name)
-                .ToList();
-
-            string json = null;
-            string oldJson = null;
-
-            try
-            {
-                IndexMapping mapping = _mapping.GetIndexMapping(typeof(IndexItem), language, indexName);
-
-                var jsonSettings = new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore };
-                oldJson = JsonConvert.SerializeObject(mapping, jsonSettings);
-
-                IEnumerable<string> filtered = stringProperties
-                    .Except(WellKnownProperties.IgnoreDidYouMean)
-                    .Except(WellKnownProperties.Ignore);
-
-                foreach(string prop in filtered)
-                {
-                    mapping.Properties.TryGetValue(prop, out IndexMappingProperty property);
-                    mapping.AddOrUpdateProperty(prop, property);
-                }
-
-                if(!mapping.IsDirty)
-                {
-                    // No change, quit.
-                    Logger.Debug("No change");
-                    return;
-                }
-
-                json = JsonConvert.SerializeObject(mapping, jsonSettings);
-                var data = Encoding.UTF8.GetBytes(json);
-
-                if(String.IsNullOrWhiteSpace(indexName))
-                {
-                    indexName = _settings.GetDefaultIndexName(language);
-                }
-
-                var uri = $"{_settings.Host}/{indexName}/_mapping/{typeof(IndexItem).GetTypeName()}";
-                if(Server.Info.Version.Major >= 7)
-                {
-                    uri += "?include_type_name=true";
-                }
-
-                Logger.Debug("Update mapping:\n" + JToken.Parse(json).ToString(Formatting.Indented));
-
-                _httpClientHelper.Put(new Uri(uri), data);
-            }
-            catch(Exception ex)
-            {
-                Logger.Error("Failed to update mappings", ex);
-
-                if(Logger.IsDebugEnabled())
-                {
-                    Logger.Debug("Old mapping:\n" + JToken.Parse(oldJson ?? String.Empty).ToString(Formatting.Indented));
-                    Logger.Debug("New mapping:\n" + JToken.Parse(json ?? String.Empty).ToString(Formatting.Indented));
-                }
-            }
-        }
-
         public void ClearBestBets(string indexName, Type indexType, string id)
         {
             var request = new BestBetsRequest(new string[0]);
@@ -436,6 +370,18 @@ namespace Epinova.ElasticSearch.Core
                         propertyMapping.Analyzer = Language.GetSimpleLanguageAnalyzer(language);
                     }
 
+                    if(prop.IncludeInDidYouMean)
+                    {
+                        if(propertyMapping.CopyTo == null || propertyMapping.CopyTo.Length == 0)
+                        {
+                            propertyMapping.CopyTo = new[] { DefaultFields.DidYouMean };
+                        }
+                        else if(!propertyMapping.CopyTo.Contains(DefaultFields.DidYouMean))
+                        {
+                            propertyMapping.CopyTo = propertyMapping.CopyTo.Concat(new[] { DefaultFields.DidYouMean }).ToArray();
+                        }
+                    }
+
                     // If mapping with different analyzer exists, use its analyzer. 
                     if(!WellKnownProperties.IgnoreAnalyzer.Contains(prop.Name) && mapping.Properties.ContainsKey(prop.Name))
                     {
@@ -526,6 +472,7 @@ namespace Epinova.ElasticSearch.Core
                 {
                     Name = p.Name,
                     Type = p.PropertyType,
+                    IncludeInDidYouMean = ShouldIncludeInDidYouMean(p),
                     Analyzable = IsAnalyzable(p)
                 })
                 .Where(p => IsValidName(p.Name))
@@ -552,6 +499,14 @@ namespace Epinova.ElasticSearch.Core
                             .Contains(p.Name.ToLower())))
                     || (p.PropertyType == typeof(XhtmlString)
                     && p.GetCustomAttributes(typeof(ExcludeFromSearchAttribute), true).Length == 0);
+            }
+
+            bool ShouldIncludeInDidYouMean(PropertyInfo p)
+            {
+                return (p.PropertyType == typeof(string)
+                    || p.PropertyType == typeof(string[])
+                    || p.PropertyType == typeof(XhtmlString))
+                    && p.GetCustomAttributes(typeof(DidYouMeanSourceAttribute)).Any();
             }
 
             bool IsValidName(string name)
