@@ -85,5 +85,18 @@ namespace Core.Episerver.Tests.Controllers
 
             _fixture.ServiceLocationMock.SynonymRepositoryMock.Verify(m => m.SetSynonyms("", "", expected, ""), Times.Once);
         }
+
+        [Fact]
+        public void Add_LowerCasesInput()
+        {
+            var synonym = new Synonym { From = "A", To = "B" };
+
+            _controller.Add(synonym, "", "", "");
+
+            Assert.DoesNotContain('A', synonym.From);
+            Assert.DoesNotContain('B', synonym.To);
+            Assert.Contains('a', synonym.From);
+            Assert.Contains('b', synonym.To);
+        }
     }
 }
