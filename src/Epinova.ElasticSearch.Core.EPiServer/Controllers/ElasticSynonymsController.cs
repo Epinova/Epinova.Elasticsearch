@@ -77,6 +77,9 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Controllers
                     synonym.From += "=>" + synonym.From;
                 }
 
+                synonym.From = synonym.From.ToLower();
+                synonym.To = synonym.To.ToLower();
+
                 synonyms.Add(synonym);
 
                 _synonymRepository.SetSynonyms(languageId, analyzer, synonyms, index);
