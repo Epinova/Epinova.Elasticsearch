@@ -74,7 +74,7 @@ namespace Epinova.ElasticSearch.Core.Utilities
                     Lang = new { type = TextType },
                     DidYouMean = new { type = TextType, analyzer = languageName + "_suggest", fields = new { raw = new { analyzer = "raw", type = TextType } } },
                     Suggest = SuggestMapping,
-                    Type = new { type = TextType, analyzer = "raw" },
+                    Type = new { type = TextType, analyzer = "raw", fields = Fields },
                     Types = new { type = TextType, analyzer = "raw" },
                     _acl = new { type = TextType, analyzer = "raw" },
                     _attachmentdata = new { type = TextType },
