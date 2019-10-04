@@ -52,7 +52,7 @@ for:
 -
   branches:
     only:
-      - vnext
+      - /vnext.*/
 
   init:
   - ps: >-
