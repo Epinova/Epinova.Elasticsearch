@@ -177,8 +177,8 @@ WriteLiteral("\r\n    <div");
 
 WriteLiteral(" id=\"epi-globalDocument\"");
 
-WriteAttribute("class", Tuple.Create(" class=\"", 3808), Tuple.Create("\"", 3874)
-, Tuple.Create(Tuple.Create("", 3816), Tuple.Create<System.Object, System.Int32>(ViewBag.ContainerClass ?? "epi-paddingHorizontal-small"
+WriteAttribute("class", Tuple.Create(" class=\"", 3808), Tuple.Create("\"", 3841)
+, Tuple.Create(Tuple.Create("", 3816), Tuple.Create<System.Object, System.Int32>(ViewBag.ContainerClass
 , 3816), false)
 );
 

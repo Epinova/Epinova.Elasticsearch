@@ -32,7 +32,6 @@
 @{
     string localizationPath = "/epinovaelasticsearch/tracking/";
 }
-
 <div id="tabContainer">
     <div data-dojo-type="dijit/layout/TabContainer" doLayout="false">
         @foreach (TrackingLanguage lang in Model.Languages)
@@ -41,21 +40,22 @@
                 <div class="epi-padding-small">
                     @if (lang.Indices.Count > 1)
                     {
-                        <div class="epi-groupedButtonContainer">
-                            <h2>@Html.TranslateWithPathRaw("index", localizationPath)</h2>
-
-                            @foreach (var index in lang.Indices)
-                            {
-                                var indexName = $"{index.Key}-{lang.LanguageId}";
-                                if (indexName == ViewBag.SelectedIndex)
+                        <h2>@Html.TranslateWithPathRaw("index", localizationPath)</h2>
+                        <div data-dojo-type="dijit/form/DropDownButton" class="epi-primary">
+                            <span>@ViewBag.SelectedIndexName</span>
+                            <div data-dojo-type="dijit/DropDownMenu">
+                                @foreach (var index in lang.Indices)
                                 {
-                                    <span>@index.Value</span>
+                                    var indexName = $"{index.Key}-{lang.LanguageId}";
+                                    if (indexName != ViewBag.SelectedIndex)
+                                    {
+                                        <div data-dojo-type="dijit/MenuItem"
+                                             data-dojo-props="onClick:function(){document.location='?index=@indexName&languageId=@lang.LanguageId';}">
+                                            @index.Value
+                                        </div>
+                                    }
                                 }
-                                else
-                                {
-                                    <a class="epi-visibleLink" href="?index=@indexName&languageId=@lang.LanguageId">@index.Value</a>
-                                }
-                            }
+                            </div>
                         </div>
                     }
 
