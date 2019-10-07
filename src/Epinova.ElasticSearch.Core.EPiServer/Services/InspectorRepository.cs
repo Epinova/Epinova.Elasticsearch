@@ -33,7 +33,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Services
             _httpClientHelper = httpClientHelper;
         }
 
-        public List<InspectItem> Search(string languageId, string searchText, int size, string type = null, string selectedIndex = null)
+        public List<InspectItem> Search(string searchText, string indexName, int size, string type = null, string selectedIndex = null)
         {
             if(String.IsNullOrWhiteSpace(searchText) && String.IsNullOrWhiteSpace(type))
             {
@@ -41,8 +41,6 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Services
             }
 
             string query = CreateSearchQuery(searchText, type);
-            string indexName = GetIndexName(languageId, selectedIndex);
-
             string uri = $"{_elasticSearchSettings.Host}/{indexName}/_search?q={query}&size={size}";
             if(Server.Info.Version.Major >= 7)
             {
@@ -56,9 +54,8 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Services
             return hits.Select(h => new InspectItem(h)).ToList();
         }
 
-        public Dictionary<string, List<TypeCount>> GetTypes(string languageId, string searchText, string selectedIndex = null)
+        public Dictionary<string, List<TypeCount>> GetTypes(string searchText, string indexName)
         {
-            string indexName = GetIndexName(languageId, selectedIndex);
             string uri = $"{_elasticSearchSettings.Host}/{indexName}/_search";
             if(Server.Info.Version.Major >= 7)
             {
@@ -148,7 +145,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Services
 
         private TypeCount ToTypeCount(JToken instance)
         {
-            TypeCount typeCount = new TypeCount
+            var typeCount = new TypeCount
             {
                 Type = instance.Value<JObject>().Property("key").Value.ToString(),
                 Count = Convert.ToInt32(instance.Value<JObject>().Property("doc_count").Value.ToString())

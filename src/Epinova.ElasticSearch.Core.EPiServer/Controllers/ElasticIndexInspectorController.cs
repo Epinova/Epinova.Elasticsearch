@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Web.Mvc;
 using Epinova.ElasticSearch.Core.Contracts;
@@ -11,9 +12,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Controllers
 {
     public class ElasticIndexInspectorController : ElasticSearchControllerBase
     {
-        private readonly IElasticSearchSettings _elasticSearchSettings;
         private readonly IInspectorRepository _inspectorRepository;
-        private readonly ILanguageBranchRepository _languageBranchRepository;
 
         public ElasticIndexInspectorController(
             IElasticSearchSettings settings,
@@ -22,25 +21,33 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Controllers
             ILanguageBranchRepository languageBranchRepository)
             : base(settings, httpClientHelper, languageBranchRepository)
         {
-            _elasticSearchSettings = settings;
             _inspectorRepository = inspectorRepository;
-            _languageBranchRepository = languageBranchRepository;
         }
 
         [Authorize(Roles = RoleNames.ElasticsearchAdmins)]
         public ActionResult Index(InspectViewModel model)
+            => View("~/Views/ElasticSearchAdmin/IndexInspector/Index.cshtml", GetModel(model));
+
+        private InspectViewModel GetModel(InspectViewModel model)
         {
-            model.Languages = _languageBranchRepository.ListEnabled();
-            model.SelectedLanguage = model.SelectedLanguage ?? model.Languages.First().LanguageID;
-            model.Indices = _elasticSearchSettings.Indices.ToList();
-            model.SelectedIndex = model.SelectedIndex ?? _elasticSearchSettings.Index;
+            foreach(var language in Languages)
+            {
+                var id = language.Key;
+                var name = language.Value;
+                name = String.Concat(name.Substring(0, 1).ToUpper(), name.Substring(1));
+
+                model.AddLanguage(
+                    name,
+                    id,
+                    UniqueIndices);
+            }
+
             model.NumberOfItems = new List<int> { 10, 20, 50, 100, 1000, 10000 };
             model.SelectedNumberOfItems = model.SelectedNumberOfItems > 0 ? model.SelectedNumberOfItems : model.NumberOfItems.First();
+            model.SearchHits = _inspectorRepository.Search(model.SearchText, CurrentIndex, model.SelectedNumberOfItems, model.SelectedType, CurrentIndex);
+            model.TypeCounts = _inspectorRepository.GetTypes(model.SearchText, CurrentIndex);
 
-            model.SearchHits = _inspectorRepository.Search(model.SelectedLanguage, model.SearchText, model.SelectedNumberOfItems, model.SelectedType, model.SelectedIndex);
-            model.TypeCounts = _inspectorRepository.GetTypes(model.SelectedLanguage, model.SearchText, model.SelectedIndex);
-
-            return View("~/Views/ElasticSearchAdmin/IndexInspector/Index.cshtml", model);
+            return model;
         }
     }
 }

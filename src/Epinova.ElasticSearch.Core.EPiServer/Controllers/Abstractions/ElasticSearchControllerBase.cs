@@ -123,6 +123,11 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Controllers.Abstractions
                     ? "[default]"
                     : Type.GetType(parsed.Type)?.Name;
 
+                if(parsed.Default)
+                {
+                    indexInfo.SortOrder = -1;
+                }
+
                 var displayName = new StringBuilder(parsed?.DisplayName);
 
                 if(indexInfo.Index.Contains($"-{Constants.CommerceProviderName}".ToLowerInvariant()))
@@ -133,7 +138,9 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Controllers.Abstractions
                 indexInfo.DisplayName = displayName.ToString();
             }
 
-            return indices;
+            return indices
+                .OrderBy(i => i.SortOrder)
+                .ToList();
         }
 
         private Dictionary<string, string> GetLanguages()

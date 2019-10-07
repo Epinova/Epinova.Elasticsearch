@@ -1,18 +1,33 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using Epinova.ElasticSearch.Core.EPiServer.Models.ViewModels.Abstractions;
 using Epinova.ElasticSearch.Core.Models;
-using EPiServer.DataAbstraction;
 
 namespace Epinova.ElasticSearch.Core.EPiServer.Models.ViewModels
 {
-    public class InspectViewModel
+    public class InspectViewModel : LanguageAwareViewModelBase
     {
+        public InspectViewModel() : this(String.Empty)
+        {
+        }
+
+        public InspectViewModel(string currentLanguage) : base(currentLanguage)
+        {
+        }
+
+        public List<InspectLanguage> Languages { get; } = new List<InspectLanguage>();
+
         public string SearchText { get; set; }
 
-        public List<string> Indices { get; set; }
-        public string SelectedIndex { get; set; }
-
-        public IList<LanguageBranch> Languages { get; set; }
-        public string SelectedLanguage { get; set; }
+        public void AddLanguage(string name, string id, Dictionary<string, string> indices)
+        {
+            Languages.Add(new InspectLanguage
+            {
+                LanguageId = id,
+                LanguageName = name,
+                Indices = indices
+            });
+        }
 
         public Dictionary<string, List<TypeCount>> TypeCounts { get; set; }
         public string SelectedType { get; set; }

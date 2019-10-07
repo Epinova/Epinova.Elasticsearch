@@ -24,6 +24,9 @@ namespace Epinova.ElasticSearch.Core.Models.Admin
         public string DisplayName { get; internal set; }
 
         [JsonIgnore]
+        public int SortOrder { get; internal set; }
+
+        [JsonIgnore]
         public string Tokenizer { get; internal set; }
 
         [JsonProperty("pri")]
