@@ -123,7 +123,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Controllers.Abstractions
                     ? "[default]"
                     : Type.GetType(parsed.Type)?.Name;
 
-                if(parsed.Default)
+                if(parsed?.Default ?? false)
                 {
                     indexInfo.SortOrder = -1;
                 }
