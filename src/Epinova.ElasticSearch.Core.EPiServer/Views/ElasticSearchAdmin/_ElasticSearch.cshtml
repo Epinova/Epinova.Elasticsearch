@@ -120,7 +120,7 @@
 </head>
 <body class="Sleek">
     @Html.Raw(ViewBag.Menu)
-    <div id="epi-globalDocument" class="@(ViewBag.ContainerClass ?? "epi-paddingHorizontal-small")">
+    <div id="epi-globalDocument" class="@(ViewBag.ContainerClass)">
         <div>
             @RenderBody()
         </div>

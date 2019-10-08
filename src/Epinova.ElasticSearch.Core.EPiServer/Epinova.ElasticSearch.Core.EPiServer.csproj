@@ -232,6 +232,7 @@
     <Compile Include="Models\ViewModels\LanguageSynonyms.cs" />
     <Compile Include="Models\ViewModels\SynonymsViewModel.cs" />
     <Compile Include="Models\ViewModels\TrackingByLanguage.cs" />
+    <Compile Include="Models\ViewModels\InspectLanguage.cs" />
     <Compile Include="Models\ViewModels\TrackingLanguage.cs" />
     <Compile Include="Models\ViewModels\TrackingViewModel.cs" />
     <Compile Include="Plugin\IndexEPiServerContent.cs" />

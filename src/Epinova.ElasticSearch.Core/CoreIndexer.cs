@@ -427,13 +427,19 @@ namespace Epinova.ElasticSearch.Core
                         mappingType = existingType;
                     }
 
+                    var analyzerFull = Language.GetLanguageAnalyzer(language);
+                    var analyzerSimple = Language.GetSimpleLanguageAnalyzer(language);
+
                     if(prop.Analyzable && language != null)
                     {
-                        propertyMapping.Analyzer = Language.GetLanguageAnalyzer(language);
+                        propertyMapping.Analyzer = analyzerFull;
                     }
-                    else if(!WellKnownProperties.IgnoreAnalyzer.Contains(prop.Name) && language != null && mappingType == nameof(MappingType.Text).ToLower())
+                    else if(!WellKnownProperties.IgnoreAnalyzer.Contains(prop.Name)
+                        && language != null
+                        && mappingType == nameof(MappingType.Text).ToLower()
+                        && propertyMapping.Analyzer != analyzerFull)
                     {
-                        propertyMapping.Analyzer = Language.GetSimpleLanguageAnalyzer(language);
+                        propertyMapping.Analyzer = analyzerSimple;
                     }
 
                     // If mapping with different analyzer exists, use its analyzer. 

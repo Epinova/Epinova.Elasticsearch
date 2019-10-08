@@ -28,6 +28,7 @@ namespace ASP
     using System.Web.UI;
     using System.Web.WebPages;
     using Epinova.ElasticSearch.Core.EPiServer.Extensions;
+    using Epinova.ElasticSearch.Core.EPiServer.Models.ViewModels;
     using Epinova.ElasticSearch.Core.Models;
     using EPiServer;
     using EPiServer.Core;
@@ -40,13 +41,15 @@ namespace ASP
     
     [System.CodeDom.Compiler.GeneratedCodeAttribute("RazorGenerator", "2.0.0.0")]
     [System.Web.WebPages.PageVirtualPathAttribute("~/Views/ElasticSearchAdmin/IndexInspector/Index.cshtml")]
-    public partial class _Views_ElasticSearchAdmin_IndexInspector_Index_cshtml : System.Web.Mvc.WebViewPage<Epinova.ElasticSearch.Core.EPiServer.Models.ViewModels.InspectViewModel>
+    public partial class _Views_ElasticSearchAdmin_IndexInspector_Index_cshtml : System.Web.Mvc.WebViewPage<InspectViewModel>
     {
         public _Views_ElasticSearchAdmin_IndexInspector_Index_cshtml()
         {
         }
         public override void Execute()
         {
+WriteLiteral("\r\n");
+
 WriteLiteral("\r\n");
 
   
@@ -101,48 +104,145 @@ WriteLiteral(@"
 
 WriteLiteral("\r\n<div");
 
-WriteLiteral(" class=\"epi-formArea epi-padding-small\"");
+WriteLiteral(" id=\"tabContainer\"");
 
-WriteLiteral(">\r\n    <h1");
+WriteLiteral(">\r\n    <div");
+
+WriteLiteral(" data-dojo-type=\"dijit/layout/TabContainer\"");
+
+WriteLiteral(" doLayout=\"false\"");
+
+WriteLiteral(">\r\n");
+
+        
+         foreach (var lang in Model.Languages)
+        {
+
+WriteLiteral("            <div");
+
+WriteLiteral(" data-dojo-type=\"dijit/layout/ContentPane\"");
+
+WriteAttribute("title", Tuple.Create(" title=\"", 1721), Tuple.Create("\"", 1747)
+, Tuple.Create(Tuple.Create("", 1729), Tuple.Create<System.Object, System.Int32>(lang.LanguageName
+, 1729), false)
+);
+
+WriteLiteral(" data-dojo-props=\"");
+
+                                                                                                   Write(lang.LanguageId == Model.CurrentLanguage ? "selected:true" : null);
+
+WriteLiteral("\"");
+
+WriteLiteral(">\r\n                <div");
+
+WriteLiteral(" class=\"epi-padding-small\"");
+
+WriteLiteral(">\r\n");
+
+                    
+                     if (lang.Indices.Count > 1)
+                    {
+
+WriteLiteral("                        <h2>");
+
+                       Write(Html.TranslateWithPathRaw("indexes", localizationPath));
+
+WriteLiteral("</h2>\r\n");
+
+WriteLiteral("                        <div");
+
+WriteLiteral(" data-dojo-type=\"dijit/form/DropDownButton\"");
+
+WriteLiteral(" class=\"epi-primary\"");
+
+WriteLiteral(">\r\n                            <span>");
+
+                             Write(ViewBag.SelectedIndexName);
+
+WriteLiteral("</span>\r\n                            <div");
+
+WriteLiteral(" data-dojo-type=\"dijit/DropDownMenu\"");
+
+WriteLiteral(">\r\n");
+
+                                
+                                 foreach (var index in lang.Indices)
+                                {
+                                    var indexName = $"{index.Key}-{lang.LanguageId}";
+                                    if (indexName != ViewBag.SelectedIndex)
+                                    {
+
+WriteLiteral("                                        <div");
+
+WriteLiteral(" data-dojo-type=\"dijit/MenuItem\"");
+
+WriteLiteral("\r\n                                                data-dojo-props=\"onClick:functi" +
+"on(){document.location=\'?index=");
+
+                                                                                                         Write(indexName);
+
+WriteLiteral("&languageId=");
+
+                                                                                                                               Write(lang.LanguageId);
+
+WriteLiteral("\';}\"");
+
+WriteLiteral(">\r\n");
+
+WriteLiteral("                                            ");
+
+                                       Write(index.Value);
+
+WriteLiteral("\r\n                                        </div>\r\n");
+
+                                    }
+                                }
+
+WriteLiteral("                            </div>\r\n                        </div>\r\n");
+
+                    }
+
+WriteLiteral("\r\n");
+
+                    
+                     using (Html.BeginForm("Index", "ElasticIndexInspector", new { index = ViewBag.SelectedIndex, languageId = Model.CurrentLanguage }, FormMethod.Post, null))
+                    {
+
+WriteLiteral("                        <div");
+
+WriteLiteral(" class=\"indexInspector\"");
+
+WriteLiteral(">\r\n                            <div");
+
+WriteLiteral(" class=\"mainContent\"");
+
+WriteLiteral(">\r\n                                <h1");
 
 WriteLiteral(" class=\"EP-prefix\"");
 
 WriteLiteral(">");
 
-                     Write(Html.TranslateWithPath("heading", localizationPath));
+                                                 Write(Html.TranslateWithPath("heading", localizationPath));
 
-WriteLiteral("</h1>\r\n\r\n");
-
-    
-     using (Html.BeginForm("Index", "ElasticIndexInspector"))
-    {
-
-WriteLiteral("        <div");
-
-WriteLiteral(" class=\"indexInspector\"");
-
-WriteLiteral(">\r\n            <div");
-
-WriteLiteral(" class=\"mainContent\"");
-
-WriteLiteral(">\r\n                <p>\r\n                    <input");
+WriteLiteral("</h1>\r\n                                <p>\r\n                                    <" +
+"input");
 
 WriteLiteral(" data-dojo-type=\"dijit/form/ValidationTextBox\"");
 
 WriteLiteral(" data-dojo-props=\"placeholder:\'");
 
-                                                                                                  Write(Html.TranslateWithPathRaw("placeholder", localizationPath));
+                                                                                                                  Write(Html.TranslateWithPathRaw("placeholder", localizationPath));
 
 WriteLiteral("\'\"");
 
 WriteLiteral(" name=\"searchText\"");
 
-WriteAttribute("value", Tuple.Create(" value=\"", 1953), Tuple.Create("\"", 1978)
-                                                                                                              , Tuple.Create(Tuple.Create("", 1961), Tuple.Create<System.Object, System.Int32>(Model.SearchText
-, 1961), false)
+WriteAttribute("value", Tuple.Create(" value=\"", 3755), Tuple.Create("\"", 3780)
+                                                                                                                              , Tuple.Create(Tuple.Create("", 3763), Tuple.Create<System.Object, System.Int32>(Model.SearchText
+, 3763), false)
 );
 
-WriteLiteral(" />\r\n                    <button");
+WriteLiteral(" />\r\n                                    <button");
 
 WriteLiteral(" data-dojo-type=\"dijit/form/Button\"");
 
@@ -152,58 +252,58 @@ WriteLiteral(" class=\"epi-primary\"");
 
 WriteLiteral(">");
 
-                                                                                            Write(Html.TranslateWithPath("execute", localizationPath));
+                                                                                                            Write(Html.TranslateWithPath("execute", localizationPath));
 
-WriteLiteral("</button>\r\n                </p>\r\n\r\n");
+WriteLiteral("</button>\r\n                                </p>\r\n\r\n");
 
-                
-                 if (String.IsNullOrWhiteSpace(Model.SearchText) && String.IsNullOrWhiteSpace(Model.SelectedType))
-                {
+                                
+                                 if (String.IsNullOrWhiteSpace(Model.SearchText) && String.IsNullOrWhiteSpace(Model.SelectedType))
+                                {
 
-WriteLiteral("                    <h2>");
+WriteLiteral("                                    <h2>");
 
-                   Write(Html.TranslateWithPath("unfiltered", localizationPath));
-
-WriteLiteral("</h2>\r\n");
-
-                }
-                else if (Model.SearchHits == null || !Model.SearchHits.Any())
-                {
-
-WriteLiteral("                    <h2>");
-
-                   Write(Html.TranslateWithPath("nohits", localizationPath));
+                                   Write(Html.TranslateWithPath("unfiltered", localizationPath));
 
 WriteLiteral("</h2>\r\n");
 
-                }
-                else
-                {
+                                }
+                                else if (Model.SearchHits == null || !Model.SearchHits.Any())
+                                {
 
-WriteLiteral("                    <ol");
+WriteLiteral("                                    <h2>");
+
+                                   Write(Html.TranslateWithPath("nohits", localizationPath));
+
+WriteLiteral("</h2>\r\n");
+
+                                }
+                                else
+                                {
+
+WriteLiteral("                                    <ol");
 
 WriteLiteral(" class=\"indexes\"");
 
 WriteLiteral(">\r\n");
 
-                        
-                         for (var index = 0; index < Model.SearchHits.Count; index++)
-                        {
-                            InspectItem item = Model.SearchHits[index];
+                                        
+                                         for (var index = 0; index < Model.SearchHits.Count; index++)
+                                        {
+                                            InspectItem item = Model.SearchHits[index];
 
-WriteLiteral("                            <li");
+WriteLiteral("                                            <li");
 
 WriteLiteral(" class=\"accordion\"");
 
-WriteLiteral(">\r\n                                <h3>\r\n                                    <but" +
-"ton");
+WriteLiteral(">\r\n                                                <h3>\r\n                        " +
+"                            <button");
 
 WriteLiteral(" type=\"button\"");
 
-WriteAttribute("aria-controls", Tuple.Create(" aria-controls=\"", 3024), Tuple.Create("\"", 3051)
-, Tuple.Create(Tuple.Create("", 3040), Tuple.Create("item-", 3040), true)
-, Tuple.Create(Tuple.Create("", 3045), Tuple.Create<System.Object, System.Int32>(index
-, 3045), false)
+WriteAttribute("aria-controls", Tuple.Create(" aria-controls=\"", 5130), Tuple.Create("\"", 5157)
+, Tuple.Create(Tuple.Create("", 5146), Tuple.Create("item-", 5146), true)
+              , Tuple.Create(Tuple.Create("", 5151), Tuple.Create<System.Object, System.Int32>(index
+, 5151), false)
 );
 
 WriteLiteral(" aria-expanded=\"false\"");
@@ -212,93 +312,85 @@ WriteLiteral(" class=\"_jsAccordion\"");
 
 WriteLiteral(">");
 
-                                                                                                                            Write(item.Title);
+                                                                                                                                            Write(item.Title);
 
 WriteLiteral(" - <i>");
 
-                                                                                                                                             Write(item.ShortTypeName);
+                                                                                                                                                             Write(item.ShortTypeName);
 
-WriteLiteral("</i></button>\r\n                                </h3>\r\n                           " +
-"     <div");
+WriteLiteral("</i></button>\r\n                                                </h3>\r\n           " +
+"                                     <div");
 
 WriteLiteral(" class=\"accordion-panel\"");
 
 WriteLiteral(" style=\"display: none;\"");
 
-WriteAttribute("id", Tuple.Create(" id=\"", 3269), Tuple.Create("\"", 3285)
-, Tuple.Create(Tuple.Create("", 3274), Tuple.Create("item-", 3274), true)
-             , Tuple.Create(Tuple.Create("", 3279), Tuple.Create<System.Object, System.Int32>(index
-, 3279), false)
+WriteAttribute("id", Tuple.Create(" id=\"", 5407), Tuple.Create("\"", 5423)
+, Tuple.Create(Tuple.Create("", 5412), Tuple.Create("item-", 5412), true)
+                             , Tuple.Create(Tuple.Create("", 5417), Tuple.Create<System.Object, System.Int32>(index
+, 5417), false)
 );
 
-WriteLiteral(">\r\n                                    <pre><code>");
+WriteLiteral(">\r\n                                                    <pre><code>");
 
-                                          Write(item.Content);
+                                                          Write(item.Content);
 
-WriteLiteral("</code></pre>\r\n                                </div>\r\n                          " +
-"  </li>\r\n");
+WriteLiteral("</code></pre>\r\n                                                </div>\r\n          " +
+"                                  </li>\r\n");
 
-                        }
+                                        }
 
-WriteLiteral("                    </ol>\r\n");
+WriteLiteral("                                    </ol>\r\n");
 
-                }
+                                }
 
-WriteLiteral("            </div>\r\n            <div");
+WriteLiteral("                            </div>\r\n                            <div");
 
 WriteLiteral(" class=\"sidebar\"");
 
-WriteLiteral(">\r\n");
+WriteLiteral(">\r\n                                <h2>");
 
-                
-                 if (Model.Indices != null && Model.Indices.Count > 1)
-                {
+                               Write(Html.TranslateWithPath("count", localizationPath));
 
-WriteLiteral("                    <h2>");
+WriteLiteral("</h2>\r\n                                <ul>\r\n");
 
-                   Write(Html.TranslateWithPath("indexes", localizationPath));
+                                    
+                                     foreach (int numberOfItems in Model.NumberOfItems)
+                                    {
 
-WriteLiteral("</h2>\r\n");
-
-WriteLiteral("                    <ul>\r\n");
-
-                        
-                         foreach (string index in Model.Indices)
-                        {
-
-WriteLiteral("                            <li>\r\n                                <label>\r\n      " +
-"                              <input");
+WriteLiteral("                                        <li>\r\n                                   " +
+"         <label>\r\n                                                <input");
 
 WriteLiteral(" type=\"radio\"");
 
 WriteLiteral(" data-dojo-type=\"dijit/form/RadioButton\"");
 
-WriteAttribute("name", Tuple.Create(" name=\"", 4030), Tuple.Create("\"", 4072)
-                      , Tuple.Create(Tuple.Create("", 4037), Tuple.Create<System.Object, System.Int32>(Html.NameFor(m => m.SelectedIndex)
-, 4037), false)
+WriteAttribute("name", Tuple.Create(" name=\"", 6298), Tuple.Create("\"", 6348)
+                                  , Tuple.Create(Tuple.Create("", 6305), Tuple.Create<System.Object, System.Int32>(Html.NameFor(m => m.SelectedNumberOfItems)
+, 6305), false)
 );
 
-WriteAttribute("value", Tuple.Create(" value=\"", 4073), Tuple.Create("\"", 4087)
-                                                                  , Tuple.Create(Tuple.Create("", 4081), Tuple.Create<System.Object, System.Int32>(index
-, 4081), false)
+WriteAttribute("value", Tuple.Create(" value=\"", 6349), Tuple.Create("\"", 6371)
+                                                                                      , Tuple.Create(Tuple.Create("", 6357), Tuple.Create<System.Object, System.Int32>(numberOfItems
+, 6357), false)
 );
 
-WriteAttribute("checked", Tuple.Create(" checked=\"", 4088), Tuple.Create("\"", 4141)
-                                                                                    , Tuple.Create(Tuple.Create("", 4098), Tuple.Create<System.Object, System.Int32>(Model.SelectedIndex == index ? "" : null
-, 4098), false)
+WriteAttribute("checked", Tuple.Create(" checked=\"", 6372), Tuple.Create("\"", 6441)
+                                                                                                                , Tuple.Create(Tuple.Create("", 6382), Tuple.Create<System.Object, System.Int32>(numberOfItems == Model.SelectedNumberOfItems ? "" : null
+, 6382), false)
 );
 
 WriteLiteral(" /> ");
 
-                                                                                                                                                                                                              Write(index);
+                                                                                                                                                                                                                                                          Write(numberOfItems);
 
-WriteLiteral("\r\n                                </label>\r\n                            </li>\r\n");
+WriteLiteral("\r\n                                            </label>\r\n                         " +
+"               </li>\r\n");
 
-                        }
+                                    }
 
-WriteLiteral("                    </ul>\r\n");
-
-WriteLiteral("                    <p>\r\n                        <button");
+WriteLiteral("                                </ul>\r\n                                <p>\r\n     " +
+"                               <button");
 
 WriteLiteral(" data-dojo-type=\"dijit/form/Button\"");
 
@@ -308,191 +400,76 @@ WriteLiteral(" class=\"epi-primary _jsAccordion\"");
 
 WriteLiteral(">");
 
-                                                                                                             Write(Html.TranslateWithPath("execute", localizationPath));
+                                                                                                                         Write(Html.TranslateWithPath("execute", localizationPath));
 
-WriteLiteral("</button>\r\n                    </p>\r\n");
+WriteLiteral("</button>\r\n                                </p>\r\n\r\n                              " +
+"  <h2>");
 
-                }
-
-WriteLiteral("\r\n                <h2>");
-
-               Write(Html.TranslateWithPath("count", localizationPath));
-
-WriteLiteral("</h2>\r\n                <ul>\r\n");
-
-                    
-                     foreach (int numberOfItems in Model.NumberOfItems)
-                    {
-
-WriteLiteral("                        <li>\r\n                            <label>\r\n              " +
-"                  <input");
-
-WriteLiteral(" type=\"radio\"");
-
-WriteLiteral(" data-dojo-type=\"dijit/form/RadioButton\"");
-
-WriteAttribute("name", Tuple.Create(" name=\"", 4887), Tuple.Create("\"", 4937)
-                  , Tuple.Create(Tuple.Create("", 4894), Tuple.Create<System.Object, System.Int32>(Html.NameFor(m => m.SelectedNumberOfItems)
-, 4894), false)
-);
-
-WriteAttribute("value", Tuple.Create(" value=\"", 4938), Tuple.Create("\"", 4960)
-                                                                      , Tuple.Create(Tuple.Create("", 4946), Tuple.Create<System.Object, System.Int32>(numberOfItems
-, 4946), false)
-);
-
-WriteAttribute("checked", Tuple.Create(" checked=\"", 4961), Tuple.Create("\"", 5030)
-                                                                                                , Tuple.Create(Tuple.Create("", 4971), Tuple.Create<System.Object, System.Int32>(numberOfItems == Model.SelectedNumberOfItems ? "" : null
-, 4971), false)
-);
-
-WriteLiteral(" /> ");
-
-                                                                                                                                                                                                                                          Write(numberOfItems);
-
-WriteLiteral("\r\n                            </label>\r\n                        </li>\r\n");
-
-                    }
-
-WriteLiteral("                </ul>\r\n                <p>\r\n                    <button");
-
-WriteLiteral(" data-dojo-type=\"dijit/form/Button\"");
-
-WriteLiteral(" type=\"submit\"");
-
-WriteLiteral(" class=\"epi-primary _jsAccordion\"");
-
-WriteLiteral(">");
-
-                                                                                                         Write(Html.TranslateWithPath("execute", localizationPath));
-
-WriteLiteral("</button>\r\n                </p>\r\n\r\n");
-
-                
-                 if (Model.Languages != null && Model.Languages.Count > 1)
-                {
-
-WriteLiteral("                    <h2>");
-
-                   Write(Html.TranslateWithPath("languages", localizationPath));
-
-WriteLiteral("</h2>\r\n");
-
-WriteLiteral("                    <ul>\r\n");
-
-                        
-                         foreach (var language in Model.Languages)
-                        {
-
-WriteLiteral("                            <li>\r\n                                <label>\r\n      " +
-"                              <input");
-
-WriteLiteral(" type=\"radio\"");
-
-WriteLiteral(" data-dojo-type=\"dijit/form/RadioButton\"");
-
-WriteAttribute("name", Tuple.Create(" name=\"", 5855), Tuple.Create("\"", 5900)
-                      , Tuple.Create(Tuple.Create("", 5862), Tuple.Create<System.Object, System.Int32>(Html.NameFor(m => m.SelectedLanguage)
-, 5862), false)
-);
-
-WriteAttribute("value", Tuple.Create(" value=\"", 5901), Tuple.Create("\"", 5929)
-                                                                     , Tuple.Create(Tuple.Create("", 5909), Tuple.Create<System.Object, System.Int32>(language.LanguageID
-, 5909), false)
-);
-
-WriteAttribute("checked", Tuple.Create(" checked=\"", 5930), Tuple.Create("\"", 6000)
-                                                                                                     , Tuple.Create(Tuple.Create("", 5940), Tuple.Create<System.Object, System.Int32>(Model.SelectedLanguage == language.LanguageID ? "" : null
-, 5940), false)
-);
-
-WriteLiteral(" /> ");
-
-                                                                                                                                                                                                                                                Write(language.Name);
-
-WriteLiteral("\r\n                                </label>\r\n                            </li>\r\n");
-
-                        }
-
-WriteLiteral("                    </ul>\r\n");
-
-WriteLiteral("                    <p>\r\n                        <button");
-
-WriteLiteral(" data-dojo-type=\"dijit/form/Button\"");
-
-WriteLiteral(" type=\"submit\"");
-
-WriteLiteral(" class=\"epi-primary _jsAccordion\"");
-
-WriteLiteral(">");
-
-                                                                                                             Write(Html.TranslateWithPath("execute", localizationPath));
-
-WriteLiteral("</button>\r\n                    </p>\r\n");
-
-                }
-
-WriteLiteral("\r\n                <h2>");
-
-               Write(Html.TranslateWithPath("types", localizationPath));
+                               Write(Html.TranslateWithPath("types", localizationPath));
 
 WriteLiteral("</h2>\r\n\r\n");
 
-                
-                 foreach (var group in Model.TypeCounts)
-                {
+                                
+                                 foreach (var group in Model.TypeCounts)
+                                {
+                                    if (Model.TypeCounts.Count > 1)
+                                    {
 
-WriteLiteral("                    <h3>");
+WriteLiteral("                                        <h3>");
 
-                   Write(group.Key);
+                                       Write(group.Key);
 
 WriteLiteral("</h3>\r\n");
 
-WriteLiteral("                    <ul>\r\n");
+                                    }
 
-                        
-                         foreach (var type in group.Value)
-                        {
+WriteLiteral("                                    <ul>\r\n");
 
-WriteLiteral("                            <li>\r\n                                <label>\r\n      " +
-"                              <input");
+                                        
+                                         foreach (var type in group.Value.OrderBy(t => t.Name))
+                                        {
+
+WriteLiteral("                                            <li>\r\n                               " +
+"                 <label>\r\n                                                    <i" +
+"nput");
 
 WriteLiteral(" type=\"radio\"");
 
 WriteLiteral(" data-dojo-type=\"dijit/form/RadioButton\"");
 
-WriteAttribute("name", Tuple.Create(" name=\"", 6881), Tuple.Create("\"", 6922)
-                      , Tuple.Create(Tuple.Create("", 6888), Tuple.Create<System.Object, System.Int32>(Html.NameFor(m => m.SelectedType)
-, 6888), false)
+WriteAttribute("name", Tuple.Create(" name=\"", 7719), Tuple.Create("\"", 7760)
+                                      , Tuple.Create(Tuple.Create("", 7726), Tuple.Create<System.Object, System.Int32>(Html.NameFor(m => m.SelectedType)
+, 7726), false)
 );
 
-WriteAttribute("value", Tuple.Create(" value=\"", 6923), Tuple.Create("\"", 6941)
-                                                                 , Tuple.Create(Tuple.Create("", 6931), Tuple.Create<System.Object, System.Int32>(type.Type
-, 6931), false)
+WriteAttribute("value", Tuple.Create(" value=\"", 7761), Tuple.Create("\"", 7779)
+                                                                                 , Tuple.Create(Tuple.Create("", 7769), Tuple.Create<System.Object, System.Int32>(type.Type
+, 7769), false)
 );
 
-WriteAttribute("checked", Tuple.Create(" checked=\"", 6942), Tuple.Create("\"", 6998)
-                                                                                       , Tuple.Create(Tuple.Create("", 6952), Tuple.Create<System.Object, System.Int32>(Model.SelectedType == type.Type ? "" : null
-, 6952), false)
+WriteAttribute("checked", Tuple.Create(" checked=\"", 7780), Tuple.Create("\"", 7836)
+                                                                                                       , Tuple.Create(Tuple.Create("", 7790), Tuple.Create<System.Object, System.Int32>(Model.SelectedType == type.Type ? "" : null
+, 7790), false)
 );
 
 WriteLiteral(" /> ");
 
-                                                                                                                                                                                                                    Write(type.Name);
+                                                                                                                                                                                                                                    Write(type.Name);
 
 WriteLiteral(" (");
 
-                                                                                                                                                                                                                                Write(type.Count);
+                                                                                                                                                                                                                                                Write(type.Count);
 
-WriteLiteral(")\r\n                                </label>\r\n                            </li>\r\n");
+WriteLiteral(")\r\n                                                </label>\r\n                    " +
+"                        </li>\r\n");
 
-                        }
+                                        }
 
-WriteLiteral("                    </ul>\r\n");
+WriteLiteral("                                    </ul>\r\n");
 
-                }
+                                }
 
-WriteLiteral("                <p>\r\n                    <button");
+WriteLiteral("                                <p>\r\n                                    <button");
 
 WriteLiteral(" data-dojo-type=\"dijit/form/Button\"");
 
@@ -502,13 +479,18 @@ WriteLiteral(" class=\"epi-primary _jsAccordion\"");
 
 WriteLiteral(">");
 
-                                                                                                         Write(Html.TranslateWithPath("execute", localizationPath));
+                                                                                                                         Write(Html.TranslateWithPath("execute", localizationPath));
 
-WriteLiteral("</button>\r\n                </p>\r\n            </div>\r\n        </div>\r\n");
+WriteLiteral("</button>\r\n                                </p>\r\n                            </di" +
+"v>\r\n                        </div>\r\n");
 
-    }
+                    }
 
-WriteLiteral("</div>  ");
+WriteLiteral("                </div>\r\n            </div>\r\n");
+
+        }
+
+WriteLiteral("    </div>\r\n</div>");
 
         }
     }

@@ -23,6 +23,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Controllers.Abstractions
         private readonly ILanguageBranchRepository _languageBranchRepository;
 
         protected string CurrentIndex;
+        protected string CurrentIndexDisplayName;
         protected string CurrentLanguage;
         private readonly IElasticSearchSettings _settings;
         private readonly IHttpClientHelper _httpClientHelper;
@@ -45,15 +46,17 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Controllers.Abstractions
             base.OnActionExecuting(filterContext);
             CurrentLanguage = Request?.QueryString[LanguageParam] ?? Languages.First().Key;
             CurrentIndex = Request?.QueryString[IndexParam] ?? Indices.FirstOrDefault(i => i.Index.EndsWith($"-{CurrentLanguage}"))?.Index;
+            CurrentIndexDisplayName = Indices.FirstOrDefault(i => i.Index == CurrentIndex)?.DisplayName;
         }
 
         protected override void OnResultExecuting(ResultExecutingContext filterContext)
         {
             base.OnResultExecuting(filterContext);
             ViewBag.SelectedIndex = CurrentIndex;
+            ViewBag.SelectedIndexName = CurrentIndexDisplayName;
 
             var platformNavigationMethod = typeof(MenuHelper).GetMethod("CreatePlatformNavigationMenu", new Type[0]);
-            if (platformNavigationMethod != null)
+            if(platformNavigationMethod != null)
             {
                 ViewBag.Menu = platformNavigationMethod.Invoke(null, null)?.ToString();
                 ViewBag.ContainerClass = "epi-navigation--fullscreen-fixed-adjust";
@@ -120,6 +123,11 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Controllers.Abstractions
                     ? "[default]"
                     : Type.GetType(parsed.Type)?.Name;
 
+                if(parsed?.Default ?? false)
+                {
+                    indexInfo.SortOrder = -1;
+                }
+
                 var displayName = new StringBuilder(parsed?.DisplayName);
 
                 if(indexInfo.Index.Contains($"-{Constants.CommerceProviderName}".ToLowerInvariant()))
@@ -130,7 +138,9 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Controllers.Abstractions
                 indexInfo.DisplayName = displayName.ToString();
             }
 
-            return indices;
+            return indices
+                .OrderBy(i => i.SortOrder)
+                .ToList();
         }
 
         private Dictionary<string, string> GetLanguages()
