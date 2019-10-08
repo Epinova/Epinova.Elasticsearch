@@ -38,7 +38,21 @@ namespace Epinova.ElasticSearch.Core.Models.Query
                 {
                     string sortField = _sortFields[i].FieldName;
 
-                    if(_sortFields[i].MappingType == MappingType.Geo_Point && _sortFields[i] is GeoSort geoSort)
+                    if(_sortFields[i] is ScriptSort scriptSort)
+                    {
+                        sorts.Add(
+                            new JObject(
+                                new JProperty("_script",
+                                    new JObject(
+                                        new JProperty(JsonNames.Order, scriptSort.Direction),
+                                        new JProperty(JsonNames.Type, scriptSort.Type),
+                                        new JProperty(JsonNames.Script,
+                                        new JObject(
+                                            new JProperty(JsonNames.Lang, scriptSort.Language),
+                                            new JProperty(JsonNames.ScriptSource, scriptSort.Script)
+                                    ))))));
+                    }
+                    else if(_sortFields[i].MappingType == MappingType.Geo_Point && _sortFields[i] is GeoSort geoSort)
                     {
                         sorts.Add(
                             new JObject(

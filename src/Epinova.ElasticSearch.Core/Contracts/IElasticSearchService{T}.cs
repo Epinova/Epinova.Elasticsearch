@@ -369,6 +369,16 @@ namespace Epinova.ElasticSearch.Core.Contracts
         IElasticSearchService<T> SortByDescending<TProperty>(Expression<Func<T, TProperty>> fieldSelector, (double Lat, double Lon) compareTo, string unit = "km", string mode = "min") where TProperty : GeoPoint;
 
         /// <summary>
+        /// Advanced sorting using script. 
+        /// </summary>
+        /// <param name="script">The script source</param>
+        /// <param name="descending"><see langword="true"/> for descending or <see langword="false"/> ascending</param>
+        /// <param name="type">The type of the script source, either <c>"string"</c> or <c>"number"</c></param>
+        /// <param name="scriptLanguage">The script language, defaults to painless</param>
+        /// <returns>The current <see cref="IElasticSearchService"/> instance</returns>
+        IElasticSearchService<T> SortByScript(string script, bool descending, string type = "string", string scriptLanguage = null);
+
+        /// <summary>
         /// Secondary field to sort by. Repeat as needed.
         /// </summary>
         /// <returns>The current <see cref="IElasticSearchService"/> instance</returns>

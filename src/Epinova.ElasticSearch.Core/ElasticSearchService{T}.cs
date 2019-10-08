@@ -481,6 +481,31 @@ namespace Epinova.ElasticSearch.Core
             where TProperty : GeoPoint
             => Sort(fieldSelector, false, true, compareTo, unit, mode);
 
+        public IElasticSearchService<T> SortByScript(string script, bool descending, string type = "string", string scriptLanguage = null)
+        {
+            scriptLanguage = scriptLanguage ?? "painless";
+
+            if(String.IsNullOrWhiteSpace(script))
+            {
+                throw new InvalidOperationException("Script cannot be empty");
+            }
+
+            if(type != "string" && type != "number")
+            {
+                throw new InvalidOperationException("Type must be either 'string' or 'number'");
+            }
+
+            SortFields.Add(new ScriptSort
+            {
+                Direction = descending ? "desc" : "asc",
+                Type = type,
+                Script = script,
+                Language = scriptLanguage
+            });
+
+            return this;
+        }
+
         public IElasticSearchService<T> ThenBy<TProperty>(Expression<Func<T, TProperty>> fieldSelector)
             => Sort(fieldSelector, false, false);
 

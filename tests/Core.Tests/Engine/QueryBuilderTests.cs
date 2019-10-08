@@ -519,6 +519,26 @@ namespace Core.Tests.Engine
         }
 
         [Fact]
+        public void SortScript_SerializesCorrect()
+        {
+            var setup = new QuerySetup
+            {
+                SearchText = "term",
+                Language = _language,
+                SortFields = new List<Sort> { new ScriptSort { Direction = "asc", Script = "1", Type = "number", Language = "painless" } }
+            };
+
+            var request = (QueryRequest)_builder.TypedSearch<string>(setup);
+
+            var sort = request.Sort[0].ToString();
+            Assert.Contains("\"_script\": {", sort);
+            Assert.Contains("\"order\": \"asc\"", sort);
+            Assert.Contains("\"type\": \"number\"", sort);
+            Assert.Contains("\"lang\": \"painless\"", sort);
+            Assert.Contains("\"source\": \"1\"", sort);
+        }
+
+        [Fact]
         public void FilterACL_AddsBoolShoulds()
         {
             var setup = new QuerySetup
