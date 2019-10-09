@@ -408,10 +408,7 @@ namespace Epinova.ElasticSearch.Core
                 }
             };
 
-            // There was a breaking change in v5.6 renaming the "inline" field to "source"
-            var inlineVsSourceVersion = new Version(5, 6);
-
-            if(Server.Info.Version >= inlineVsSourceVersion)
+            if(Server.Info.Version >= Constants.InlineVsSourceVersion)
             {
                 scriptScore.Script.Source = _customScriptScoreSource;
             }
