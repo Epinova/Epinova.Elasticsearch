@@ -589,7 +589,8 @@ namespace Epinova.ElasticSearch.Core
             var indexing = new Indexing(_settings, _httpClientHelper);
             if(!indexing.IndexExists(indexName))
             {
-                throw new InvalidOperationException($"Index '{indexName}' not found");
+                Logger.Error($"Index '{indexName}' not found");
+                return;
             }
 
             Logger.Information("PerformUpdate: Id=" + id + ", Type=" + objectType.Name + ", Index=" + indexName);
