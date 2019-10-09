@@ -736,6 +736,24 @@ Items will be compared to these coordinates, and the resulting distances will be
 
 &nbsp;
 
+#### Scripted sorting
+For absolute control you can use a script to sort documents. Note that this might affect performance.
+
+Example sorting based on a certain timestamp:
+
+```csharp
+var timestamp = new DateTimeOffset(new DateTime(2019, 1, 1)).ToUnixTimeMilliseconds();
+var script = $"doc['StartPublish'].date.getMillis() > {timestamp} ? 0 : 1";
+
+SearchResult result = service
+   .Get<ArticlePage>()
+   .SortByScript(script, true, "number")
+   .GetResults();
+```
+
+See https://www.elastic.co/guide/en/elasticsearch/painless/current/index.html for scripting syntax.
+
+&nbsp;
 
 # &laquo;Did You Mean&raquo;
 
