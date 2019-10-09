@@ -535,7 +535,7 @@ namespace Core.Tests.Engine
             Assert.Contains("\"order\": \"asc\"", sort);
             Assert.Contains("\"type\": \"number\"", sort);
             Assert.Contains("\"lang\": \"painless\"", sort);
-            Assert.Contains("\"source\": \"1\"", sort);
+            Assert.Contains($"\"{QueryRequest.ScriptField()}\": \"1\"", sort);
         }
 
         [Fact]

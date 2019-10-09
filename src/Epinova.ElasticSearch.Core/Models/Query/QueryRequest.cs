@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Epinova.ElasticSearch.Core.Enums;
 using Epinova.ElasticSearch.Core.Models.Converters;
 using Epinova.ElasticSearch.Core.Utilities;
@@ -11,7 +12,7 @@ namespace Epinova.ElasticSearch.Core.Models.Query
     {
         private readonly List<Sort> _sortFields;
 
-        private static readonly string ScriptField = Server.Info.Version >= Core.Constants.InlineVsSourceVersion
+        internal static readonly Func<string> ScriptField = () => Server.Info.Version >= Core.Constants.InlineVsSourceVersion
             ? JsonNames.ScriptSource
             : JsonNames.Inline;
 
@@ -53,7 +54,7 @@ namespace Epinova.ElasticSearch.Core.Models.Query
                                         new JProperty(JsonNames.Script,
                                         new JObject(
                                             new JProperty(JsonNames.Lang, scriptSort.Language),
-                                            new JProperty(ScriptField, scriptSort.Script)
+                                            new JProperty(ScriptField(), scriptSort.Script)
                                     ))))));
                     }
                     else if(_sortFields[i].MappingType == MappingType.Geo_Point && _sortFields[i] is GeoSort geoSort)
