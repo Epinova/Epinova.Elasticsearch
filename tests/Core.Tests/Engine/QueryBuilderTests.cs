@@ -525,17 +525,57 @@ namespace Core.Tests.Engine
             {
                 SearchText = "term",
                 Language = _language,
-                SortFields = new List<Sort> { new ScriptSort { Direction = "asc", Script = "1", Type = "number", Language = "painless" } }
+                SortFields = new List<Sort>
+                {
+                    new ScriptSort
+                    {
+                        Direction = "asc",
+                        Script = "123",
+                        Type = "number",
+                        Language = "painless"
+                    }
+                }
             };
 
             var request = (QueryRequest)_builder.TypedSearch<string>(setup);
 
-            var sort = request.Sort[0].ToString();
-            Assert.Contains("\"_script\": {", sort);
-            Assert.Contains("\"order\": \"asc\"", sort);
-            Assert.Contains("\"type\": \"number\"", sort);
-            Assert.Contains("\"lang\": \"painless\"", sort);
-            Assert.Contains($"\"{QueryRequest.ScriptField()}\": \"1\"", sort);
+            var sort = RemoveWhitespace(request.Sort[0].ToString());
+            Assert.Contains("\"_script\":{", sort);
+            Assert.Contains("\"order\":\"asc\"", sort);
+            Assert.Contains("\"type\":\"number\"", sort);
+            Assert.Contains("\"lang\":\"painless\"", sort);
+            Assert.Contains($"\"{QueryRequest.ScriptField()}\":\"123\"", sort);
+        }
+
+        [Fact]
+        public void SortScript_WithParams_SerializesCorrect()
+        {
+            var setup = new QuerySetup
+            {
+                SearchText = "term",
+                Language = _language,
+                SortFields = new List<Sort>
+                {
+                    new ScriptSort
+                    {
+                        Direction = "asc",
+                        Script = "1 + params.Foo",
+                        Type = "number",
+                        Language = "painless",
+                        Parameters = new { Foo = 42 }
+                    }
+                }
+            };
+
+            var request = (QueryRequest)_builder.TypedSearch<string>(setup);
+
+            var sort = RemoveWhitespace(request.Sort[0].ToString());
+            Assert.Contains("\"_script\":{", sort);
+            Assert.Contains("\"order\":\"asc\"", sort);
+            Assert.Contains("\"type\":\"number\"", sort);
+            Assert.Contains("\"params\":{\"Foo\":42}", sort);
+            Assert.Contains("\"lang\":\"painless\"", sort);
+            Assert.Contains($"\"{QueryRequest.ScriptField()}\":\"1+params.Foo\"", sort);
         }
 
         [Fact]

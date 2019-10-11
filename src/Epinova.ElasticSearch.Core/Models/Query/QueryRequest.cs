@@ -54,7 +54,8 @@ namespace Epinova.ElasticSearch.Core.Models.Query
                                         new JProperty(JsonNames.Script,
                                         new JObject(
                                             new JProperty(JsonNames.Lang, scriptSort.Language),
-                                            new JProperty(ScriptField(), scriptSort.Script)
+                                            new JProperty(ScriptField(), scriptSort.Script),
+                                            new JProperty(JsonNames.Params, scriptSort.Parameters != null ? JObject.FromObject(scriptSort.Parameters) : null)
                                     ))))));
                     }
                     else if(_sortFields[i].MappingType == MappingType.Geo_Point && _sortFields[i] is GeoSort geoSort)

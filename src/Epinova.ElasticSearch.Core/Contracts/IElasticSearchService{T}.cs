@@ -375,9 +375,10 @@ namespace Epinova.ElasticSearch.Core.Contracts
         /// <param name="script">The script source</param>
         /// <param name="descending"><see langword="true"/> for descending or <see langword="false"/> ascending</param>
         /// <param name="type">The type of the script source, either <c>"string"</c> or <c>"number"</c></param>
+        /// <param name="parameters">Anonymous object containing any parameters, eg. <c>new { Foo = 42 }</c></param>
         /// <param name="scriptLanguage">The script language, defaults to painless</param>
         /// <returns>The current <see cref="IElasticSearchService"/> instance</returns>
-        IElasticSearchService<T> SortByScript(string script, bool descending, string type = "string", string scriptLanguage = null);
+        IElasticSearchService<T> SortByScript(string script, bool descending, string type = "string", object parameters = null, string scriptLanguage = null);
 
         /// <summary>
         /// Secondary field to sort by. Repeat as needed.

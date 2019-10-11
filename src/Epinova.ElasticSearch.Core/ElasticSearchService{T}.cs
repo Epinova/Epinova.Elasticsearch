@@ -478,7 +478,7 @@ namespace Epinova.ElasticSearch.Core
             where TProperty : GeoPoint
             => Sort(fieldSelector, false, true, compareTo, unit, mode);
 
-        public IElasticSearchService<T> SortByScript(string script, bool descending, string type = "string", string scriptLanguage = null)
+        public IElasticSearchService<T> SortByScript(string script, bool descending, string type = "string", object parameters = null, string scriptLanguage = null)
         {
             scriptLanguage = scriptLanguage ?? "painless";
 
@@ -497,6 +497,7 @@ namespace Epinova.ElasticSearch.Core
                 Direction = descending ? "desc" : "asc",
                 Type = type,
                 Script = script,
+                Parameters = parameters,
                 Language = scriptLanguage
             });
 
