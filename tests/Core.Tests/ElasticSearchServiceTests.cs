@@ -113,6 +113,31 @@ namespace Core.Tests
         }
 
         [Fact]
+        public void SortByScript_AddsCorrectSort()
+        {
+            _service.SortByScript("1", default, "number");
+            Assert.True(_service.SortFields.OfType<ScriptSort>().Any());
+        }
+
+        [Theory]
+        [InlineData(null)]
+        [InlineData("")]
+        [InlineData("foo")]
+        [InlineData("123")]
+        public void SortByScript_WrongType_ThrowsUp(string type)
+        {
+            Assert.Throws<InvalidOperationException>(() => _service.SortByScript("{}", default, type));
+        }
+
+        [Theory]
+        [InlineData(null)]
+        [InlineData("")]
+        public void SortByScript_EmptyScript_ThrowsUp(string script)
+        {
+            Assert.Throws<InvalidOperationException>(() => _service.SortByScript(script, default, "string"));
+        }
+
+        [Fact]
         public void SortBy_SetsCorrectDirection()
         {
             var result = _service.SortBy(x => x.StringProperty) as ElasticSearchService<ComplexType>;

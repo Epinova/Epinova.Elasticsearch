@@ -408,10 +408,7 @@ namespace Epinova.ElasticSearch.Core
                 }
             };
 
-            // There was a breaking change in v5.6 renaming the "inline" field to "source"
-            var inlineVsSourceVersion = new Version(5, 6);
-
-            if(Server.Info.Version >= inlineVsSourceVersion)
+            if(Server.Info.Version >= Constants.InlineVsSourceVersion)
             {
                 scriptScore.Script.Source = _customScriptScoreSource;
             }
@@ -480,6 +477,32 @@ namespace Epinova.ElasticSearch.Core
         public IElasticSearchService<T> SortBy<TProperty>(Expression<Func<T, TProperty>> fieldSelector, (double Lat, double Lon) compareTo, string unit = "km", string mode = "min")
             where TProperty : GeoPoint
             => Sort(fieldSelector, false, true, compareTo, unit, mode);
+
+        public IElasticSearchService<T> SortByScript(string script, bool descending, string type = "string", object parameters = null, string scriptLanguage = null)
+        {
+            scriptLanguage = scriptLanguage ?? "painless";
+
+            if(String.IsNullOrWhiteSpace(script))
+            {
+                throw new InvalidOperationException("Script cannot be empty");
+            }
+
+            if(type != "string" && type != "number")
+            {
+                throw new InvalidOperationException("Type must be either 'string' or 'number'");
+            }
+
+            SortFields.Add(new ScriptSort
+            {
+                Direction = descending ? "desc" : "asc",
+                Type = type,
+                Script = script,
+                Parameters = parameters,
+                Language = scriptLanguage
+            });
+
+            return this;
+        }
 
         public IElasticSearchService<T> ThenBy<TProperty>(Expression<Func<T, TProperty>> fieldSelector)
             => Sort(fieldSelector, false, false);

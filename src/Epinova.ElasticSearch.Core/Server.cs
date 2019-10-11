@@ -11,7 +11,7 @@ namespace Epinova.ElasticSearch.Core
 {
     public static class Server
     {
-        private static readonly IHttpClientHelper _httpClientHelper = ServiceLocator.Current.GetInstance<IHttpClientHelper>();
+        private static readonly IHttpClientHelper _httpClientHelper = ServiceLocator.Current?.GetInstance<IHttpClientHelper>();
         public static readonly ServerInfo Info = SetupInfo();
         public static readonly IEnumerable<Plugin> Plugins = SetupPlugins();
 

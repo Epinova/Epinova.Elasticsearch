@@ -84,14 +84,6 @@ namespace Core.Tests
         }
 
         [Fact]
-        public void Update_UnknownIndex_Throws()
-        {
-            var id = Factory.GetInteger().ToString();
-            Assert.Throws<InvalidOperationException>(()
-                => _coreIndexer.Update(id, new { Foo = 42 }, "bad-index"));
-        }
-
-        [Fact]
         public void Update_CallsClientPut()
         {
             var id = Factory.GetInteger().ToString();

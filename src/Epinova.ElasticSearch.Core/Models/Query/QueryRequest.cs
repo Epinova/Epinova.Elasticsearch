@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Epinova.ElasticSearch.Core.Enums;
 using Epinova.ElasticSearch.Core.Models.Converters;
 using Epinova.ElasticSearch.Core.Utilities;
@@ -10,6 +11,10 @@ namespace Epinova.ElasticSearch.Core.Models.Query
     internal class QueryRequest : RequestBase
     {
         private readonly List<Sort> _sortFields;
+
+        internal static readonly Func<string> ScriptField = () => Server.Info.Version >= Core.Constants.InlineVsSourceVersion
+            ? JsonNames.ScriptSource
+            : JsonNames.Inline;
 
         public QueryRequest(QuerySetup querySetup)
         {
@@ -38,7 +43,22 @@ namespace Epinova.ElasticSearch.Core.Models.Query
                 {
                     string sortField = _sortFields[i].FieldName;
 
-                    if(_sortFields[i].MappingType == MappingType.Geo_Point && _sortFields[i] is GeoSort geoSort)
+                    if(_sortFields[i] is ScriptSort scriptSort)
+                    {
+                        sorts.Add(
+                            new JObject(
+                                new JProperty("_script",
+                                    new JObject(
+                                        new JProperty(JsonNames.Order, scriptSort.Direction),
+                                        new JProperty(JsonNames.Type, scriptSort.Type),
+                                        new JProperty(JsonNames.Script,
+                                        new JObject(
+                                            new JProperty(JsonNames.Lang, scriptSort.Language),
+                                            new JProperty(ScriptField(), scriptSort.Script),
+                                            new JProperty(JsonNames.Params, scriptSort.Parameters != null ? JObject.FromObject(scriptSort.Parameters) : null)
+                                    ))))));
+                    }
+                    else if(_sortFields[i].MappingType == MappingType.Geo_Point && _sortFields[i] is GeoSort geoSort)
                     {
                         sorts.Add(
                             new JObject(
