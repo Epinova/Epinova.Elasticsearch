@@ -44,7 +44,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Controllers
 
             model.NumberOfItems = new List<int> { 10, 20, 50, 100, 1000, 10000 };
             model.SelectedNumberOfItems = model.SelectedNumberOfItems > 0 ? model.SelectedNumberOfItems : model.NumberOfItems.First();
-            model.SearchHits = _inspectorRepository.Search(model.SearchText, CurrentIndex, model.SelectedNumberOfItems, model.SelectedType, CurrentIndex);
+            model.SearchHits = _inspectorRepository.Search(model.SearchText, model.Analyzed, CurrentLanguage, CurrentIndex, model.SelectedNumberOfItems, model.SelectedType, CurrentIndex);
             model.TypeCounts = _inspectorRepository.GetTypes(model.SearchText, CurrentIndex);
 
             return model;

@@ -7,6 +7,8 @@ using Epinova.ElasticSearch.Core.EPiServer.Extensions;
 using Epinova.ElasticSearch.Core.Extensions;
 using Epinova.ElasticSearch.Core.Models;
 using Epinova.ElasticSearch.Core.Settings;
+using Epinova.ElasticSearch.Core.Settings.Configuration;
+using Epinova.ElasticSearch.Core.Utilities;
 using EPiServer.DataAbstraction;
 using EPiServer.ServiceLocation;
 using Newtonsoft.Json;
@@ -20,6 +22,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Services
         private readonly IElasticSearchSettings _elasticSearchSettings;
         private readonly IContentTypeRepository _contentTypeRepository;
         private readonly IHttpClientHelper _httpClientHelper;
+        private readonly Mapping _mapping;
 
         internal InspectorRepository()
         {
@@ -31,27 +34,65 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Services
             _elasticSearchSettings = settings;
             _contentTypeRepository = contentTypeRepository;
             _httpClientHelper = httpClientHelper;
+            _mapping = new Mapping(settings, httpClientHelper);
         }
 
-        public List<InspectItem> Search(string searchText, string indexName, int size, string type = null, string selectedIndex = null)
+        public List<InspectItem> Search(string searchText, bool analyzed, string language, string indexName, int size, string type = null, string selectedIndex = null)
         {
             if(String.IsNullOrWhiteSpace(searchText) && String.IsNullOrWhiteSpace(type))
             {
                 return new List<InspectItem>();
             }
 
-            string query = CreateSearchQuery(searchText, type);
-            string uri = $"{_elasticSearchSettings.Host}/{indexName}/_search?q={query}&size={size}";
-            if(Server.Info.Version.Major >= 7)
+            string uri = $"{_elasticSearchSettings.Host}/{indexName}/_search";
+            string response = null;
+
+            if(analyzed)
             {
-                uri += "&rest_total_hits_as_int=true";
+                var matchQuery = new
+                {
+                    size,
+                    query = new
+                    {
+                        multi_match = new
+                        {
+                            query = searchText,
+                            lenient = true,
+                            fields = GetMappedFields(indexName, language)
+                        }
+                    }
+
+                };
+
+                var result = _httpClientHelper.Post(new Uri(uri), Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(matchQuery)));
+                response = Encoding.UTF8.GetString(result);
+            }
+            else
+            {
+                string query = CreateSearchQuery(searchText, type);
+                uri += $"?q={query}&size={size}";
+                if(Server.Info.Version.Major >= 7)
+                {
+                    uri += "&rest_total_hits_as_int=true";
+                }
+
+                response = _httpClientHelper.GetString(new Uri(uri));
             }
 
-            string response = _httpClientHelper.GetString(new Uri(uri));
             dynamic parsedResponse = JObject.Parse(response);
             JArray hits = parsedResponse.hits.hits;
 
             return hits.Select(h => new InspectItem(h)).ToList();
+        }
+
+        private string[] GetMappedFields(string indexName, string language)
+        {
+            var config = ElasticSearchSection.GetConfiguration();
+            var nameWithoutLanguage = indexName.Substring(0, indexName.Length - language.Length - 1);
+            var index = config.IndicesParsed.Single(i => i.Name == nameWithoutLanguage);
+            var mappingType = String.IsNullOrEmpty(index.Type) ? typeof(IndexItem) : Type.GetType(index.Type);
+            var mapping = _mapping.GetIndexMapping(mappingType, language, indexName);
+            return mapping.Properties.Select(p => p.Key).ToArray();
         }
 
         public Dictionary<string, List<TypeCount>> GetTypes(string searchText, string indexName)

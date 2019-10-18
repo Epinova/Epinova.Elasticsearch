@@ -84,6 +84,8 @@
                                 <p>
                                     <input data-dojo-type="dijit/form/ValidationTextBox" data-dojo-props="placeholder:'@Html.TranslateWithPathRaw("placeholder", localizationPath)'" name="searchText" value="@Model.SearchText" />
                                     <button data-dojo-type="dijit/form/Button" type="submit" class="epi-primary">@Html.TranslateWithPath("execute", localizationPath)</button>
+                                    @Html.CheckBoxFor(m => m.Analyzed)
+                                    @Html.TranslateWithPath("Analyzed", localizationPath)
                                 </p>
 
                                 @if (String.IsNullOrWhiteSpace(Model.SearchText) && String.IsNullOrWhiteSpace(Model.SelectedType))
