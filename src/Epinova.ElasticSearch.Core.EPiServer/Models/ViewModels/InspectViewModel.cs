@@ -19,6 +19,8 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Models.ViewModels
 
         public string SearchText { get; set; }
 
+        public bool Analyzed { get; set; }
+
         public void AddLanguage(string name, string id, Dictionary<string, string> indices)
         {
             Languages.Add(new InspectLanguage

@@ -55,6 +55,7 @@
         <nohits>No hits</nohits>
         <unfiltered>Limit number of hits by searching or filtering on type. Wildcards are supported in search-query.</unfiltered>
         <types>Type</types>
+        <analyzed>Analyzed</analyzed>
       </indexinspector>
       <bestbets>
         <heading>Best Bets</heading>

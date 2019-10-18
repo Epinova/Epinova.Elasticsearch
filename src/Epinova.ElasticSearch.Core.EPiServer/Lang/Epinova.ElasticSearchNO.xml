@@ -56,6 +56,7 @@
         <nohits>Ingen treff</nohits>
         <unfiltered>Avgrens antall treff ved å søke eller filtrere på type. Wildcards i søkestreng er støttet.</unfiltered>
         <types>Type</types>
+        <analyzed>Analysert</analyzed>
       </indexinspector>
       <bestbets>
         <heading>Best Bets</heading>

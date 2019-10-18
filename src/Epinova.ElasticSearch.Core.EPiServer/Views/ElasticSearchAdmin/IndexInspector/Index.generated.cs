@@ -254,7 +254,19 @@ WriteLiteral(">");
 
                                                                                                             Write(Html.TranslateWithPath("execute", localizationPath));
 
-WriteLiteral("</button>\r\n                                </p>\r\n\r\n");
+WriteLiteral("</button>\r\n");
+
+WriteLiteral("                                    ");
+
+                               Write(Html.CheckBoxFor(m => m.Analyzed));
+
+WriteLiteral("\r\n");
+
+WriteLiteral("                                    ");
+
+                               Write(Html.TranslateWithPath("Analyzed", localizationPath));
+
+WriteLiteral("\r\n                                </p>\r\n\r\n");
 
                                 
                                  if (String.IsNullOrWhiteSpace(Model.SearchText) && String.IsNullOrWhiteSpace(Model.SelectedType))
@@ -300,10 +312,10 @@ WriteLiteral(">\r\n                                                <h3>\r\n     
 
 WriteLiteral(" type=\"button\"");
 
-WriteAttribute("aria-controls", Tuple.Create(" aria-controls=\"", 5130), Tuple.Create("\"", 5157)
-, Tuple.Create(Tuple.Create("", 5146), Tuple.Create("item-", 5146), true)
-              , Tuple.Create(Tuple.Create("", 5151), Tuple.Create<System.Object, System.Int32>(index
-, 5151), false)
+WriteAttribute("aria-controls", Tuple.Create(" aria-controls=\"", 5293), Tuple.Create("\"", 5320)
+, Tuple.Create(Tuple.Create("", 5309), Tuple.Create("item-", 5309), true)
+              , Tuple.Create(Tuple.Create("", 5314), Tuple.Create<System.Object, System.Int32>(index
+, 5314), false)
 );
 
 WriteLiteral(" aria-expanded=\"false\"");
@@ -325,10 +337,10 @@ WriteLiteral(" class=\"accordion-panel\"");
 
 WriteLiteral(" style=\"display: none;\"");
 
-WriteAttribute("id", Tuple.Create(" id=\"", 5407), Tuple.Create("\"", 5423)
-, Tuple.Create(Tuple.Create("", 5412), Tuple.Create("item-", 5412), true)
-                             , Tuple.Create(Tuple.Create("", 5417), Tuple.Create<System.Object, System.Int32>(index
-, 5417), false)
+WriteAttribute("id", Tuple.Create(" id=\"", 5570), Tuple.Create("\"", 5586)
+, Tuple.Create(Tuple.Create("", 5575), Tuple.Create("item-", 5575), true)
+                             , Tuple.Create(Tuple.Create("", 5580), Tuple.Create<System.Object, System.Int32>(index
+, 5580), false)
 );
 
 WriteLiteral(">\r\n                                                    <pre><code>");
@@ -365,19 +377,19 @@ WriteLiteral(" type=\"radio\"");
 
 WriteLiteral(" data-dojo-type=\"dijit/form/RadioButton\"");
 
-WriteAttribute("name", Tuple.Create(" name=\"", 6298), Tuple.Create("\"", 6348)
-                                  , Tuple.Create(Tuple.Create("", 6305), Tuple.Create<System.Object, System.Int32>(Html.NameFor(m => m.SelectedNumberOfItems)
-, 6305), false)
+WriteAttribute("name", Tuple.Create(" name=\"", 6461), Tuple.Create("\"", 6511)
+                                  , Tuple.Create(Tuple.Create("", 6468), Tuple.Create<System.Object, System.Int32>(Html.NameFor(m => m.SelectedNumberOfItems)
+, 6468), false)
 );
 
-WriteAttribute("value", Tuple.Create(" value=\"", 6349), Tuple.Create("\"", 6371)
-                                                                                      , Tuple.Create(Tuple.Create("", 6357), Tuple.Create<System.Object, System.Int32>(numberOfItems
-, 6357), false)
+WriteAttribute("value", Tuple.Create(" value=\"", 6512), Tuple.Create("\"", 6534)
+                                                                                      , Tuple.Create(Tuple.Create("", 6520), Tuple.Create<System.Object, System.Int32>(numberOfItems
+, 6520), false)
 );
 
-WriteAttribute("checked", Tuple.Create(" checked=\"", 6372), Tuple.Create("\"", 6441)
-                                                                                                                , Tuple.Create(Tuple.Create("", 6382), Tuple.Create<System.Object, System.Int32>(numberOfItems == Model.SelectedNumberOfItems ? "" : null
-, 6382), false)
+WriteAttribute("checked", Tuple.Create(" checked=\"", 6535), Tuple.Create("\"", 6604)
+                                                                                                                , Tuple.Create(Tuple.Create("", 6545), Tuple.Create<System.Object, System.Int32>(numberOfItems == Model.SelectedNumberOfItems ? "" : null
+, 6545), false)
 );
 
 WriteLiteral(" /> ");
@@ -437,19 +449,19 @@ WriteLiteral(" type=\"radio\"");
 
 WriteLiteral(" data-dojo-type=\"dijit/form/RadioButton\"");
 
-WriteAttribute("name", Tuple.Create(" name=\"", 7719), Tuple.Create("\"", 7760)
-                                      , Tuple.Create(Tuple.Create("", 7726), Tuple.Create<System.Object, System.Int32>(Html.NameFor(m => m.SelectedType)
-, 7726), false)
+WriteAttribute("name", Tuple.Create(" name=\"", 7882), Tuple.Create("\"", 7923)
+                                      , Tuple.Create(Tuple.Create("", 7889), Tuple.Create<System.Object, System.Int32>(Html.NameFor(m => m.SelectedType)
+, 7889), false)
 );
 
-WriteAttribute("value", Tuple.Create(" value=\"", 7761), Tuple.Create("\"", 7779)
-                                                                                 , Tuple.Create(Tuple.Create("", 7769), Tuple.Create<System.Object, System.Int32>(type.Type
-, 7769), false)
+WriteAttribute("value", Tuple.Create(" value=\"", 7924), Tuple.Create("\"", 7942)
+                                                                                 , Tuple.Create(Tuple.Create("", 7932), Tuple.Create<System.Object, System.Int32>(type.Type
+, 7932), false)
 );
 
-WriteAttribute("checked", Tuple.Create(" checked=\"", 7780), Tuple.Create("\"", 7836)
-                                                                                                       , Tuple.Create(Tuple.Create("", 7790), Tuple.Create<System.Object, System.Int32>(Model.SelectedType == type.Type ? "" : null
-, 7790), false)
+WriteAttribute("checked", Tuple.Create(" checked=\"", 7943), Tuple.Create("\"", 7999)
+                                                                                                       , Tuple.Create(Tuple.Create("", 7953), Tuple.Create<System.Object, System.Int32>(Model.SelectedType == type.Type ? "" : null
+, 7953), false)
 );
 
 WriteLiteral(" /> ");
