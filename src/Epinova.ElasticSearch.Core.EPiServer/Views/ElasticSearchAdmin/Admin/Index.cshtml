@@ -78,12 +78,23 @@
 }
 
 <div class="epi-padding-small">
-    @using (Html.BeginForm("AddNewIndex", "ElasticAdmin"))
-    {
-        <h1>@Html.TranslateWithPath("addorupdateindexes", localizationPath)</h1>
-        <p>
+
+    <h1>@Html.TranslateWithPath("addorupdateindexes", localizationPath)</h1>
+    <p>
+        @using (Html.BeginForm("AddNewIndex", "ElasticAdmin"))
+        {
             <button data-dojo-type="dijit/form/Button" type="submit" class="epi-primary">@IndexString("addorupdateindexesbutton")</button>
             @IndexString("addnewindexinfo")
+        }
+    </p>
+
+    @if (Model.AllIndexes.Any())
+    {
+        <p>
+            @using (Html.BeginForm("RunIndexJob", "ElasticAdmin"))
+            {
+                <button data-dojo-type="dijit/form/Button" type="submit">@IndexString("runindexjob")</button>
+            }
         </p>
     }
 
@@ -106,15 +117,17 @@
 
     @if (Model.AllIndexes.Any())
     {
-            using (Html.BeginForm("DeleteAll", "ElasticAdmin"))
-            {
-                <div class="epi-paddingVertical-small epi-alignRight">
-                    <button data-dojo-type="dijit/form/Button" 
-                            type="submit" 
-                            class="epi-danger" 
-                            onclick="return confirm('@IndexString("confirmDeleteAll")');">@IndexString("deleteAll")</button>
-                </div>
-            }
+        using (Html.BeginForm("DeleteAll", "ElasticAdmin"))
+        {
+            <div class="epi-paddingVertical-small epi-alignRight">
+                <button data-dojo-type="dijit/form/Button"
+                        type="submit"
+                        class="epi-danger"
+                        onclick="return confirm('@IndexString("confirmDeleteAll")');">
+                    @IndexString("deleteAll")
+                </button>
+            </div>
+        }
     }
 
     <br /><br />

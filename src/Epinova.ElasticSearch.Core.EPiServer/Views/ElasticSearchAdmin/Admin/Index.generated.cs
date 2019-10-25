@@ -186,19 +186,17 @@ WriteLiteral("\r\n\r\n<div");
 
 WriteLiteral(" class=\"epi-padding-small\"");
 
-WriteLiteral(">\r\n");
+WriteLiteral(">\r\n\r\n    <h1>");
 
-    
-     using (Html.BeginForm("AddNewIndex", "ElasticAdmin"))
-    {
+   Write(Html.TranslateWithPath("addorupdateindexes", localizationPath));
 
-WriteLiteral("        <h1>");
+WriteLiteral("</h1>\r\n    <p>\r\n");
 
-       Write(Html.TranslateWithPath("addorupdateindexes", localizationPath));
+        
+         using (Html.BeginForm("AddNewIndex", "ElasticAdmin"))
+        {
 
-WriteLiteral("</h1>\r\n");
-
-WriteLiteral("        <p>\r\n            <button");
+WriteLiteral("            <button");
 
 WriteLiteral(" data-dojo-type=\"dijit/form/Button\"");
 
@@ -212,11 +210,39 @@ WriteLiteral(">");
 
 WriteLiteral("</button>\r\n");
 
-WriteLiteral("            ");
-
+            
        Write(IndexString("addnewindexinfo"));
 
-WriteLiteral("\r\n        </p>\r\n");
+                                           
+        }
+
+WriteLiteral("    </p>\r\n\r\n");
+
+    
+     if (Model.AllIndexes.Any())
+    {
+
+WriteLiteral("        <p>\r\n");
+
+            
+             using (Html.BeginForm("RunIndexJob", "ElasticAdmin"))
+            {
+
+WriteLiteral("                <button");
+
+WriteLiteral(" data-dojo-type=\"dijit/form/Button\"");
+
+WriteLiteral(" type=\"submit\"");
+
+WriteLiteral(">");
+
+                                                                    Write(IndexString("runindexjob"));
+
+WriteLiteral("</button>\r\n");
+
+            }
+
+WriteLiteral("        </p>\r\n");
 
     }
 
@@ -281,36 +307,38 @@ WriteLiteral("></div>\r\n\r\n");
     
      if (Model.AllIndexes.Any())
     {
-            using (Html.BeginForm("DeleteAll", "ElasticAdmin"))
-            {
+        using (Html.BeginForm("DeleteAll", "ElasticAdmin"))
+        {
 
-WriteLiteral("                <div");
+WriteLiteral("            <div");
 
 WriteLiteral(" class=\"epi-paddingVertical-small epi-alignRight\"");
 
-WriteLiteral(">\r\n                    <button");
+WriteLiteral(">\r\n                <button");
 
 WriteLiteral(" data-dojo-type=\"dijit/form/Button\"");
 
-WriteLiteral(" \r\n                            type=\"submit\"");
+WriteLiteral("\r\n                        type=\"submit\"");
 
-WriteLiteral(" \r\n                            class=\"epi-danger\"");
+WriteLiteral("\r\n                        class=\"epi-danger\"");
 
-WriteAttribute("onclick", Tuple.Create(" \r\n                            onclick=\"", 2978), Tuple.Create("\"", 3069)
-, Tuple.Create(Tuple.Create("", 3018), Tuple.Create("return", 3018), true)
-, Tuple.Create(Tuple.Create(" ", 3024), Tuple.Create("confirm(\'", 3025), true)
-, Tuple.Create(Tuple.Create("", 3034), Tuple.Create<System.Object, System.Int32>(IndexString("confirmDeleteAll")
-, 3034), false)
-, Tuple.Create(Tuple.Create("", 3066), Tuple.Create("\');", 3066), true)
+WriteAttribute("onclick", Tuple.Create("\r\n                        onclick=\"", 3240), Tuple.Create("\"", 3326)
+, Tuple.Create(Tuple.Create("", 3275), Tuple.Create("return", 3275), true)
+, Tuple.Create(Tuple.Create(" ", 3281), Tuple.Create("confirm(\'", 3282), true)
+, Tuple.Create(Tuple.Create("", 3291), Tuple.Create<System.Object, System.Int32>(IndexString("confirmDeleteAll")
+, 3291), false)
+, Tuple.Create(Tuple.Create("", 3323), Tuple.Create("\');", 3323), true)
 );
 
-WriteLiteral(">");
+WriteLiteral(">\r\n");
 
-                                                                                     Write(IndexString("deleteAll"));
+WriteLiteral("                    ");
 
-WriteLiteral("</button>\r\n                </div>\r\n");
+               Write(IndexString("deleteAll"));
 
-            }
+WriteLiteral("\r\n                </button>\r\n            </div>\r\n");
+
+        }
     }
 
 WriteLiteral(@"
