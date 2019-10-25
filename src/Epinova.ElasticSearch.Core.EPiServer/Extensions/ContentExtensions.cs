@@ -547,10 +547,10 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Extensions
                 .ToList();
         }
 
-        private static object GetIndexValue(IContentData content, PropertyInfo p, bool ignoreXhtmlStringContentFragments = false)
-            => GetIndexValue(content, p, out _, ignoreXhtmlStringContentFragments);
+        private static object GetIndexValue(IContentData content, PropertyInfo p, bool ignoreXhtmlStringContentFragments = false, List<IContent> alreadyProcessedContent = null)
+            => GetIndexValue(content, p, out _, ignoreXhtmlStringContentFragments, alreadyProcessedContent);
 
-        private static object GetIndexValue(IContentData content, PropertyInfo p, out bool isString, bool ignoreXhtmlStringContentFragments = false)
+        private static object GetIndexValue(IContentData content, PropertyInfo p, out bool isString, bool ignoreXhtmlStringContentFragments = false, List<IContent> alreadyProcessedContent = null)
         {
             isString = false;
             string id = null;
@@ -590,20 +590,24 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Extensions
                 {
                     var indexText = new StringBuilder();
 
+                    if(alreadyProcessedContent == null)
+                        alreadyProcessedContent = new List<IContent>();
+
                     foreach(ContentAreaItem item in contentArea.FilteredItems)
                     {
                         IContent areaItemContent = item.GetContent();
 
-                        if(Indexer.IsExludedType(areaItemContent))
+                        if(Indexer.IsExludedType(areaItemContent) || alreadyProcessedContent.Contains(areaItemContent))
                         {
                             continue;
                         }
 
                         Type areaItemType = GetContentType(areaItemContent);
                         List<PropertyInfo> indexableProperties = areaItemType.GetIndexableProps(false);
+                        alreadyProcessedContent.Add(areaItemContent);
                         indexableProperties.ForEach(property =>
                         {
-                            var indexValue = GetIndexValue(areaItemContent, property);
+                            var indexValue = GetIndexValue(areaItemContent, property, alreadyProcessedContent: alreadyProcessedContent);
                             indexText.Append(indexValue);
                             indexText.Append(" ");
                         });
