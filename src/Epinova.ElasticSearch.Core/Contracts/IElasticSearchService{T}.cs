@@ -564,9 +564,7 @@ namespace Epinova.ElasticSearch.Core.Contracts
         /// <param name="operator">The internal logic operator between the operations in the group-query. 
         /// Defaults to <see cref="Epinova.ElasticSearch.Core.Enums.Operator.And"/></param>
         /// <returns>The current <see cref="IElasticSearchService"/> instance</returns>
-        IElasticSearchService<T> FilterGroup(
-            Expression<Func<IFilterGroup<T>, IFilterGroup<T>>> groupExpression,
-            Operator @operator = Operator.And);
+        IElasticSearchService<T> FilterGroup(Expression<Func<IFilterGroup<T>, IFilterGroup<T>>> groupExpression);
 
         /// <summary>
         /// Use a different query-time analyzer. Overrides analyzer in mapping.

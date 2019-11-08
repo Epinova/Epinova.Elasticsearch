@@ -612,11 +612,11 @@ namespace Epinova.ElasticSearch.Core
             return this;
         }
 
-        public IElasticSearchService<T> Filter<TType>(string fieldName, TType filterValue, bool raw = true)
+        public IElasticSearchService<T> Filter<TType>(string fieldName, TType filterValue, bool raw = true, Operator @operator = Operator.And)
         {
             if(filterValue != null)
             {
-                PostFilters.Add(new Filter(fieldName, filterValue, typeof(TType), raw, Operator.And));
+                PostFilters.Add(new Filter(fieldName, filterValue, typeof(TType), raw, @operator));
             }
 
             return this;
@@ -636,11 +636,11 @@ namespace Epinova.ElasticSearch.Core
             return this;
         }
 
-        public IElasticSearchService<T> Filter<TType>(Expression<Func<T, TType>> fieldSelector, TType filterValue, bool raw = true)
+        public IElasticSearchService<T> Filter<TType>(Expression<Func<T, TType>> fieldSelector, TType filterValue, bool raw = true, Operator @operator = Operator.And)
         {
             Tuple<string, MappingType> fieldInfo = GetFieldInfo(fieldSelector);
 
-            return Filter(fieldInfo.Item1, filterValue, raw);
+            return Filter(fieldInfo.Item1, filterValue, raw, @operator);
         }
 
         public IElasticSearchService<T> Filter<TType>(Expression<Func<T, TType[]>> fieldSelector, TType filterValue, bool raw = true)
@@ -730,7 +730,7 @@ namespace Epinova.ElasticSearch.Core
             return FiltersMustNot(fieldInfo.Item1, filterValues, raw);
         }
 
-        public IElasticSearchService<T> FilterGroup(Expression<Func<IFilterGroup<T>, IFilterGroup<T>>> groupExpression, Operator @operator = Operator.And)
+        public IElasticSearchService<T> FilterGroup(Expression<Func<IFilterGroup<T>, IFilterGroup<T>>> groupExpression)
         {
             if(groupExpression.Body is MethodCallExpression expression)
             {

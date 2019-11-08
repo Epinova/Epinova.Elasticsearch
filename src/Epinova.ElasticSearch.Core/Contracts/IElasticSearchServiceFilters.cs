@@ -16,7 +16,7 @@ namespace Epinova.ElasticSearch.Core.Contracts
         /// <param name="filterValue">The value to filter</param>
         /// <param name="raw">Indicates that no analyzer nor tokenizer should be used.</param>
         /// <returns>The current <see cref="IElasticSearchService"/> instance</returns>
-        IElasticSearchService<T> Filter<TType>(Expression<Func<T, TType>> fieldSelector, TType filterValue, bool raw = true);
+        IElasticSearchService<T> Filter<TType>(Expression<Func<T, TType>> fieldSelector, TType filterValue, bool raw = true, Operator @operator = Operator.And);
 
         /// <summary>
         /// Filters the facets in the current query
@@ -63,7 +63,7 @@ namespace Epinova.ElasticSearch.Core.Contracts
         /// <param name="filterValue">The value to filter</param>
         /// <param name="raw">Indicates that no analyzer nor tokenizer should be used.</param>
         /// <returns>The current <see cref="IElasticSearchService"/> instance</returns>
-        IElasticSearchService<T> Filter<TType>(string fieldName, TType filterValue, bool raw = true);
+        IElasticSearchService<T> Filter<TType>(string fieldName, TType filterValue, bool raw = true, Operator @operator = Operator.And);
 
         /// <summary>
         /// Filters the facets in the current query

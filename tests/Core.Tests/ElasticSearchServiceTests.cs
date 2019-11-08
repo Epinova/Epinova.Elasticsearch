@@ -2,6 +2,7 @@
 using System.Linq;
 using Epinova.ElasticSearch.Core;
 using Epinova.ElasticSearch.Core.Contracts;
+using Epinova.ElasticSearch.Core.Enums;
 using Epinova.ElasticSearch.Core.Models;
 using Epinova.ElasticSearch.Core.Models.Properties;
 using Epinova.ElasticSearch.Core.Models.Query;
@@ -203,6 +204,24 @@ namespace Core.Tests
 
             Assert.Equal(value, result.Value);
             Assert.Equal(typeof(string).Name, result.Type.Name);
+        }
+
+        [Fact]
+        public void Filter_MultipleFilters_SetsAll()
+        {
+            var service = _service
+                .Filter(x => x.StringProperty, "foo", true, Operator.Or)
+                .Filter(x => x.BoolProperty, true, true, Operator.Or)
+                    as ElasticSearchService<ComplexType>;
+
+            Filter result1 = service.PostFilters.Single(f => f.FieldName == "StringProperty");
+            Filter result2 = service.PostFilters.Single(f => f.FieldName == "BoolProperty");
+
+            Assert.Equal("foo", result1.Value);
+            Assert.Equal(Operator.Or, result1.Operator);
+
+            Assert.Equal(true, result2.Value);
+            Assert.Equal(Operator.Or, result2.Operator);
         }
 
         [Theory]
