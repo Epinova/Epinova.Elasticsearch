@@ -240,7 +240,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Extensions
 
             if(contentPath?.Any() != true)
             {
-                return null;
+                return Array.Empty<int>();
             }
 
             return contentPath
@@ -422,7 +422,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Extensions
             dictionary.Add(DefaultFields.Types, contentType.GetInheritancHierarchyArray());
 
             int[] contentPath = GetContentPath(content.ContentLink);
-            if(contentPath != null)
+            if(contentPath.Length > 0)
             {
                 dictionary.Add(DefaultFields.Path, contentPath);
             }

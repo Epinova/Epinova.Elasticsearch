@@ -6,16 +6,19 @@ namespace Epinova.ElasticSearch.Core.Conventions
     /// This implementation contains a single instance of <see cref="HttpMessageHandler" />.
     /// If you want several <see cref="HttpMessageHandler" />s, we recommend chaining them before including.
     /// </summary>
-    public class MessageHandler
+    public sealed class MessageHandler
     {
+        private MessageHandler()
+        {
+        }
+
         public static readonly MessageHandler Instance = new MessageHandler();
 
-        internal static HttpMessageHandler Handler;
+        internal HttpMessageHandler Handler;
 
-        public MessageHandler SetMessageHandler(HttpMessageHandler handler)
+        public void SetMessageHandler(HttpMessageHandler handler)
         {
             Handler = handler;
-            return this;
         }
     }
 }

@@ -119,13 +119,6 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Services
                 .ToDictionary(g => g.Key, g => g.ToList());
         }
 
-        private string GetIndexName(string languageId, string selectedIndex = null)
-        {
-            return selectedIndex != null
-                ? _elasticSearchSettings.GetCustomIndexName(selectedIndex, languageId)
-                : _elasticSearchSettings.GetDefaultIndexName(languageId);
-        }
-
         private static string CreateSearchQuery(string searchText, string type)
         {
             string query = null;

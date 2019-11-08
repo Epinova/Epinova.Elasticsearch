@@ -25,64 +25,53 @@ namespace Epinova.ElasticSearch.Core.Services
 
             if(SearchExists(text, languageId, index))
             {
-                string sql = $@"UPDATE [{Constants.TrackingTable}]
-                    SET [Searches] = [Searches]+1
-                    WHERE [Query] = @query AND [Language] = @lang AND [IndexName] = @index";
+                DbHelper.ExecuteCommand(
+                    ConnectionString, 
+                    Constants.Tracking.Sql.Update, 
+                    new Dictionary<string, object>
+                    {
+                        {"@query", text},
+                        {"@lang", languageId},
+                        {"@index", index}
+                    });
 
-                var parameters = new Dictionary<string, object>
-                {
-                    {"@query", text},
-                    {"@lang", languageId},
-                    {"@index", index}
-                };
-
-                DbHelper.ExecuteCommand(ConnectionString, sql, parameters);
+                return;
             }
-            else
-            {
-                string sql = $@"INSERT INTO 
-                    [{Constants.TrackingTable}] ([Query] ,[Searches], [NoHits], [Language], [IndexName])
-                    VALUES (@query, 1, @nohits, @lang, @index)";
 
-                var parameters = new Dictionary<string, object>
+            DbHelper.ExecuteCommand(
+                ConnectionString,
+                Constants.Tracking.Sql.Insert,
+                new Dictionary<string, object>
                 {
                     {"@query", text},
                     {"@nohits", noHits ? 1 : 0},
                     {"@lang", languageId},
                     {"@index", index}
-                };
-
-                DbHelper.ExecuteCommand(ConnectionString, sql, parameters);
-            }
+                });
         }
 
         public void Clear(string languageId, string index)
         {
-            string sql = $@"DELETE FROM [{Constants.TrackingTable}] 
-                WHERE Language = @lang AND [IndexName] = @index";
-
-            var parameters = new Dictionary<string, object>
-            {
-                {"@lang", languageId},
-                {"@index", index}
-            };
-
-            DbHelper.ExecuteCommand(ConnectionString, sql, parameters);
+            DbHelper.ExecuteCommand(
+                ConnectionString,
+                Constants.Tracking.Sql.Delete,
+                new Dictionary<string, object>
+                {
+                    {"@lang", languageId},
+                    {"@index", index}
+                });
         }
 
         public IEnumerable<Tracking> GetSearches(string languageId, string index)
         {
-            string sql = $@"SELECT [Query], [Searches]
-                FROM [{Constants.TrackingTable}] 
-                WHERE Language = @lang AND [IndexName] = @index";
-
-            var parameters = new Dictionary<string, object>
-            {
-                {"@lang", languageId},
-                {"@index", index}
-            };
-
-            var results = DbHelper.ExecuteReader(ConnectionString, sql, parameters);
+            var results = DbHelper.ExecuteReader(
+                ConnectionString, 
+                Constants.Tracking.Sql.Select,
+                new Dictionary<string, object>
+                {
+                    {"@lang", languageId},
+                    {"@index", index}
+                });
 
             return results.Select(r => new Tracking
             {
@@ -93,17 +82,14 @@ namespace Epinova.ElasticSearch.Core.Services
 
         public IEnumerable<Tracking> GetSearchesWithoutHits(string languageId, string index)
         {
-            string sql = $@"SELECT [Query], [Searches] 
-                FROM [{Constants.TrackingTable}] 
-                WHERE Language = @lang AND NoHits=1 AND [IndexName] = @index";
-
-            var parameters = new Dictionary<string, object>
-            {
-                {"@lang", languageId},
-                {"@index", index}
-            };
-
-            var results = DbHelper.ExecuteReader(ConnectionString, sql, parameters);
+            var results = DbHelper.ExecuteReader(
+                ConnectionString, 
+                Constants.Tracking.Sql.SelectNoHits,
+                new Dictionary<string, object>
+                {
+                    {"@lang", languageId},
+                    {"@index", index}
+                });
 
             return results.Select(r => new Tracking
             {
@@ -114,18 +100,15 @@ namespace Epinova.ElasticSearch.Core.Services
 
         private bool SearchExists(string text, string languageId, string index)
         {
-            string sql = $@"SELECT Query 
-                FROM [{Constants.TrackingTable}] 
-                WHERE Query = @query AND Language = @lang AND [IndexName] = @index";
-
-            var parameters = new Dictionary<string, object>
-            {
-                {"@query", text},
-                {"@lang", languageId},
-                {"@index", index}
-            };
-
-            var results = DbHelper.ExecuteReader(ConnectionString, sql, parameters);
+            var results = DbHelper.ExecuteReader(
+                ConnectionString, 
+                Constants.Tracking.Sql.Exists,
+                new Dictionary<string, object>
+                {
+                    {"@query", text},
+                    {"@lang", languageId},
+                    {"@index", index}
+                });
 
             return results.Count > 0;
         }

@@ -159,6 +159,51 @@ namespace TestData
             int id = 0,
             int parentId = 0) => GetPageData<PageData>(visibleInMenu, isPublished, userHasAccess, isNotInWaste, shortcutType, id, parentId);
 
+        public static T GetPageData<T>(
+            bool visibleInMenu = true,
+            bool isPublished = true,
+            bool userHasAccess = true,
+            bool isNotInWaste = true,
+            PageShortcutType shortcutType = PageShortcutType.Normal,
+            int id = 0,
+            int parentId = 0,
+            CultureInfo language = null) where T : PageData
+        {
+            var securityDescriptor = new Mock<IContentSecurityDescriptor>();
+            securityDescriptor.Setup(m => m.HasAccess(It.IsAny<IPrincipal>(), It.IsAny<AccessLevel>())).Returns(userHasAccess);
+
+            if (language == null)
+            {
+                language = CultureInfo.CurrentCulture;
+            }
+
+            PageReference pageLink = id > 0 ? new PageReference(id) : GetPageReference();
+            PageReference parentLink = parentId > 0 ? new PageReference(parentId) : GetPageReference();
+
+            var pageGuid = Guid.NewGuid();
+            var instance = new Mock<T>();
+            instance.SetupAllProperties();
+            instance.Setup(m => m.VisibleInMenu).Returns(visibleInMenu);
+            instance.Setup(m => m.Status).Returns(isPublished ? VersionStatus.Published : VersionStatus.NotCreated);
+            instance.Setup(m => m.GetSecurityDescriptor()).Returns(securityDescriptor.Object);
+            instance.Setup(m => m.ContentGuid).Returns(pageGuid);
+            instance.Setup(m => m.ParentLink).Returns(parentLink);
+            instance.Setup(m => m.ContentLink).Returns(pageLink);
+            instance.Setup(m => m.Language).Returns(language);
+            instance.Setup(m => m.Property).Returns(new PropertyDataCollection());
+            instance.Setup(m => m.StaticLinkURL).Returns($"/link/{pageGuid:N}.aspx?id={pageLink.ID}");
+
+            ContentReference.WasteBasket = new PageReference(1);
+            if (!isNotInWaste)
+            {
+                instance.Setup(m => m.ContentLink).Returns(ContentReference.WasteBasket);
+            }
+
+            instance.Object.PageTypeName = typeof(T).Name;
+            instance.Object.LinkType = shortcutType;
+            return instance.Object;
+        }
+
         public static PageReference GetPageReference() => new PageReference(GetInteger(1000));
 
         public static int GetInteger(int start = 1, int count = 1337) => Enumerable.Range(start, count).OrderBy(_ => Guid.NewGuid()).First();
@@ -187,51 +232,6 @@ namespace TestData
                 .Setup(m => m.HasTemplate(It.IsAny<IContentData>(), It.IsAny<TemplateTypeCategories>(), It.IsAny<ContextMode>()))
                 .Returns(hasTemplate);
             return templateResolver.Object;
-        }
-
-        public static T GetPageData<T>(
-            bool visibleInMenu = true,
-            bool isPublished = true,
-            bool userHasAccess = true,
-            bool isNotInWaste = true,
-            PageShortcutType shortcutType = PageShortcutType.Normal,
-            int id = 0,
-            int parentId = 0,
-            CultureInfo language = null) where T : PageData
-        {
-            var securityDescriptor = new Mock<IContentSecurityDescriptor>();
-            securityDescriptor.Setup(m => m.HasAccess(It.IsAny<IPrincipal>(), It.IsAny<AccessLevel>())).Returns(userHasAccess);
-
-            if(language == null)
-            {
-                language = CultureInfo.CurrentCulture;
-            }
-
-            PageReference pageLink = id > 0 ? new PageReference(id) : GetPageReference();
-            PageReference parentLink = parentId > 0 ? new PageReference(parentId) : GetPageReference();
-
-            var pageGuid = Guid.NewGuid();
-            var instance = new Mock<T>();
-            instance.SetupAllProperties();
-            instance.Setup(m => m.VisibleInMenu).Returns(visibleInMenu);
-            instance.Setup(m => m.Status).Returns(isPublished ? VersionStatus.Published : VersionStatus.NotCreated);
-            instance.Setup(m => m.GetSecurityDescriptor()).Returns(securityDescriptor.Object);
-            instance.Setup(m => m.ContentGuid).Returns(pageGuid);
-            instance.Setup(m => m.ParentLink).Returns(parentLink);
-            instance.Setup(m => m.ContentLink).Returns(pageLink);
-            instance.Setup(m => m.Language).Returns(language);
-            instance.Setup(m => m.Property).Returns(new PropertyDataCollection());
-            instance.Setup(m => m.StaticLinkURL).Returns($"/link/{pageGuid:N}.aspx?id={pageLink.ID}");
-
-            ContentReference.WasteBasket = new PageReference(1);
-            if(!isNotInWaste)
-            {
-                instance.Setup(m => m.ContentLink).Returns(ContentReference.WasteBasket);
-            }
-
-            instance.Object.PageTypeName = typeof(T).Name;
-            instance.Object.LinkType = shortcutType;
-            return instance.Object;
         }
 
         public static TestPage GetTestPage(int id = 0, int parentId = 0, PageShortcutType shortcutType = PageShortcutType.Normal)

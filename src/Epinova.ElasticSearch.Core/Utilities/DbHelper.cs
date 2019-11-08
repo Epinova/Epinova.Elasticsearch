@@ -142,6 +142,8 @@ namespace Epinova.ElasticSearch.Core.Utilities
 
         public static List<Dictionary<string, object>> ExecuteReader(string connectionString, string sql, Dictionary<string, object> parameters = null)
         {
+            var results = new List<Dictionary<string, object>>();
+
             try
             {
                 Log.Debug($"ExecuteReader: '{sql}");
@@ -167,8 +169,6 @@ namespace Epinova.ElasticSearch.Core.Utilities
                         command.Connection.Open();
                         SqlDataReader reader = command.ExecuteReader();
 
-                        var results = new List<Dictionary<string, object>>();
-
                         while(reader.Read())
                         {
                             var row = new Dictionary<string, object>();
@@ -184,16 +184,15 @@ namespace Epinova.ElasticSearch.Core.Utilities
                         command.Connection.Close();
 
                         Log.Debug($"Command '{sql}' executed succesfully.");
-
-                        return results;
                     }
                 }
             }
             catch(SqlException exception)
             {
                 Log.Warning("Issue when trying to execute command", exception);
-                return null;
             }
+
+            return results;
         }
     }
 }

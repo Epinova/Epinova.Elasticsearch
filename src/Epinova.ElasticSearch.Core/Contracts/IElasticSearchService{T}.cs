@@ -41,14 +41,6 @@ namespace Epinova.ElasticSearch.Core.Contracts
         IElasticSearchService<T> Boost(Expression<Func<T, object>> fieldSelector, byte weight);
 
         /// <summary>
-        /// Boost children based on ancestor path
-        /// </summary>
-        /// <param name="path">The ancestor id</param>
-        /// <param name="weight">Boost value</param>
-        /// <returns>The current <see cref="IElasticSearchService"/> instance</returns>
-        IElasticSearchService<T> BoostByAncestor(int path, sbyte weight);
-
-        /// <summary>
         /// Boost the specified type <typeparam name="TBoost"></typeparam>when searching
         /// </summary>
         /// <param name="weight">Boost value</param>
@@ -62,6 +54,14 @@ namespace Epinova.ElasticSearch.Core.Contracts
         /// <param name="weight">Boost value</param>
         /// <returns>The current <see cref="IElasticSearchService"/> instance</returns>
         IElasticSearchService<T> Boost(Type type, sbyte weight);
+
+        /// <summary>
+        /// Boost children based on ancestor path
+        /// </summary>
+        /// <param name="path">The ancestor id</param>
+        /// <param name="weight">Boost value</param>
+        /// <returns>The current <see cref="IElasticSearchService"/> instance</returns>
+        IElasticSearchService<T> BoostByAncestor(int path, sbyte weight);
 
         /// <summary>
         /// Decay hits based on date-property <paramref name="fieldSelector"/>. Default scale is 30 days.
@@ -143,12 +143,6 @@ namespace Epinova.ElasticSearch.Core.Contracts
         IElasticSearchService<T> Range(string fieldName, int greaterThan, int lessThan);
 
         /// <summary>
-        /// Inclusive search within a range
-        /// </summary>
-        /// <returns>The current <see cref="IElasticSearchService"/> instance</returns>
-        IElasticSearchService<T> RangeInclusive(string fieldName, int greaterThanOrEqualTo, int lessThanOrEqualTo);
-
-        /// <summary>
         /// Searches for a <see cref="DateTime"/> value greater than <paramref name="greaterThan"/> 
         /// and optionally less than <paramref name="lessThan"/> (exclusive)
         /// </summary>
@@ -157,16 +151,6 @@ namespace Epinova.ElasticSearch.Core.Contracts
         /// <param name="lessThan">The max-value (optional)</param>
         /// <returns>The current <see cref="IElasticSearchService"/> instance</returns>
         IElasticSearchService<T> Range(string fieldName, DateTime greaterThan, DateTime? lessThan = null);
-
-        /// <summary>
-        /// Searches for a <see cref="DateTime"/> value greater than or equal to <paramref name="greaterThanOrEqualTo"/> 
-        /// and optionally less than or equal to <paramref name="lessThanOrEqualTo"/> (exclusive)
-        /// </summary>
-        /// <param name="fieldName"> name of field</param>
-        /// <param name="greaterThanOrEqualTo">The min-value</param>
-        /// <param name="lessThanOrEqualTo">The max-value (optional)</param>
-        /// <returns>The current <see cref="IElasticSearchService"/> instance</returns>
-        IElasticSearchService<T> RangeInclusive(string fieldName, DateTime greaterThanOrEqualTo, DateTime? lessThanOrEqualTo = null);
 
         /// <summary>
         /// Searches for a <see cref="Int64"/> value greater than <paramref name="greaterThan"/> 
@@ -180,15 +164,15 @@ namespace Epinova.ElasticSearch.Core.Contracts
         IElasticSearchService<T> Range(string fieldName, long greaterThan, long? lessThan = null);
 
         /// <summary>
-        /// Searches for a <see cref="Int64"/> value greater than or equal to <paramref name="greaterThanOrEqualTo"/> 
-        /// and optionally less than or equal to <paramref name="lessThanOrEqualTo"/> (exclusive)
-        /// <remarks>Supports explicit language conversions for <see cref="SByte"/>, <see cref="Byte"/>, <see cref="Int16"/>, <see cref="UInt16"/>, <see cref="Int32"/>, <see cref="UInt32"/>, <see cref="UInt64"/>, or <see cref="Char"/></remarks>
+        /// Searches for a <see cref="Decimal"/> value greater than <paramref name="greaterThan"/> 
+        /// and optionally less than <paramref name="lessThan"/> (exclusive)
+        /// <remarks>Supports explicit language conversions for <see cref="SByte"/>, <see cref="Byte"/>, <see cref="Int16"/>, <see cref="UInt16"/>, <see cref="Int32"/>, <see cref="UInt32"/>, <see cref="UInt64"/>, <see cref="Char"/>, or <see cref="Single"/></remarks>
         /// </summary>
         /// <param name="fieldName"> name of field</param>
-        /// <param name="greaterThanOrEqualTo">The min-value</param>
-        /// <param name="lessThanOrEqualTo">The max-value (optional)</param>
+        /// <param name="greaterThan">The min-value</param>
+        /// <param name="lessThan">The max-value (optional)</param>
         /// <returns>The current <see cref="IElasticSearchService"/> instance</returns>
-        IElasticSearchService<T> RangeInclusive(string fieldName, long greaterThanOrEqualTo, long? lessThanOrEqualTo = null);
+        IElasticSearchService<T> Range(string fieldName, decimal greaterThan, decimal? lessThan = null);
 
         /// <summary>
         /// Searches for a <see cref="Double"/> value greater than <paramref name="greaterThan"/> 
@@ -202,49 +186,10 @@ namespace Epinova.ElasticSearch.Core.Contracts
         IElasticSearchService<T> Range(string fieldName, double greaterThan, double? lessThan = null);
 
         /// <summary>
-        /// Searches for a <see cref="Double"/> value greater than or equal to <paramref name="greaterThanOrEqualTo"/> 
-        /// and optionally less than or equal to <paramref name="lessThanOrEqualTo"/> (exclusive)
-        /// <remarks>Supports explicit language conversions for <see cref="SByte"/>, <see cref="Byte"/>, <see cref="Int16"/>, <see cref="UInt16"/>, <see cref="Int32"/>, <see cref="UInt32"/>, <see cref="UInt64"/>, <see cref="Char"/>, or <see cref="Single"/></remarks>
-        /// </summary>
-        /// <param name="fieldName"> name of field</param>
-        /// <param name="greaterThanOrEqualTo">The min-value</param>
-        /// <param name="lessThanOrEqualTo">The max-value (optional)</param>
-        /// <returns>The current <see cref="IElasticSearchService"/> instance</returns>
-        IElasticSearchService<T> RangeInclusive(string fieldName, double greaterThanOrEqualTo, double? lessThanOrEqualTo = null);
-
-        /// <summary>
-        /// Searches for a <see cref="Decimal"/> value greater than <paramref name="greaterThan"/> 
-        /// and optionally less than <paramref name="lessThan"/> (exclusive)
-        /// <remarks>Supports explicit language conversions for <see cref="SByte"/>, <see cref="Byte"/>, <see cref="Int16"/>, <see cref="UInt16"/>, <see cref="Int32"/>, <see cref="UInt32"/>, <see cref="UInt64"/>, <see cref="Char"/>, or <see cref="Single"/></remarks>
-        /// </summary>
-        /// <param name="fieldName"> name of field</param>
-        /// <param name="greaterThan">The min-value</param>
-        /// <param name="lessThan">The max-value (optional)</param>
-        /// <returns>The current <see cref="IElasticSearchService"/> instance</returns>
-        IElasticSearchService<T> Range(string fieldName, decimal greaterThan, decimal? lessThan = null);
-
-        /// <summary>
-        /// Searches for a <see cref="Decimal"/> value greater than or equal to <paramref name="greaterThanOrEqualTo"/> 
-        /// and optionally less than or equal to <paramref name="lessThanOrEqualTo"/> (exclusive)
-        /// <remarks>Supports explicit language conversions for <see cref="SByte"/>, <see cref="Byte"/>, <see cref="Int16"/>, <see cref="UInt16"/>, <see cref="Int32"/>, <see cref="UInt32"/>, <see cref="UInt64"/>, <see cref="Char"/>, or <see cref="Single"/></remarks>
-        /// </summary>
-        /// <param name="fieldName"> name of field</param>
-        /// <param name="greaterThanOrEqualTo">The min-value</param>
-        /// <param name="lessThanOrEqualTo">The max-value (optional)</param>
-        /// <returns>The current <see cref="IElasticSearchService"/> instance</returns>
-        IElasticSearchService<T> RangeInclusive(string fieldName, decimal greaterThanOrEqualTo, decimal? lessThanOrEqualTo = null);
-
-        /// <summary>
         /// Searches within a range
         /// </summary>
         /// <returns>The current <see cref="IElasticSearchService"/> instance</returns>
         IElasticSearchService<T> Range(Expression<Func<T, IntegerRange>> fieldSelector, int greaterThan, int lessThan);
-
-        /// <summary>
-        /// Inclusive search within a range
-        /// </summary>
-        /// <returns>The current <see cref="IElasticSearchService"/> instance</returns>
-        IElasticSearchService<T> RangeInclusive(Expression<Func<T, IntegerRange>> fieldSelector, int greaterThanOrEqualTo, int lessThanOrEqualTo);
 
         /// <summary>
         /// Searches for a <see cref="DateTime"/> value greater than <paramref name="greaterThan"/> 
@@ -255,16 +200,6 @@ namespace Epinova.ElasticSearch.Core.Contracts
         /// <param name="lessThan">The max-value (optional)</param>
         /// <returns>The current <see cref="IElasticSearchService"/> instance</returns>
         IElasticSearchService<T> Range(Expression<Func<T, DateTime?>> fieldSelector, DateTime greaterThan, DateTime? lessThan = null);
-
-        /// <summary>
-        /// Searches for a <see cref="DateTime"/> value greater than or equal to <paramref name="greaterThanOrEqualTo"/> 
-        /// and optionally less than or equal to <paramref name="lessThanOrEqualTo"/> (exclusive)
-        /// </summary>
-        /// <param name="fieldSelector">DateTime field expression</param>
-        /// <param name="greaterThanOrEqualTo">The min-value</param>
-        /// <param name="lessThanOrEqualTo">The max-value (optional)</param>
-        /// <returns>The current <see cref="IElasticSearchService"/> instance</returns>
-        IElasticSearchService<T> RangeInclusive(Expression<Func<T, DateTime?>> fieldSelector, DateTime greaterThanOrEqualTo, DateTime? lessThanOrEqualTo = null);
 
         /// <summary>
         /// Searches for a <see cref="Int64"/> value greater than <paramref name="greaterThan"/> 
@@ -278,17 +213,6 @@ namespace Epinova.ElasticSearch.Core.Contracts
         IElasticSearchService<T> Range(Expression<Func<T, long?>> fieldSelector, long greaterThan, long? lessThan = null);
 
         /// <summary>
-        /// Searches for a <see cref="Int64"/> value greater than or equal to <paramref name="greaterThanOrEqualTo"/> 
-        /// and optionally less than or equal to <paramref name="lessThanOrEqualTo"/> (exclusive)
-        /// <remarks>Supports explicit language conversions for <see cref="SByte"/>, <see cref="Byte"/>, <see cref="Int16"/>, <see cref="UInt16"/>, <see cref="Int32"/>, <see cref="UInt32"/>, <see cref="UInt64"/>, or <see cref="Char"/></remarks>
-        /// </summary>
-        /// <param name="fieldSelector">long field expression</param>
-        /// <param name="greaterThanOrEqualTo">The min-value</param>
-        /// <param name="lessThanOrEqualTo">The max-value (optional)</param>
-        /// <returns>The current <see cref="IElasticSearchService"/> instance</returns>
-        IElasticSearchService<T> RangeInclusive(Expression<Func<T, long?>> fieldSelector, long greaterThanOrEqualTo, long? lessThanOrEqualTo = null);
-
-        /// <summary>
         /// Searches for a <see cref="Double"/> value greater than <paramref name="greaterThan"/> 
         /// and optionally less than <paramref name="lessThan"/> (exclusive)
         /// <remarks>Supports explicit language conversions for <see cref="SByte"/>, <see cref="Byte"/>, <see cref="Int16"/>, <see cref="UInt16"/>, <see cref="Int32"/>, <see cref="UInt32"/>, <see cref="UInt64"/>, <see cref="Char"/>, or <see cref="Single"/></remarks>
@@ -300,17 +224,6 @@ namespace Epinova.ElasticSearch.Core.Contracts
         IElasticSearchService<T> Range(Expression<Func<T, double?>> fieldSelector, double greaterThan, double? lessThan = null);
 
         /// <summary>
-        /// Searches for a <see cref="Double"/> value greater than or equal to <paramref name="greaterThanOrEqualTo"/> 
-        /// and optionally less than or equal to <paramref name="lessThanOrEqualTo"/> (exclusive)
-        /// <remarks>Supports explicit language conversions for <see cref="SByte"/>, <see cref="Byte"/>, <see cref="Int16"/>, <see cref="UInt16"/>, <see cref="Int32"/>, <see cref="UInt32"/>, <see cref="UInt64"/>, <see cref="Char"/>, or <see cref="Single"/></remarks>
-        /// </summary>
-        /// <param name="fieldSelector"><see cref="Double"/> field expression</param>
-        /// <param name="greaterThanOrEqualTo">The min-value</param>
-        /// <param name="lessThanOrEqualTo">The max-value (optional)</param>
-        /// <returns>The current <see cref="IElasticSearchService"/> instance</returns>
-        IElasticSearchService<T> RangeInclusive(Expression<Func<T, double?>> fieldSelector, double greaterThanOrEqualTo, double? lessThanOrEqualTo = null);
-
-        /// <summary>
         /// Searches for a <see cref="Decimal"/> value greater than <paramref name="greaterThan"/> 
         /// and optionally less than <paramref name="lessThan"/> (exclusive)
         /// <remarks>Supports explicit language conversions for <see cref="SByte"/>, <see cref="Byte"/>, <see cref="Int16"/>, <see cref="UInt16"/>, <see cref="Int32"/>, <see cref="UInt32"/>, <see cref="UInt64"/>, <see cref="Char"/>, or <see cref="Single"/></remarks>
@@ -320,6 +233,93 @@ namespace Epinova.ElasticSearch.Core.Contracts
         /// <param name="lessThan">The max-value (optional)</param>
         /// <returns>The current <see cref="IElasticSearchService"/> instance</returns>
         IElasticSearchService<T> Range(Expression<Func<T, decimal?>> fieldSelector, decimal greaterThan, decimal? lessThan = null);
+
+        /// <summary>
+        /// Inclusive search within a range
+        /// </summary>
+        /// <returns>The current <see cref="IElasticSearchService"/> instance</returns>
+        IElasticSearchService<T> RangeInclusive(string fieldName, int greaterThanOrEqualTo, int lessThanOrEqualTo);
+
+        /// <summary>
+        /// Searches for a <see cref="DateTime"/> value greater than or equal to <paramref name="greaterThanOrEqualTo"/> 
+        /// and optionally less than or equal to <paramref name="lessThanOrEqualTo"/> (exclusive)
+        /// </summary>
+        /// <param name="fieldName"> name of field</param>
+        /// <param name="greaterThanOrEqualTo">The min-value</param>
+        /// <param name="lessThanOrEqualTo">The max-value (optional)</param>
+        /// <returns>The current <see cref="IElasticSearchService"/> instance</returns>
+        IElasticSearchService<T> RangeInclusive(string fieldName, DateTime greaterThanOrEqualTo, DateTime? lessThanOrEqualTo = null);
+
+        /// <summary>
+        /// Searches for a <see cref="Int64"/> value greater than or equal to <paramref name="greaterThanOrEqualTo"/> 
+        /// and optionally less than or equal to <paramref name="lessThanOrEqualTo"/> (exclusive)
+        /// <remarks>Supports explicit language conversions for <see cref="SByte"/>, <see cref="Byte"/>, <see cref="Int16"/>, <see cref="UInt16"/>, <see cref="Int32"/>, <see cref="UInt32"/>, <see cref="UInt64"/>, or <see cref="Char"/></remarks>
+        /// </summary>
+        /// <param name="fieldName"> name of field</param>
+        /// <param name="greaterThanOrEqualTo">The min-value</param>
+        /// <param name="lessThanOrEqualTo">The max-value (optional)</param>
+        /// <returns>The current <see cref="IElasticSearchService"/> instance</returns>
+        IElasticSearchService<T> RangeInclusive(string fieldName, long greaterThanOrEqualTo, long? lessThanOrEqualTo = null);
+
+        /// <summary>
+        /// Searches for a <see cref="Double"/> value greater than or equal to <paramref name="greaterThanOrEqualTo"/> 
+        /// and optionally less than or equal to <paramref name="lessThanOrEqualTo"/> (exclusive)
+        /// <remarks>Supports explicit language conversions for <see cref="SByte"/>, <see cref="Byte"/>, <see cref="Int16"/>, <see cref="UInt16"/>, <see cref="Int32"/>, <see cref="UInt32"/>, <see cref="UInt64"/>, <see cref="Char"/>, or <see cref="Single"/></remarks>
+        /// </summary>
+        /// <param name="fieldName"> name of field</param>
+        /// <param name="greaterThanOrEqualTo">The min-value</param>
+        /// <param name="lessThanOrEqualTo">The max-value (optional)</param>
+        /// <returns>The current <see cref="IElasticSearchService"/> instance</returns>
+        IElasticSearchService<T> RangeInclusive(string fieldName, double greaterThanOrEqualTo, double? lessThanOrEqualTo = null);
+
+        /// <summary>
+        /// Searches for a <see cref="Decimal"/> value greater than or equal to <paramref name="greaterThanOrEqualTo"/> 
+        /// and optionally less than or equal to <paramref name="lessThanOrEqualTo"/> (exclusive)
+        /// <remarks>Supports explicit language conversions for <see cref="SByte"/>, <see cref="Byte"/>, <see cref="Int16"/>, <see cref="UInt16"/>, <see cref="Int32"/>, <see cref="UInt32"/>, <see cref="UInt64"/>, <see cref="Char"/>, or <see cref="Single"/></remarks>
+        /// </summary>
+        /// <param name="fieldName"> name of field</param>
+        /// <param name="greaterThanOrEqualTo">The min-value</param>
+        /// <param name="lessThanOrEqualTo">The max-value (optional)</param>
+        /// <returns>The current <see cref="IElasticSearchService"/> instance</returns>
+        IElasticSearchService<T> RangeInclusive(string fieldName, decimal greaterThanOrEqualTo, decimal? lessThanOrEqualTo = null);
+
+        /// <summary>
+        /// Inclusive search within a range
+        /// </summary>
+        /// <returns>The current <see cref="IElasticSearchService"/> instance</returns>
+        IElasticSearchService<T> RangeInclusive(Expression<Func<T, IntegerRange>> fieldSelector, int greaterThanOrEqualTo, int lessThanOrEqualTo);
+
+        /// <summary>
+        /// Searches for a <see cref="DateTime"/> value greater than or equal to <paramref name="greaterThanOrEqualTo"/> 
+        /// and optionally less than or equal to <paramref name="lessThanOrEqualTo"/> (exclusive)
+        /// </summary>
+        /// <param name="fieldSelector">DateTime field expression</param>
+        /// <param name="greaterThanOrEqualTo">The min-value</param>
+        /// <param name="lessThanOrEqualTo">The max-value (optional)</param>
+        /// <returns>The current <see cref="IElasticSearchService"/> instance</returns>
+        IElasticSearchService<T> RangeInclusive(Expression<Func<T, DateTime?>> fieldSelector, DateTime greaterThanOrEqualTo, DateTime? lessThanOrEqualTo = null);
+
+        /// <summary>
+        /// Searches for a <see cref="Int64"/> value greater than or equal to <paramref name="greaterThanOrEqualTo"/> 
+        /// and optionally less than or equal to <paramref name="lessThanOrEqualTo"/> (exclusive)
+        /// <remarks>Supports explicit language conversions for <see cref="SByte"/>, <see cref="Byte"/>, <see cref="Int16"/>, <see cref="UInt16"/>, <see cref="Int32"/>, <see cref="UInt32"/>, <see cref="UInt64"/>, or <see cref="Char"/></remarks>
+        /// </summary>
+        /// <param name="fieldSelector">long field expression</param>
+        /// <param name="greaterThanOrEqualTo">The min-value</param>
+        /// <param name="lessThanOrEqualTo">The max-value (optional)</param>
+        /// <returns>The current <see cref="IElasticSearchService"/> instance</returns>
+        IElasticSearchService<T> RangeInclusive(Expression<Func<T, long?>> fieldSelector, long greaterThanOrEqualTo, long? lessThanOrEqualTo = null);
+
+        /// <summary>
+        /// Searches for a <see cref="Double"/> value greater than or equal to <paramref name="greaterThanOrEqualTo"/> 
+        /// and optionally less than or equal to <paramref name="lessThanOrEqualTo"/> (exclusive)
+        /// <remarks>Supports explicit language conversions for <see cref="SByte"/>, <see cref="Byte"/>, <see cref="Int16"/>, <see cref="UInt16"/>, <see cref="Int32"/>, <see cref="UInt32"/>, <see cref="UInt64"/>, <see cref="Char"/>, or <see cref="Single"/></remarks>
+        /// </summary>
+        /// <param name="fieldSelector"><see cref="Double"/> field expression</param>
+        /// <param name="greaterThanOrEqualTo">The min-value</param>
+        /// <param name="lessThanOrEqualTo">The max-value (optional)</param>
+        /// <returns>The current <see cref="IElasticSearchService"/> instance</returns>
+        IElasticSearchService<T> RangeInclusive(Expression<Func<T, double?>> fieldSelector, double greaterThanOrEqualTo, double? lessThanOrEqualTo = null);
 
         /// <summary>
         /// Searches for a <see cref="Decimal"/> value greater than or equal to <paramref name="greaterThanOrEqualTo"/> 
@@ -561,7 +561,6 @@ namespace Epinova.ElasticSearch.Core.Contracts
         /// Perform multiple filters as a logical group
         /// </summary>
         /// <param name="groupExpression">The expression to perform ORs or ANDs on</param>
-        /// <param name="operator">The internal logic operator between the operations in the group-query. 
         /// Defaults to <see cref="Epinova.ElasticSearch.Core.Enums.Operator.And"/></param>
         /// <returns>The current <see cref="IElasticSearchService"/> instance</returns>
         IElasticSearchService<T> FilterGroup(Expression<Func<IFilterGroup<T>, IFilterGroup<T>>> groupExpression);

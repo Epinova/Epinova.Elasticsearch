@@ -61,10 +61,11 @@
                         <h2 id="@type.Key">@PageName(type.Key)</h2>
 
                         <table class="epi-default">
+                            <caption>@Html.TranslateWithPath("description", localizationPath)</caption>
                             <thead>
                                 <tr>
-                                    <th>@Html.TranslateWithPath("property", localizationPath)</th>
-                                    <th>@Html.TranslateWithPath("boost", localizationPath)</th>
+                                    <th scope="col">@Html.TranslateWithPath("property", localizationPath)</th>
+                                    <th scope="col">@Html.TranslateWithPath("boost", localizationPath)</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -74,7 +75,7 @@
                                     {
                                         group = type.Value[i].GroupName;
                                         <tr>
-                                            <th colspan="2"><em>@TabName(group)</em></th>
+                                            <th colspan="2" scope="col"><em>@TabName(group)</em></th>
                                         </tr>
                                     }
 

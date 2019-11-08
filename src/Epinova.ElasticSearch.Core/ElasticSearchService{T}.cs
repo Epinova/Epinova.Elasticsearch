@@ -420,9 +420,6 @@ namespace Epinova.ElasticSearch.Core
             return scriptScore;
         }
 
-        public IElasticSearchService<object> WildcardSearch(string searchText)
-            => WildcardSearch<object>(searchText);
-
         public IElasticSearchService<T> MoreLikeThis<T>(string id, int minimumTermFrequency = 1, int maxQueryTerms = 25, int minimumDocFrequency = 3, int minimumWordLength = 3)
         {
             return new ElasticSearchService<T>(_settings, _httpClientHelper)
@@ -444,6 +441,9 @@ namespace Epinova.ElasticSearch.Core
                 IndexName = IndexName
             };
         }
+
+        public IElasticSearchService<object> WildcardSearch(string searchText)
+            => WildcardSearch<object>(searchText);
 
         public IElasticSearchService<T> WildcardSearch<T>(string searchText)
         {
@@ -622,20 +622,6 @@ namespace Epinova.ElasticSearch.Core
             return this;
         }
 
-        public IElasticSearchService<T> Filters<TType>(string fieldName, IEnumerable<TType> filterValues, Operator @operator = Operator.Or, bool raw = true)
-        {
-            TType[] values = filterValues as TType[] ?? filterValues.ToArray();
-            if(values.Length > 0)
-            {
-                foreach(TType value in values)
-                {
-                    PostFilters.Add(new Filter(fieldName, value, typeof(TType), raw, @operator));
-                }
-            }
-
-            return this;
-        }
-
         public IElasticSearchService<T> Filter<TType>(Expression<Func<T, TType>> fieldSelector, TType filterValue, bool raw = true, Operator @operator = Operator.And)
         {
             Tuple<string, MappingType> fieldInfo = GetFieldInfo(fieldSelector);
@@ -650,6 +636,13 @@ namespace Epinova.ElasticSearch.Core
             return Filter(fieldInfo.Item1, filterValue, raw);
         }
 
+        public IElasticSearchService<T> Filter<TType>(Expression<Action<T>> fieldSelector, TType filterValue, bool raw = true)
+        {
+            Tuple<string, MappingType> fieldInfo = GetFieldInfo(fieldSelector);
+
+            return Filter(fieldInfo.Item1, filterValue, raw);
+        }
+
         public IElasticSearchService<T> Filters<TType>(Expression<Func<T, TType>> fieldSelector, IEnumerable<TType> filterValues, Operator @operator = Operator.Or, bool raw = true)
         {
             Tuple<string, MappingType> fieldInfo = GetFieldInfo(fieldSelector);
@@ -657,11 +650,18 @@ namespace Epinova.ElasticSearch.Core
             return Filters(fieldInfo.Item1, filterValues, @operator, raw);
         }
 
-        public IElasticSearchService<T> Filter<TType>(Expression<Action<T>> fieldSelector, TType filterValue, bool raw = true)
+        public IElasticSearchService<T> Filters<TType>(string fieldName, IEnumerable<TType> filterValues, Operator @operator = Operator.Or, bool raw = true)
         {
-            Tuple<string, MappingType> fieldInfo = GetFieldInfo(fieldSelector);
+            TType[] values = filterValues as TType[] ?? filterValues.ToArray();
+            if(values.Length > 0)
+            {
+                foreach(TType value in values)
+                {
+                    PostFilters.Add(new Filter(fieldName, value, typeof(TType), raw, @operator));
+                }
+            }
 
-            return Filter(fieldInfo.Item1, filterValue, raw);
+            return this;
         }
 
         public IElasticSearchService<T> Filters<TType>(Expression<Action<T>> fieldSelector, IEnumerable<TType> filterValues, Operator @operator = Operator.Or, bool raw = true)
@@ -681,20 +681,6 @@ namespace Epinova.ElasticSearch.Core
             return this;
         }
 
-        public IElasticSearchService<T> FiltersMustNot<TType>(string fieldName, IEnumerable<TType> filterValues, bool raw = true)
-        {
-            TType[] values = filterValues as TType[] ?? filterValues.ToArray();
-            if(values.Length > 0)
-            {
-                foreach(TType value in values)
-                {
-                    PostFilters.Add(new Filter(fieldName, value, typeof(TType), raw, Operator.And, true));
-                }
-            }
-
-            return this;
-        }
-
         public IElasticSearchService<T> FilterMustNot<TType>(Expression<Func<T, TType>> fieldSelector, TType filterValue, bool raw = true)
         {
             Tuple<string, MappingType> fieldInfo = GetFieldInfo(fieldSelector);
@@ -709,18 +695,32 @@ namespace Epinova.ElasticSearch.Core
             return FilterMustNot(fieldInfo.Item1, filterValue, raw);
         }
 
-        public IElasticSearchService<T> FiltersMustNot<TType>(Expression<Func<T, TType>> fieldSelector, IEnumerable<TType> filterValues, bool raw = true)
-        {
-            Tuple<string, MappingType> fieldInfo = GetFieldInfo(fieldSelector);
-
-            return FiltersMustNot(fieldInfo.Item1, filterValues, raw);
-        }
-
         public IElasticSearchService<T> FilterMustNot<TType>(Expression<Action<T>> fieldSelector, TType filterValue, bool raw = true)
         {
             Tuple<string, MappingType> fieldInfo = GetFieldInfo(fieldSelector);
 
             return FilterMustNot(fieldInfo.Item1, filterValue, raw);
+        }
+
+        public IElasticSearchService<T> FiltersMustNot<TType>(string fieldName, IEnumerable<TType> filterValues, bool raw = true)
+        {
+            TType[] values = filterValues as TType[] ?? filterValues.ToArray();
+            if(values.Length > 0)
+            {
+                foreach(TType value in values)
+                {
+                    PostFilters.Add(new Filter(fieldName, value, typeof(TType), raw, Operator.And, true));
+                }
+            }
+
+            return this;
+        }
+
+        public IElasticSearchService<T> FiltersMustNot<TType>(Expression<Func<T, TType>> fieldSelector, IEnumerable<TType> filterValues, bool raw = true)
+        {
+            Tuple<string, MappingType> fieldInfo = GetFieldInfo(fieldSelector);
+
+            return FiltersMustNot(fieldInfo.Item1, filterValues, raw);
         }
 
         public IElasticSearchService<T> FiltersMustNot<TType>(Expression<Action<T>> fieldSelector, IEnumerable<TType> filterValues, bool raw = true)
