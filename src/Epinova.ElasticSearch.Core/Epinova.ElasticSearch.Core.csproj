@@ -25,7 +25,6 @@
     <WarningLevel>4</WarningLevel>
     <RunCodeAnalysis>false</RunCodeAnalysis>
     <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
-    <LangVersion>7.2</LangVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -37,7 +36,6 @@
     <WarningLevel>4</WarningLevel>
     <DocumentationFile>bin\Epinova.ElasticSearch.Core.XML</DocumentationFile>
     <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
-    <LangVersion>7.2</LangVersion>
     <NoWarn>1591</NoWarn>
   </PropertyGroup>
   <PropertyGroup>
