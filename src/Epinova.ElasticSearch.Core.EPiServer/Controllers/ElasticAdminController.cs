@@ -11,6 +11,7 @@ using Epinova.ElasticSearch.Core.Settings;
 using Epinova.ElasticSearch.Core.Settings.Configuration;
 using Epinova.ElasticSearch.Core.Utilities;
 using EPiServer.DataAbstraction;
+using EPiServer.Scheduler;
 
 namespace Epinova.ElasticSearch.Core.EPiServer.Controllers
 {
@@ -20,18 +21,24 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Controllers
         private readonly IElasticSearchSettings _settings;
         private readonly Health _healthHelper;
         private readonly IHttpClientHelper _httpClientHelper;
+        private readonly IScheduledJobRepository _scheduledJobRepository;
+        private readonly IScheduledJobExecutor _scheduledJobExecutor;
 
         public ElasticAdminController(
             ILanguageBranchRepository languageBranchRepository,
             ICoreIndexer coreIndexer,
             IElasticSearchSettings settings,
-            IHttpClientHelper httpClientHelper)
+            IHttpClientHelper httpClientHelper,
+            IScheduledJobRepository scheduledJobRepository,
+            IScheduledJobExecutor scheduledJobExecutor)
             : base(settings, httpClientHelper, languageBranchRepository)
         {
             _coreIndexer = coreIndexer;
             _settings = settings;
             _healthHelper = new Health(settings, httpClientHelper);
             _httpClientHelper = httpClientHelper;
+            _scheduledJobRepository = scheduledJobRepository;
+            _scheduledJobExecutor = scheduledJobExecutor;
         }
 
         [Authorize(Roles = RoleNames.ElasticsearchAdmins)]
@@ -43,6 +50,17 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Controllers
             var adminViewModel = new AdminViewModel(clusterHealth, Indices.OrderBy(i => i.Type), nodeInfo);
 
             return View("~/Views/ElasticSearchAdmin/Admin/Index.cshtml", adminViewModel);
+        }
+
+        [Authorize(Roles = RoleNames.ElasticsearchAdmins)]
+        public ActionResult RunIndexJob()
+        {
+            var indexJob = _scheduledJobRepository.List().FirstOrDefault(job => job.Name == Constants.IndexEPiServerContentDisplayName);
+            if(indexJob != null)
+            {
+                _scheduledJobExecutor.StartAsync(indexJob);
+            }
+            return RedirectToAction("Index");
         }
 
         [Authorize(Roles = RoleNames.ElasticsearchAdmins)]

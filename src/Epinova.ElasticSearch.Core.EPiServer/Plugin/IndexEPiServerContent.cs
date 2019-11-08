@@ -21,7 +21,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Plugin
 {
     [ScheduledPlugIn(
         SortIndex = 100000,
-        DisplayName = "Elasticsearch: Index CMS content",
+        DisplayName = Constants.IndexEPiServerContentDisplayName,
         Description = "Indexes CMS content in Elasticsearch.")]
     public class IndexEPiServerContent : ScheduledJobBase
     {

@@ -34,7 +34,9 @@ namespace Core.Episerver.Tests.Controllers
                 languageBranchRepositoryMock.Object,
                 indexerMock.Object,
                 fixture.ServiceLocationMock.SettingsMock.Object,
-                fixture.ServiceLocationMock.HttpClientMock.Object);
+                fixture.ServiceLocationMock.HttpClientMock.Object,
+                fixture.ServiceLocationMock.ScheduledJobRepositoryMock.Object,
+                fixture.ServiceLocationMock.ScheduledJobExecutorMock.Object);
         }
 
         [Fact]

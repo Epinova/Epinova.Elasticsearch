@@ -4,6 +4,7 @@ using Epinova.ElasticSearch.Core.Settings;
 using EPiServer;
 using EPiServer.Core;
 using EPiServer.DataAbstraction;
+using EPiServer.Scheduler;
 using EPiServer.ServiceLocation;
 using EPiServer.Web;
 using Moq;
@@ -22,6 +23,8 @@ namespace TestData
         public Mock<IElasticSearchService<IContent>> ServiceMock { get; set; }
         public Mock<ILanguageBranchRepository> LanguageBranchRepositoryMock { get; set; }
         public Mock<IPublishedStateAssessor> StateAssesorMock { get; set; }
+        public Mock<IScheduledJobRepository> ScheduledJobRepositoryMock { get; set; }
+        public Mock<IScheduledJobExecutor> ScheduledJobExecutorMock { get; set; }
         public ITemplateResolver TemplateResolver { get; set; }
     }
 }

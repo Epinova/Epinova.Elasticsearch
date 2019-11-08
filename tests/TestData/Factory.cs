@@ -21,6 +21,7 @@ using EPiServer.DataAccess;
 using EPiServer.DataAccess.Internal;
 using EPiServer.Framework.Blobs;
 using EPiServer.Framework.Web;
+using EPiServer.Scheduler;
 using EPiServer.Security;
 using EPiServer.ServiceLocation;
 using EPiServer.Web;
@@ -38,6 +39,8 @@ namespace TestData
             {
                 ServiceLocatorMock = new Mock<IServiceLocator>(),
                 StateAssesorMock = new Mock<IPublishedStateAssessor>(),
+                ScheduledJobRepositoryMock = new Mock<IScheduledJobRepository>(),
+                ScheduledJobExecutorMock = new Mock<IScheduledJobExecutor>(),
                 TemplateResolver = GetTemplateResolver()
             };
 
@@ -115,6 +118,8 @@ namespace TestData
             result.ServiceLocatorMock.Setup(m => m.GetInstance<IPublishedStateAssessor>()).Returns(result.StateAssesorMock.Object);
             result.ServiceLocatorMock.Setup(m => m.GetInstance<ITemplateResolver>()).Returns(result.TemplateResolver);
             result.ServiceLocatorMock.Setup(m => m.GetInstance<ContentPathDB>()).Returns(contentPathMock.Object);
+            result.ServiceLocatorMock.Setup(m => m.GetInstance<IScheduledJobRepository>()).Returns(result.ScheduledJobRepositoryMock.Object);
+            result.ServiceLocatorMock.Setup(m => m.GetInstance<IScheduledJobExecutor>()).Returns(result.ScheduledJobExecutorMock.Object);
             result.ServiceLocatorMock.Setup(m => m.GetInstance<ContentAssetHelper>()).Returns(new Mock<ContentAssetHelper>().Object);
 
             ServiceLocator.SetLocator(result.ServiceLocatorMock.Object);
