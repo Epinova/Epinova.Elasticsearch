@@ -768,6 +768,16 @@ SearchResult result = service
 string[] didYouMean = result.DidYouMean; // [ "alloy", "all" ]
 ```
 
+Any properties that should act as a source for suggestions must be marked with `[DidYouMeanSource]`.
+
+```csharp
+public class StandardPage : SitePageData
+{
+    [DidYouMeanSource]
+    public virtual XhtmlString MainBody { get; set; }
+}
+```
+
 &nbsp;
 
 

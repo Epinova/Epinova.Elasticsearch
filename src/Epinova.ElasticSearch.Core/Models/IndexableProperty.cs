@@ -9,5 +9,7 @@ namespace Epinova.ElasticSearch.Core.Models
         public Type Type { get; set; }
 
         public bool Analyzable { get; set; }
+
+        public bool IncludeInDidYouMean { get; set; }
     }
 }

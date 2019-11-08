@@ -181,6 +181,7 @@
     <Compile Include="Admin\Index.cs" />
     <Compile Include="Attributes\BoostAttribute.cs" />
     <Compile Include="Attributes\ExcludeFromSearchAttribute.cs" />
+    <Compile Include="Attributes\DidYouMeanSourceAttribute.cs" />
     <Compile Include="Attributes\StemAttribute.cs" />
     <Compile Include="Constants.cs" />
     <Compile Include="Contracts\IBestBetsRepository.cs" />

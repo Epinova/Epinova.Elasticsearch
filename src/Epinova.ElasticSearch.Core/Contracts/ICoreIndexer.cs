@@ -30,8 +30,6 @@ namespace Epinova.ElasticSearch.Core.Contracts
 
         void CreateAnalyzedMappingsIfNeeded(Type type, string language, string indexName = null);
 
-        void CreateDidYouMeanMappingsIfNeeded(Type type, string language, string indexName = null);
-
         /// <summary>
         /// Removes best bets for document of type <paramref name="indexType"/>, with id <paramref name="id"/>
         /// </summary>

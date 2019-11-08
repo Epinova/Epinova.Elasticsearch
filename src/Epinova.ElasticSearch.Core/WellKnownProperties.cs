@@ -14,22 +14,6 @@ namespace Epinova.ElasticSearch.Core
 
         internal static readonly List<string> Analyze = new List<string>(AutoAnalyze);
 
-        internal static readonly string[] IgnoreDidYouMean =
-        {
-            DefaultFields.AttachmentData,
-            DefaultFields.Changed,
-            DefaultFields.Created,
-            DefaultFields.DidYouMean,
-            DefaultFields.Id,
-            DefaultFields.Indexed,
-            DefaultFields.Lang,
-            DefaultFields.Path,
-            DefaultFields.ParentLink,
-            DefaultFields.Suggest,
-            DefaultFields.Type,
-            DefaultFields.Types
-        };
-
         internal static readonly string[] IgnoreAnalyzer =
         {
             DefaultFields.Id,
