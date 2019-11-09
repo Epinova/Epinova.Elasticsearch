@@ -224,8 +224,8 @@ namespace Epinova.ElasticSearch.Core.Utilities
 
         private static HttpClient SetupClient()
         {
-            var client = MessageHandler.Handler != null
-                ? new HttpClient(MessageHandler.Handler)
+            var client = MessageHandler.Instance.Handler != null
+                ? new HttpClient(MessageHandler.Instance.Handler)
                 : new HttpClient();
 
             IElasticSearchSettings settings = ServiceLocator.Current.GetInstance<IElasticSearchSettings>();

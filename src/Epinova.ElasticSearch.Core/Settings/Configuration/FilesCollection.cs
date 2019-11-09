@@ -72,10 +72,10 @@ namespace Epinova.ElasticSearch.Core.Settings.Configuration
         public void Remove(FileConfiguration serviceConfig)
             => BaseRemove(serviceConfig);
 
-        public void RemoveAt(int index)
-            => BaseRemoveAt(index);
-
         public void Remove(string name)
             => BaseRemove(name);
+
+        public void RemoveAt(int index)
+            => BaseRemoveAt(index);
     }
 }

@@ -17,25 +17,18 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Initialization
         {
             string connectionString = ConfigurationManager.ConnectionStrings[Constants.EPiServerConnectionStringName].ConnectionString;
 
-            if(!DbHelper.TableExists(connectionString, Constants.TrackingTable))
+            if(!DbHelper.TableExists(connectionString, Constants.Tracking.TableName))
             {
-                const string definition = @"
-                    [Query] [nvarchar](400) NOT NULL,
-                    [Searches] [int] NOT NULL,
-                    [NoHits] [bit] NOT NULL,
-                	[Language] [nvarchar](10) NOT NULL,
-                	[IndexName] [nvarchar](200) NOT NULL";
-
                 Logger.Information("Creating tracking table");
-                DbHelper.CreateTable(connectionString, Constants.TrackingTable, definition);
+                DbHelper.CreateTable(connectionString, Constants.Tracking.TableName, Constants.Tracking.Sql.Definition);
             }
 
-            if(!DbHelper.ColumnExists(connectionString, Constants.TrackingTable, Constants.TrackingFieldIndex))
+            if(!DbHelper.ColumnExists(connectionString, Constants.Tracking.TableName, Constants.TrackingFieldIndex))
             {
                 Logger.Information($"Extending table with {Constants.TrackingFieldIndex} column");
 
-                DbHelper.ExecuteCommand(connectionString, $"ALTER TABLE {Constants.TrackingTable} ADD {Constants.TrackingFieldIndex} nvarchar(200)");
-                DbHelper.ExecuteCommand(connectionString, $"IF (OBJECT_ID('PK_ElasticTracking', 'U') IS NOT NULL) BEGIN ALTER TABLE {Constants.TrackingTable}  DROP CONSTRAINT [PK_ElasticTracking] END");
+                DbHelper.ExecuteCommand(connectionString, $"ALTER TABLE {Constants.Tracking.TableName} ADD {Constants.TrackingFieldIndex} nvarchar(200)");
+                DbHelper.ExecuteCommand(connectionString, $"IF (OBJECT_ID('PK_ElasticTracking', 'U') IS NOT NULL) BEGIN ALTER TABLE {Constants.Tracking.TableName}  DROP CONSTRAINT [PK_ElasticTracking] END");
             }
         }
 

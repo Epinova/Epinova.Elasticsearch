@@ -12,7 +12,7 @@ namespace Core.Tests.Conventions
         {
             MessageHandler.Instance.SetMessageHandler(new MockHandler());
 
-            HttpMessageHandler result = MessageHandler.Handler;
+            HttpMessageHandler result = MessageHandler.Instance.Handler;
 
             Assert.IsType<MockHandler>(result);
         }
