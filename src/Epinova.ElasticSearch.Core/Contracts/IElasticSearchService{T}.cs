@@ -560,7 +560,7 @@ namespace Epinova.ElasticSearch.Core.Contracts
         /// <summary>
         /// Perform multiple filters as a logical group
         /// </summary>
-        /// <param name="groupExpression">The expression to perform ORs or ANDs on</param>
+        /// <param name="groupExpression">The expression to perform ORs or ANDs on
         /// Defaults to <see cref="Epinova.ElasticSearch.Core.Enums.Operator.And"/></param>
         /// <returns>The current <see cref="IElasticSearchService"/> instance</returns>
         IElasticSearchService<T> FilterGroup(Expression<Func<IFilterGroup<T>, IFilterGroup<T>>> groupExpression);
