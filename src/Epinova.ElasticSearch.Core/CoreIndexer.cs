@@ -41,8 +41,8 @@ namespace Epinova.ElasticSearch.Core
             _mapping = new Mapping(settings, httpClientHelper);
         }
 
-        public static event OnBeforeUpdateItem BeforeUpdateItem;
-        public static event OnAfterUpdateBestBet AfterUpdateBestBet;
+        public event OnBeforeUpdateItem BeforeUpdateItem;
+        public event OnAfterUpdateBestBet AfterUpdateBestBet;
 
         public BulkBatchResult Bulk(params BulkOperation[] operations)
             => Bulk(operations, _ => { });

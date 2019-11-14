@@ -118,7 +118,7 @@ namespace Core.Tests
         {
             var id = Factory.GetInteger().ToString();
             bool eventCalled = false;
-            CoreIndexer.BeforeUpdateItem += _ => eventCalled = true;
+            _coreIndexer.BeforeUpdateItem += _ => eventCalled = true;
             _coreIndexer.Update(id, new { Foo = 42 }, "my-index");
             Assert.True(eventCalled);
         }
@@ -128,7 +128,7 @@ namespace Core.Tests
         {
             var id = Factory.GetInteger().ToString();
             bool eventCalled = false;
-            CoreIndexer.AfterUpdateBestBet += _ => eventCalled = true;
+            _coreIndexer.AfterUpdateBestBet += _ => eventCalled = true;
             _coreIndexer.ClearBestBets("my-index", typeof(TestPage), id);
             Assert.True(eventCalled);
         }
@@ -148,7 +148,7 @@ namespace Core.Tests
         {
             var id = Factory.GetInteger().ToString();
             bool eventCalled = false;
-            CoreIndexer.AfterUpdateBestBet += _ => eventCalled = true;
+            _coreIndexer.AfterUpdateBestBet += _ => eventCalled = true;
             _coreIndexer.UpdateBestBets("my-index", typeof(TestPage), id, new[] { "foo", "bar" });
             Assert.True(eventCalled);
         }

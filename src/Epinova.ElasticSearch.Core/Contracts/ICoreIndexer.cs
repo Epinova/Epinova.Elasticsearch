@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Epinova.ElasticSearch.Core.Events;
 using Epinova.ElasticSearch.Core.Models.Bulk;
 
 namespace Epinova.ElasticSearch.Core.Contracts
@@ -9,6 +10,10 @@ namespace Epinova.ElasticSearch.Core.Contracts
     /// </summary>
     public interface ICoreIndexer
     {
+        event OnBeforeUpdateItem BeforeUpdateItem;
+
+        event OnAfterUpdateBestBet AfterUpdateBestBet;
+
         /// <summary>
         /// Removes an item from the index
         /// </summary>
