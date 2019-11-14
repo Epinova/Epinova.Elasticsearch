@@ -26,7 +26,7 @@ using Newtonsoft.Json.Linq;
 
 namespace Epinova.ElasticSearch.Core
 {
-    [ServiceConfiguration(typeof(ICoreIndexer))]
+    [ServiceConfiguration(typeof(ICoreIndexer), Lifecycle = ServiceInstanceScope.Singleton)]
     internal class CoreIndexer : ICoreIndexer
     {
         private static readonly ILogger Logger = LogManager.GetLogger(typeof(CoreIndexer));
@@ -41,8 +41,8 @@ namespace Epinova.ElasticSearch.Core
             _mapping = new Mapping(settings, httpClientHelper);
         }
 
-        public static event OnBeforeUpdateItem BeforeUpdateItem;
-        public static event OnAfterUpdateBestBet AfterUpdateBestBet;
+        public event OnBeforeUpdateItem BeforeUpdateItem;
+        public event OnAfterUpdateBestBet AfterUpdateBestBet;
 
         public BulkBatchResult Bulk(params BulkOperation[] operations)
             => Bulk(operations, _ => { });
