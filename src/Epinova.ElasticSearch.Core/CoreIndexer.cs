@@ -26,7 +26,7 @@ using Newtonsoft.Json.Linq;
 
 namespace Epinova.ElasticSearch.Core
 {
-    [ServiceConfiguration(typeof(ICoreIndexer))]
+    [ServiceConfiguration(typeof(ICoreIndexer), Lifecycle = ServiceInstanceScope.Singleton)]
     internal class CoreIndexer : ICoreIndexer
     {
         private static readonly ILogger Logger = LogManager.GetLogger(typeof(CoreIndexer));
