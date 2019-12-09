@@ -1,4 +1,16 @@
-﻿using Castle.DynamicProxy;
+﻿using System;
+using System.Collections.Generic;
+using System.Dynamic;
+using System.Globalization;
+using System.IO;
+using System.Linq;
+using System.Reflection;
+using System.Security.Principal;
+using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
+using System.Web.Hosting;
+using Castle.DynamicProxy;
 using Epinova.ElasticSearch.Core.Contracts;
 using Epinova.ElasticSearch.Core.Conventions;
 using Epinova.ElasticSearch.Core.EPiServer.Contracts;
@@ -15,18 +27,6 @@ using EPiServer.Filters;
 using EPiServer.Logging;
 using EPiServer.Security;
 using EPiServer.ServiceLocation;
-using System;
-using System.Collections.Generic;
-using System.Dynamic;
-using System.Globalization;
-using System.IO;
-using System.Linq;
-using System.Reflection;
-using System.Security.Principal;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
-using System.Web.Hosting;
 using Indexing = Epinova.ElasticSearch.Core.Conventions.Indexing;
 
 namespace Epinova.ElasticSearch.Core.EPiServer.Extensions
@@ -74,7 +74,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Extensions
             ContentSearchHit<T>[] hits = await Task.WhenAll(tasks).ConfigureAwait(false);
             hits = hits.Where(h => h != null).ToArray();
 
-            results.TotalHits = hits.Length;
+            results.TotalHits -= hits.Count(h => h == null);
 
             if(service.TrackSearch)
             {
