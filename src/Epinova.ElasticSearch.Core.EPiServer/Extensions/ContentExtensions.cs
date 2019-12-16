@@ -764,7 +764,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Extensions
                 return true;
             }
 
-            return bytes.Length <= ElasticSearchSettings.DocumentMaxSize;
+            return bytes.Length >= ElasticSearchSettings.DocumentMaxSize;
         }
     }
 }
