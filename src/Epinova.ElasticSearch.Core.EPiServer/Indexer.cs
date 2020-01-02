@@ -63,7 +63,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer
             logger("Filtering away content of excluded types and content with property HideFromSearch enabled...");
 
             contentList.RemoveAll(ShouldHideFromSearch);
-            contentList.RemoveAll(IsExludedType);
+            contentList.RemoveAll(IsExcludedType);
 
             logger($"Filtered away content of excluded types and content with property HideFromSearch enabled... {before - contentList.Count} of {before} items removed. Next will IContent be converted to indexable items and added to indexed. Depending on number of IContent items this is a time-consuming task.");
 
@@ -144,12 +144,12 @@ namespace Epinova.ElasticSearch.Core.EPiServer
                 return IndexingStatus.HideFromSearchProperty;
             }
 
-            if(IsExludedType(content))
+            if(IsExcludedType(content))
             {
                 return IndexingStatus.ExcludedByConvention;
             }
 
-            if(IsExludedByRoot(content))
+            if(IsExcludedByRoot(content))
             {
                 return IndexingStatus.ExcludedByConvention;
             }
@@ -159,7 +159,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer
             return IndexingStatus.Ok;
         }
 
-        private bool IsExludedByRoot(IContent content)
+        private bool IsExcludedByRoot(IContent content)
         {
             // Check options less expensive than DB-lookup first
             if(content.ContentLink != null && Indexing.ExcludedRoots.Contains(content.ContentLink.ID))
@@ -182,13 +182,13 @@ namespace Epinova.ElasticSearch.Core.EPiServer
             return Indexing.ExcludedRoots.Intersect(ancestors).Any();
         }
 
-        public bool IsExludedType(IContent content)
+        public bool IsExcludedType(IContent content)
         {
-            return IsExludedType(content.GetUnproxiedType())
-                || IsExludedType(content?.GetType());
+            return IsExcludedType(content.GetUnproxiedType())
+                || IsExcludedType(content?.GetType());
         }
 
-        internal static bool IsExludedType(Type type)
+        private static bool IsExcludedType(Type type)
         {
             if(type == null)
             {
@@ -197,7 +197,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer
 
             return Indexing.ExcludedTypes.Contains(type)
                    || type.GetCustomAttributes(typeof(ExcludeFromSearchAttribute), true).Length > 0
-                   || DerivesFromExludedType(type);
+                   || DerivesFromExcludedType(type);
         }
 
         public bool ShouldHideFromSearch(IContent content)
@@ -312,7 +312,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer
                 : GetFallbackLanguage();
         }
 
-        private static bool DerivesFromExludedType(Type typeToCheck)
+        private static bool DerivesFromExcludedType(Type typeToCheck)
         {
             return Indexing.ExcludedTypes
                 .Any(type => (type.IsClass && typeToCheck.IsSubclassOf(type))

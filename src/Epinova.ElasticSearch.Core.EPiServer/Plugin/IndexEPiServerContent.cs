@@ -109,7 +109,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Plugin
                     var contents = GetDescendentContents(contentReferences.Take(_settings.BulkSize).ToList(), languages);
 
                     contents.RemoveAll(_indexer.ShouldHideFromSearch);
-                    contents.RemoveAll(_indexer.IsExludedType);
+                    contents.RemoveAll(_indexer.IsExcludedType);
 
                     contentList.AddRange(contents);
                     var removeCount = contentReferences.Count >= _settings.BulkSize ? _settings.BulkSize : contentReferences.Count;

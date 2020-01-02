@@ -597,7 +597,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Extensions
                     {
                         IContent areaItemContent = item.GetContent();
 
-                        if(Indexer.IsExludedType(areaItemContent) || alreadyProcessedContent.Contains(areaItemContent))
+                        if(Indexer.IsExcludedType(areaItemContent) || alreadyProcessedContent.Contains(areaItemContent))
                         {
                             continue;
                         }
@@ -686,7 +686,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Extensions
                 && fragment.ContentLink != ContentReference.EmptyReference
                 && ContentLoader.TryGet(fragment.ContentLink, out fragmentContent)
                 && fragmentContent != null
-                && !Indexer.IsExludedType(fragmentContent);
+                && !Indexer.IsExcludedType(fragmentContent);
         }
 
         private static string GetAttachmentData(IContent content, out bool extensionNotAllowed)
