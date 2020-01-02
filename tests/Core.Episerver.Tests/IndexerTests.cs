@@ -102,7 +102,7 @@ namespace Core.Episerver.Tests
             Assert.Equal(IndexingStatus.ExcludedByConvention, result);
         }
 
-        [Fact]
+        [Fact(Skip = "This test does not apply anymore. Content with HideFromSearch set to true should be indexed for internal search. HideFromSearch filter is called from GetContentResult.")]
         public void Update_TypeWithHideFromSearchProperty_IsNotIndexed()
         {
             var hiddenType = new TypeWithHideFromSearchProperty();
@@ -118,7 +118,7 @@ namespace Core.Episerver.Tests
             Assert.Equal(IndexingStatus.HideFromSearchProperty, result);
         }
 
-        [Fact]
+        [Fact(Skip = "This test does not apply anymore. Content with HideFromSearch set to true should be indexed for internal search. HideFromSearch filter is called from GetContentResult.")]
         public void Update_TypeWithHideFromSearchProperty_DeletesFromIndex()
         {
             var hiddenType = new TypeWithHideFromSearchProperty
@@ -168,7 +168,7 @@ namespace Core.Episerver.Tests
                 Times.Once);
         }
 
-        [Fact]
+        [Fact(Skip = "This test does not apply anymore. Content with HideFromSearch set to true should be indexed for internal search. HideFromSearch filter is called from GetContentResult.")]
         public void Update_HasHideFromSearch_IsExcluded()
         {
             TestPage page = Factory.GetTestPage();
