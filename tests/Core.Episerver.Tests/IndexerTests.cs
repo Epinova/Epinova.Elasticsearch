@@ -180,8 +180,7 @@ namespace Core.Episerver.Tests
 
             Assert.Equal(IndexingStatus.HideFromSearchProperty, result);
 
-            _fixture.ServiceLocationMock.CoreIndexerMock.Verify(m => m.Update(It.IsAny<string>(), It.IsAny<object>(), It.IsAny<string>(), It.IsAny<Type>()),
-                Times.Never);
+            _fixture.ServiceLocationMock.CoreIndexerMock.Verify(m => m.Update(It.IsAny<string>(), It.IsAny<object>(), It.IsAny<string>(), It.IsAny<Type>()), Times.Never);
         }
 
         [Fact]
@@ -279,7 +278,7 @@ namespace Core.Episerver.Tests
         public void ShouldHideFromSearch_ContentFolder_ReturnsTrue()
         {
             var content = new ContentFolder();
-            var result = _indexer.ShouldHideFromSearch(content);
+            var result = _indexer.ShouldIndex(content);
 
             Assert.True(result);
         }
@@ -288,7 +287,7 @@ namespace Core.Episerver.Tests
         public void ShouldHideFromSearch_InTrash_ReturnsTrue()
         {
             var content = Factory.GetPageData(isNotInWaste: false);
-            var result = _indexer.ShouldHideFromSearch(content);
+            var result = _indexer.ShouldIndex(content);
 
             Assert.True(result);
         }
@@ -297,7 +296,7 @@ namespace Core.Episerver.Tests
         public void ShouldHideFromSearch_ParentInTrash_ReturnsTrue()
         {
             var content = Factory.GetPageData(parentId: 1);
-            var result = _indexer.ShouldHideFromSearch(content);
+            var result = _indexer.ShouldIndex(content);
 
             Assert.True(result);
         }
@@ -317,7 +316,7 @@ namespace Core.Episerver.Tests
         {
             var content = Factory.GetPageData();
             content.Property.Add(new PropertyBoolean(true) { Name = "PageDeleted" });
-            var result = _indexer.ShouldHideFromSearch(content);
+            var result = _indexer.ShouldIndex(content);
 
             Assert.True(result);
         }
@@ -326,7 +325,7 @@ namespace Core.Episerver.Tests
         public void ShouldHideFromSearch_NotPageData_ReturnsFalse()
         {
             var content = new BasicContent();
-            var result = _indexer.ShouldHideFromSearch(content);
+            var result = _indexer.ShouldIndex(content);
 
             Assert.False(result);
         }
@@ -337,7 +336,7 @@ namespace Core.Episerver.Tests
         public void ShouldHideFromSearch_ValidPageLinkType_ReturnsFalse(PageShortcutType shortcutType)
         {
             var content = Factory.GetPageData(shortcutType: shortcutType);
-            var result = _indexer.ShouldHideFromSearch(content);
+            var result = _indexer.ShouldIndex(content);
 
             Assert.False(result);
         }
@@ -349,7 +348,7 @@ namespace Core.Episerver.Tests
         public void ShouldHideFromSearch_InvalidPageLinkType_ReturnsTrue(PageShortcutType shortcutType)
         {
             var content = Factory.GetPageData(shortcutType: shortcutType);
-            var result = _indexer.ShouldHideFromSearch(content);
+            var result = _indexer.ShouldIndex(content);
 
             Assert.True(result);
         }

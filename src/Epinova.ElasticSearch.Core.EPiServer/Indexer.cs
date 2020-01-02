@@ -62,7 +62,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer
 
             logger("Filtering away content of excluded types and content with property HideFromSearch enabled...");
 
-            contentList.RemoveAll(ShouldHideFromSearch);
+            contentList.RemoveAll(ShouldIndex);
             contentList.RemoveAll(IsExcludedType);
 
             logger($"Filtered away content of excluded types and content with property HideFromSearch enabled... {before - contentList.Count} of {before} items removed. Next will IContent be converted to indexable items and added to indexed. Depending on number of IContent items this is a time-consuming task.");
@@ -138,7 +138,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer
         {
             indexName = GetIndexname(content.ContentLink, indexName, GetLanguage(content));
 
-            if(ShouldHideFromSearch(content))
+            if(ShouldIndex(content))
             {
                 Delete(content, indexName);
                 return IndexingStatus.HideFromSearchProperty;
@@ -200,7 +200,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer
                    || DerivesFromExcludedType(type);
         }
 
-        public bool ShouldHideFromSearch(IContent content)
+        public bool ShouldIndex(IContent content)
         {
             if(content is ContentFolder)
             {
@@ -221,14 +221,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer
             {
                 return true;
             }
-
-            // Common property in Epinova template
-            var hideFromSearch = GetEpiserverBoolProperty(content.Property["HideFromSearch"]);
-            if(hideFromSearch)
-            {
-                return true;
-            }
-
+            
             var deleted = GetEpiserverBoolProperty(content.Property["PageDeleted"]);
             if(deleted)
             {
@@ -241,6 +234,18 @@ namespace Epinova.ElasticSearch.Core.EPiServer
             }
 
             return false;
+        }
+
+        public bool ShouldHideFromSearch(IContent content)
+        {
+            //This is already called to avoid indexing
+            if(ShouldIndex(content))
+                return true;
+
+            // Common property in Epinova template
+            var hideFromSearch = GetEpiserverBoolProperty(content.Property["HideFromSearch"]);
+
+            return hideFromSearch;
         }
 
         private static bool IsPageWithInvalidLinkType(IContent content)
