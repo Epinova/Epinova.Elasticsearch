@@ -62,7 +62,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer
 
             logger("Filtering away content of excluded types and content with property HideFromSearch enabled...");
 
-            contentList.RemoveAll(ShouldIndex);
+            contentList.RemoveAll(SkipIndexing);
             contentList.RemoveAll(IsExcludedType);
 
             logger($"Filtered away content of excluded types and content with property HideFromSearch enabled... {before - contentList.Count} of {before} items removed. Next will IContent be converted to indexable items and added to indexed. Depending on number of IContent items this is a time-consuming task.");
@@ -138,7 +138,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer
         {
             indexName = GetIndexname(content.ContentLink, indexName, GetLanguage(content));
 
-            if(ShouldIndex(content))
+            if(SkipIndexing(content))
             {
                 Delete(content, indexName);
                 return IndexingStatus.HideFromSearchProperty;
@@ -200,7 +200,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer
                    || DerivesFromExcludedType(type);
         }
 
-        public bool ShouldIndex(IContent content)
+        public bool SkipIndexing(IContent content)
         {
             if(content is ContentFolder)
             {
@@ -239,7 +239,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer
         public bool ShouldHideFromSearch(IContent content)
         {
             //This is already called to avoid indexing
-            if(ShouldIndex(content))
+            if(SkipIndexing(content))
                 return true;
 
             // Common property in Epinova template

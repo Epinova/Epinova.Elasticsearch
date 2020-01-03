@@ -14,7 +14,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Contracts
         IndexingStatus UpdateStructure(IContent root, string indexName = null);
         IndexingStatus Update(IContent content, string indexName = null);
         string GetLanguage(IContent content);
-        bool ShouldIndex(IContent content);
+        bool SkipIndexing(IContent content);
         bool ShouldHideFromSearch(IContent content);
         bool IsExcludedType(IContent content);
     }
