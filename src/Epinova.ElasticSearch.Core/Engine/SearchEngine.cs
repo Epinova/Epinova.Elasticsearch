@@ -427,17 +427,22 @@ namespace Epinova.ElasticSearch.Core.Engine
 
         private static void TryLogErrors(WebException webException)
         {
+            string error = null;
+
             // Assume the response is json
             try
             {
+                Logger.Error($"Got status: {webException?.Status}");
+
                 using(var reader = new StreamReader(webException.Response.GetResponseStream()))
                 {
-                    Logger.Error(JToken.Parse(reader.ReadToEnd()).ToString(Formatting.Indented));
+                    error = reader.ReadToEnd();
+                    Logger.Error(JToken.Parse(error).ToString(Formatting.Indented));
                 }
             }
             catch
             {
-                Logger.Error("Could not read error-response");
+                Logger.Error($"Could not parse error-response: {error}");
             }
         }
 

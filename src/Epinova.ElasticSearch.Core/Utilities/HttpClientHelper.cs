@@ -199,6 +199,8 @@ namespace Epinova.ElasticSearch.Core.Utilities
         {
             if(!response.IsSuccessStatusCode)
             {
+                Logger.Error($"Got status: {response.StatusCode}");
+
                 string error = AsyncUtil.RunSync(() =>
                      response.Content.ReadAsStringAsync()
                 );
@@ -210,7 +212,7 @@ namespace Epinova.ElasticSearch.Core.Utilities
                 }
                 catch
                 {
-                    Logger.Error("Could not read error-response");
+                    Logger.Error($"Could not parse error-response: {error}");
                 }
             }
         }
