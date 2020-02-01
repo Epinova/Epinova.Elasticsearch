@@ -212,7 +212,7 @@ namespace Epinova.ElasticSearch.Core.Utilities
                 }
                 catch
                 {
-                    Logger.Error($"Could not parse error-response: {error}");
+                    Logger.Error($"Could not parse error-response: {error}.\n Status: {(int)response.StatusCode} {response.StatusCode}");
                 }
             }
         }
