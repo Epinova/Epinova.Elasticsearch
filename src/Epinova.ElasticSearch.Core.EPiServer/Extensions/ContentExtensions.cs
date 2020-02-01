@@ -591,7 +591,9 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Extensions
                     var indexText = new StringBuilder();
 
                     if(alreadyProcessedContent == null)
+                    {
                         alreadyProcessedContent = new List<IContent>();
+                    }
 
                     foreach(ContentAreaItem item in contentArea.FilteredItems)
                     {
@@ -718,22 +720,24 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Extensions
 
                     using(var memoryStream = new MemoryStream())
                     {
-                        mediaData.BinaryData.OpenRead().CopyTo(memoryStream);
-                        var bytes = memoryStream.ToArray();
-
-                        if(BlobIsTooLarge(bytes))
+                        using(var stream = mediaData.BinaryData.OpenRead())
                         {
-                            Logger.Information($"MediaData with id {content.ContentLink} and size {bytes.Length} was larger than configured maxsize {ElasticSearchSettings.DocumentMaxSize} bytes");
-                            return null;
-                        }
+                            stream.CopyTo(memoryStream);
+                            var size = memoryStream.Length;
+                            if(BlobIsTooLarge(size))
+                            {
+                                Logger.Warning($"MediaData '{content.Name} (ID: {content.ContentLink})' has size {size:n0} and is larger than the configured maxsize {ElasticSearchSettings.DocumentMaxSize:n0} bytes");
+                                return String.Empty;
+                            }
 
-                        return Convert.ToBase64String(bytes);
+                            return Convert.ToBase64String(memoryStream.ToArray());
+                        }
                     }
                 }
             }
-            catch(Exception ex)
+            catch(Exception)
             {
-                Logger.Warning($"Could not index MediaData with id {content.ContentLink}.", ex);
+                Logger.Warning($"Failed to index MediaData '{content.Name} (ID: {content.ContentLink})'");
                 extensionNotAllowed = true;
                 return null;
             }
@@ -757,14 +761,14 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Extensions
             return ElasticSearchSettings.GetDefaultIndexName(Language.GetLanguageCode(service.SearchLanguage));
         }
 
-        private static bool BlobIsTooLarge(in byte[] bytes)
+        private static bool BlobIsTooLarge(in long bytes)
         {
             if(ElasticSearchSettings.DocumentMaxSize <= 0)
             {
                 return true;
             }
 
-            return bytes.Length >= ElasticSearchSettings.DocumentMaxSize;
+            return bytes >= ElasticSearchSettings.DocumentMaxSize;
         }
     }
 }
