@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Net;
 using Epinova.ElasticSearch.Core;
 using Epinova.ElasticSearch.Core.Extensions;
@@ -60,7 +61,7 @@ namespace Core.Tests
             _coreIndexer.Bulk(new BulkOperation(new { Foo = "bar" }, "en", id, "my-index"));
 
             _fixture.ServiceLocationMock.HttpClientMock
-                .Verify(m => m.Post(new Uri($"http://example.com/_bulk?pipeline={Epinova.ElasticSearch.Core.Pipelines.Attachment.Name}"), It.IsAny<byte[]>()), Times.AtLeastOnce);
+                .Verify(m => m.Post(new Uri($"http://example.com/_bulk?pipeline={Epinova.ElasticSearch.Core.Pipelines.Attachment.Name}"), It.IsAny<Stream>()), Times.AtLeastOnce);
         }
 
         [Fact]
