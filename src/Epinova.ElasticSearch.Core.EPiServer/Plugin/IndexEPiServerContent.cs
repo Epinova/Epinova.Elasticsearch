@@ -1,12 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using Epinova.ElasticSearch.Core.Admin;
 using Epinova.ElasticSearch.Core.Contracts;
+using Epinova.ElasticSearch.Core.Conventions;
 using Epinova.ElasticSearch.Core.EPiServer.Contracts;
 using Epinova.ElasticSearch.Core.Events;
-using Epinova.ElasticSearch.Core.Extensions;
 using Epinova.ElasticSearch.Core.Models;
 using Epinova.ElasticSearch.Core.Models.Bulk;
 using Epinova.ElasticSearch.Core.Settings;
@@ -123,20 +124,23 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Plugin
                 if(isFirstRun)
                 {
                     var uniqueTypes = contentList.Select(content =>
-                        {
-                            var type = content.GetType();
-                            return type.Name.EndsWith("Proxy") ? type.BaseType : type;
-                        })
+                    {
+                        var type = content.GetType();
+                        return type.Name.EndsWith("Proxy") ? type.BaseType : type;
+                    })
                         .Distinct()
                         .ToArray();
 
                     UpdateMappings(languages, uniqueTypes);
                 }
 
+                var mediaData = contentList.OfType<MediaData>().ToList();
+                contentList.RemoveAll(c => c is MediaData);
+
                 var bulkCount = Math.Ceiling(contentList.Count / (double)_settings.BulkSize);
                 for(var i = 1; i <= bulkCount; i++)
                 {
-                    OnStatusChanged($"Bulk {i} of {bulkCount} - Preparing bulk update of {_settings.BulkSize} items...");
+                    OnStatusChanged($"Indexing bulk {i} of {bulkCount} (Bulk size: {_settings.BulkSize})");
                     var batch = contentList.Take(_settings.BulkSize);
                     var batchResult = IndexContents(batch);
                     results.Batches.AddRange(batchResult.Batches);
@@ -148,6 +152,10 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Plugin
                         return "Aborted by user";
                     }
                 }
+
+                // Index media files one by one regardless of bulk size.
+                var mediaBatchResults = IndexMediaData(mediaData);
+                results.Batches.AddRange(mediaBatchResults.Batches);
             }
             catch(Exception ex)
             {
@@ -158,11 +166,11 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Plugin
                 // If we re-throw here, stacktrace won't be displayed
             }
 
-            var finishedBuilder = new StringBuilder($"Processed {results.Batches.Count} batches of {_settings.BulkSize} items, for a total of {results.Batches.Sum(b => b.Items.Length)} items to Elasticsearch index.");
+            var finishedBuilder = new StringBuilder($"Processed {results.Batches.Count} batches, for a total of {results.Batches.Sum(b => b?.Items?.Length ?? 0)} items to Elasticsearch index.");
 
             for(var i = 1; i <= results.Batches.Count; i++)
             {
-                if(results.Batches[i - 1].Errors)
+                if(results.Batches[i - 1]?.Errors ?? false)
                 {
                     var messageBuilder = new StringBuilder($" Batch {i} failed. Details: \n");
 
@@ -204,40 +212,6 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Plugin
             }
 
             return contentItems;
-        }
-
-        //TODO: Review the need for this
-        protected virtual List<IContent> GetContentToIndex(IEnumerable<IContent> contentItems)
-        {
-            // Indexable properties (string, XhtmlString, [Searchable(true)]) 
-            var allIndexableProperties = new List<KeyValuePair<string, Type>>();
-            var contentToIndex = new List<IContent>();
-
-            foreach(var content in contentItems)
-            {
-                if(IsStopped)
-                {
-                    break;
-                }
-
-                // Get indexable properties (string, XhtmlString, [Searchable(true)]) 
-                var indexableProperties = content.GetType().GetIndexableProps(false)
-                    .Where(p => allIndexableProperties.All(kvp => kvp.Key != p.Name))
-                    .Select(p => new KeyValuePair<string, Type>(p.Name, p.PropertyType))
-                    .ToList();
-
-                allIndexableProperties.AddRange(indexableProperties);
-
-                if(_logger.IsDebugEnabled())
-                {
-                    _logger.Debug("Indexable properties:");
-                    indexableProperties.ForEach(p => _logger.Debug(p.Key));
-                }
-
-                contentToIndex.Add(content);
-            }
-
-            return contentToIndex;
         }
 
         private bool IndicesExists(IEnumerable<LanguageBranch> languages)
@@ -301,12 +275,34 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Plugin
             return _settings.GetDefaultIndexName(language);
         }
 
+        private BulkBatchResult IndexMediaData(IList<MediaData> mediaData)
+        {
+            var filteredMediaData = mediaData.Distinct()
+                .Where(IsAllowedExtension).ToList();
+
+            var message = $"Indexing {filteredMediaData.Count} media data";
+            _logger.Information(message);
+            OnStatusChanged(message);
+
+            var mediaBatchResults = new BulkBatchResult();
+            for(var i = 0; i < filteredMediaData.Count; i++)
+            {
+                var batchResult = IndexContents(new[] { filteredMediaData[i] });
+                mediaBatchResults.Batches.AddRange(batchResult.Batches);
+            }
+            return mediaBatchResults;
+
+            bool IsAllowedExtension(MediaData m)
+            {
+                return Indexing.IncludedFileExtensions
+                    .Contains(Path.GetExtension(m.RouteSegment ?? String.Empty).Trim(' ', '.').ToLower());
+            }
+        }
+
         private BulkBatchResult IndexContents(IEnumerable<IContent> contentItems)
         {
-            List<IContent> contentToIndex = GetContentToIndex(contentItems);
-
             // Perform bulk update
-            return _indexer.BulkUpdate(contentToIndex, str =>
+            return _indexer.BulkUpdate(contentItems, str =>
             {
                 OnStatusChanged(str);
                 _logger.Debug(str);
