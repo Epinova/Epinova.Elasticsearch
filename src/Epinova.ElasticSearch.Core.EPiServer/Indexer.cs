@@ -190,7 +190,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer
 
         private static bool IsExcludedType(Type type)
         {
-            if(type == null)
+            if(type?.Namespace?.StartsWith("Epinova.ElasticSearch", StringComparison.OrdinalIgnoreCase) != false)
             {
                 return true;
             }
@@ -221,7 +221,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer
             {
                 return true;
             }
-            
+
             var deleted = GetEpiserverBoolProperty(content.Property["PageDeleted"]);
             if(deleted)
             {
@@ -240,7 +240,9 @@ namespace Epinova.ElasticSearch.Core.EPiServer
         {
             //This is already called to avoid indexing
             if(SkipIndexing(content))
+            {
                 return true;
+            }
 
             // Common property in Epinova template
             var hideFromSearch = GetEpiserverBoolProperty(content.Property["HideFromSearch"]);

@@ -1,6 +1,4 @@
-﻿using Epinova.ElasticSearch.Core.Conventions;
-using Epinova.ElasticSearch.Core.EPiServer.Events;
-using Epinova.ElasticSearch.Core.EPiServer.Models;
+﻿using Epinova.ElasticSearch.Core.EPiServer.Events;
 using EPiServer.Core;
 using EPiServer.DataAbstraction;
 using EPiServer.Framework;
@@ -14,9 +12,6 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Initialization
     {
         public void Initialize(InitializationEngine context)
         {
-            Indexing.Instance.ExcludeType<SynonymBackupFile>();
-            Indexing.Instance.ExcludeType<SynonymBackupFileFolder>();
-
             IContentEvents events = context.Locate.Advanced.GetInstance<IContentEvents>();
 
             events.PublishedContent += IndexingEvents.UpdateIndex;
