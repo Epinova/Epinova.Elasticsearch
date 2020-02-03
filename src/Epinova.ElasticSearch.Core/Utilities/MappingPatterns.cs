@@ -80,8 +80,7 @@ namespace Epinova.ElasticSearch.Core.Utilities
                     _acl = new { type = TextType, analyzer = "raw" },
                     _attachmentdata = new { type = TextType, fields = Fields },
                     attachment = GetAttachmentMapping(languageName)
-                }
-                ,
+                },
                 _source = new
                 {
                     excludes = new[]
@@ -102,7 +101,6 @@ namespace Epinova.ElasticSearch.Core.Utilities
                     {
                         type = TextType,
                         term_vector = "with_positions_offsets",
-                        //store = false,
                         analyzer = languageName,
                         fields = Fields
                     },
