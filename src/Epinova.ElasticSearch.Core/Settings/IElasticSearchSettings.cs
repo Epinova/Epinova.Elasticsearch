@@ -22,5 +22,6 @@ namespace Epinova.ElasticSearch.Core.Settings
         int NumberOfShards { get; }
         int NumberOfReplicas { get; }
         bool CommerceEnabled { get; }
+        bool UseTls12 { get; }
     }
 }

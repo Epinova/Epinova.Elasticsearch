@@ -149,6 +149,13 @@ namespace Epinova.ElasticSearch.Core.Settings.Configuration
             get => (ContentSelectorCollection)base["contentSelector"];
             set => base["contentSelector"] = value;
         }
+        
+        [ConfigurationProperty("useTls12", DefaultValue = false, IsRequired = false)]
+        public bool UseTls12
+        {
+            get => (bool)this["useTls12"];
+            set => this["useTls12"] = value;
+        }
 
         internal bool IsValidSizeString(string size)
         {

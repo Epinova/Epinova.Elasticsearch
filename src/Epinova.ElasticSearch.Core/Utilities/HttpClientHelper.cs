@@ -226,11 +226,16 @@ namespace Epinova.ElasticSearch.Core.Utilities
 
         private static HttpClient SetupClient()
         {
+            IElasticSearchSettings settings = ServiceLocator.Current.GetInstance<IElasticSearchSettings>();
+
+            if(settings.UseTls12)
+            {
+                ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
+            }
+
             var client = MessageHandler.Instance.Handler != null
                 ? new HttpClient(MessageHandler.Instance.Handler)
                 : new HttpClient();
-
-            IElasticSearchSettings settings = ServiceLocator.Current.GetInstance<IElasticSearchSettings>();
 
             if(!String.IsNullOrEmpty(settings.Username)
                 && !String.IsNullOrEmpty(settings.Password))

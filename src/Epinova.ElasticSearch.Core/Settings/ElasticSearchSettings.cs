@@ -77,6 +77,8 @@ namespace Epinova.ElasticSearch.Core.Settings
         /// </summary>
         public int ClientTimeoutSeconds => _configuration.ClientTimeoutSeconds;
 
+        public bool UseTls12 =>  _configuration.UseTls12;
+
         public string GetDefaultIndexName(string language)
         {
             if(String.IsNullOrWhiteSpace(language))
