@@ -9,6 +9,7 @@ namespace Epinova.ElasticSearch.Core.Utilities
     {
         private static readonly string TextType = nameof(MappingType.Text).ToLower();
         private static readonly string IntType = nameof(MappingType.Integer).ToLower();
+        private static readonly string LongType = nameof(MappingType.Long).ToLower();
 
         internal static dynamic GetTokenizerTemplate(string language, string tokenizer)
         {
@@ -61,7 +62,7 @@ namespace Epinova.ElasticSearch.Core.Utilities
             {
                 properties = new
                 {
-                    Id = new { type = "long" },
+                    Id = new { type = LongType },
                     StartPublish = new { type = "date" },
                     StopPublish = new { type = "date" },
                     Created = new { type = "date" },
@@ -69,16 +70,23 @@ namespace Epinova.ElasticSearch.Core.Utilities
                     Indexed = new { type = "date" },
                     Name = new { type = TextType, fields = Fields },
                     _bestbets = new { type = TextType, fields = Fields },
-                    ParentLink = new { type = "long" },
-                    Path = new { type = "long" },
+                    ParentLink = new { type = LongType },
+                    Path = new { type = LongType },
                     Lang = new { type = TextType },
                     DidYouMean = new { type = TextType, analyzer = languageName + "_suggest", fields = new { keyword = new { ignore_above = 8191, type = JsonNames.Keyword } } },
                     Suggest = SuggestMapping,
                     Type = new { type = TextType, analyzer = "raw", fields = Fields },
                     Types = new { type = TextType, analyzer = "raw" },
                     _acl = new { type = TextType, analyzer = "raw" },
-                    _attachmentdata = new { type = TextType },
+                    _attachmentdata = new { type = TextType, fields = Fields },
                     attachment = GetAttachmentMapping(languageName)
+                },
+                _source = new
+                {
+                    excludes = new[]
+                    {
+                        DefaultFields.AttachmentData
+                    }
                 }
             };
         }
@@ -93,33 +101,13 @@ namespace Epinova.ElasticSearch.Core.Utilities
                     {
                         type = TextType,
                         term_vector = "with_positions_offsets",
-                        store = true,
                         analyzer = languageName,
-                        fields = new
-                        {
-                            keyword = new
-                            {
-                                type = "keyword",
-                                ignore_above = 256
-                            }
-                        }
+                        fields = Fields
                     },
-                    title = new
-                    {
-                        type = TextType,
-                    },
-                    language = new
-                    {
-                        type = TextType,
-                    },
-                    content_type = new
-                    {
-                        type = TextType,
-                    },
-                    content_length = new
-                    {
-                        type = IntType,
-                    }
+                    title = new { type = TextType, fields = Fields },
+                    language = new { type = TextType, fields = Fields },
+                    content_type = new { type = TextType, fields = Fields },
+                    content_length = new { type = LongType }
                 }
             };
         }

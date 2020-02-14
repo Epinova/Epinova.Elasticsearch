@@ -4,6 +4,7 @@ using System.Globalization;
 using System.Linq;
 using Epinova.ElasticSearch.Core.EPiServer;
 using Epinova.ElasticSearch.Core.EPiServer.Enums;
+using Epinova.ElasticSearch.Core.EPiServer.Models;
 using Epinova.ElasticSearch.Core.Models.Bulk;
 using EPiServer.Core;
 using EPiServer.Web;
@@ -349,6 +350,14 @@ namespace Core.Episerver.Tests
         {
             var content = Factory.GetPageData(shortcutType: shortcutType);
             var result = _indexer.SkipIndexing(content);
+
+            Assert.True(result);
+        }
+
+        [Fact]
+        public void IsExcludedType_ModuleType_ReturnsTrue()
+        {
+            var result = _indexer.IsExcludedType(new BestBetsFile());
 
             Assert.True(result);
         }

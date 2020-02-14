@@ -56,8 +56,6 @@ namespace Epinova.ElasticSearch.Core
                 return bulkBatchResult;
             }
 
-            JsonSerializer serializer = GetSerializer();
-
             var uri = $"{_settings.Host}/_bulk?pipeline={Pipelines.Attachment.Name}";
 
             var operationList = operations.ToList();
@@ -89,49 +87,57 @@ namespace Epinova.ElasticSearch.Core
 
                 try
                 {
-                    var sb = new StringBuilder();
+                    var ms = new MemoryStream();
 
-                    using(var tw = new StringWriter(sb))
+                    using(var sw = new StreamWriter(ms, Encoding.UTF8, 1024, true))
                     {
                         counter += size;
                         var from = counter - size;
                         var to = Math.Min(counter, totalCount);
 
-                        var message = $"Processing batch {from}-{to} of {totalCount}";
-                        Logger.Information(message);
+                        if(totalCount > 1)
+                        {
+                            Logger.Information($"Processing batch {from}-{to} of {totalCount}");
+                        }
 
                         if(Logger.IsDebugEnabled())
                         {
-                            message = $"WARNING: Debug logging is enabled, this will have a huge impact on indexing-time for large structures. {message}";
+                            logger("WARNING: Debug logging is enabled, this will have a huge impact on indexing-time for large structures.");
                         }
-
-                        logger(message);
 
                         foreach(BulkOperation operation in batch)
                         {
-                            serializer.Serialize(tw, operation.MetaData);
-                            tw.WriteLine();
-                            serializer.Serialize(tw, operation.Data);
-                            tw.WriteLine();
+                            using(var jsonTextWriter = new JsonTextWriter(sw))
+                            {
+                                var serializer = GetSerializer();
+
+                                serializer.Serialize(jsonTextWriter, operation.MetaData);
+                                jsonTextWriter.WriteWhitespace("\n");
+
+                                try
+                                {
+                                    serializer.Serialize(jsonTextWriter, operation.Data);
+                                }
+                                catch(OutOfMemoryException)
+                                {
+                                    Logger.Warning($"Failed to process operation {operation.MetaData.Id}. Too much data.");
+                                }
+
+                                jsonTextWriter.WriteWhitespace("\n");
+                                jsonTextWriter.Flush();
+                            }
                         }
                     }
 
-                    var payload = sb.ToString();
-
-                    if(Logger.IsDebugEnabled())
+                    if(ms.CanSeek)
                     {
-                        var debugJson = $"[{String.Join(",", payload.Split('\n'))}]";
-
-                        Logger.Debug("JSON PAYLOAD");
-                        Logger.Debug(JToken.Parse(debugJson).ToString(Formatting.Indented));
-                        logger("JSON PAYLOAD");
-                        logger(JToken.Parse(debugJson).ToString(Formatting.Indented));
+                        ms.Seek(0, SeekOrigin.Begin);
                     }
 
-                    var results = _httpClientHelper.Post(new Uri(uri), Encoding.UTF8.GetBytes(payload));
+                    var results = _httpClientHelper.Post(new Uri(uri), ms);
                     var stringReader = new StringReader(Encoding.UTF8.GetString(results));
 
-                    var bulkResult = serializer.Deserialize<BulkResult>(new JsonTextReader(stringReader));
+                    var bulkResult = GetSerializer().Deserialize<BulkResult>(new JsonTextReader(stringReader));
                     bulkBatchResult.Batches.Add(bulkResult);
                 }
                 catch(Exception e)
@@ -464,7 +470,7 @@ namespace Epinova.ElasticSearch.Core
         /// <remarks>https://www.elastic.co/guide/en/elasticsearch/reference/current/indices-refresh.html</remarks>
         public void RefreshIndex(string indexName)
         {
-            Logger.Information($"Refreshing index {indexName}");
+            Logger.Debug($"Refreshing index {indexName}");
             var endpointUri = $"{_settings.Host}/{indexName}/_refresh";
 
             _httpClientHelper.GetString(new Uri(endpointUri));

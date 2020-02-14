@@ -59,7 +59,7 @@ namespace Epinova.ElasticSearch.Core.Utilities
         {
             Logger.Information("Opening index");
 
-            _httpClientHelper.Post(GetUri(indexName, "_open"));
+            _httpClientHelper.Post(GetUri(indexName, "_open"), (byte[])null);
 
             var index = new Index(_settings, _httpClientHelper, indexName);
             index.WaitForStatus();
@@ -69,7 +69,7 @@ namespace Epinova.ElasticSearch.Core.Utilities
         {
             Logger.Information($"Closing index with delay of {_settings.CloseIndexDelay} ms");
 
-            _httpClientHelper.Post(GetUri(indexName, "_close"));
+            _httpClientHelper.Post(GetUri(indexName, "_close"), (byte[])null);
 
             var index = new Index(_settings, _httpClientHelper, indexName);
             index.WaitForStatus();

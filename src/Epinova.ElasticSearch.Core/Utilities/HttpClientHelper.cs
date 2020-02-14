@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
@@ -55,6 +56,40 @@ namespace Epinova.ElasticSearch.Core.Utilities
             catch(Exception ex)
             {
                 Logger.Error("Request failed", ex);
+            }
+        }
+
+        public byte[] Post(Uri uri, Stream stream)
+        {
+            Logger.Debug($"Uri: {uri}, Data: (stream)");
+
+            try
+            {
+                using(var streamContent = new StreamContent(stream))
+                {
+                    streamContent.Headers.ContentType = new MediaTypeHeaderValue("application/json");
+
+                    var request = new HttpRequestMessage(HttpMethod.Post, uri)
+                    {
+                        Content = streamContent
+                    };
+                    request.Headers.ConnectionClose = false;
+
+                    HttpResponseMessage response = AsyncUtil.RunSync(() =>
+                        Client.SendAsync(request, HttpCompletionOption.ResponseHeadersRead)
+                    );
+
+                    LogErrorIfNotSuccess(response);
+
+                    return AsyncUtil.RunSync(() =>
+                          response.Content.ReadAsByteArrayAsync()
+                    );
+                }
+            }
+            catch(Exception ex)
+            {
+                Logger.Error("Request failed", ex);
+                return null;
             }
         }
 
@@ -212,7 +247,7 @@ namespace Epinova.ElasticSearch.Core.Utilities
                 }
                 catch
                 {
-                    Logger.Error($"Could not parse error-response: {error}");
+                    Logger.Error($"Could not parse error-response: {error}.\n Status: {(int)response.StatusCode} {response.StatusCode}");
                 }
             }
         }
