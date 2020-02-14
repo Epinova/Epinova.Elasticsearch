@@ -190,7 +190,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer
 
         private static bool IsExcludedType(Type type)
         {
-            if(type?.Namespace?.StartsWith("Epinova.ElasticSearch", StringComparison.OrdinalIgnoreCase) != false)
+            if(type?.Namespace?.StartsWith("Epinova.ElasticSearch", StringComparison.OrdinalIgnoreCase) == true)
             {
                 return true;
             }
