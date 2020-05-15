@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Globalization;
+using System.Threading.Tasks;
 using Epinova.ElasticSearch.Core.Contracts;
 using Epinova.ElasticSearch.Core.EPiServer.Extensions;
 using Epinova.ElasticSearch.Core.EPiServer.Providers;
@@ -22,10 +23,23 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Commerce.Extensions
         public static CatalogSearchResult<T> GetCatalogResults<T>(this IElasticSearchService<T> service)
             where T : EntryContentBase
         {
-            service.SearchType = typeof(T);
             service.UseIndex(GetIndexName(service.SearchLanguage));
 
             SearchResult results = service.GetResults();
+            return GetCatalogSearchResult(service, results);
+        }
+
+        public static async Task<CatalogSearchResult<T>> GetCatalogResultsAsync<T>(this IElasticSearchService<T> service)
+            where T : EntryContentBase
+        {
+            service.UseIndex(GetIndexName(service.SearchLanguage));
+
+            SearchResult results = await service.GetResultsAsync();
+            return GetCatalogSearchResult(service, results);
+        }
+
+        private static CatalogSearchResult<T> GetCatalogSearchResult<T>(IElasticSearchService<T> service, SearchResult results) where T : EntryContentBase
+        {
             var hits = new List<CatalogSearchHit<T>>();
 
             foreach(SearchHit hit in results.Hits)
