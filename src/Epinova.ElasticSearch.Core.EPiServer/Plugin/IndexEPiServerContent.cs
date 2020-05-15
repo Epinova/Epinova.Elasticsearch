@@ -31,6 +31,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Plugin
         private readonly IContentLoader _contentLoader;
         private readonly ICoreIndexer _coreIndexer;
         private readonly IIndexer _indexer;
+        private readonly IBestBetsRepository _bestBetsRepository;
         private readonly ILanguageBranchRepository _languageBranchRepository;
         private readonly IElasticSearchSettings _settings;
         private readonly IHttpClientHelper _httpClientHelper;
@@ -40,12 +41,14 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Plugin
             IContentLoader contentLoader,
             ICoreIndexer coreIndexer,
             IIndexer indexer,
+            IBestBetsRepository bestBetsRepository,
             ILanguageBranchRepository languageBranchRepository,
             IElasticSearchSettings settings,
             IHttpClientHelper httpClientHelper)
         {
-            _indexer = indexer;
             _coreIndexer = coreIndexer;
+            _indexer = indexer;
+            _bestBetsRepository = bestBetsRepository;
             _contentLoader = contentLoader;
             _languageBranchRepository = languageBranchRepository;
             _settings = settings;
@@ -143,6 +146,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Plugin
                     OnStatusChanged($"Indexing bulk {i} of {bulkCount} (Bulk size: {_settings.BulkSize})");
                     var batch = contentList.Take(_settings.BulkSize);
                     var batchResult = IndexContents(batch);
+
                     results.Batches.AddRange(batchResult.Batches);
                     var removeCount = contentList.Count >= _settings.BulkSize ? _settings.BulkSize : contentList.Count;
                     contentList.RemoveRange(0, removeCount);
@@ -156,6 +160,9 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Plugin
                 // Index media files one by one regardless of bulk size.
                 var mediaBatchResults = IndexMediaData(mediaData);
                 results.Batches.AddRange(mediaBatchResults.Batches);
+
+                // Put Best Bets back into the index
+                RestoreBestBets(languages);
             }
             catch(Exception ex)
             {
@@ -240,6 +247,27 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Plugin
             }
 
             return count;
+        }
+
+        private void RestoreBestBets(IEnumerable<LanguageBranch> languages)
+        {
+            foreach(var language in languages.Select(l => l.LanguageID))
+            {
+                try
+                {
+                    var indexName = GetIndexName(language);
+                    _logger.Debug("Index: " + indexName);
+                    OnStatusChanged("Restoring best bets for index " + indexName);
+                    var bestBets = _bestBetsRepository.GetBestBets(language, indexName);
+                    foreach(var bestBet in bestBets)
+                        _coreIndexer.UpdateBestBets(indexName, typeof(IndexItem), bestBet.Id, bestBet.GetTerms());
+
+                }
+                catch(Exception ex)
+                {
+                    _logger.Warning("Failed to update mappings", ex);
+                }
+            }
         }
 
         private void UpdateMappings(IEnumerable<LanguageBranch> languages, Type[] contentTypes)

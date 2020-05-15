@@ -25,11 +25,12 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Commerce.Plugin
             IContentLoader contentLoader,
             ICoreIndexer coreIndexer,
             IIndexer indexer,
+            IBestBetsRepository bestBetsRepository,
             ILanguageBranchRepository languageBranchRepository,
             IElasticSearchSettings settings,
             IHttpClientHelper httpClientHelper,
             ReferenceConverter referenceConverter)
-            : base(contentLoader, coreIndexer, indexer, languageBranchRepository, settings, httpClientHelper)
+            : base(contentLoader, coreIndexer, indexer, bestBetsRepository, languageBranchRepository, settings, httpClientHelper)
         {
             _contentLoader = contentLoader;
             _referenceConverter = referenceConverter;
