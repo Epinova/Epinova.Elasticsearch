@@ -1,11 +1,10 @@
-﻿using System;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 
 namespace Epinova.ElasticSearch.Core.Models.Query
 {
     internal sealed class SuggestRequest : RequestBase
     {
-        public SuggestRequest(string query, int size)
+        public SuggestRequest(string query, int size, bool includeSkipDuplicates)
         {
             Suggestions = new SuggestionsWrapper
             {
@@ -15,7 +14,7 @@ namespace Epinova.ElasticSearch.Core.Models.Query
                     Completion = new Completion
                     {
                         Field = DefaultFields.Suggest,
-                        SkipDuplicates = Server.Info.Version >= new Version(6, 1) ? (bool?)true : null,
+                        SkipDuplicates = includeSkipDuplicates ? (bool?)true : null,
                         Size = size > 0 ? size : 5
                     }
                 }

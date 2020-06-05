@@ -12,7 +12,9 @@ namespace Epinova.ElasticSearch.Core.Admin
         private readonly IElasticSearchSettings _settings;
         private readonly IHttpClientHelper _httpClientHelper;
 
-        public Health(IElasticSearchSettings settings, IHttpClientHelper httpClientHelper)
+        public Health(
+            IElasticSearchSettings settings,
+            IHttpClientHelper httpClientHelper)
         {
             _settings = settings;
             _httpClientHelper = httpClientHelper;
@@ -20,8 +22,8 @@ namespace Epinova.ElasticSearch.Core.Admin
 
         public virtual HealthInformation GetClusterHealth()
         {
-            string uri = $"{_settings.Host}/_cat/health?format=json";
-            string json = _httpClientHelper.GetJson(new Uri(uri));
+            var uri = $"{_settings.Host}/_cat/health?format=json";
+            var json = _httpClientHelper.GetJson(new Uri(uri));
 
             return GetClusterHealth(json);
         }

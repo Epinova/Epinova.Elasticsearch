@@ -100,7 +100,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Providers
             => ContentReference.RootPage.ID.ToString();
 
         protected virtual string[] GetProviderKeys()
-            => new string[0];
+            => Array.Empty<string>();
 
         private IElasticSearchService<TContentData> CreateQuery(Query query, CultureInfo language, int searchRootId)
         {

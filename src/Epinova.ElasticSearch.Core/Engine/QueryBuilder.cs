@@ -24,12 +24,12 @@ namespace Epinova.ElasticSearch.Core.Engine
     /// </summary>
     internal class QueryBuilder
     {
-        private static readonly ILogger Log = LogManager.GetLogger(typeof(SearchEngine));
+        private static readonly ILogger _logger = LogManager.GetLogger(typeof(SearchEngine));
         private readonly Mapping _mapping;
         private const int BestBetMultiplier = 10000; //TODO: Expose in config?
         private readonly IBoostingRepository _boostingRepository;
         private readonly IElasticSearchSettings _settings;
-        private static readonly string[] ExcludedFields = { DefaultFields.Suggest };
+        private static readonly string[] _excludedFields = { DefaultFields.Suggest };
         private string[] _mappedFields;
 
         private readonly string[] _searchableFieldTypes = {
@@ -52,25 +52,25 @@ namespace Epinova.ElasticSearch.Core.Engine
 
         private string[] GetMappedFields(string language, string index, Type type)
         {
-            Log.Debug("Get mapped fields");
+            _logger.Debug("Get mapped fields");
 
             if(_mappedFields?.Any() != true)
             {
-                Log.Debug("No mapped fields found, lookup with Mapping.GetIndexMapping");
+                _logger.Debug("No mapped fields found, lookup with Mapping.GetIndexMapping");
 
                 _mappedFields = _mapping.GetIndexMapping(type, language, index)
                     .Properties
                     .Where(m => _searchableFieldTypes.Contains(m.Value.Type)
                         && !m.Key.EndsWith(Models.Constants.KeywordSuffix))
                     .Select(m => m.Key)
-                    .Except(ExcludedFields)
+                    .Except(_excludedFields)
                     .ToArray();
             }
 
-            if(Log.IsDebugEnabled())
+            if(_logger.IsDebugEnabled())
             {
-                Log.Debug("Found:");
-                _mappedFields.ToList().ForEach(Log.Debug);
+                _logger.Debug("Found:");
+                _mappedFields.ToList().ForEach(_logger.Debug);
             }
 
             return _mappedFields;
@@ -109,10 +109,10 @@ namespace Epinova.ElasticSearch.Core.Engine
                 setup.SearchFields.AddRange(GetMappedFields(Language.GetLanguageCode(setup.Language), setup.IndexName, setup.SearchType));
             }
 
-            if(Log.IsDebugEnabled())
+            if(_logger.IsDebugEnabled())
             {
-                Log.Debug("SearchFields:");
-                setup.SearchFields.ForEach(f => Log.Debug(f));
+                _logger.Debug("SearchFields:");
+                setup.SearchFields.ForEach(f => _logger.Debug(f));
             }
 
             SetupAttachmentFields(setup);
@@ -206,7 +206,7 @@ namespace Epinova.ElasticSearch.Core.Engine
             return request;
         }
 
-        private void CheckSize(in QuerySetup setup)
+        private void CheckSize(QuerySetup setup)
         {
             if(setup.From > 10000 || setup.Size > 10000)
             {
@@ -639,7 +639,7 @@ namespace Epinova.ElasticSearch.Core.Engine
                     boost.First(b => b.FieldName == dbBoost.FieldName).Weight =
                         Math.Max(boost.First(b => b.FieldName == dbBoost.FieldName).Weight, dbBoost.Weight);
 
-                    Log.Debug(
+                    _logger.Debug(
                         $"Overriding boost weight from becuase of editorial entry. Old: {boost.First(b => b.FieldName == dbBoost.FieldName).Weight}. New: {dbBoost.Weight}");
                 }
             }

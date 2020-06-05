@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using Epinova.ElasticSearch.Core.Enums;
 using Epinova.ElasticSearch.Core.Models.Converters;
 using Epinova.ElasticSearch.Core.Utilities;

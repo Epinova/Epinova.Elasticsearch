@@ -18,13 +18,13 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Initialization
     [ModuleDependency(typeof(InitializationModule))]
     public class IndexInitializer : IInitializableModule
     {
-        private static readonly ILogger Logger = LogManager.GetLogger(typeof(IndexInitializer));
+        private static readonly ILogger _logger = LogManager.GetLogger(typeof(IndexInitializer));
 
         /// <summary>
-        /// Assemblies to ignore when scanning for types to exclude. 
-        /// The names will be compared via String.StartsWith()
+        /// Assemblies to ignore when scanning for types to exclude.
+        /// The names will be compared via String.StartsWith(OrdinalIgnoreCase)
         /// </summary>
-        private static readonly string[] AssemblyBlacklist =
+        private static readonly string[] _assemblyBlacklist =
         {
             "antlr",
             "AutoFac",
@@ -73,7 +73,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Initialization
             {
                 // Swallow exception and fail silently. This init module shouldn't crash the site 
                 // because an index is missing or the like.
-                Logger.Error("Error occured while initializing module.", ex);
+                _logger.Error("Error occured while initializing module.", ex);
             }
         }
 
@@ -99,15 +99,15 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Initialization
 
             if(!config.Files.Enabled)
             {
-                Logger.Information("File indexing disabled");
+                _logger.Information("File indexing disabled");
                 yield break;
             }
 
-            Logger.Information($"Adding allowed file extensions from config. Max size is {config.Files.ParsedMaxsize}");
+            _logger.Information($"Adding allowed file extensions from config. Max size is {config.Files.ParsedMaxsize}");
 
             foreach(FileConfiguration file in config.Files)
             {
-                Logger.Information($"Found: {file.Extension}");
+                _logger.Information($"Found: {file.Extension}");
                 yield return file.Extension;
             }
         }
@@ -117,7 +117,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Initialization
             var types = new List<Type>();
             var assemblies = AppDomain.CurrentDomain.GetAssemblies().OrderBy(a => a.FullName).ToList();
 
-            AssemblyBlacklist.ToList().ForEach(
+            _assemblyBlacklist.ToList().ForEach(
                 b => assemblies.RemoveAll(a => a.FullName.StartsWith(b, StringComparison.OrdinalIgnoreCase)));
 
             foreach(var assembly in assemblies)
@@ -130,12 +130,12 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Initialization
                 }
                 catch(ReflectionTypeLoadException ex)
                 {
-                    Logger.Error($"Error while scanning assembly '{assembly.FullName}'");
-                    ex.LoaderExceptions.ToList().ForEach(e => Logger.Error("LoaderException", e));
+                    _logger.Error($"Error while scanning assembly '{assembly.FullName}'");
+                    ex.LoaderExceptions.ToList().ForEach(e => _logger.Error("LoaderException", e));
                 }
                 catch
                 {
-                    Logger.Error($"Error while scanning assembly '{assembly.FullName}'");
+                    _logger.Error($"Error while scanning assembly '{assembly.FullName}'");
                 }
             }
 

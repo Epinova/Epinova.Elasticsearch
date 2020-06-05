@@ -24,7 +24,7 @@ namespace Epinova.ElasticSearch.Core.Engine
 {
     internal class SearchEngine
     {
-        private static readonly ILogger Logger = LogManager.GetLogger(typeof(SearchEngine));
+        private static readonly ILogger _logger = LogManager.GetLogger(typeof(SearchEngine));
         private readonly IElasticSearchSettings _settings;
         private readonly IHttpClientHelper _httpClientHelper;
 
@@ -228,7 +228,7 @@ namespace Epinova.ElasticSearch.Core.Engine
                     && hit.Source.UnmappedFields.Any(u => customPropertiesForType.Any(c => c.Name == u.Key));
             }
 
-            bool IsArrayValue(JToken field)
+            static bool IsArrayValue(JToken field)
             {
                 return field.Type == JTokenType.Array
                     && field.Children().Any();
@@ -248,8 +248,8 @@ namespace Epinova.ElasticSearch.Core.Engine
                 indexName = _settings.GetDefaultIndexName(language);
             }
 
-            Logger.Information($"Index:\n{indexName}\n");
-            Logger.Information($"Query:\n{query?.ToString(Formatting.Indented)}\n");
+            _logger.Information($"Index:\n{indexName}\n");
+            _logger.Information($"Query:\n{query?.ToString(Formatting.Indented)}\n");
 
             var uri = GetSearchEndpoint(indexName);
 
@@ -279,8 +279,8 @@ namespace Epinova.ElasticSearch.Core.Engine
                 indexName = _settings.GetDefaultIndexName(language);
             }
 
-            Logger.Information($"Index:\n{indexName}\n");
-            Logger.Information($"Query:\n{query?.ToString(Formatting.Indented)}\n");
+            _logger.Information($"Index:\n{indexName}\n");
+            _logger.Information($"Query:\n{query?.ToString(Formatting.Indented)}\n");
 
             var uri = GetSearchEndpoint(indexName);
 
@@ -324,7 +324,7 @@ namespace Epinova.ElasticSearch.Core.Engine
 
             var endpoint = GetSearchEndpoint(indexName, $"?filter_path={JsonNames.Suggest}");
 
-            Logger.Information($"GetSuggestions query:\nGET {endpoint}\n{request?.ToString(Formatting.Indented)}\n");
+            _logger.Information($"GetSuggestions query:\nGET {endpoint}\n{request?.ToString(Formatting.Indented)}\n");
 
             JsonReader response = GetResponse(request, endpoint, out _);
 
@@ -346,7 +346,7 @@ namespace Epinova.ElasticSearch.Core.Engine
                 return results.Suggestions.SelectMany(s => s.Options.Select(o => o.Text)).ToArray();
             }
 
-            return new string[0];
+            return Array.Empty<string>();
         }
 
         protected async Task<JsonReader> GetResponseAsync(RequestBase request, string endpoint, CancellationToken cancellationToken)
@@ -361,7 +361,7 @@ namespace Epinova.ElasticSearch.Core.Engine
                 }
 
                 var response = Encoding.UTF8.GetString(returnData);
-                Logger.Debug("GetResponse response:\n" + JToken.Parse(response).ToString(Formatting.Indented));
+                _logger.Debug("GetResponse response:\n" + JToken.Parse(response).ToString(Formatting.Indented));
                 return new JsonTextReader(new StringReader(response));
             }
             catch(WebException ex)
@@ -370,7 +370,7 @@ namespace Epinova.ElasticSearch.Core.Engine
             }
             catch(Exception ex)
             {
-                Logger.Error("Could not get response", ex);
+                _logger.Error("Could not get response", ex);
             }
 
             return null;
@@ -393,7 +393,7 @@ namespace Epinova.ElasticSearch.Core.Engine
 
                 rawJsonResult = response;
 
-                Logger.Debug("GetResponse response:\n" + JToken.Parse(response).ToString(Formatting.Indented));
+                _logger.Debug("GetResponse response:\n" + JToken.Parse(response).ToString(Formatting.Indented));
                 return new JsonTextReader(new StringReader(response));
             }
             catch(WebException ex)
@@ -402,7 +402,7 @@ namespace Epinova.ElasticSearch.Core.Engine
             }
             catch(Exception ex)
             {
-                Logger.Error("Could not get response", ex);
+                _logger.Error("Could not get response", ex);
             }
 
             return null;
@@ -432,17 +432,17 @@ namespace Epinova.ElasticSearch.Core.Engine
             // Assume the response is json
             try
             {
-                Logger.Error($"Got status: {webException?.Status}");
+                _logger.Error($"Got status: {webException?.Status}");
 
                 using(var reader = new StreamReader(webException.Response.GetResponseStream()))
                 {
                     error = reader.ReadToEnd();
-                    Logger.Error(JToken.Parse(error).ToString(Formatting.Indented));
+                    _logger.Error(JToken.Parse(error).ToString(Formatting.Indented));
                 }
             }
             catch
             {
-                Logger.Error($"Could not parse error-response: {error}");
+                _logger.Error($"Could not parse error-response: {error}");
             }
         }
 

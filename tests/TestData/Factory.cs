@@ -51,13 +51,13 @@ namespace TestData
 
             var pathLinks = new[]
             {
-                Factory.GetPageReference(),
-                Factory.GetPageReference(),
-                Factory.GetPageReference()
+                GetPageReference(),
+                GetPageReference(),
+                GetPageReference()
             };
             var dbExecMock = new Mock<IDatabaseExecutor>();
             dbExecMock
-                .Setup(m => m.Execute<ContentPath>(It.IsAny<Func<ContentPath>>()))
+                .Setup(m => m.Execute(It.IsAny<Func<ContentPath>>()))
                 .Returns(new ContentPath(pathLinks));
 
             var contentPathMock = new Mock<ContentPathDB>(dbExecMock.Object);
@@ -172,7 +172,7 @@ namespace TestData
             var securityDescriptor = new Mock<IContentSecurityDescriptor>();
             securityDescriptor.Setup(m => m.HasAccess(It.IsAny<IPrincipal>(), It.IsAny<AccessLevel>())).Returns(userHasAccess);
 
-            if (language == null)
+            if(language == null)
             {
                 language = CultureInfo.CurrentCulture;
             }
@@ -194,7 +194,7 @@ namespace TestData
             instance.Setup(m => m.StaticLinkURL).Returns($"/link/{pageGuid:N}.aspx?id={pageLink.ID}");
 
             ContentReference.WasteBasket = new PageReference(1);
-            if (!isNotInWaste)
+            if(!isNotInWaste)
             {
                 instance.Setup(m => m.ContentLink).Returns(ContentReference.WasteBasket);
             }
@@ -337,7 +337,7 @@ namespace TestData
 
         public static (IContent Content, SaveContentEventArgs Args) GetPublishScenario()
         {
-            var page = Factory.GetPageData();
+            var page = GetPageData();
 
             return (page, new SaveContentEventArgs(
                 page.ContentLink,
@@ -352,7 +352,7 @@ namespace TestData
 
         public static (IContent Content, DeleteContentEventArgs Args) GetDeleteScenario()
         {
-            var page = Factory.GetPageData();
+            var page = GetPageData();
             var args = new DeleteContentEventArgs(page.ContentLink, ContentReference.WasteBasket)
             {
                 Content = page
@@ -363,8 +363,8 @@ namespace TestData
 
         public static (IContent Content, MoveContentEventArgs Args) GetMoveScenario(params ContentReference[] descendents)
         {
-            var page = Factory.GetPageData();
-            var target = Factory.GetPageData();
+            var page = GetPageData();
+            var target = GetPageData();
             var args = new MoveContentEventArgs(page.ContentLink, target.ContentLink)
             {
                 Content = page,
@@ -376,7 +376,7 @@ namespace TestData
 
         public static (IContent Content, MoveContentEventArgs Args) GetMoveToWasteBasketScenario()
         {
-            var page = Factory.GetPageData();
+            var page = GetPageData();
             var args = new MoveContentEventArgs(page.ContentLink, ContentReference.WasteBasket)
             {
                 Content = page

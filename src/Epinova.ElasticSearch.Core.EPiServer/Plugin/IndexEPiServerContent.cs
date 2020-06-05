@@ -260,8 +260,9 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Plugin
                     OnStatusChanged("Restoring best bets for index " + indexName);
                     var bestBets = _bestBetsRepository.GetBestBets(language, indexName);
                     foreach(var bestBet in bestBets)
+                    {
                         _coreIndexer.UpdateBestBets(indexName, typeof(IndexItem), bestBet.Id, bestBet.GetTerms());
-
+                    }
                 }
                 catch(Exception ex)
                 {
@@ -320,7 +321,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Plugin
             }
             return mediaBatchResults;
 
-            bool IsAllowedExtension(MediaData m)
+            static bool IsAllowedExtension(MediaData m)
             {
                 return Indexing.IncludedFileExtensions
                     .Contains(Path.GetExtension(m.RouteSegment ?? String.Empty).Trim(' ', '.').ToLower());

@@ -1,4 +1,4 @@
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 
 namespace Epinova.ElasticSearch.Core.Models.Admin
 {
