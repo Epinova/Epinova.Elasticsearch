@@ -22,11 +22,16 @@ namespace Epinova.ElasticSearch.Core.Admin
         private readonly string _nameWithoutLanguage;
         private readonly string _language;
         private readonly Indexing _indexing;
-        private static readonly ILogger Logger = LogManager.GetLogger(typeof(Index));
+        private readonly ServerInfo _serverInfo;
+        private static readonly ILogger _logger = LogManager.GetLogger(typeof(Index));
         private readonly IElasticSearchSettings _settings;
         private readonly IHttpClientHelper _httpClientHelper;
 
-        public Index(IElasticSearchSettings settings, IHttpClientHelper httpClientHelper, string name)
+        public Index(
+            IServerInfoService serverInfoService,
+            IElasticSearchSettings settings,
+            IHttpClientHelper httpClientHelper,
+            string name)
         {
             if(String.IsNullOrWhiteSpace(name))
             {
@@ -38,7 +43,8 @@ namespace Epinova.ElasticSearch.Core.Admin
             _nameWithoutLanguage = _name.Substring(0, _name.Length - _language.Length - 1);
             _httpClientHelper = httpClientHelper;
             _settings = settings;
-            _indexing = new Indexing(settings, httpClientHelper);
+            _indexing = new Indexing(serverInfoService, settings, httpClientHelper);
+            _serverInfo = serverInfoService.GetInfo();
         }
 
         public virtual IEnumerable<IndexInformation> GetIndices()
@@ -58,8 +64,7 @@ namespace Epinova.ElasticSearch.Core.Admin
 
             foreach(var indexInfo in indices)
             {
-                var index = new Index(_settings, _httpClientHelper, indexInfo.Index);
-                indexInfo.Tokenizer = index.GetTokenizer();
+                indexInfo.Tokenizer = GetTokenizer(indexInfo.Index);
             }
 
             return indices;
@@ -67,22 +72,22 @@ namespace Epinova.ElasticSearch.Core.Admin
 
         internal bool Exists => _indexing.IndexExists(_name);
 
-        internal string GetTokenizer()
+        internal string GetTokenizer(string name)
         {
-            if(String.IsNullOrWhiteSpace(_name) || !_indexing.IndexExists(_name))
+            if(String.IsNullOrWhiteSpace(name) || !_indexing.IndexExists(name))
             {
                 return String.Empty;
             }
 
-            var json = _httpClientHelper.GetString(_indexing.GetUri(_name, "_settings"));
-            var languageAnalyzer = Language.GetLanguageAnalyzer(_settings.GetLanguage(_name));
+            var json = _httpClientHelper.GetString(_indexing.GetUri(name, "_settings"));
+            var languageAnalyzer = Language.GetLanguageAnalyzer(_settings.GetLanguage(name));
 
             if(String.IsNullOrWhiteSpace(languageAnalyzer))
             {
                 return String.Empty;
             }
 
-            var jpath = $"{_name}.settings.index.analysis.analyzer.{languageAnalyzer}.tokenizer";
+            var jpath = $"{name}.settings.index.analysis.analyzer.{languageAnalyzer}.tokenizer";
 
             JContainer settings = JsonConvert.DeserializeObject<JContainer>(json);
 
@@ -117,25 +122,6 @@ namespace Epinova.ElasticSearch.Core.Admin
             {
                 _logger.Error("Could not get status", ex);
                 return false;
-            }
-        }
-
-        internal int GetDocumentCount()
-        {
-            var extraParams = Server.Info.Version.Major >= 7 ? "size=0&rest_total_hits_as_int=true" : "size=0";
-            var uri = _indexing.GetUri(_name, "_search", null, extraParams);
-            dynamic model = new { hits = new { total = 0 } };
-
-            try
-            {
-                var response = _httpClientHelper.GetString(uri);
-                var result = JsonConvert.DeserializeAnonymousType(response, model);
-                return result.hits.total;
-            }
-            catch(Exception ex)
-            {
-                Logger.Error("Could not get count", ex);
-                return 0;
             }
         }
 
@@ -176,7 +162,7 @@ namespace Epinova.ElasticSearch.Core.Admin
             var typeName = indexType.GetTypeName();
             var json = MappingPatterns.GetDisableDynamicMapping(typeName);
             byte[] data = Encoding.UTF8.GetBytes(json);
-            var extraParams = Server.Info.Version.Major >= 7 ? "include_type_name=true" : null;
+            var extraParams = _serverInfo.Version >= Constants.IncludeTypeNameAddedVersion ? "include_type_name=true" : null;
             var uri = _indexing.GetUri(_name, "_mapping", typeName, extraParams);
 
             _logger.Information($"Disable dynamic mapping for {typeName}");
@@ -201,7 +187,7 @@ namespace Epinova.ElasticSearch.Core.Admin
         {
             string json = Serialization.Serialize(MappingPatterns.GetCustomIndexMapping(Language.GetLanguageAnalyzer(_language)));
             byte[] data = Encoding.UTF8.GetBytes(json);
-            var extraParams = Server.Info.Version.Major >= 7 ? "include_type_name=true" : null;
+            var extraParams = _serverInfo.Version >= Constants.IncludeTypeNameAddedVersion ? "include_type_name=true" : null;
             var uri = _indexing.GetUri(_name, "_mapping", type.GetTypeName(), extraParams);
 
             _logger.Information($"Creating custom mappings. Language: {_language}");
@@ -215,7 +201,7 @@ namespace Epinova.ElasticSearch.Core.Admin
         {
             string json = Serialization.Serialize(MappingPatterns.GetStandardIndexMapping(Language.GetLanguageAnalyzer(_language)));
             var data = Encoding.UTF8.GetBytes(json);
-            var extraParams = Server.Info.Version.Major >= 7 ? "include_type_name=true" : null;
+            var extraParams = _serverInfo.Version >= Constants.IncludeTypeNameAddedVersion ? "include_type_name=true" : null;
             var uri = _indexing.GetUri(_name, "_mapping", typeof(IndexItem).GetTypeName(), extraParams);
 
             _logger.Information($"Creating standard mappings. Language: {_language}");

@@ -14,14 +14,14 @@ namespace TestData
         private readonly string[] _suggestions;
         private readonly string _jsonFile;
 
-        public TestableSearchEngine(string jsonFile, IElasticSearchSettings settings, IHttpClientHelper httpClientHelper)
-            : base(settings, httpClientHelper)
+        public TestableSearchEngine(string jsonFile, IServerInfoService serverInfoService, IElasticSearchSettings settings, IHttpClientHelper httpClientHelper)
+            : base(serverInfoService, settings, httpClientHelper)
         {
             _jsonFile = jsonFile;
         }
 
-        public TestableSearchEngine(string[] suggestions, IElasticSearchSettings settings, IHttpClientHelper httpClientHelper)
-            : base(settings, httpClientHelper)
+        public TestableSearchEngine(string[] suggestions, IServerInfoService serverInfoService, IElasticSearchSettings settings, IHttpClientHelper httpClientHelper)
+            : base(serverInfoService, settings, httpClientHelper)
         {
             _suggestions = suggestions;
         }

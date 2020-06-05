@@ -222,6 +222,7 @@
     <Compile Include="Extensions\TypeExtensions.cs" />
     <Compile Include="Extensions\UrlExtensions.cs" />
     <Compile Include="FilterGroup.cs" />
+    <Compile Include="Contracts\IServerInfoService.cs" />
     <Compile Include="Models\Admin\HealthInformation.cs" />
     <Compile Include="Models\Admin\IndexInformation.cs" />
     <Compile Include="Models\Admin\Node.cs" />
@@ -322,7 +323,7 @@
     <Compile Include="Models\TypeCount.cs" />
     <Compile Include="Pipelines\Attachment.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Server.cs" />
+    <Compile Include="ServerInfoService.cs" />
     <Compile Include="Services\TrackingRepository.cs" />
     <Compile Include="Settings\Configuration\ContentSelectorCollection.cs" />
     <Compile Include="Settings\Configuration\ContentSelectorConfiguration.cs" />

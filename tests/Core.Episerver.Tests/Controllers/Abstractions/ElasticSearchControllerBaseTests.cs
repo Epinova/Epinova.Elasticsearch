@@ -34,6 +34,7 @@ namespace Core.Episerver.Tests.Controllers.Abstractions
                 });
 
             _controller = new ControllerStub(
+                fixture.ServiceLocationMock.ServerInfoMock.Object,
                 fixture.ServiceLocationMock.SettingsMock.Object,
                 fixture.ServiceLocationMock.HttpClientMock.Object,
                 _languageBranchRepositoryMock.Object);
@@ -56,10 +57,11 @@ namespace Core.Episerver.Tests.Controllers.Abstractions
         private class ControllerStub : ElasticSearchControllerBase
         {
             public ControllerStub(
+                IServerInfoService serverInfoService,
                 IElasticSearchSettings settings,
                 IHttpClientHelper httpClientHelper,
                 ILanguageBranchRepository languageBranchRepository)
-                : base(settings, httpClientHelper, languageBranchRepository)
+                : base(serverInfoService, settings, httpClientHelper, languageBranchRepository)
             {
             }
 

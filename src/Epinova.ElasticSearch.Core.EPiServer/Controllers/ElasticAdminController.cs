@@ -21,6 +21,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Controllers
         private readonly IElasticSearchSettings _settings;
         private readonly Health _healthHelper;
         private readonly IHttpClientHelper _httpClientHelper;
+        private readonly IServerInfoService _serverInfoService;
         private readonly IScheduledJobRepository _scheduledJobRepository;
         private readonly IScheduledJobExecutor _scheduledJobExecutor;
 
@@ -29,14 +30,16 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Controllers
             ICoreIndexer coreIndexer,
             IElasticSearchSettings settings,
             IHttpClientHelper httpClientHelper,
+            IServerInfoService serverInfoService,
             IScheduledJobRepository scheduledJobRepository,
             IScheduledJobExecutor scheduledJobExecutor)
-            : base(settings, httpClientHelper, languageBranchRepository)
+            : base(serverInfoService, settings, httpClientHelper, languageBranchRepository)
         {
             _coreIndexer = coreIndexer;
             _settings = settings;
             _healthHelper = new Health(settings, httpClientHelper);
             _httpClientHelper = httpClientHelper;
+            _serverInfoService = serverInfoService;
             _scheduledJobRepository = scheduledJobRepository;
             _scheduledJobExecutor = scheduledJobExecutor;
         }
@@ -66,7 +69,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Controllers
         [Authorize(Roles = RoleNames.ElasticsearchAdmins)]
         public ActionResult AddNewIndex()
         {
-            if(Core.Server.Info.Version.Major < 5)
+            if(_serverInfoService.GetInfo().Version < Constants.MinimumSupportedVersion)
             {
                 throw new InvalidOperationException("Elasticsearch version 5 or higher required");
             }
@@ -80,8 +83,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Controllers
                     var indexName = _settings.GetCustomIndexName(indexConfig.Name, lang.Key);
                     Type indexType = GetIndexType(indexConfig, config);
 
-                    var index = new Index(_settings, _httpClientHelper, indexName);
-
+                    var index = new Index(_serverInfoService, _settings, _httpClientHelper, indexName);
                     if(!index.Exists)
                     {
                         index.Initialize(indexType);
@@ -111,7 +113,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Controllers
         [Authorize(Roles = RoleNames.ElasticsearchAdmins)]
         public ActionResult DeleteIndex(string indexName)
         {
-            var indexing = new Indexing(_settings, _httpClientHelper);
+            var indexing = new Indexing(_serverInfoService, _settings, _httpClientHelper);
             indexing.DeleteIndex(indexName);
 
             return RedirectToAction("Index");
@@ -121,7 +123,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Controllers
         [Authorize(Roles = RoleNames.ElasticsearchAdmins)]
         public ActionResult DeleteAll()
         {
-            var indexing = new Indexing(_settings, _httpClientHelper);
+            var indexing = new Indexing(_serverInfoService, _settings, _httpClientHelper);
 
             foreach(var index in Indices)
             {
@@ -134,8 +136,8 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Controllers
         [Authorize(Roles = RoleNames.ElasticsearchAdmins)]
         public ActionResult ChangeTokenizer(string indexName, string tokenizer)
         {
-            var indexing = new Indexing(_settings, _httpClientHelper);
-            var index = new Index(_settings, _httpClientHelper, indexName);
+            var indexing = new Indexing(_serverInfoService, _settings, _httpClientHelper);
+            var index = new Index(_serverInfoService, _settings, _httpClientHelper, indexName);
 
             indexing.Close(indexName);
             index.ChangeTokenizer(tokenizer);
@@ -167,7 +169,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Controllers
         private void CreateCommerceIndex(string language, IndexConfiguration indexConfig, Type indexType)
         {
             var indexName = _settings.GetCustomIndexName($"{indexConfig.Name}-{Constants.CommerceProviderName}", language);
-            var index = new Index(_settings, _httpClientHelper, indexName);
+            var index = new Index(_serverInfoService, _settings, _httpClientHelper, indexName);
             if(!index.Exists)
             {
                 index.Initialize(indexType);

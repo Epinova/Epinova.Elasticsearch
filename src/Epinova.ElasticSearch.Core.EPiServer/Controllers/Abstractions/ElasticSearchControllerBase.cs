@@ -25,14 +25,17 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Controllers.Abstractions
         protected string CurrentIndex;
         protected string CurrentIndexDisplayName;
         protected string CurrentLanguage;
+        private readonly IServerInfoService _serverInfoService;
         private readonly IElasticSearchSettings _settings;
         private readonly IHttpClientHelper _httpClientHelper;
 
         protected ElasticSearchControllerBase(
+            IServerInfoService serverInfoService,
             IElasticSearchSettings settings,
             IHttpClientHelper httpClientHelper,
             ILanguageBranchRepository languageBranchRepository)
         {
+            _serverInfoService = serverInfoService;
             _settings = settings;
             _httpClientHelper = httpClientHelper;
             _languageBranchRepository = languageBranchRepository;
@@ -55,7 +58,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Controllers.Abstractions
             ViewBag.SelectedIndex = CurrentIndex;
             ViewBag.SelectedIndexName = CurrentIndexDisplayName;
 
-            var platformNavigationMethod = typeof(MenuHelper).GetMethod("CreatePlatformNavigationMenu", new Type[0]);
+            var platformNavigationMethod = typeof(MenuHelper).GetMethod("CreatePlatformNavigationMenu", Array.Empty<Type>());
             if(platformNavigationMethod != null)
             {
                 ViewBag.Menu = platformNavigationMethod.Invoke(null, null)?.ToString();
@@ -107,7 +110,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Controllers.Abstractions
 
         private List<IndexInformation> GetIndices()
         {
-            var indexHelper = new Admin.Index(_settings, _httpClientHelper, "GetIndices-NA");
+            var indexHelper = new Admin.Index(_serverInfoService, _settings, _httpClientHelper, "GetIndices-NA");
 
             var indices = indexHelper.GetIndices().ToList();
 

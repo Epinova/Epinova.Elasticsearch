@@ -23,21 +23,24 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Services
     [ServiceConfiguration(ServiceType = typeof(ISynonymRepository), Lifecycle = ServiceInstanceScope.Hybrid)]
     public class SynonymRepository : ISynonymRepository
     {
-        private static readonly ILogger Logger = LogManager.GetLogger(typeof(SynonymRepository));
+        private static readonly ILogger _logger = LogManager.GetLogger(typeof(SynonymRepository));
         private readonly IBlobFactory _blobFactory;
         private readonly IContentRepository _contentRepository;
         private readonly IElasticSearchSettings _settings;
+        private readonly IServerInfoService _serverInfoService;
         private readonly IHttpClientHelper _httpClientHelper;
 
         public SynonymRepository(
             IContentRepository contentRepository,
             IBlobFactory blobFactory,
             IElasticSearchSettings settings,
+            IServerInfoService serverInfoService,
             IHttpClientHelper httpClientHelper)
         {
             _contentRepository = contentRepository;
             _blobFactory = blobFactory;
             _settings = settings;
+            _serverInfoService = serverInfoService;
             _httpClientHelper = httpClientHelper;
         }
 
@@ -48,7 +51,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Services
                 index = _settings.GetDefaultIndexName(languageId);
             }
 
-            var indexing = new Indexing(_settings, _httpClientHelper);
+            var indexing = new Indexing(_serverInfoService, _settings, _httpClientHelper);
             indexing.Close(index);
 
             string[] synonymPairs = synonymsToAdd
@@ -112,7 +115,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Services
                 index = _settings.GetDefaultIndexName(languageId);
             }
 
-            var indexing = new Indexing(_settings, _httpClientHelper);
+            var indexing = new Indexing(_serverInfoService, _settings, _httpClientHelper);
 
             if(!indexing.IndexExists(index))
             {
@@ -136,7 +139,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Services
                 index = _settings.GetDefaultIndexName(languageId);
             }
 
-            var indexing = new Indexing(_settings, _httpClientHelper);
+            var indexing = new Indexing(_serverInfoService, _settings, _httpClientHelper);
 
             if(!indexing.IndexExists(index))
             {

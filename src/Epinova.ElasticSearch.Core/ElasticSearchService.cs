@@ -7,8 +7,11 @@ namespace Epinova.ElasticSearch.Core
     [ServiceConfiguration(ServiceType = typeof(IElasticSearchService), Lifecycle = ServiceInstanceScope.Transient)]
     public class ElasticSearchService : ElasticSearchService<object>, IElasticSearchService
     {
-        public ElasticSearchService(IElasticSearchSettings settings, IHttpClientHelper httpClientHelper)
-            : base(settings, httpClientHelper)
+        public ElasticSearchService(
+            IServerInfoService serverInfoService,
+            IElasticSearchSettings settings,
+            IHttpClientHelper httpClientHelper)
+            : base(serverInfoService, settings, httpClientHelper)
         {
         }
     }

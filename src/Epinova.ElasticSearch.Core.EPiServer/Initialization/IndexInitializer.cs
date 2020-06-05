@@ -5,6 +5,7 @@ using System.Reflection;
 using System.Web.Mvc;
 using System.Web.Routing;
 using Epinova.ElasticSearch.Core.Attributes;
+using Epinova.ElasticSearch.Core.Contracts;
 using Epinova.ElasticSearch.Core.Settings.Configuration;
 using EPiServer.Framework;
 using EPiServer.Framework.Initialization;
@@ -60,7 +61,11 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Initialization
             {
                 RouteTable.Routes.MapRoute("ElasticSearchAdmin", "ElasticSearchAdmin/{controller}/{action}", new { controller = "ElasticAdmin", action = "Index" }, new { controller = GetControllers() });
 
-                Logger.Information($"Initializing Elasticsearch.\n{Server.Info}\nPlugins:\n{String.Join("\n", Server.Plugins.Select(p => p.ToString()))}");
+                var serverinfo = context.Locate.Advanced.GetInstance<IServerInfoService>();
+
+                _logger.Information($"Initializing Elasticsearch.\n" +
+                    $"{serverinfo.GetInfo()}\nPlugins:\n" +
+                    $"{String.Join("\n", serverinfo.ListPlugins().Select(p => p.ToString()))}");
 
                 GetExcludedTypes()
                     .ForEach(type => IndexingConvention.Instance.ExcludeType(type));

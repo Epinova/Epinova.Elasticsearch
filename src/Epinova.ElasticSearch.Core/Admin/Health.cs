@@ -33,10 +33,8 @@ namespace Epinova.ElasticSearch.Core.Admin
 
         public virtual Node[] GetNodeInfo()
         {
-            string ipField = Server.Info.Version.Major >= 5 ? "http" : "i";
-            string uri = $"{_settings.Host}/_cat/nodes?format=json&h=m,v,{ipField},d,rc,rm,u,n";
-
-            string json = _httpClientHelper.GetJson(new Uri(uri));
+            var uri = $"{_settings.Host}/_cat/nodes?format=json&h=m,v,http,d,rc,rm,u,n";
+            var json = _httpClientHelper.GetJson(new Uri(uri));
 
             return GetNodeInfo(json);
         }

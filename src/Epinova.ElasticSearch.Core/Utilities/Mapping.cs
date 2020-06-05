@@ -26,12 +26,16 @@ namespace Epinova.ElasticSearch.Core.Utilities
             {MappingType.Integer, new[] { typeof(Enum), typeof(byte?), typeof(byte), typeof(int), typeof (int?), typeof (uint), typeof (uint?), typeof (short), typeof (short?)}},
             {MappingType.Long, new[] {typeof (long), typeof (long?)}}
         };
-
+        private readonly IServerInfoService _serverInfoService;
         private readonly IElasticSearchSettings _settings;
         private readonly IHttpClientHelper _httpClientHelper;
 
-        public Mapping(IElasticSearchSettings settings, IHttpClientHelper httpClientHelper)
+        public Mapping(
+            IServerInfoService serverInfoService,
+            IElasticSearchSettings settings,
+            IHttpClientHelper httpClientHelper)
         {
+            _serverInfoService = serverInfoService;
             _settings = settings;
             _httpClientHelper = httpClientHelper;
         }
@@ -160,7 +164,7 @@ namespace Epinova.ElasticSearch.Core.Utilities
         private string GetMappingUri(string index, string typeName)
         {
             var url = $"{_settings.Host}/{index}/{typeName}/_mapping";
-            if(Server.Info.Version.Major >= 7)
+            if(_serverInfoService.GetInfo().Version >= Constants.IncludeTypeNameAddedVersion)
             {
                 url += "?include_type_name=true";
             }

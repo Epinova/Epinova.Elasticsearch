@@ -19,8 +19,9 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Controllers
             IBoostingRepository boostingRepository,
             IContentTypeRepository pageTypeRepository,
             IElasticSearchSettings settings,
+            IServerInfoService serverInfoService,
             IHttpClientHelper httpClientHelper)
-            : base(settings, httpClientHelper, languageBranchRepository)
+            : base(serverInfoService, settings, httpClientHelper, languageBranchRepository)
         {
             _boostingRepository = boostingRepository;
             _pageTypeRepository = pageTypeRepository;

@@ -37,10 +37,13 @@ namespace Epinova.ElasticSearch.Core.Engine
             nameof(MappingType.Attachment).ToLower()
         };
 
-        public QueryBuilder(IElasticSearchSettings settings, IHttpClientHelper httpClientHelper)
+        public QueryBuilder(
+            IServerInfoService serverInfoService,
+            IElasticSearchSettings settings,
+            IHttpClientHelper httpClientHelper)
         {
             _settings = settings;
-            _mapping = new Mapping(settings, httpClientHelper);
+            _mapping = new Mapping(serverInfoService, settings, httpClientHelper);
             ServiceLocator.Current?.TryGetExistingInstance(out _boostingRepository);
         }
 

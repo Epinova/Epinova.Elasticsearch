@@ -15,15 +15,18 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Controllers
     public class ElasticConsoleController : ElasticSearchControllerBase
     {
         private readonly IElasticSearchSettings _settings;
+        private readonly IServerInfoService _serverInfoService;
         private readonly IHttpClientHelper _httpClientHelper;
 
         public ElasticConsoleController(
             ILanguageBranchRepository languageBranchRepository,
             IElasticSearchSettings settings,
+            IServerInfoService serverInfoService,
             IHttpClientHelper httpClientHelper)
-            : base(settings, httpClientHelper, languageBranchRepository)
+            : base(serverInfoService, settings, httpClientHelper, languageBranchRepository)
         {
             _settings = settings;
+            _serverInfoService = serverInfoService;
             _httpClientHelper = httpClientHelper;
         }
 
@@ -36,7 +39,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Controllers
                 index = CurrentIndex;
             }
 
-            var indexHelper = new Admin.Index(_settings, _httpClientHelper, index);
+            var indexHelper = new Admin.Index(_serverInfoService, _settings, _httpClientHelper, index);
 
             List<string> indices = indexHelper.GetIndices()
                 .Select(i => i.Index).ToList();
@@ -62,7 +65,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Controllers
             }
 
             string uri = $"{_settings.Host}/{index}/_search";
-            if(Core.Server.Info.Version.Major >= 7)
+            if(_serverInfoService.GetInfo().Version >= Constants.TotalHitsAsIntAddedVersion)
             {
                 uri += "?rest_total_hits_as_int=true";
             }
@@ -91,7 +94,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Controllers
                 index = CurrentIndex;
             }
 
-            var indexHelper = new Admin.Index(_settings, _httpClientHelper, index);
+            var indexHelper = new Admin.Index(_serverInfoService, _settings, _httpClientHelper, index);
 
             var indices = indexHelper.GetIndices()
                 .Select(i => i.Index).ToList();

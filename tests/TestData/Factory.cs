@@ -11,6 +11,7 @@ using Epinova.ElasticSearch.Core;
 using Epinova.ElasticSearch.Core.Contracts;
 using Epinova.ElasticSearch.Core.EPiServer.Contracts;
 using Epinova.ElasticSearch.Core.EPiServer.Models;
+using Epinova.ElasticSearch.Core.Models.Admin;
 using Epinova.ElasticSearch.Core.Settings;
 using EPiServer;
 using EPiServer.Core;
@@ -94,6 +95,19 @@ namespace TestData
 
             result.HttpClientMock = httpClient;
 
+            var serverInfo = new Mock<IServerInfoService>();
+            serverInfo.Setup(m => m.GetInfo())
+                .Returns(new ServerInfo
+                {
+                    ElasticVersion = new ServerInfo.InternalVersion
+                    {
+                        Number = "6.0.0",
+                        LuceneVersion = "7.0.1"
+                    }
+                });
+
+            result.ServerInfoMock = serverInfo;
+
             var synonymRepositoryMock = new Mock<ISynonymRepository>();
             synonymRepositoryMock
                 .Setup(m => m.GetSynonyms(It.IsAny<string>(), It.IsAny<string>()))
@@ -113,8 +127,9 @@ namespace TestData
             result.ServiceLocatorMock.Setup(m => m.GetInstance<IContentVersionRepository>()).Returns(new Mock<IContentVersionRepository>().Object);
             result.ServiceLocatorMock.Setup(m => m.GetInstance<IBoostingRepository>()).Returns(boostMock.Object);
             result.ServiceLocatorMock.Setup(m => m.GetInstance<IBestBetsRepository>()).Returns(bestbetMock.Object);
+            result.ServiceLocatorMock.Setup(m => m.GetInstance<IServerInfoService>()).Returns(serverInfo.Object);
             result.ServiceLocatorMock.Setup(m => m.GetInstance<IElasticSearchSettings>()).Returns(settings.Object);
-            result.ServiceLocatorMock.Setup(m => m.GetInstance<IElasticSearchService>()).Returns(new ElasticSearchService(settings.Object, httpClient.Object));
+            result.ServiceLocatorMock.Setup(m => m.GetInstance<IElasticSearchService>()).Returns(new ElasticSearchService(serverInfo.Object, settings.Object, httpClient.Object));
             result.ServiceLocatorMock.Setup(m => m.GetInstance<IPublishedStateAssessor>()).Returns(result.StateAssesorMock.Object);
             result.ServiceLocatorMock.Setup(m => m.GetInstance<ITemplateResolver>()).Returns(result.TemplateResolver);
             result.ServiceLocatorMock.Setup(m => m.GetInstance<ContentPathDB>()).Returns(contentPathMock.Object);

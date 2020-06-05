@@ -11,11 +11,16 @@ namespace Epinova.ElasticSearch.Core.Utilities
     public class Indexing
     {
         private static readonly ILogger _logger = LogManager.GetLogger(typeof(Indexing));
+        private readonly IServerInfoService _serverInfoService;
         private readonly IElasticSearchSettings _settings;
         private readonly IHttpClientHelper _httpClientHelper;
 
-        public Indexing(IElasticSearchSettings settings, IHttpClientHelper httpClientHelper)
+        public Indexing(
+            IServerInfoService serverInfoService,
+            IElasticSearchSettings settings,
+            IHttpClientHelper httpClientHelper)
         {
+            _serverInfoService = serverInfoService;
             _settings = settings;
             _httpClientHelper = httpClientHelper;
         }
@@ -61,7 +66,7 @@ namespace Epinova.ElasticSearch.Core.Utilities
 
             _httpClientHelper.Post(GetUri(indexName, "_open"), (byte[])null);
 
-            var index = new Index(_settings, _httpClientHelper, indexName);
+            var index = new Index(_serverInfoService, _settings, _httpClientHelper, indexName);
             index.WaitForStatus();
         }
 
@@ -71,7 +76,7 @@ namespace Epinova.ElasticSearch.Core.Utilities
 
             _httpClientHelper.Post(GetUri(indexName, "_close"), (byte[])null);
 
-            var index = new Index(_settings, _httpClientHelper, indexName);
+            var index = new Index(_serverInfoService, _settings, _httpClientHelper, indexName);
             index.WaitForStatus();
         }
 

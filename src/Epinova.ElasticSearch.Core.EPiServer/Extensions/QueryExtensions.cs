@@ -41,18 +41,23 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Extensions
         {
             var settings = ServiceLocator.Current.GetInstance<IElasticSearchSettings>();
             var client = ServiceLocator.Current.GetInstance<IHttpClientHelper>();
-            var engine = new SearchEngine(settings, client);
+            var serverInfo = ServiceLocator.Current.GetInstance<IServerInfoService>();
+            var engine = new SearchEngine(serverInfo, settings, client);
 
             return GetSuggestions(service, searchText, engine);
         }
 
         internal static string[] GetSuggestions<T>(this IElasticSearchService<T> service, string searchText, SearchEngine engine)
         {
-            var request = new SuggestRequest(searchText, service.SizeValue);
+            var serverInfo = ServiceLocator.Current.GetInstance<IServerInfoService>();
+            var repository = ServiceLocator.Current.GetInstance<IAutoSuggestRepository>();
+
+            var skipDuplicates = serverInfo.GetInfo().Version >= Constants.SkipDuplicatesFieldVersion;
+
+            var request = new SuggestRequest(searchText, service.SizeValue, skipDuplicates);
 
             var elasticSuggestions = engine.GetSuggestions(request, service.SearchLanguage);
 
-            var repository = ServiceLocator.Current.GetInstance<IAutoSuggestRepository>();
             var editorialSuggestions = repository.GetWords(Language.GetLanguageCode(service.CurrentLanguage))
                 .Where(w => w?.StartsWith(searchText) == true);
 

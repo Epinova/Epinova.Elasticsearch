@@ -3,12 +3,12 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
-using Epinova.ElasticSearch.Core.Admin;
 using Epinova.ElasticSearch.Core.Contracts;
 using Epinova.ElasticSearch.Core.Conventions;
 using Epinova.ElasticSearch.Core.EPiServer.Contracts;
 using Epinova.ElasticSearch.Core.Events;
 using Epinova.ElasticSearch.Core.Models;
+using Epinova.ElasticSearch.Core.Models.Admin;
 using Epinova.ElasticSearch.Core.Models.Bulk;
 using Epinova.ElasticSearch.Core.Settings;
 using EPiServer;
@@ -17,6 +17,7 @@ using EPiServer.DataAbstraction;
 using EPiServer.Logging;
 using EPiServer.PlugIn;
 using EPiServer.Scheduler;
+using Newtonsoft.Json;
 
 namespace Epinova.ElasticSearch.Core.EPiServer.Plugin
 {
@@ -34,7 +35,10 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Plugin
         private readonly IBestBetsRepository _bestBetsRepository;
         private readonly ILanguageBranchRepository _languageBranchRepository;
         private readonly IElasticSearchSettings _settings;
+        private readonly IServerInfoService _serverInfoService;
         private readonly IHttpClientHelper _httpClientHelper;
+        private readonly ServerInfo _serverInfo;
+        private readonly Utilities.Indexing _indexing;
         protected string CustomIndexName;
 
         public IndexEPiServerContent(
@@ -44,6 +48,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Plugin
             IBestBetsRepository bestBetsRepository,
             ILanguageBranchRepository languageBranchRepository,
             IElasticSearchSettings settings,
+            IServerInfoService serverInfoService,
             IHttpClientHelper httpClientHelper)
         {
             _coreIndexer = coreIndexer;
@@ -53,6 +58,9 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Plugin
             _languageBranchRepository = languageBranchRepository;
             _settings = settings;
             _httpClientHelper = httpClientHelper;
+            _serverInfoService = serverInfoService;
+            _serverInfo = serverInfoService.GetInfo();
+            _indexing = new Utilities.Indexing(serverInfoService, settings, httpClientHelper);
             IsStoppable = true;
         }
 
@@ -89,7 +97,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Plugin
                     throw new InvalidOperationException("One or more indices is missing, please create them.");
                 }
 
-                if(!Server.Plugins.Any(p => p.Component.Equals("ingest-attachment")))
+                if(!_serverInfoService.ListPlugins().Any(p => p.Component.Equals("ingest-attachment")))
                 {
                     throw new InvalidOperationException("Plugin 'ingest-attachment' is missing, please install it.");
                 }
@@ -226,8 +234,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Plugin
             foreach(var language in languages.Select(l => l.LanguageID))
             {
                 var indexName = GetIndexName(language);
-                var index = new Index(_settings, _httpClientHelper, indexName);
-                if(!index.Exists)
+                if(!_indexing.IndexExists(indexName))
                 {
                     return false;
                 }
@@ -242,11 +249,29 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Plugin
             foreach(var language in languages.Select(l => l.LanguageID))
             {
                 var indexName = GetIndexName(language);
-                var index = new Index(_settings, _httpClientHelper, indexName);
-                count += index.GetDocumentCount();
+                count += GetDocumentCount(indexName);
             }
 
             return count;
+        }
+
+        private int GetDocumentCount(string indexName)
+        {
+            var extraParams = _serverInfo.Version >= Constants.IncludeTypeNameAddedVersion ? "size=0&rest_total_hits_as_int=true" : "size=0";
+            var uri = _indexing.GetUri(indexName, "_search", null, extraParams);
+            dynamic model = new { hits = new { total = 0 } };
+
+            try
+            {
+                var response = _httpClientHelper.GetString(uri);
+                var result = JsonConvert.DeserializeAnonymousType(response, model);
+                return result.hits.total;
+            }
+            catch(Exception ex)
+            {
+                _logger.Error("Could not get count", ex);
+                return 0;
+            }
         }
 
         private void RestoreBestBets(IEnumerable<LanguageBranch> languages)

@@ -6,6 +6,7 @@ using Epinova.ElasticSearch.Core.Contracts;
 using Epinova.ElasticSearch.Core.EPiServer.Extensions;
 using Epinova.ElasticSearch.Core.Extensions;
 using Epinova.ElasticSearch.Core.Models;
+using Epinova.ElasticSearch.Core.Models.Admin;
 using Epinova.ElasticSearch.Core.Settings;
 using Epinova.ElasticSearch.Core.Settings.Configuration;
 using Epinova.ElasticSearch.Core.Utilities;
@@ -23,18 +24,24 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Services
         private readonly IContentTypeRepository _contentTypeRepository;
         private readonly IHttpClientHelper _httpClientHelper;
         private readonly Mapping _mapping;
+        private readonly ServerInfo _serverInfo;
 
         internal InspectorRepository()
         {
             _elasticSearchSettings = ServiceLocator.Current.GetInstance<IElasticSearchSettings>();
         }
 
-        public InspectorRepository(IElasticSearchSettings settings, IHttpClientHelper httpClientHelper, IContentTypeRepository contentTypeRepository)
+        public InspectorRepository(
+            IElasticSearchSettings settings,
+            IServerInfoService serverInfoService,
+            IHttpClientHelper httpClientHelper,
+            IContentTypeRepository contentTypeRepository)
         {
             _elasticSearchSettings = settings;
             _contentTypeRepository = contentTypeRepository;
             _httpClientHelper = httpClientHelper;
-            _mapping = new Mapping(settings, httpClientHelper);
+            _mapping = new Mapping(serverInfoService, settings, httpClientHelper);
+            _serverInfo = serverInfoService.GetInfo();
         }
 
         public List<InspectItem> Search(string searchText, bool analyzed, string language, string indexName, int size, string type = null, string selectedIndex = null)
@@ -71,7 +78,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Services
             {
                 string query = CreateSearchQuery(searchText, type);
                 uri += $"?q={query}&size={size}";
-                if(Server.Info.Version.Major >= 7)
+                if(_serverInfo.Version >= Constants.TotalHitsAsIntAddedVersion)
                 {
                     uri += "&rest_total_hits_as_int=true";
                 }
@@ -98,7 +105,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Services
         public Dictionary<string, List<TypeCount>> GetTypes(string searchText, string indexName)
         {
             string uri = $"{_elasticSearchSettings.Host}/{indexName}/_search";
-            if(Server.Info.Version.Major >= 7)
+            if(_serverInfo.Version >= Constants.TotalHitsAsIntAddedVersion)
             {
                 uri += "?rest_total_hits_as_int=true";
             }

@@ -11,6 +11,7 @@ using Epinova.ElasticSearch.Core.Contracts;
 using Epinova.ElasticSearch.Core.Conventions;
 using Epinova.ElasticSearch.Core.Extensions;
 using Epinova.ElasticSearch.Core.Models;
+using Epinova.ElasticSearch.Core.Models.Admin;
 using Epinova.ElasticSearch.Core.Models.Query;
 using Epinova.ElasticSearch.Core.Models.Serialization;
 using Epinova.ElasticSearch.Core.Settings;
@@ -27,11 +28,16 @@ namespace Epinova.ElasticSearch.Core.Engine
         private static readonly ILogger _logger = LogManager.GetLogger(typeof(SearchEngine));
         private readonly IElasticSearchSettings _settings;
         private readonly IHttpClientHelper _httpClientHelper;
+        private readonly ServerInfo _serverInfo;
 
-        internal SearchEngine(IElasticSearchSettings settings, IHttpClientHelper httpClientHelper)
+        internal SearchEngine(
+            IServerInfoService serverInfoService,
+            IElasticSearchSettings settings,
+            IHttpClientHelper httpClientHelper)
         {
             _settings = settings;
             _httpClientHelper = httpClientHelper;
+            _serverInfo = serverInfoService.GetInfo();
         }
 
         /// <summary>
@@ -417,7 +423,7 @@ namespace Epinova.ElasticSearch.Core.Engine
                 url += extraParam;
             }
 
-            if(Server.Info.Version.Major >= 7)
+            if(_serverInfo.Version >= Constants.TotalHitsAsIntAddedVersion)
             {
                 url += (url.Contains("?") ? "&" : "?") + "rest_total_hits_as_int=true";
             }

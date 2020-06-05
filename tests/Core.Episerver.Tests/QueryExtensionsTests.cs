@@ -19,6 +19,7 @@ namespace Core.Episerver.Tests
         {
             _fixture = fixture;
             _serviceStub = new ElasticSearchService(
+                fixture.ServiceLocationMock.ServerInfoMock.Object,
                 fixture.ServiceLocationMock.SettingsMock.Object,
                 fixture.ServiceLocationMock.HttpClientMock.Object);
         }
@@ -73,6 +74,7 @@ namespace Core.Episerver.Tests
 
             var engine = new TestableSearchEngine(
                 new[] { "foo", "bar", "baz" },
+                _fixture.ServiceLocationMock.ServerInfoMock.Object,
                 _fixture.ServiceLocationMock.SettingsMock.Object,
                 _fixture.ServiceLocationMock.HttpClientMock.Object);
 

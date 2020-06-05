@@ -36,6 +36,7 @@ namespace Core.Tests
                 .Returns(HttpStatusCode.OK);
 
             _coreIndexer = new CoreIndexer(
+                _fixture.ServiceLocationMock.ServerInfoMock.Object,
                 _fixture.ServiceLocationMock.SettingsMock.Object,
                 _fixture.ServiceLocationMock.HttpClientMock.Object);
         }
@@ -43,7 +44,7 @@ namespace Core.Tests
         [Fact]
         public void Bulk_EmptyOperations_ReturnsEmptyResult()
         {
-            var result = _coreIndexer.Bulk(new BulkOperation[0]);
+            var result = _coreIndexer.Bulk(Array.Empty<BulkOperation>());
             Assert.Empty(result.Batches);
         }
 

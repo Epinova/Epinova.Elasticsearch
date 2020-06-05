@@ -12,6 +12,7 @@ using Epinova.ElasticSearch.Core.Enums;
 using Epinova.ElasticSearch.Core.Events;
 using Epinova.ElasticSearch.Core.Extensions;
 using Epinova.ElasticSearch.Core.Models;
+using Epinova.ElasticSearch.Core.Models.Admin;
 using Epinova.ElasticSearch.Core.Models.Bulk;
 using Epinova.ElasticSearch.Core.Models.Converters;
 using Epinova.ElasticSearch.Core.Models.Mapping;
@@ -30,15 +31,22 @@ namespace Epinova.ElasticSearch.Core
     internal class CoreIndexer : ICoreIndexer
     {
         private static readonly ILogger _logger = LogManager.GetLogger(typeof(CoreIndexer));
+        private readonly IServerInfoService _serverInfoService;
         private readonly IElasticSearchSettings _settings;
         private readonly IHttpClientHelper _httpClientHelper;
         private readonly Mapping _mapping;
+        private readonly ServerInfo _serverInfo;
 
-        public CoreIndexer(IElasticSearchSettings settings, IHttpClientHelper httpClientHelper)
+        public CoreIndexer(
+            IServerInfoService serverInfoService,
+            IElasticSearchSettings settings,
+            IHttpClientHelper httpClientHelper)
         {
+            _serverInfoService = serverInfoService;
             _settings = settings;
             _httpClientHelper = httpClientHelper;
-            _mapping = new Mapping(settings, httpClientHelper);
+            _mapping = new Mapping(serverInfoService, settings, httpClientHelper);
+            _serverInfo = serverInfoService.GetInfo();
         }
 
         public event OnBeforeUpdateItem BeforeUpdateItem;
@@ -256,7 +264,7 @@ namespace Epinova.ElasticSearch.Core
                 json = JsonConvert.SerializeObject(mapping, jsonSettings);
                 var data = Encoding.UTF8.GetBytes(json);
                 var uri = $"{_settings.Host}/{indexName}/_mapping/{typeof(IndexItem).GetTypeName()}";
-                if(Server.Info.Version.Major >= 7)
+                if(_serverInfo.Version >= Constants.IncludeTypeNameAddedVersion)
                 {
                     uri += "?include_type_name=true";
                 }
@@ -435,7 +443,7 @@ namespace Epinova.ElasticSearch.Core
                 var json = JsonConvert.SerializeObject(mapping, jsonSettings);
                 var data = Encoding.UTF8.GetBytes(json);
                 var uri = $"{_settings.Host}/{index}/_mapping/{indexType.GetTypeName()}";
-                if(Server.Info.Version.Major >= 7)
+                if(_serverInfo.Version >= Constants.IncludeTypeNameAddedVersion)
                 {
                     uri += "?include_type_name=true";
                 }
@@ -547,7 +555,7 @@ namespace Epinova.ElasticSearch.Core
 
         private void PerformUpdate(string id, object objectToUpdate, Type objectType, string indexName)
         {
-            var indexing = new Indexing(_settings, _httpClientHelper);
+            var indexing = new Indexing(_serverInfoService, _settings, _httpClientHelper);
             if(!indexing.IndexExists(indexName))
             {
                 _logger.Error($"Index '{indexName}' not found");
