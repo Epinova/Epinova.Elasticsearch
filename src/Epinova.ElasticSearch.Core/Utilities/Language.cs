@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
-using System.Linq;
 using System.Web;
 using Epinova.ElasticSearch.Core.Models.Mapping;
 
@@ -92,7 +91,7 @@ namespace Epinova.ElasticSearch.Core.Utilities
         {
             var headers = HttpContext.Current?.Request?.Headers;
 
-            if(headers?.AllKeys.Contains("X-EPiContentLanguage") == true)
+            if(headers?["X-EPiContentLanguage"] != null)
             {
                 return CultureInfo.CreateSpecificCulture(headers["X-EPiContentLanguage"]);
             }
