@@ -32,7 +32,7 @@ namespace TestData
 {
     public static class Factory
     {
-        private static readonly Random Random = new Random();
+        private static readonly Random _random = new Random();
 
         internal static ServiceLocationMock SetupServiceLocator()
         {
@@ -159,7 +159,7 @@ namespace TestData
 
             for(var i = 0; i < words; i++)
             {
-                instance += GetString(Random.Next(3, 8)) + " ";
+                instance += GetString(_random.Next(3, 8)) + " ";
             }
 
             return instance.Trim();
