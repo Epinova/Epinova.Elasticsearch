@@ -72,8 +72,16 @@ for:
       - master
 
   deploy:
-    provider: NuGet
+  - provider: NuGet
     api_key:
       secure: 6LdiQeX2LTezBZsshcBSJ2oUqVNDPkKj4y2VpHiM+wtg86SAJd/hzJl0mgavblhr
     skip_symbols: false
     artifact: /.*\.nupkg/
+
+  - provider: GitHub
+    release: v$(appveyor_build_version)
+    auth_token:
+      secure: EnrSFA6ns5MzVPNdNGq0Gbu/NuNbcw5FyZF0c/KRo/hor7TmKCg4SQ4ad6FGn+3P
+    draft: true
+    artifact: /.*\.nupkg/
+    description: 
