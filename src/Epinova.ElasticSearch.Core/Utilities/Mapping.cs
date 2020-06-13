@@ -15,7 +15,7 @@ namespace Epinova.ElasticSearch.Core.Utilities
 {
     internal class Mapping
     {
-        private static readonly ILogger Logger = LogManager.GetLogger(typeof(Mapping));
+        private static readonly ILogger _logger = LogManager.GetLogger(typeof(Mapping));
 
         private static readonly Dictionary<MappingType, Type[]> TypeRegister = new Dictionary<MappingType, Type[]>
         {
@@ -26,12 +26,16 @@ namespace Epinova.ElasticSearch.Core.Utilities
             {MappingType.Integer, new[] { typeof(Enum), typeof(byte?), typeof(byte), typeof(int), typeof (int?), typeof (uint), typeof (uint?), typeof (short), typeof (short?)}},
             {MappingType.Long, new[] {typeof (long), typeof (long?)}}
         };
-
+        private readonly IServerInfoService _serverInfoService;
         private readonly IElasticSearchSettings _settings;
         private readonly IHttpClientHelper _httpClientHelper;
 
-        public Mapping(IElasticSearchSettings settings, IHttpClientHelper httpClientHelper)
+        public Mapping(
+            IServerInfoService serverInfoService,
+            IElasticSearchSettings settings,
+            IHttpClientHelper httpClientHelper)
         {
+            _serverInfoService = serverInfoService;
             _settings = settings;
             _httpClientHelper = httpClientHelper;
         }
@@ -122,7 +126,7 @@ namespace Epinova.ElasticSearch.Core.Utilities
             string mappingUri = GetMappingUri(index, typeName);
             IndexMapping mappings;
 
-            Logger.Debug($"GetIndexMapping for: {typeName}. Uri: {mappingUri}");
+            _logger.Debug($"GetIndexMapping for: {typeName}. Uri: {mappingUri}");
 
             try
             {
@@ -130,7 +134,7 @@ namespace Epinova.ElasticSearch.Core.Utilities
             }
             catch(Exception ex)
             {
-                Logger.Debug("Failed to get existing mapping from uri '" + mappingUri + "'", ex);
+                _logger.Debug("Failed to get existing mapping from uri '" + mappingUri + "'", ex);
                 mappings = new IndexMapping();
             }
 
@@ -149,7 +153,7 @@ namespace Epinova.ElasticSearch.Core.Utilities
             mappingJson = mappingJson.Replace("\"" + typeName + "\":", "");
             mappingJson = mappingJson.Replace("\"mappings\":", "");
 
-            Regex regex = new Regex(Regex.Escape("}}}"), RegexOptions.RightToLeft);
+            var regex = new Regex(Regex.Escape("}}}"), RegexOptions.RightToLeft);
             mappingJson = regex.Replace(mappingJson, "", 1);
             regex = new Regex(Regex.Escape("{{{"));
             mappingJson = regex.Replace(mappingJson, "", 1);
@@ -160,7 +164,7 @@ namespace Epinova.ElasticSearch.Core.Utilities
         private string GetMappingUri(string index, string typeName)
         {
             var url = $"{_settings.Host}/{index}/{typeName}/_mapping";
-            if(Server.Info.Version.Major >= 7)
+            if(_serverInfoService.GetInfo().Version >= Constants.IncludeTypeNameAddedVersion)
             {
                 url += "?include_type_name=true";
             }

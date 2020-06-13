@@ -29,6 +29,7 @@ namespace Core.Tests.Engine
         private void SetupEngineMock(string jsonFile) =>
             _engine = new TestableSearchEngine(
                 jsonFile,
+                _fixture.ServiceLocationMock.ServerInfoMock.Object,
                 _fixture.ServiceLocationMock.SettingsMock.Object,
                 _fixture.ServiceLocationMock.HttpClientMock.Object);
 

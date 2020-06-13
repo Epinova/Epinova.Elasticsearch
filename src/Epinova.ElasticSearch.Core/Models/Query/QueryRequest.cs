@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using Epinova.ElasticSearch.Core.Enums;
 using Epinova.ElasticSearch.Core.Models.Converters;
 using Epinova.ElasticSearch.Core.Utilities;
@@ -11,10 +10,7 @@ namespace Epinova.ElasticSearch.Core.Models.Query
     internal class QueryRequest : RequestBase
     {
         private readonly List<Sort> _sortFields;
-
-        internal static readonly Func<string> ScriptField = () => Server.Info.Version >= Core.Constants.InlineVsSourceVersion
-            ? JsonNames.ScriptSource
-            : JsonNames.Inline;
+        internal readonly string _scriptField;
 
         public QueryRequest(QuerySetup querySetup)
         {
@@ -22,6 +18,10 @@ namespace Epinova.ElasticSearch.Core.Models.Query
             Query.SearchText = querySetup.SearchText.ToLower();
 
             _sortFields = querySetup.SortFields;
+            _scriptField = querySetup.ServerVersion >= Core.Constants.InlineVsSourceVersion
+                ? JsonNames.ScriptSource
+                : JsonNames.Inline;
+
             From = querySetup.From;
             Size = querySetup.Size;
             Operator = querySetup.Operator;
@@ -54,7 +54,7 @@ namespace Epinova.ElasticSearch.Core.Models.Query
                                         new JProperty(JsonNames.Script,
                                         new JObject(
                                             new JProperty(JsonNames.Lang, scriptSort.Language),
-                                            new JProperty(ScriptField(), scriptSort.Script),
+                                            new JProperty(_scriptField, scriptSort.Script),
                                             new JProperty(JsonNames.Params, scriptSort.Parameters != null ? JObject.FromObject(scriptSort.Parameters) : null)
                                     ))))));
                     }

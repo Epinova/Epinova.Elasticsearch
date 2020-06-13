@@ -17,7 +17,8 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Controllers
             ILanguageBranchRepository languageBranchRepository,
             IAutoSuggestRepository autoSuggestRepository,
             IElasticSearchSettings settings,
-            IHttpClientHelper httpClientHelper) : base(settings, httpClientHelper, languageBranchRepository)
+            IServerInfoService serverInfoService,
+            IHttpClientHelper httpClientHelper) : base(serverInfoService, settings, httpClientHelper, languageBranchRepository)
         {
             _autoSuggestRepository = autoSuggestRepository;
         }
@@ -25,7 +26,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Controllers
         [Authorize(Roles = RoleNames.ElasticsearchAdmins)]
         public ActionResult Index(string languageId = null)
         {
-            AutoSuggestViewModel model = new AutoSuggestViewModel(languageId);
+            var model = new AutoSuggestViewModel(languageId);
 
             foreach(var language in Languages)
             {

@@ -26,8 +26,9 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Controllers
             IBestBetsRepository bestBetsRepository,
             ILanguageBranchRepository languageBranchRepository,
             IElasticSearchSettings settings,
+            IServerInfoService serverInfoService,
             IHttpClientHelper httpClientHelper)
-            : base(settings, httpClientHelper, languageBranchRepository)
+            : base(serverInfoService, settings, httpClientHelper, languageBranchRepository)
         {
             _contentLoader = contentLoader;
             _bestBetsRepository = bestBetsRepository;

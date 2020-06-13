@@ -11,6 +11,6 @@ namespace Core.Tests.Admin
         [InlineData(null)]
         [InlineData(" ")]
         public void Ctor_NullOrEmptyIndexName_Throws(string indexName)
-            => Assert.Throws<InvalidOperationException>(() => new Index(null, null, indexName));
+            => Assert.Throws<InvalidOperationException>(() => new Index(null, null, null, indexName));
     }
 }

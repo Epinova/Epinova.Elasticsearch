@@ -1,4 +1,4 @@
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 
 namespace Epinova.ElasticSearch.Core.Models.Admin
 {
@@ -16,14 +16,8 @@ namespace Epinova.ElasticSearch.Core.Models.Admin
         [JsonProperty("v")]
         public string Version { get; private set; }
 
-        [JsonIgnore]
-        public string Ip => Server.Info.Version.Major >= 5 ? IpInternal5 : IpInternal2;
-
-        [JsonProperty("i")]
-        internal string IpInternal2 { get; set; }
-
         [JsonProperty("http")]
-        internal string IpInternal5 { get; set; }
+        public string Ip { get; set; }
 
         [JsonProperty("d")]
         public string HddAvailable { get; private set; }

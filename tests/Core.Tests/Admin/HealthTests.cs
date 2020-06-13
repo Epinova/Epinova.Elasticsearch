@@ -63,7 +63,7 @@ namespace Core.Tests.Admin
 
             Assert.True(node.Master);
             Assert.Equal("260.6gb", node.HddAvailable);
-            Assert.Equal("127.0.0.1:9200", node.IpInternal5 + node.IpInternal2);
+            Assert.Equal("127.0.0.1:9200", node.Ip);
             Assert.Equal("25.6gb", node.MemoryCurrent);
             Assert.Equal("63.9gb", node.MemoryTotal);
             Assert.Equal("kJLWnVe", node.Name);

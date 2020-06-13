@@ -16,10 +16,11 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Controllers
 
         public ElasticIndexInspectorController(
             IElasticSearchSettings settings,
+            IServerInfoService serverInfoService,
             IHttpClientHelper httpClientHelper,
             IInspectorRepository inspectorRepository,
             ILanguageBranchRepository languageBranchRepository)
-            : base(settings, httpClientHelper, languageBranchRepository)
+            : base(serverInfoService, settings, httpClientHelper, languageBranchRepository)
         {
             _inspectorRepository = inspectorRepository;
         }

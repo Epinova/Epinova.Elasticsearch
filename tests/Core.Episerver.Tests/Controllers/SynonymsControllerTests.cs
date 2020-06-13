@@ -24,6 +24,7 @@ namespace Core.Episerver.Tests.Controllers
                 _fixture.ServiceLocationMock.LanguageBranchRepositoryMock.Object,
                 _fixture.ServiceLocationMock.SynonymRepositoryMock.Object,
                 _fixture.ServiceLocationMock.SettingsMock.Object,
+                _fixture.ServiceLocationMock.ServerInfoMock.Object,
                 _fixture.ServiceLocationMock.HttpClientMock.Object);
         }
 

@@ -43,6 +43,7 @@ namespace Core.Episerver.Tests.Controllers
                 languageBranchRepositoryMock.Object,
                 _autoSuggestRepositoryMock.Object,
                 fixture.ServiceLocationMock.SettingsMock.Object,
+                fixture.ServiceLocationMock.ServerInfoMock.Object,
                 fixture.ServiceLocationMock.HttpClientMock.Object);
         }
 

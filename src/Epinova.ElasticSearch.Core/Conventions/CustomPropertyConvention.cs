@@ -12,10 +12,10 @@ namespace Epinova.ElasticSearch.Core.Conventions
     public class CustomPropertyConvention<T>
     {
         private readonly Indexing _instance;
-        private static readonly ILogger Logger = LogManager.GetLogger(typeof(CustomPropertyConvention<T>));
+        private static readonly ILogger _logger = LogManager.GetLogger(typeof(CustomPropertyConvention<T>));
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="CustomPropertyConvention{T}"/> class 
+        /// Initializes a new instance of the <see cref="CustomPropertyConvention{T}"/> class
         /// </summary>
         /// <param name="instance">The <see cref="Indexing"/> instance</param>
         public CustomPropertyConvention(Indexing instance)
@@ -24,11 +24,11 @@ namespace Epinova.ElasticSearch.Core.Conventions
         }
 
         /// <summary>
-        /// Include a custom property when indexing this type. 
-        /// The name of the property will be the same as the property/method in the <paramref name="fieldSelector"/> parameter.  
+        /// Include a custom property when indexing this type.
+        /// The name of the property will be the same as the property/method in the <paramref name="fieldSelector"/> parameter.
         /// <para>
-        /// If you need more control over the name, and/or the method supplying the data to be indexed has 
-        /// no relations to the type, use the overload <c>IncludeField(string, Expression, bool)</c> 
+        /// If you need more control over the name, and/or the method supplying the data to be indexed has
+        /// no relations to the type, use the overload <c>IncludeField(string, Expression, bool)</c>
         /// </para>
         /// </summary>
         /// <example>
@@ -46,14 +46,14 @@ namespace Epinova.ElasticSearch.Core.Conventions
         }
 
         /// <summary>
-        /// Include a custom property when indexing this type. 
+        /// Include a custom property when indexing this type.
         /// </summary>
         /// <param name="fieldName">The name the property will be indexed as</param>
         /// <param name="fieldSelector">An expression, typically a property or an instance/extension method.</param>
         /// <param name="stem">Should stemming be applied for this property?</param>
         public Indexing IncludeField<TProperty>(string fieldName, Expression<Func<T, TProperty>> fieldSelector, bool stem = false)
         {
-            Logger.Debug("Including field: " + fieldName);
+            _logger.Debug("Including field: " + fieldName);
 
             if(!String.IsNullOrEmpty(fieldName))
             {
@@ -72,7 +72,7 @@ namespace Epinova.ElasticSearch.Core.Conventions
         }
 
         /// <summary>
-        /// Apply stemming for field <paramref name="fieldSelector"/> 
+        /// Apply stemming for field <paramref name="fieldSelector"/>
         /// </summary>
         /// <param name="fieldSelector">An expression, typically a property or an instance/extension method.</param>
         public Indexing StemField<TProperty>(Expression<Func<T, TProperty>> fieldSelector)
@@ -84,7 +84,7 @@ namespace Epinova.ElasticSearch.Core.Conventions
                 return _instance;
             }
 
-            Logger.Debug("Adding stemming for field: " + fieldName);
+            _logger.Debug("Adding stemming for field: " + fieldName);
             WellKnownProperties.Analyze.Add(fieldName);
 
             return _instance;
@@ -153,7 +153,7 @@ namespace Epinova.ElasticSearch.Core.Conventions
                 }
                 else
                 {
-                    Suggestion suggestion = new Suggestion(typeof(T));
+                    var suggestion = new Suggestion(typeof(T));
                     suggestion.InputFields.Add(fieldName);
                     Indexing.Suggestions.Add(suggestion);
                 }

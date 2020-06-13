@@ -15,13 +15,11 @@ namespace Epinova.ElasticSearch.Core.Models.Admin
             Version = new Version(version);
         }
 
-
         [JsonProperty(JsonNames.Component)]
         public string Component { get; set; }
 
         [JsonProperty(JsonNames.PluginVersion)]
         public Version Version { get; set; } = new Version();
-
 
         public override string ToString()
             => $"{Component}: v{Version}";

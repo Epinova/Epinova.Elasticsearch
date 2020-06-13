@@ -23,21 +23,24 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Services
     [ServiceConfiguration(ServiceType = typeof(ISynonymRepository), Lifecycle = ServiceInstanceScope.Hybrid)]
     public class SynonymRepository : ISynonymRepository
     {
-        private static readonly ILogger Logger = LogManager.GetLogger(typeof(SynonymRepository));
+        private static readonly ILogger _logger = LogManager.GetLogger(typeof(SynonymRepository));
         private readonly IBlobFactory _blobFactory;
         private readonly IContentRepository _contentRepository;
         private readonly IElasticSearchSettings _settings;
+        private readonly IServerInfoService _serverInfoService;
         private readonly IHttpClientHelper _httpClientHelper;
 
         public SynonymRepository(
             IContentRepository contentRepository,
             IBlobFactory blobFactory,
             IElasticSearchSettings settings,
+            IServerInfoService serverInfoService,
             IHttpClientHelper httpClientHelper)
         {
             _contentRepository = contentRepository;
             _blobFactory = blobFactory;
             _settings = settings;
+            _serverInfoService = serverInfoService;
             _httpClientHelper = httpClientHelper;
         }
 
@@ -48,7 +51,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Services
                 index = _settings.GetDefaultIndexName(languageId);
             }
 
-            var indexing = new Indexing(_settings, _httpClientHelper);
+            var indexing = new Indexing(_serverInfoService, _settings, _httpClientHelper);
             indexing.Close(index);
 
             string[] synonymPairs = synonymsToAdd
@@ -60,12 +63,12 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Services
                 synonymPairs = new[] { "example_from,example_to" };
             }
 
-            Logger.Information(
+            _logger.Information(
                 $"Adding {synonymsToAdd.Count} synonyms for language:{languageId} and analyzer:{analyzer}");
 
-            if(Logger.IsDebugEnabled())
+            if(_logger.IsDebugEnabled())
             {
-                synonymPairs.ToList().ForEach(pair => Logger.Debug(pair));
+                synonymPairs.ToList().ForEach(pair => _logger.Debug(pair));
             }
 
             dynamic body = new
@@ -92,9 +95,9 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Services
 
             json = json.Replace("ANALYZERTOKEN", analyzer);
 
-            if(Logger.IsDebugEnabled())
+            if(_logger.IsDebugEnabled())
             {
-                Logger.Debug("SYNONYM JSON PAYLOAD:\n" + json);
+                _logger.Debug("SYNONYM JSON PAYLOAD:\n" + json);
             }
 
             var data = Encoding.UTF8.GetBytes(json);
@@ -112,7 +115,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Services
                 index = _settings.GetDefaultIndexName(languageId);
             }
 
-            var indexing = new Indexing(_settings, _httpClientHelper);
+            var indexing = new Indexing(_serverInfoService, _settings, _httpClientHelper);
 
             if(!indexing.IndexExists(index))
             {
@@ -136,7 +139,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Services
                 index = _settings.GetDefaultIndexName(languageId);
             }
 
-            var indexing = new Indexing(_settings, _httpClientHelper);
+            var indexing = new Indexing(_serverInfoService, _settings, _httpClientHelper);
 
             if(!indexing.IndexExists(index))
             {
@@ -167,7 +170,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Services
                     using(var reader = new StreamReader(stream))
                     {
                         string data = reader.ReadToEnd();
-                        Logger.Debug("Synonym data: " + data);
+                        _logger.Debug("Synonym data: " + data);
                         parsedSynonyms = data.Split('|');
                     }
                 }
@@ -185,7 +188,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Services
                 var isMultiword = arrowPos > firstCommaPos;
                 var splitToken = new[] { isMultiword ? "=>" : "," };
 
-                Logger.Debug("Synonym: " + synonym);
+                _logger.Debug("Synonym: " + synonym);
 
                 var pair = synonym.Split(splitToken, StringSplitOptions.None);
                 if(pair.Length > 1)
@@ -249,13 +252,13 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Services
 
             _contentRepository.Save(contentFile, SaveAction.Publish, AccessLevel.NoAccess);
 
-            if(Logger.IsDebugEnabled())
+            if(_logger.IsDebugEnabled())
             {
-                Logger.Debug("SaveBackup -> Name: " + contentFile.Name);
-                Logger.Debug("SaveBackup -> RouteSegment: " + contentFile.RouteSegment);
-                Logger.Debug("SaveBackup -> MimeType: " + contentFile.MimeType);
-                Logger.Debug("SaveBackup -> ContentLink: " + contentFile.ContentLink);
-                Logger.Debug("SaveBackup -> Status: " + contentFile.Status);
+                _logger.Debug("SaveBackup -> Name: " + contentFile.Name);
+                _logger.Debug("SaveBackup -> RouteSegment: " + contentFile.RouteSegment);
+                _logger.Debug("SaveBackup -> MimeType: " + contentFile.MimeType);
+                _logger.Debug("SaveBackup -> ContentLink: " + contentFile.ContentLink);
+                _logger.Debug("SaveBackup -> Status: " + contentFile.Status);
             }
         }
 

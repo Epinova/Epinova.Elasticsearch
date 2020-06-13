@@ -70,6 +70,7 @@ namespace Epinova.ElasticSearch.Core
         private string _indexName;
         private PrincipalInfo _aclPrincipal;
         private readonly IHttpClientHelper _httpClientHelper;
+        private readonly IServerInfoService _serverInfoService;
         private readonly IElasticSearchSettings _settings;
 
         public string IndexName
@@ -80,29 +81,33 @@ namespace Epinova.ElasticSearch.Core
 
         public CultureInfo CurrentLanguage => SearchLanguage;
 
-        internal ElasticSearchService(IElasticSearchSettings settings, IHttpClientHelper httpClientHelper)
+        internal ElasticSearchService(
+            IServerInfoService serverInfoService,
+            IElasticSearchSettings settings,
+            IHttpClientHelper httpClientHelper)
         {
-            SearchLanguage = CultureInfo.CurrentCulture;
-            SizeValue = 10;
-            UseBoosting = true;
-            SearchType = typeof(IndexItem);
             BoostFields = new Dictionary<string, byte>();
-            _boostTypes = new Dictionary<Type, sbyte>();
             BoostAncestors = new Dictionary<int, sbyte>();
-            _gauss = new List<Gauss>();
+            ExcludedRoots = new Dictionary<int, bool>();
             SortFields = new List<Sort>();
             SearchFields = new List<string>();
-            _facetFields = new Dictionary<string, MappingType>();
+            SearchLanguage = CultureInfo.CurrentCulture;
+            SearchType = typeof(IndexItem);
+            SizeValue = 10;
             PostFilters = new List<Filter>();
             PostFilterGroups = new Dictionary<string, FilterGroupQuery>();
-            _ranges = new List<RangeBase>();
-            _engine = new SearchEngine(settings, httpClientHelper);
-            _builder = new QueryBuilder(settings, httpClientHelper);
+            UseBoosting = true;
+            _boostTypes = new Dictionary<Type, sbyte>();
+            _builder = new QueryBuilder(serverInfoService, settings, httpClientHelper);
+            _engine = new SearchEngine(serverInfoService, settings, httpClientHelper);
             _excludedTypes = new List<Type>();
-            ExcludedRoots = new Dictionary<int, bool>();
-            _usePostfilters = true;
+            _facetFields = new Dictionary<string, MappingType>();
+            _gauss = new List<Gauss>();
             _httpClientHelper = httpClientHelper;
+            _ranges = new List<RangeBase>();
+            _serverInfoService = serverInfoService;
             _settings = settings;
+            _usePostfilters = true;
         }
 
         public IElasticSearchService<T> Boost(Expression<Func<T, object>> fieldSelector, byte weight)
@@ -254,7 +259,7 @@ namespace Epinova.ElasticSearch.Core
 
         public IElasticSearchService<T> Get<T>()
         {
-            return new ElasticSearchService<T>(_settings, _httpClientHelper)
+            return new ElasticSearchService<T>(_serverInfoService, _settings, _httpClientHelper)
             {
                 Type = typeof(T),
                 SearchLanguage = SearchLanguage,
@@ -279,7 +284,7 @@ namespace Epinova.ElasticSearch.Core
         public IElasticSearchService<T> Search<T>(string searchText, string facetFieldName,
             Operator @operator = Operator.Or)
         {
-            return new ElasticSearchService<T>(_settings, _httpClientHelper)
+            return new ElasticSearchService<T>(_serverInfoService, _settings, _httpClientHelper)
             {
                 Type = typeof(T),
                 SearchText = searchText,
@@ -348,6 +353,8 @@ namespace Epinova.ElasticSearch.Core
 
         private QuerySetup CreateQuery(bool applyDefaultFilters, params string[] fields)
         {
+            var serverVersion = _serverInfoService.GetInfo().Version;
+
             return new QuerySetup
             {
                 ApplyDefaultFilters = applyDefaultFilters,
@@ -360,7 +367,8 @@ namespace Epinova.ElasticSearch.Core
                 AppendAclFilters = _appendAclFilters,
                 AclPrincipal = _aclPrincipal,
                 Gauss = _gauss,
-                ScriptScore = CreateScriptScore(),
+                ScriptScore = CreateScriptScore(serverVersion),
+                ServerVersion = serverVersion,
                 Type = Type,
                 MoreLikeId = MoreLikeId,
                 MltMinTermFreq = MltMinTermFreq,
@@ -392,7 +400,7 @@ namespace Epinova.ElasticSearch.Core
             };
         }
 
-        private ScriptScore CreateScriptScore()
+        private ScriptScore CreateScriptScore(Version version)
         {
             if(String.IsNullOrEmpty(_customScriptScoreSource))
             {
@@ -408,7 +416,7 @@ namespace Epinova.ElasticSearch.Core
                 }
             };
 
-            if(Server.Info.Version >= Constants.InlineVsSourceVersion)
+            if(version >= Constants.InlineVsSourceVersion)
             {
                 scriptScore.Script.Source = _customScriptScoreSource;
             }
@@ -422,7 +430,7 @@ namespace Epinova.ElasticSearch.Core
 
         public IElasticSearchService<T> MoreLikeThis<T>(string id, int minimumTermFrequency = 1, int maxQueryTerms = 25, int minimumDocFrequency = 3, int minimumWordLength = 3)
         {
-            return new ElasticSearchService<T>(_settings, _httpClientHelper)
+            return new ElasticSearchService<T>(_serverInfoService, _settings, _httpClientHelper)
             {
                 MoreLikeId = id,
                 MltMinTermFreq = minimumTermFrequency,
@@ -447,7 +455,7 @@ namespace Epinova.ElasticSearch.Core
 
         public IElasticSearchService<T> WildcardSearch<T>(string searchText)
         {
-            return new ElasticSearchService<T>(_settings, _httpClientHelper)
+            return new ElasticSearchService<T>(_serverInfoService, _settings, _httpClientHelper)
             {
                 Type = typeof(T),
                 SearchText = searchText,
@@ -467,7 +475,6 @@ namespace Epinova.ElasticSearch.Core
         public IElasticSearchService<T> StartFrom(int id)
         {
             RootId = id;
-
             return this;
         }
 
@@ -568,7 +575,6 @@ namespace Epinova.ElasticSearch.Core
         public IElasticSearchService<T> InField(Expression<Func<T, object>> fieldSelector, bool boost)
         {
             Boost(fieldSelector, Byte.MaxValue);
-
             return InField(fieldSelector);
         }
 

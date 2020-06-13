@@ -10,12 +10,17 @@ namespace Epinova.ElasticSearch.Core.Utilities
 {
     public class Indexing
     {
-        private static readonly ILogger Logger = LogManager.GetLogger(typeof(Indexing));
+        private static readonly ILogger _logger = LogManager.GetLogger(typeof(Indexing));
+        private readonly IServerInfoService _serverInfoService;
         private readonly IElasticSearchSettings _settings;
         private readonly IHttpClientHelper _httpClientHelper;
 
-        public Indexing(IElasticSearchSettings settings, IHttpClientHelper httpClientHelper)
+        public Indexing(
+            IServerInfoService serverInfoService,
+            IElasticSearchSettings settings,
+            IHttpClientHelper httpClientHelper)
         {
+            _serverInfoService = serverInfoService;
             _settings = settings;
             _httpClientHelper = httpClientHelper;
         }
@@ -24,14 +29,14 @@ namespace Epinova.ElasticSearch.Core.Utilities
         {
             var uri = $"{_settings.Host}/{indexName}";
 
-            Logger.Information("Deleting index '" + indexName + "'");
+            _logger.Information("Deleting index '" + indexName + "'");
 
             _httpClientHelper.Delete(new Uri(uri));
         }
 
         internal void CreateIndex(string indexName)
         {
-            Logger.Information("Creating index '" + indexName + "'");
+            _logger.Information("Creating index '" + indexName + "'");
 
             var settings = new
             {
@@ -57,21 +62,21 @@ namespace Epinova.ElasticSearch.Core.Utilities
 
         internal void Open(string indexName)
         {
-            Logger.Information("Opening index");
+            _logger.Information("Opening index");
 
             _httpClientHelper.Post(GetUri(indexName, "_open"), (byte[])null);
 
-            var index = new Index(_settings, _httpClientHelper, indexName);
+            var index = new Index(_serverInfoService, _settings, _httpClientHelper, indexName);
             index.WaitForStatus();
         }
 
         internal void Close(string indexName)
         {
-            Logger.Information($"Closing index with delay of {_settings.CloseIndexDelay} ms");
+            _logger.Information($"Closing index with delay of {_settings.CloseIndexDelay} ms");
 
             _httpClientHelper.Post(GetUri(indexName, "_close"), (byte[])null);
 
-            var index = new Index(_settings, _httpClientHelper, indexName);
+            var index = new Index(_serverInfoService, _settings, _httpClientHelper, indexName);
             index.WaitForStatus();
         }
 
