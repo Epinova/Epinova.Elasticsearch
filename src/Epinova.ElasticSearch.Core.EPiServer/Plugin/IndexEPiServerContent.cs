@@ -80,6 +80,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Plugin
                 BeforeIndexContent(EventArgs.Empty);
             }
 
+            var failed = false;
             var finalStatus = new StringBuilder();
             var skippedReason = new StringBuilder();
             var results = new BulkBatchResult();
@@ -175,13 +176,18 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Plugin
             catch(Exception ex)
             {
                 _logger.Error(ex.Message, ex);
-                finalStatus.AppendLine();
-                finalStatus.AppendLine(ex.Message);
-                finalStatus.Append("<pre>").Append(ex.StackTrace).AppendLine("</pre>");
+                finalStatus
+                    .AppendLine()
+                    .AppendLine(ex.Message)
+                    .AppendLine()
+                    .AppendLine("Stacktrace:")
+                    .AppendLine(ex.StackTrace);
+
+                failed = true;
                 // If we re-throw here, stacktrace won't be displayed
             }
 
-            var finishedBuilder = new StringBuilder($"Processed {results.Batches.Count} batches, for a total of {results.Batches.Sum(b => b?.Items?.Length ?? 0)} items to Elasticsearch index.");
+            var finishedBuilder = new StringBuilder($"Processed {results.Batches.Count} batches, for a total of {results.Batches.Sum(b => b?.Items?.Length ?? 0)} items to Elasticsearch index.\n");
 
             for(var i = 1; i <= results.Batches.Count; i++)
             {
@@ -200,15 +206,20 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Plugin
                 }
             }
 
-            finalStatus.Insert(0, finishedBuilder.ToString().Replace("\n", "<br/>"));
+            finalStatus.Insert(0, finishedBuilder.ToString());
             OnStatusChanged(finalStatus.ToString());
 
             _logger.Information(skippedReason.ToString());
             _logger.Information(finishedBuilder.ToString());
 
-            finalStatus.AppendLine(skippedReason.ToString().Replace("\n", "<br/>"));
+            finalStatus.AppendLine(skippedReason.ToString());
 
-            return finalStatus.ToString();
+            var status = finalStatus.ToString().Replace("\n", "<br/>");
+
+            if(failed)
+                throw new Exception(status);
+
+            return status;
         }
 
         protected virtual List<ContentReference> GetContentReferences()
@@ -314,7 +325,8 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Plugin
                 }
                 catch(Exception ex)
                 {
-                    _logger.Warning("Failed to update mappings", ex);
+                    _logger.Error("Failed to update mappings", ex);
+                    throw;
                 }
             }
         }
