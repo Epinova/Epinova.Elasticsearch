@@ -433,12 +433,17 @@ namespace Epinova.ElasticSearch.Core.Engine
 
         private static void TryLogErrors(WebException webException)
         {
+            if(webException?.Response is null)
+            {
+                return;
+            }
+
             string error = null;
 
             // Assume the response is json
             try
             {
-                _logger.Error($"Got status: {webException?.Status}");
+                _logger.Error($"Got status: {webException.Status}");
 
                 using(var reader = new StreamReader(webException.Response.GetResponseStream()))
                 {

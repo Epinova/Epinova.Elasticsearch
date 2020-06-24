@@ -26,21 +26,6 @@ namespace Epinova.ElasticSearch.Core
         public IElasticSearchService<T> Range(string fieldName, DateTime greaterThan, DateTime? lessThan = null)
             => CreateRange(fieldName, greaterThan, lessThan);
 
-        public IElasticSearchService<T> RangeInclusive(string fieldName, DateTime greaterThanOrEqualTo, DateTime? lessThanOrEqualTo = null)
-            => CreateRange(fieldName, greaterThanOrEqualTo, lessThanOrEqualTo, true);
-
-        public IElasticSearchService<T> RangeInclusive(string fieldName, double greaterThanOrEqualTo, double? lessThanOrEqualTo = null)
-            => CreateRange(fieldName, greaterThanOrEqualTo, lessThanOrEqualTo, true);
-
-        public IElasticSearchService<T> RangeInclusive(string fieldName, long greaterThanOrEqualTo, long? lessThanOrEqualTo = null)
-            => CreateRange(fieldName, greaterThanOrEqualTo, lessThanOrEqualTo, true);
-
-        public IElasticSearchService<T> RangeInclusive(string fieldName, decimal greaterThanOrEqualTo, decimal? lessThanOrEqualTo = null)
-            => CreateRange(fieldName, greaterThanOrEqualTo, lessThanOrEqualTo, true);
-
-        public IElasticSearchService<T> RangeInclusive(string fieldName, int greaterThanOrEqualTo, int lessThanOrEqualTo)
-            => CreateIntegerRange(fieldName, greaterThanOrEqualTo, lessThanOrEqualTo, true);
-
         public IElasticSearchService<T> Range(Expression<Func<T, IntegerRange>> fieldSelector, int greaterThan, int lessThan)
             => CreateIntegerRange(GetFieldName(fieldSelector), greaterThan, lessThan);
 
@@ -55,6 +40,21 @@ namespace Epinova.ElasticSearch.Core
 
         public IElasticSearchService<T> Range(Expression<Func<T, DateTime?>> fieldSelector, DateTime greaterThan, DateTime? lessThan = null)
             => CreateRange(GetFieldName(fieldSelector), greaterThan, lessThan);
+
+        public IElasticSearchService<T> RangeInclusive(string fieldName, DateTime greaterThanOrEqualTo, DateTime? lessThanOrEqualTo = null)
+            => CreateRange(fieldName, greaterThanOrEqualTo, lessThanOrEqualTo, true);
+
+        public IElasticSearchService<T> RangeInclusive(string fieldName, double greaterThanOrEqualTo, double? lessThanOrEqualTo = null)
+            => CreateRange(fieldName, greaterThanOrEqualTo, lessThanOrEqualTo, true);
+
+        public IElasticSearchService<T> RangeInclusive(string fieldName, long greaterThanOrEqualTo, long? lessThanOrEqualTo = null)
+            => CreateRange(fieldName, greaterThanOrEqualTo, lessThanOrEqualTo, true);
+
+        public IElasticSearchService<T> RangeInclusive(string fieldName, decimal greaterThanOrEqualTo, decimal? lessThanOrEqualTo = null)
+            => CreateRange(fieldName, greaterThanOrEqualTo, lessThanOrEqualTo, true);
+
+        public IElasticSearchService<T> RangeInclusive(string fieldName, int greaterThanOrEqualTo, int lessThanOrEqualTo)
+            => CreateIntegerRange(fieldName, greaterThanOrEqualTo, lessThanOrEqualTo, true);
 
         public IElasticSearchService<T> RangeInclusive(Expression<Func<T, DateTime?>> fieldSelector, DateTime greaterThanOrEqualTo, DateTime? lessThanOrEqualTo = null)
             => CreateRange(GetFieldName(fieldSelector), greaterThanOrEqualTo, lessThanOrEqualTo, true);
