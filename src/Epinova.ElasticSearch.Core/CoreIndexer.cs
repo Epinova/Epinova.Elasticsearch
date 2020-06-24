@@ -275,7 +275,8 @@ namespace Epinova.ElasticSearch.Core
             }
             catch(Exception ex)
             {
-                HandleMappingError(type, ex, json, oldJson, mapping);
+                var message = HandleMappingError(type, ex, json, oldJson, mapping) + " \n\n" + ex.Message;
+                throw new Exception(message);
             }
         }
 
@@ -339,8 +340,9 @@ namespace Epinova.ElasticSearch.Core
 
             language = language ?? _settings.GetLanguage(index);
             var indexableProperties = GetIndexableProperties(type, optIn);
+            var typeName = type?.Name;
 
-            _logger.Information("IndexableProperties for " + type?.Name + ": " + String.Join(", ", indexableProperties.Select(p => p.Name)));
+            _logger.Information("IndexableProperties for " + typeName + ": " + String.Join(", ", indexableProperties.Select(p => p.Name)));
 
             // Get existing mapping
             IndexMapping mapping = _mapping.GetIndexMapping(indexType, null, index);
@@ -351,111 +353,104 @@ namespace Epinova.ElasticSearch.Core
             mapping.Properties.Remove(DefaultFields.DidYouMean);
             mapping.Properties.Remove(DefaultFields.Suggest);
 
-            try
+            foreach(var prop in indexableProperties)
             {
-                foreach(var prop in indexableProperties)
+                var propName = prop.Name;
+                IndexMappingProperty propertyMapping = mapping.Properties.ContainsKey(propName)
+                        ? mapping.Properties[propName]
+                        : Language.GetPropertyMapping(language, prop.Type, prop.Analyzable);
+
+                string mappingType = Mapping.GetMappingTypeAsString(prop.Type);
+
+                // If mapping with same name exists, use its type. 
+                // Different name/type combos is not allowed.
+                if(mapping.Properties.ContainsKey(propName))
                 {
-                    string propName = prop.Name;
-                    IndexMappingProperty propertyMapping = mapping.Properties.ContainsKey(prop.Name)
-                            ? mapping.Properties[prop.Name]
-                            : Language.GetPropertyMapping(language, prop.Type, prop.Analyzable);
-
-                    string mappingType = Mapping.GetMappingTypeAsString(prop.Type);
-
-                    // If mapping with same name exists, use its type. 
-                    // Different name/type combos is not allowed.
-                    if(mapping.Properties.ContainsKey(prop.Name))
+                    string existingType = mapping.Properties[propName].Type;
+                    if(mappingType != existingType)
                     {
-                        string existingType = mapping.Properties[prop.Name].Type;
-                        if(mappingType != existingType)
-                        {
-                            _logger.Warning($"Conflicting mapping type '{mappingType}' for property '{propName}' detected. Using already mapped type '{existingType}'");
-                        }
-
-                        mappingType = existingType;
+                        _logger.Warning($"Conflicting mapping type '{mappingType}' for property '{propName}' detected. Using already mapped type '{existingType}'");
                     }
 
-                    var analyzerFull = Language.GetLanguageAnalyzer(language);
-                    var analyzerSimple = Language.GetSimpleLanguageAnalyzer(language);
+                    mappingType = existingType;
+                }
 
-                    if(prop.Analyzable && language != null)
+                var analyzerFull = Language.GetLanguageAnalyzer(language);
+                var analyzerSimple = Language.GetSimpleLanguageAnalyzer(language);
+
+                if(prop.Analyzable && language != null)
+                {
+                    propertyMapping.Analyzer = analyzerFull;
+                }
+                else if(!WellKnownProperties.IgnoreAnalyzer.Contains(propName)
+                    && language != null
+                    && mappingType == nameof(MappingType.Text).ToLower()
+                    && propertyMapping.Analyzer != analyzerFull)
+                {
+                    propertyMapping.Analyzer = analyzerSimple;
+                }
+
+                if(prop.IncludeInDidYouMean)
+                {
+                    if(propertyMapping.CopyTo == null || propertyMapping.CopyTo.Length == 0)
                     {
-                        propertyMapping.Analyzer = analyzerFull;
+                        propertyMapping.CopyTo = new[] { DefaultFields.DidYouMean };
                     }
-                    else if(!WellKnownProperties.IgnoreAnalyzer.Contains(prop.Name)
-                        && language != null
-                        && mappingType == nameof(MappingType.Text).ToLower()
-                        && propertyMapping.Analyzer != analyzerFull)
+                    else if(!propertyMapping.CopyTo.Contains(DefaultFields.DidYouMean))
                     {
-                        propertyMapping.Analyzer = analyzerSimple;
-                    }
-
-                    if(prop.IncludeInDidYouMean)
-                    {
-                        if(propertyMapping.CopyTo == null || propertyMapping.CopyTo.Length == 0)
-                        {
-                            propertyMapping.CopyTo = new[] { DefaultFields.DidYouMean };
-                        }
-                        else if(!propertyMapping.CopyTo.Contains(DefaultFields.DidYouMean))
-                        {
-                            propertyMapping.CopyTo = propertyMapping.CopyTo.Concat(new[] { DefaultFields.DidYouMean }).ToArray();
-                        }
-                    }
-
-                    // If mapping with different analyzer exists, use its analyzer. 
-                    if(!WellKnownProperties.IgnoreAnalyzer.Contains(prop.Name) && mapping.Properties.ContainsKey(prop.Name))
-                    {
-                        string existingAnalyzer = mapping.Properties[prop.Name].Analyzer;
-                        if(propertyMapping.Analyzer != existingAnalyzer)
-                        {
-                            _logger.Warning($"Conflicting mapping analyzer for property '{propName}' detected. Using already mapped analyzer '{existingAnalyzer}'");
-                        }
-
-                        propertyMapping.Analyzer = existingAnalyzer;
-                    }
-
-                    if(String.IsNullOrEmpty(propertyMapping.Type) || propertyMapping.Type != mappingType)
-                    {
-                        propertyMapping.Type = mappingType;
-                    }
-
-                    mapping.AddOrUpdateProperty(propName, propertyMapping);
-
-                    if(_logger.IsDebugEnabled())
-                    {
-                        _logger.Debug($"Property mapping for '{propName}'");
-                        _logger.Debug(propertyMapping.ToString());
+                        propertyMapping.CopyTo = propertyMapping.CopyTo.Concat(new[] { DefaultFields.DidYouMean }).ToArray();
                     }
                 }
 
-                // Filter out properties with missing type
-                mapping.Properties = mapping.Properties
-                    .Where(p => p.Value.Type != null)
-                    .ToDictionary(d => d.Key, d => d.Value);
-
-                if(!mapping.IsDirty)
+                // If mapping with different analyzer exists, use its analyzer. 
+                if(!WellKnownProperties.IgnoreAnalyzer.Contains(propName) && mapping.Properties.ContainsKey(propName))
                 {
-                    _logger.Debug("No change in mapping");
-                    return;
+                    string existingAnalyzer = mapping.Properties[propName].Analyzer;
+                    if(propertyMapping.Analyzer != existingAnalyzer)
+                    {
+                        _logger.Warning($"Conflicting mapping analyzer for property '{propName}' detected. Using already mapped analyzer '{existingAnalyzer}'");
+                    }
+
+                    propertyMapping.Analyzer = existingAnalyzer;
                 }
 
-                var jsonSettings = new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore };
-                var json = JsonConvert.SerializeObject(mapping, jsonSettings);
-                var data = Encoding.UTF8.GetBytes(json);
-                var uri = $"{_settings.Host}/{index}/_mapping/{indexType.GetTypeName()}";
-                if(_serverInfo.Version >= Constants.IncludeTypeNameAddedVersion)
+                if(String.IsNullOrEmpty(propertyMapping.Type) || propertyMapping.Type != mappingType)
                 {
-                    uri += "?include_type_name=true";
+                    propertyMapping.Type = mappingType;
                 }
 
-                _logger.Information("Update mapping:\n" + JToken.Parse(json).ToString(Formatting.Indented));
+                mapping.AddOrUpdateProperty(propName, propertyMapping);
 
-                _httpClientHelper.Put(new Uri(uri), data);
+                if(_logger.IsDebugEnabled())
+                {
+                    _logger.Debug($"Property mapping for '{propName}'");
+                    _logger.Debug(propertyMapping.ToString());
+                }
             }
-            catch(Exception ex)
+
+            // Filter out properties with missing type
+            mapping.Properties = mapping.Properties
+                .Where(p => p.Value.Type != null)
+                .ToDictionary(d => d.Key, d => d.Value);
+
+            if(!mapping.IsDirty)
             {
-                _logger.Error($"Failed to update mapping: {ex.Message}", ex);
+                _logger.Debug("No change in mapping");
+                return;
             }
+
+            var jsonSettings = new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore };
+            var json = JsonConvert.SerializeObject(mapping, jsonSettings);
+            var data = Encoding.UTF8.GetBytes(json);
+            var uri = $"{_settings.Host}/{index}/_mapping/{indexType.GetTypeName()}";
+            if(_serverInfo.Version >= Constants.IncludeTypeNameAddedVersion)
+            {
+                uri += "?include_type_name=true";
+            }
+
+            _logger.Information("Update mapping:\n" + JToken.Parse(json).ToString(Formatting.Indented));
+
+            _httpClientHelper.Put(new Uri(uri), data);
         }
 
         /// <summary>
@@ -591,12 +586,16 @@ namespace Epinova.ElasticSearch.Core
                    && dict.TryGetValue(DefaultFields.AttachmentData, out _);
         }
 
-        private void HandleMappingError(Type type, Exception ex, string json, string oldJson, IndexMapping mapping)
+        private string HandleMappingError(Type type, Exception ex, string json, string oldJson, IndexMapping mapping)
         {
-            _logger.Error($"Failed to update mappings for content of type '{type.Name}'\n. Properties with the same name but different type, " +
-                        "where one of the types is analyzable and the other is not, is often the cause of this error. Ie. 'string MainIntro' vs 'XhtmlString MainIntro'. \n" +
-                        "All properties with equal name must be of the same type or ignored from indexing with [Searchable(false)]. \n" +
-                        "Enable debug-logging to view further details.", ex);
+            var message = $"Failed to update mappings for content of type '{type.Name}.'\n" +
+                        "Properties with the same name and different type or stemming is often the cause of this error.\n" +
+                        "Ie. 'string MainIntro' in one type vs 'XhtmlString MainIntro' in another type, " +
+                        "or 'string MainIntro' in one type vs '[Stem]string MainIntro in another type.'\n" +
+                        "All properties with equal name must be of the same type and have the same analyzer, " +
+                        "or be ignored from indexing with [Searchable(false)].";
+
+            _logger.Error(message, ex);
 
             if(_logger.IsDebugEnabled())
             {
@@ -623,6 +622,8 @@ namespace Epinova.ElasticSearch.Core
                     _logger.Error("Failed to compare mappings", e);
                 }
             }
+
+            return message;
         }
     }
 }

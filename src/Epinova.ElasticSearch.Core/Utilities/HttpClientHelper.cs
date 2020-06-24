@@ -27,18 +27,11 @@ namespace Epinova.ElasticSearch.Core.Utilities
             data = data ?? new byte[0];
             Logger.Debug($"Uri: {uri}, Data:\n{data}");
 
-            try
-            {
-                HttpResponseMessage response = AsyncUtil.RunSync(() =>
-                    Client.PutAsync(uri, JsonContent(data))
-                );
+            HttpResponseMessage response = AsyncUtil.RunSync(() =>
+                Client.PutAsync(uri, JsonContent(data))
+            );
 
-                LogErrorIfNotSuccess(response);
-            }
-            catch(Exception ex)
-            {
-                Logger.Error("Request failed", ex);
-            }
+            LogAndThrowIfNotSuccess(response);
         }
 
         public async Task PutAsync(Uri uri, byte[] data = null) => await PutAsync(uri, data, CancellationToken.None).ConfigureAwait(false);
@@ -48,48 +41,33 @@ namespace Epinova.ElasticSearch.Core.Utilities
             data = data ?? new byte[0];
             Logger.Debug($"Uri: {uri}, Data:\n{data}");
 
-            try
-            {
-                HttpResponseMessage response = await Client.PutAsync(uri, JsonContent(data), cancellationToken).ConfigureAwait(false);
-                LogErrorIfNotSuccess(response);
-            }
-            catch(Exception ex)
-            {
-                Logger.Error("Request failed", ex);
-            }
+            HttpResponseMessage response = await Client.PutAsync(uri, JsonContent(data), cancellationToken).ConfigureAwait(false);
+            LogAndThrowIfNotSuccess(response);
         }
 
         public byte[] Post(Uri uri, Stream stream)
         {
             Logger.Debug($"Uri: {uri}, Data: (stream)");
 
-            try
+            using(var streamContent = new StreamContent(stream))
             {
-                using(var streamContent = new StreamContent(stream))
+                streamContent.Headers.ContentType = new MediaTypeHeaderValue("application/json");
+
+                var request = new HttpRequestMessage(HttpMethod.Post, uri)
                 {
-                    streamContent.Headers.ContentType = new MediaTypeHeaderValue("application/json");
+                    Content = streamContent
+                };
+                request.Headers.ConnectionClose = false;
 
-                    var request = new HttpRequestMessage(HttpMethod.Post, uri)
-                    {
-                        Content = streamContent
-                    };
-                    request.Headers.ConnectionClose = false;
+                HttpResponseMessage response = AsyncUtil.RunSync(() =>
+                    Client.SendAsync(request, HttpCompletionOption.ResponseHeadersRead)
+                );
 
-                    HttpResponseMessage response = AsyncUtil.RunSync(() =>
-                        Client.SendAsync(request, HttpCompletionOption.ResponseHeadersRead)
-                    );
+                LogAndThrowIfNotSuccess(response);
 
-                    LogErrorIfNotSuccess(response);
-
-                    return AsyncUtil.RunSync(() =>
-                          response.Content.ReadAsByteArrayAsync()
-                    );
-                }
-            }
-            catch(Exception ex)
-            {
-                Logger.Error("Request failed", ex);
-                return null;
+                return AsyncUtil.RunSync(() =>
+                      response.Content.ReadAsByteArrayAsync()
+                );
             }
         }
 
@@ -98,23 +76,15 @@ namespace Epinova.ElasticSearch.Core.Utilities
             data = data ?? new byte[0];
             Logger.Debug($"Uri: {uri}, Data:\n{data}");
 
-            try
-            {
-                HttpResponseMessage response = AsyncUtil.RunSync(() =>
-                      Client.PostAsync(uri, JsonContent(data))
-                );
+            HttpResponseMessage response = AsyncUtil.RunSync(() =>
+                  Client.PostAsync(uri, JsonContent(data))
+            );
 
-                LogErrorIfNotSuccess(response);
+            LogAndThrowIfNotSuccess(response);
 
-                return AsyncUtil.RunSync(() =>
-                      response.Content.ReadAsByteArrayAsync()
-                );
-            }
-            catch(Exception ex)
-            {
-                Logger.Error("Request failed", ex);
-                return null;
-            }
+            return AsyncUtil.RunSync(() =>
+                  response.Content.ReadAsByteArrayAsync()
+            );
         }
 
         public async Task<byte[]> PostAsync(Uri uri, byte[] data, CancellationToken cancellationToken)
@@ -122,17 +92,9 @@ namespace Epinova.ElasticSearch.Core.Utilities
             data = data ?? new byte[0];
             Logger.Debug($"Uri: {uri}, Data:\n{data}");
 
-            try
-            {
-                HttpResponseMessage response = await Client.PostAsync(uri, JsonContent(data), cancellationToken).ConfigureAwait(false);
-                LogErrorIfNotSuccess(response);
-                return await response.Content.ReadAsByteArrayAsync().ConfigureAwait(false);
-            }
-            catch(Exception ex)
-            {
-                Logger.Error("Request failed", ex);
-                return null;
-            }
+            HttpResponseMessage response = await Client.PostAsync(uri, JsonContent(data), cancellationToken).ConfigureAwait(false);
+            LogAndThrowIfNotSuccess(response);
+            return await response.Content.ReadAsByteArrayAsync().ConfigureAwait(false);
         }
 
         public string GetJson(Uri uri)
@@ -144,7 +106,7 @@ namespace Epinova.ElasticSearch.Core.Utilities
                 Client.SendAsync(request)
             );
 
-            response.EnsureSuccessStatusCode();
+            LogAndThrowIfNotSuccess(response);
 
             return AsyncUtil.RunSync(() =>
                 response.Content.ReadAsStringAsync()
@@ -230,7 +192,7 @@ namespace Epinova.ElasticSearch.Core.Utilities
             return statusCode == HttpStatusCode.OK;
         }
 
-        private static void LogErrorIfNotSuccess(HttpResponseMessage response)
+        private static void LogAndThrowIfNotSuccess(HttpResponseMessage response)
         {
             if(!response.IsSuccessStatusCode)
             {
@@ -240,15 +202,23 @@ namespace Epinova.ElasticSearch.Core.Utilities
                      response.Content.ReadAsStringAsync()
                 );
 
+                var errorMessage = "HTTP request failed";
+
                 // Assume the response is json
                 try
                 {
-                    Logger.Error(JToken.Parse(error).ToString(Formatting.Indented));
+                    var jToken = JToken.Parse(error);
+                    var reason = jToken?["error"]?["reason"]?.Value<string>();
+                    if(reason != null)
+                        errorMessage = reason;
+                    Logger.Error(jToken.ToString(Formatting.Indented));
                 }
                 catch
                 {
                     Logger.Error($"Could not parse error-response: {error}.\n Status: {(int)response.StatusCode} {response.StatusCode}");
                 }
+
+                throw new Exception(errorMessage);
             }
         }
 
