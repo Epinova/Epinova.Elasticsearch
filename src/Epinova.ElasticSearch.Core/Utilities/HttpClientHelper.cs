@@ -24,7 +24,7 @@ namespace Epinova.ElasticSearch.Core.Utilities
 
         public void Put(Uri uri, byte[] data = null)
         {
-            data = data ?? new byte[0];
+            data ??= Array.Empty<byte>();
             Logger.Debug($"Uri: {uri}, Data:\n{data}");
 
             HttpResponseMessage response = AsyncUtil.RunSync(() =>
@@ -38,18 +38,18 @@ namespace Epinova.ElasticSearch.Core.Utilities
 
         public async Task PutAsync(Uri uri, byte[] data, CancellationToken cancellationToken)
         {
-            data = data ?? new byte[0];
+            data ??= Array.Empty<byte>();
             Logger.Debug($"Uri: {uri}, Data:\n{data}");
 
             HttpResponseMessage response = await Client.PutAsync(uri, JsonContent(data), cancellationToken).ConfigureAwait(false);
             LogAndThrowIfNotSuccess(response);
         }
 
-        public byte[] Post(Uri uri, Stream stream)
+        public byte[] Post(Uri uri, Stream data = null)
         {
-            Logger.Debug($"Uri: {uri}, Data: (stream)");
+            Logger.Debug($"Uri: {uri}");
 
-            using(var streamContent = new StreamContent(stream))
+            using(var streamContent = new StreamContent(data))
             {
                 streamContent.Headers.ContentType = new MediaTypeHeaderValue("application/json");
 
@@ -73,7 +73,7 @@ namespace Epinova.ElasticSearch.Core.Utilities
 
         public byte[] Post(Uri uri, byte[] data = null)
         {
-            data = data ?? new byte[0];
+            data ??= Array.Empty<byte>();
             Logger.Debug($"Uri: {uri}, Data:\n{data}");
 
             HttpResponseMessage response = AsyncUtil.RunSync(() =>
@@ -89,7 +89,7 @@ namespace Epinova.ElasticSearch.Core.Utilities
 
         public async Task<byte[]> PostAsync(Uri uri, byte[] data, CancellationToken cancellationToken)
         {
-            data = data ?? new byte[0];
+            data ??= Array.Empty<byte>();
             Logger.Debug($"Uri: {uri}, Data:\n{data}");
 
             HttpResponseMessage response = await Client.PostAsync(uri, JsonContent(data), cancellationToken).ConfigureAwait(false);
@@ -211,7 +211,7 @@ namespace Epinova.ElasticSearch.Core.Utilities
                     var reason = jToken?["error"]?["reason"]?.Value<string>();
                     if(reason != null)
                         errorMessage = reason;
-                    Logger.Error(jToken.ToString(Formatting.Indented));
+                    Logger.Error(jToken?.ToString(Formatting.Indented));
                 }
                 catch
                 {

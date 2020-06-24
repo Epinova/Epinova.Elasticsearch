@@ -184,13 +184,18 @@ namespace Epinova.ElasticSearch.Core.EPiServer
 
         public bool IsExcludedType(IContent content)
         {
-            return IsExcludedType(content.GetUnproxiedType())
+            return IsExcludedType(content?.GetUnproxiedType())
                 || IsExcludedType(content?.GetType());
         }
 
         private static bool IsExcludedType(Type type)
         {
-            if(type?.Namespace?.StartsWith("Epinova.ElasticSearch", StringComparison.OrdinalIgnoreCase) == true)
+            if(type?.Namespace is null)
+            {
+                return false;
+            }
+
+            if(type.Namespace.StartsWith("Epinova.ElasticSearch", StringComparison.OrdinalIgnoreCase))
             {
                 return true;
             }

@@ -125,17 +125,6 @@ namespace Epinova.ElasticSearch.Core
             return this;
         }
 
-        public IElasticSearchService<T> BoostByAncestor(int path, sbyte weight)
-        {
-            if(!BoostAncestors.ContainsKey(path))
-            {
-                _logger.Debug($"Boosting by ancestor: '{path} ({weight})'");
-                BoostAncestors.Add(path, weight);
-            }
-
-            return this;
-        }
-
         public IElasticSearchService<T> Boost<TBoost>(sbyte weight)
             => Boost(typeof(TBoost), weight);
 
@@ -145,6 +134,17 @@ namespace Epinova.ElasticSearch.Core
             {
                 _logger.Debug($"Boosting type: '{type.FullName} ({weight})'");
                 _boostTypes.Add(type, weight);
+            }
+
+            return this;
+        }
+
+        public IElasticSearchService<T> BoostByAncestor(int path, sbyte weight)
+        {
+            if(!BoostAncestors.ContainsKey(path))
+            {
+                _logger.Debug($"Boosting by ancestor: '{path} ({weight})'");
+                BoostAncestors.Add(path, weight);
             }
 
             return this;

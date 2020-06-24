@@ -553,21 +553,10 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Extensions
         private static object GetIndexValue(IContentData content, PropertyInfo p, out bool isString, bool ignoreXhtmlStringContentFragments = false, List<IContent> alreadyProcessedContent = null)
         {
             isString = false;
-            string id = null;
-            string name = null;
-            string type = null;
 
             // Being a chicken here.
             try
             {
-                type = content.GetType().Name;
-
-                if(content is IContent icontent)
-                {
-                    id = icontent.ContentLink.ID.ToString();
-                    name = icontent.Name;
-                }
-
                 object value = p.GetValue(content);
                 if(value == null)
                 {
@@ -675,7 +664,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Extensions
             }
             catch(Exception ex)
             {
-                Logger.Warning($"GetIndexValue failed for id '{id}'. Type={type}, Name={name}", ex);
+                Logger.Warning($"GetIndexValue failed for content with id '{(content as IContent)?.ContentLink}'", ex);
                 return null;
             }
         }

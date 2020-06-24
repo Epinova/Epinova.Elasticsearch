@@ -7,9 +7,8 @@ namespace Epinova.ElasticSearch.Core.Utilities
 {
     internal static class MappingPatterns
     {
-        private static readonly string TextType = nameof(MappingType.Text).ToLower();
-        private static readonly string IntType = nameof(MappingType.Integer).ToLower();
-        private static readonly string LongType = nameof(MappingType.Long).ToLower();
+        private static readonly string _textType = nameof(MappingType.Text).ToLower();
+        private static readonly string _longType = nameof(MappingType.Long).ToLower();
 
         internal static dynamic GetTokenizerTemplate(string language, string tokenizer)
         {
@@ -62,23 +61,23 @@ namespace Epinova.ElasticSearch.Core.Utilities
             {
                 properties = new
                 {
-                    Id = new { type = LongType },
+                    Id = new { type = _longType },
                     StartPublish = new { type = "date" },
                     StopPublish = new { type = "date" },
                     Created = new { type = "date" },
                     Changed = new { type = "date" },
                     Indexed = new { type = "date" },
-                    Name = new { type = TextType, fields = Fields },
-                    _bestbets = new { type = TextType, fields = Fields },
-                    ParentLink = new { type = LongType },
-                    Path = new { type = LongType },
-                    Lang = new { type = TextType },
-                    DidYouMean = new { type = TextType, analyzer = languageName + "_suggest", fields = new { keyword = new { ignore_above = 8191, type = JsonNames.Keyword } } },
+                    Name = new { type = _textType, fields = Fields },
+                    _bestbets = new { type = _textType, fields = Fields },
+                    ParentLink = new { type = _longType },
+                    Path = new { type = _longType },
+                    Lang = new { type = _textType },
+                    DidYouMean = new { type = _textType, analyzer = languageName + "_suggest", fields = new { keyword = new { ignore_above = 8191, type = JsonNames.Keyword } } },
                     Suggest = SuggestMapping,
-                    Type = new { type = TextType, analyzer = "raw", fields = Fields },
-                    Types = new { type = TextType, analyzer = "raw" },
-                    _acl = new { type = TextType, analyzer = "raw" },
-                    _attachmentdata = new { type = TextType, fields = Fields },
+                    Type = new { type = _textType, analyzer = "raw", fields = Fields },
+                    Types = new { type = _textType, analyzer = "raw" },
+                    _acl = new { type = _textType, analyzer = "raw" },
+                    _attachmentdata = new { type = _textType, fields = Fields },
                     attachment = GetAttachmentMapping(languageName)
                 },
                 _source = new
@@ -99,15 +98,15 @@ namespace Epinova.ElasticSearch.Core.Utilities
                 {
                     content = new
                     {
-                        type = TextType,
+                        type = _textType,
                         term_vector = "with_positions_offsets",
                         analyzer = languageName,
                         fields = Fields
                     },
-                    title = new { type = TextType, fields = Fields },
-                    language = new { type = TextType, fields = Fields },
-                    content_type = new { type = TextType, fields = Fields },
-                    content_length = new { type = LongType }
+                    title = new { type = _textType, fields = Fields },
+                    language = new { type = _textType, fields = Fields },
+                    content_type = new { type = _textType, fields = Fields },
+                    content_length = new { type = _longType }
                 }
             };
         }
@@ -118,12 +117,12 @@ namespace Epinova.ElasticSearch.Core.Utilities
             {
                 properties = new
                 {
-                    _bestbets = new { type = TextType },
-                    Lang = new { type = TextType },
-                    DidYouMean = new { type = TextType, analyzer = languageName + "_suggest", fields = new { raw = new { analyzer = "raw", type = TextType } } },
+                    _bestbets = new { type = _textType },
+                    Lang = new { type = _textType },
+                    DidYouMean = new { type = _textType, analyzer = languageName + "_suggest", fields = new { raw = new { analyzer = "raw", type = _textType } } },
                     Suggest = SuggestMapping,
-                    Type = new { type = TextType, analyzer = "raw", fields = Fields },
-                    Types = new { type = TextType, analyzer = "raw" }
+                    Type = new { type = _textType, analyzer = "raw", fields = Fields },
+                    Types = new { type = _textType, analyzer = "raw" }
                 }
             };
         }
