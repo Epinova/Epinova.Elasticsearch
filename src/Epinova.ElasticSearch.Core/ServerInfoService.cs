@@ -14,6 +14,7 @@ namespace Epinova.ElasticSearch.Core
     {
         private readonly IHttpClientHelper _httpClientHelper;
         private readonly IElasticSearchSettings _settings;
+        private ServerInfo _serverInfo;
         private static readonly ILogger _logger = LogManager.GetLogger(typeof(ServerInfoService));
 
         public ServerInfoService(IHttpClientHelper httpClientHelper, IElasticSearchSettings settings)
@@ -41,8 +42,8 @@ namespace Epinova.ElasticSearch.Core
         {
             try
             {
-                var response = _httpClientHelper.GetString(new Uri(_settings.Host));
-                return JsonConvert.DeserializeObject<ServerInfo>(response);
+                _serverInfo ??= JsonConvert.DeserializeObject<ServerInfo>(_httpClientHelper.GetString(new Uri(_settings.Host)));
+                return _serverInfo;
             }
             catch(Exception ex)
             {
