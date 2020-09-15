@@ -95,7 +95,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Extensions
             => service.GetContentResults(requirePageTemplate, new string[0]);
 
         public static ContentSearchResult<T> GetContentResults<T>(this IElasticSearchService<T> service, bool requirePageTemplate, string[] providerNames) where T : IContentData
-            => service.GetContentResults(requirePageTemplate, false, providerNames, true, true);
+            => service.GetContentResults(requirePageTemplate, ignoreFilters: false, providerNames, enableHighlighting: true, enableDidYouMean: true);
 
         public static ContentSearchResult<T> GetContentResults<T>(
             this IElasticSearchService<T> service,
@@ -107,7 +107,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Extensions
         {
             SearchResult results = service.GetResults(enableHighlighting, enableDidYouMean, applyDefaultFilters: !ignoreFilters);
             var hits = new List<ContentSearchHit<T>>();
-
+            
             foreach(SearchHit hit in results.Hits)
             {
                 if(ShouldAdd(hit, requirePageTemplate, out T content, providerNames, ignoreFilters))
