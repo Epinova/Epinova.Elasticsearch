@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using Castle.DynamicProxy;
+using Epinova.ElasticSearch.Core.Attributes;
 using Epinova.ElasticSearch.Core.Contracts;
 using Epinova.ElasticSearch.Core.Conventions;
 using EPiServer.Core;
@@ -54,6 +55,31 @@ namespace Epinova.ElasticSearch.Core.Extensions
 
             return type.FullName?.Replace(".", "_");
         }
+
+        internal static bool IsExcludedType(this Type type)
+        {
+            if(type?.Namespace is null)
+            {
+                return false;
+            }
+
+            if(type.Namespace.StartsWith("Epinova.ElasticSearch", StringComparison.OrdinalIgnoreCase))
+            {
+                return true;
+            }
+
+            return Indexing.ExcludedTypes.Contains(type)
+                   || type.GetCustomAttributes(typeof(ExcludeFromSearchAttribute), true).Length > 0
+                   || DerivesFromExcludedType(type);
+        }
+
+        private static bool DerivesFromExcludedType(Type typeToCheck)
+        {
+            return Indexing.ExcludedTypes
+                .Any(type => (type.IsClass && typeToCheck.IsSubclassOf(type))
+                             || (type.IsInterface && type.IsAssignableFrom(typeToCheck)));
+        }
+
 
         internal static Type GetUnproxiedType(this object source)
         {
