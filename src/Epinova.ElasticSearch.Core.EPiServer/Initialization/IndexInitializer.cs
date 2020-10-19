@@ -6,6 +6,7 @@ using System.Web.Mvc;
 using System.Web.Routing;
 using Epinova.ElasticSearch.Core.Attributes;
 using Epinova.ElasticSearch.Core.Contracts;
+using Epinova.ElasticSearch.Core.Settings;
 using Epinova.ElasticSearch.Core.Settings.Configuration;
 using EPiServer.Framework;
 using EPiServer.Framework.Initialization;
@@ -25,36 +26,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Initialization
         /// Assemblies to ignore when scanning for types to exclude.
         /// The names will be compared via String.StartsWith(OrdinalIgnoreCase)
         /// </summary>
-        private static readonly string[] _assemblyBlacklist =
-        {
-            "antlr",
-            "AutoFac",
-            "AutoMapper",
-            "BundleTransformer",
-            "Castle",
-            "DDay",
-            "DynamicProxyGenAssembly2",
-            "EPiServer",
-            "FiftyOne",
-            "ImageResizer",
-            "ionic",
-            "itextsharp",
-            "JavaScriptEngineSwitcher",
-            "jQuery",
-            "log4net",
-            "Microsoft",
-            "mscorlib",
-            "MsieJavaScriptEngine",
-            "NewRelic",
-            "Newtonsoft",
-            "Ninject",
-            "NuGet",
-            "System",
-            "StructureMap",
-            "WebDriver",
-            "WebGrease"
-        };
-
+      
         public void Initialize(InitializationEngine context)
         {
             try
@@ -122,7 +94,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Initialization
             var types = new List<Type>();
             var assemblies = AppDomain.CurrentDomain.GetAssemblies().OrderBy(a => a.FullName).ToList();
 
-            _assemblyBlacklist.ToList().ForEach(
+            AssemblySettings.Blacklist.ToList().ForEach(
                 b => assemblies.RemoveAll(a => a.FullName.StartsWith(b, StringComparison.OrdinalIgnoreCase)));
 
             foreach(var assembly in assemblies)
