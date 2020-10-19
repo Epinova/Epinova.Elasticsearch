@@ -20,6 +20,7 @@
             "JavaScriptEngineSwitcher",
             "jQuery",
             "log4net",
+            "Mediachase",
             "Microsoft",
             "mscorlib",
             "MsieJavaScriptEngine",
