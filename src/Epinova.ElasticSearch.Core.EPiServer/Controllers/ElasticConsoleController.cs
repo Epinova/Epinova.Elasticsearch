@@ -80,12 +80,10 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Controllers
         }
 
         [Authorize(Roles = RoleNames.ElasticsearchAdmins)]
-        public ActionResult Mapping(string index = null)
-            => GetJsonFromEndpoint(index, "mapping");
-
-        [Authorize(Roles = RoleNames.ElasticsearchAdmins)]
         public ActionResult Settings(string index = null)
-            => GetJsonFromEndpoint(index, "settings");
+        {
+            return GetJsonFromEndpoint(index, "settings");
+        }
 
         private ActionResult GetJsonFromEndpoint(string index, string endpoint)
         {
