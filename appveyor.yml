@@ -51,12 +51,12 @@ before_package:
 for:
 -
   branches:
-    only:
-      - /vnext.*/
+    only:   
+      - /Release*/
 
   init:
   - ps: >-
-      Update-AppveyorBuild -Version "$env:APPVEYOR_BUILD_VERSION-$env:APPVEYOR_REPO_BRANCH";
+      Update-AppveyorBuild -Version "$env:APPVEYOR_BUILD_VERSION-pre";
       if ($LastExitCode -ne 0) { $host.SetShouldExit($LastExitCode)  }
 
   deploy:
