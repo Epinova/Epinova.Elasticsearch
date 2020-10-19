@@ -41,7 +41,6 @@
         <all>All</all>
         <query>Query</query>
         <result>Result</result>
-        <mapping>Mapping</mapping>
         <settings>Settings</settings>
       </console>
       <indexinspector>
@@ -107,6 +106,12 @@
         <newword>New word</newword>
         <existingwords>Existing words</existingwords>
       </autosuggest>
+      <mapping>
+          <heading>Mapping</heading>
+          <index>Index</index>
+          <show>Show</show>
+          <validate>Validate</validate>
+      </mapping>
       <node>
         <heading>Nodes</heading>
         <name>Name</name>
