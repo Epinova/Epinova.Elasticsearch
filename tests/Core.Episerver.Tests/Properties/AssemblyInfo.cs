@@ -10,7 +10,7 @@ using Xunit;
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
 [assembly: AssemblyProduct("Core.Episerver.Tests")]
-[assembly: AssemblyCopyright("Copyright ©  2016")]
+[assembly: AssemblyCopyright("Copyright © 2020 - Epinova AS")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
