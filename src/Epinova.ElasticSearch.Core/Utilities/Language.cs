@@ -16,6 +16,7 @@ namespace Epinova.ElasticSearch.Core.Utilities
         {
             { "da", "danish" },
             { "en", "english" },
+			{ "us", "english" },
             { "fr", "french" },
             { "de", "german" },
             { "no", "norwegian" },
