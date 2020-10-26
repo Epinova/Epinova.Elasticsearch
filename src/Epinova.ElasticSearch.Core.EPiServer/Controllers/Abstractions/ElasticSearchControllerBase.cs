@@ -48,7 +48,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Controllers.Abstractions
         {
             base.OnActionExecuting(filterContext);
             CurrentLanguage = Request?.QueryString[LanguageParam] ?? Languages.First().Key;
-            CurrentIndex = Request?.QueryString[IndexParam] ?? Indices.FirstOrDefault(i => i.Index.EndsWith($"-{CurrentLanguage}"))?.Index;
+            CurrentIndex = Request?.QueryString[IndexParam] ?? Indices.FirstOrDefault(i => i.Index.EndsWith($"-{CurrentLanguage.ToLower()}"))?.Index;
             CurrentIndexDisplayName = Indices.FirstOrDefault(i => i.Index == CurrentIndex)?.DisplayName;
         }
 
