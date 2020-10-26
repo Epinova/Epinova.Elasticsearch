@@ -11,7 +11,7 @@
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>Epinova ElasticSearch EPiServer functionality</description>
     <releaseNotes></releaseNotes>
-    <copyright>Copyright 2018 - Epinova AS</copyright>
+    <copyright>Copyright 2020 - Epinova AS</copyright>
     <tags>Epinova EPiServer ElasticSearch</tags>
     <dependencies>
       <dependency id="EPiServer.CMS.AspNet" version="[11.2.1, 12)" />

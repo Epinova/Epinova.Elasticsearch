@@ -51,18 +51,18 @@ before_package:
 for:
 -
   branches:
-    only:
-      - /vnext.*/
+    only:   
+      - /Release*/
 
   init:
   - ps: >-
-      Update-AppveyorBuild -Version "$env:APPVEYOR_BUILD_VERSION-$env:APPVEYOR_REPO_BRANCH";
+      Update-AppveyorBuild -Version "$env:APPVEYOR_BUILD_VERSION-pre";
       if ($LastExitCode -ne 0) { $host.SetShouldExit($LastExitCode)  }
 
   deploy:
     provider: NuGet
     api_key:
-      secure: 6LdiQeX2LTezBZsshcBSJ2oUqVNDPkKj4y2VpHiM+wtg86SAJd/hzJl0mgavblhr
+      secure: VYR0wKacBaMQ45ocBt++A5Dklvv0h6t4sj0wJfNLu7sXmaJfxeZ7xy1hd5d12qqD
     skip_symbols: false
     artifact: /.*\.nupkg/
 
@@ -74,7 +74,7 @@ for:
   deploy:
   - provider: NuGet
     api_key:
-      secure: 6LdiQeX2LTezBZsshcBSJ2oUqVNDPkKj4y2VpHiM+wtg86SAJd/hzJl0mgavblhr
+      secure: VYR0wKacBaMQ45ocBt++A5Dklvv0h6t4sj0wJfNLu7sXmaJfxeZ7xy1hd5d12qqD
     skip_symbols: false
     artifact: /.*\.nupkg/
 
