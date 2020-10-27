@@ -388,13 +388,12 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Extensions
             }
 
             IBestBetsRepository repository = ServiceLocator.Current.GetInstance<IBestBetsRepository>();
-            IElasticSearchSettings settings = ServiceLocator.Current.GetInstance<IElasticSearchSettings>();
 
             IEnumerable<string> bestBets = repository.GetBestBetsForContent(language, content.ContentLink.ID, null);
 
-            if(settings.CommerceEnabled && content.ContentLink.ProviderName == ProviderConstants.CatalogProviderKey)
+            if(content.ContentLink.ProviderName == ProviderConstants.CatalogProviderKey)
             {
-                var commerceIndex = settings.GetCustomIndexName($"{settings.Index}-{Constants.CommerceProviderName}", language);
+                var commerceIndex = ElasticSearchSettings.GetCustomIndexName($"{ElasticSearchSettings.Index}-{Constants.CommerceProviderName}", language);
                 IEnumerable<string> commerceBestBets = repository.GetBestBetsForCommerceContent(language, content.ContentLink.ID, commerceIndex);
                 bestBets = bestBets.Concat(commerceBestBets);
             }
