@@ -374,20 +374,32 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Extensions
         private static void TryAddLanguageProperty(dynamic indexItem, IContent content, IDictionary<string, object> dictionary, out string language)
         {
             language = null;
-            if(content is ILocale locale && locale.Language != null && !CultureInfo.InvariantCulture.Equals(locale.Language))
+            
+            if(!(content is ILocale locale) || locale.Language == null || CultureInfo.InvariantCulture.Equals(locale.Language))
+                return;
+            
+            language = locale.Language.Name;
+            dictionary.Add(DefaultFields.Lang, language);
+
+            if(Logger.IsDebugEnabled())
             {
-                language = locale.Language.Name;
-                dictionary.Add(DefaultFields.Lang, language);
-                if(Logger.IsDebugEnabled())
-                {
-                    string lang = indexItem.Lang.ToString();
-                    Logger.Debug("Language: " + lang);
-                }
-
-                IBestBetsRepository repository = ServiceLocator.Current.GetInstance<IBestBetsRepository>();
-
-                dictionary.Add(DefaultFields.BestBets, repository.GetBestBetsForContent(language, content.ContentLink.ID, null));
+                string lang = indexItem.Lang.ToString();
+                Logger.Debug("Language: " + lang);
             }
+
+            IBestBetsRepository repository = ServiceLocator.Current.GetInstance<IBestBetsRepository>();
+            IElasticSearchSettings settings = ServiceLocator.Current.GetInstance<IElasticSearchSettings>();
+
+            IEnumerable<string> bestBets = repository.GetBestBetsForContent(language, content.ContentLink.ID, null);
+
+            if(settings.CommerceEnabled && content.ContentLink.ProviderName == ProviderConstants.CatalogProviderKey)
+            {
+                var commerceIndex = settings.GetCustomIndexName($"{settings.Index}-{Constants.CommerceProviderName}", language);
+                IEnumerable<string> commerceBestBets = repository.GetBestBetsForCommerceContent(language, content.ContentLink.ID, commerceIndex);
+                bestBets = bestBets.Concat(commerceBestBets);
+            }
+
+            dictionary.Add(DefaultFields.BestBets, bestBets);
         }
 
         private static bool TryAddAttachmentData(IContent content, IDictionary<string, object> dictionary)

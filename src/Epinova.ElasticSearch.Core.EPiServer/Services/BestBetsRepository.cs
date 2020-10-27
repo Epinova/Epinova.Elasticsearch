@@ -70,6 +70,13 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Services
                 .SelectMany(b => b.GetTerms());
         }
 
+        public IEnumerable<string> GetBestBetsForCommerceContent(string languageId, int contentId, string index)
+        {
+            return GetBestBets(languageId, index)
+                .Where(b => b.Id == $"{contentId}__{Constants.CommerceProviderName}")
+                .SelectMany(b => b.GetTerms());
+        }
+
         public IEnumerable<BestBet> GetBestBets(string languageId, string index)
         {
             var backup = GetBestBetsFile(GetFilename(languageId, index));

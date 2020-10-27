@@ -11,5 +11,6 @@ namespace Epinova.ElasticSearch.Core.Contracts
         void DeleteBestBet(string languageId, string phrase, string id, string index, Type type);
         IEnumerable<BestBet> GetBestBets(string languageId, string index);
         IEnumerable<string> GetBestBetsForContent(string languageId, int contentId, string index);
+        IEnumerable<string> GetBestBetsForCommerceContent(string languageId, int contentId, string index);
     }
 }
