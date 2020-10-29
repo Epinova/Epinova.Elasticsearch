@@ -1,13 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Linq;
 using System.Web;
 using Epinova.ElasticSearch.Core.Models.Mapping;
+using EPiServer.DataAbstraction;
+using EPiServer.ServiceLocation;
 
 namespace Epinova.ElasticSearch.Core.Utilities
 {
     internal static class Language
     {
+        internal static ILanguageBranchRepository _languageBranchRepository = ServiceLocator.Current.GetInstance<ILanguageBranchRepository>();
+
         /// <summary>
         /// For available language analyzers, see 
         /// https://www.elastic.co/guide/en/elasticsearch/reference/current/analysis-lang-analyzer.html
@@ -37,10 +42,33 @@ namespace Epinova.ElasticSearch.Core.Utilities
                 return "*";
             }
 
-            // Return same code for normal and neutral languages, by looking at parent
-            string code = String.Concat(cultureInfo.Name, cultureInfo.Parent.Name, cultureInfo.Parent.Parent.Name).Trim();
+            var enabledLanguages = _languageBranchRepository.ListEnabled();
 
-            return code.Substring(code.Length - 2, 2).ToLower();
+            if(enabledLanguages == null)
+            {
+                return "*";
+            }
+
+            //check if currentCulture is one of the enabled languages in episerver.
+            //if so return it
+            foreach(var item in enabledLanguages)
+            {
+                CultureInfo tmpCultureInfo = new CultureInfo(item.LanguageID);
+                if(tmpCultureInfo.Name == CultureInfo.CurrentCulture.Name)
+                    return item.LanguageID.ToLower();
+            }
+
+            //if not any hits in the foreach above: 
+            //check if the parent currentCulture is one of the enabled languages in episerver.
+            //if so return it
+            foreach(var item in enabledLanguages)
+            {
+                CultureInfo tmpCultureInfo = new CultureInfo(item.LanguageID);
+                if(tmpCultureInfo.Name == CultureInfo.CurrentCulture.Parent.Name)
+                    return item.LanguageID.ToLower();
+            }
+
+            return "*";
         }
 
         internal static IndexMappingProperty GetPropertyMapping(string language, Type type, bool isAnalyzable)
