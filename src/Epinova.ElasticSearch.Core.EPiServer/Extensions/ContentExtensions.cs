@@ -39,6 +39,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Extensions
         private static readonly IElasticSearchSettings ElasticSearchSettings = ServiceLocator.Current.GetInstance<IElasticSearchSettings>();
         private static readonly ITrackingRepository TrackingRepository = ServiceLocator.Current.GetInstance<ITrackingRepository>();
         private static readonly IIndexer Indexer = ServiceLocator.Current.GetInstance<IIndexer>();
+        private static readonly IBestBetsRepository BestBetsRepository = ServiceLocator.Current.GetInstance<IBestBetsRepository>();
 
         private static readonly string[] BinaryExtensions = new[]
         {
@@ -374,20 +375,27 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Extensions
         private static void TryAddLanguageProperty(dynamic indexItem, IContent content, IDictionary<string, object> dictionary, out string language)
         {
             language = null;
-            if(content is ILocale locale && locale.Language != null && !CultureInfo.InvariantCulture.Equals(locale.Language))
+            
+            if(!(content is ILocale locale) || locale.Language == null || CultureInfo.InvariantCulture.Equals(locale.Language))
+                return;
+            
+            language = locale.Language.Name;
+            dictionary.Add(DefaultFields.Lang, language);
+
+            if(Logger.IsDebugEnabled())
             {
-                language = locale.Language.Name;
-                dictionary.Add(DefaultFields.Lang, language);
-                if(Logger.IsDebugEnabled())
-                {
-                    string lang = indexItem.Lang.ToString();
-                    Logger.Debug("Language: " + lang);
-                }
-
-                IBestBetsRepository repository = ServiceLocator.Current.GetInstance<IBestBetsRepository>();
-
-                dictionary.Add(DefaultFields.BestBets, repository.GetBestBetsForContent(language, content.ContentLink.ID, null));
+                string lang = indexItem.Lang.ToString();
+                Logger.Debug("Language: " + lang);
             }
+
+            bool isCommerceContent = content.ContentLink.ProviderName == ProviderConstants.CatalogProviderKey;
+
+            string index = isCommerceContent
+                ? ElasticSearchSettings.GetCommerceIndexName(language)
+                : ElasticSearchSettings.GetDefaultIndexName(language);
+
+            IEnumerable<string> bestBets = BestBetsRepository.GetBestBetsForContent(language, content.ContentLink.ID, index, isCommerceContent);
+            dictionary.Add(DefaultFields.BestBets, bestBets);
         }
 
         private static bool TryAddAttachmentData(IContent content, IDictionary<string, object> dictionary)

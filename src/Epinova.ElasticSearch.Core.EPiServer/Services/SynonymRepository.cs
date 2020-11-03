@@ -46,6 +46,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Services
 
         public void SetSynonyms(string languageId, string analyzer, List<Synonym> synonymsToAdd, string index)
         {
+
             if(String.IsNullOrWhiteSpace(index))
             {
                 index = _settings.GetDefaultIndexName(languageId);
@@ -54,58 +55,66 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Services
             var indexing = new Indexing(_serverInfoService, _settings, _httpClientHelper);
             indexing.Close(index);
 
-            string[] synonymPairs = synonymsToAdd
-                .Select(s => String.Concat(s.From, s.MultiWord ? "=>" : ",", s.To))
-                .ToArray();
-
-            if(synonymPairs.Length == 0)
+            try
             {
-                synonymPairs = new[] { "example_from,example_to" };
-            }
+                string[] synonymPairs = synonymsToAdd
+                    .Select(s => String.Concat(s.From, s.MultiWord ? "=>" : ",", s.To))
+                    .ToArray();
 
-            _logger.Information(
-                $"Adding {synonymsToAdd.Count} synonyms for language:{languageId} and analyzer:{analyzer}");
-
-            if(_logger.IsDebugEnabled())
-            {
-                synonymPairs.ToList().ForEach(pair => _logger.Debug(pair));
-            }
-
-            dynamic body = new
-            {
-                settings = new
+                if(synonymPairs.Length == 0)
                 {
-                    analysis = new
+                    synonymPairs = new[] {"example_from,example_to"};
+                }
+
+                _logger.Information(
+                    $"Adding {synonymsToAdd.Count} synonyms for language:{languageId} and analyzer:{analyzer}");
+
+                if(_logger.IsDebugEnabled())
+                {
+                    synonymPairs.ToList().ForEach(pair => _logger.Debug(pair));
+                }
+
+                dynamic body = new
+                {
+                    settings = new
                     {
-                        filter = new
+                        analysis = new
                         {
-                            ANALYZERTOKEN_synonym_filter = new
+                            filter = new
                             {
-                                type = "synonym",
-                                synonyms = synonymPairs
+                                ANALYZERTOKEN_synonym_filter = new
+                                {
+                                    type = "synonym", synonyms = synonymPairs
+                                }
                             }
                         }
                     }
+                };
+
+                SaveBackup(languageId, index, synonymPairs);
+
+                string json = Serialization.Serialize(body);
+
+                json = json.Replace("ANALYZERTOKEN", analyzer);
+
+                if(_logger.IsDebugEnabled())
+                {
+                    _logger.Debug("SYNONYM JSON PAYLOAD:\n" + json);
                 }
-            };
 
-            SaveBackup(languageId, index, synonymPairs);
+                var data = Encoding.UTF8.GetBytes(json);
+                var uri = indexing.GetUri(index, "_settings");
 
-            string json = Serialization.Serialize(body);
-
-            json = json.Replace("ANALYZERTOKEN", analyzer);
-
-            if(_logger.IsDebugEnabled())
-            {
-                _logger.Debug("SYNONYM JSON PAYLOAD:\n" + json);
+                _httpClientHelper.Put(uri, data);
             }
-
-            var data = Encoding.UTF8.GetBytes(json);
-            var uri = indexing.GetUri(index, "_settings");
-
-            _httpClientHelper.Put(uri, data);
-
-            indexing.Open(index);
+            catch(Exception ex)
+            {
+                _logger.Error($"Failure adding {synonymsToAdd.Count} synonyms for language:{languageId} and analyzer:{analyzer}", ex);
+            }
+            finally
+            {
+                indexing.Open(index);
+            }
         }
 
         public string GetSynonymsFilePath(string languageId, string index)

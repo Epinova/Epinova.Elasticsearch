@@ -15,6 +15,7 @@ namespace Epinova.ElasticSearch.Core.Settings
         int ProviderMaxResults { get; }
         string GetCustomIndexName(string index, string language);
         string GetDefaultIndexName(string language);
+        string GetCommerceIndexName(string language);
         string GetLanguage(string indexName);
         int CloseIndexDelay { get; }
         bool IgnoreXhtmlStringContentFragments { get; }

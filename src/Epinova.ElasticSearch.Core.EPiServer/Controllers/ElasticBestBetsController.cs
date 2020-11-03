@@ -39,7 +39,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Controllers
         {
             var model = new BestBetsViewModel(CurrentLanguage);
 
-            foreach(var language in Languages)
+            foreach(KeyValuePair<string, string> language in Languages)
             {
                 var name = language.Value;
                 name = String.Concat(name.Substring(0, 1).ToUpper(), name.Substring(1));
@@ -63,14 +63,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Controllers
             }
 
             var currentType = config.IndicesParsed.FirstOrDefault(i => CurrentIndex.StartsWith(i.Name, StringComparison.InvariantCultureIgnoreCase))?.Type;
-            if(!String.IsNullOrEmpty(currentType))
-            {
-                ViewBag.TypeName = Type.GetType(currentType).AssemblyQualifiedName;
-            }
-            else
-            {
-                ViewBag.TypeName = typeof(IndexItem).AssemblyQualifiedName;
-            }
+            ViewBag.TypeName = !String.IsNullOrEmpty(currentType) ? Type.GetType(currentType)?.AssemblyQualifiedName : typeof(IndexItem).AssemblyQualifiedName;
 
             return View("~/Views/ElasticSearchAdmin/BestBets/Index.cshtml", model);
         }
