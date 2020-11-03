@@ -388,11 +388,13 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Extensions
                 Logger.Debug("Language: " + lang);
             }
 
-            var index = content.ContentLink.ProviderName == ProviderConstants.CatalogProviderKey
+            bool isCommerceContent = content.ContentLink.ProviderName == ProviderConstants.CatalogProviderKey;
+
+            string index = isCommerceContent
                 ? ElasticSearchSettings.GetCommerceIndexName(language)
                 : ElasticSearchSettings.GetDefaultIndexName(language);
 
-            IEnumerable<string> bestBets = BestBetsRepository.GetBestBetsForContent(language, content.ContentLink.ID, index);
+            IEnumerable<string> bestBets = BestBetsRepository.GetBestBetsForContent(language, content.ContentLink.ID, index, isCommerceContent);
             dictionary.Add(DefaultFields.BestBets, bestBets);
         }
 
