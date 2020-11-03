@@ -109,7 +109,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Services
             }
             catch(Exception ex)
             {
-                _logger.Critical($"Failure adding {synonymsToAdd.Count} synonyms for language:{languageId} and analyzer:{analyzer}", ex);
+                _logger.Error($"Failure adding {synonymsToAdd.Count} synonyms for language:{languageId} and analyzer:{analyzer}", ex);
             }
             finally
             {
