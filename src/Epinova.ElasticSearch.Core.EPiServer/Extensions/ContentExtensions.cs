@@ -39,6 +39,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Extensions
         private static readonly IElasticSearchSettings ElasticSearchSettings = ServiceLocator.Current.GetInstance<IElasticSearchSettings>();
         private static readonly ITrackingRepository TrackingRepository = ServiceLocator.Current.GetInstance<ITrackingRepository>();
         private static readonly IIndexer Indexer = ServiceLocator.Current.GetInstance<IIndexer>();
+        private static readonly IBestBetsRepository BestBetsRepository = ServiceLocator.Current.GetInstance<IBestBetsRepository>();
 
         private static readonly string[] BinaryExtensions = new[]
         {
@@ -387,17 +388,11 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Extensions
                 Logger.Debug("Language: " + lang);
             }
 
-            IBestBetsRepository repository = ServiceLocator.Current.GetInstance<IBestBetsRepository>();
+            var index = content.ContentLink.ProviderName == ProviderConstants.CatalogProviderKey
+                ? ElasticSearchSettings.GetCommerceIndexName(language)
+                : ElasticSearchSettings.GetDefaultIndexName(language);
 
-            IEnumerable<string> bestBets = repository.GetBestBetsForContent(language, content.ContentLink.ID, null);
-
-            if(content.ContentLink.ProviderName == ProviderConstants.CatalogProviderKey)
-            {
-                var commerceIndex = ElasticSearchSettings.GetCustomIndexName($"{ElasticSearchSettings.Index}-{Constants.CommerceProviderName}", language);
-                IEnumerable<string> commerceBestBets = repository.GetBestBetsForCommerceContent(language, content.ContentLink.ID, commerceIndex);
-                bestBets = bestBets.Concat(commerceBestBets);
-            }
-
+            IEnumerable<string> bestBets = BestBetsRepository.GetBestBetsForContent(language, content.ContentLink.ID, index);
             dictionary.Add(DefaultFields.BestBets, bestBets);
         }
 

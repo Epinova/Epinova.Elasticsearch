@@ -63,17 +63,12 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Services
             _coreIndexer.ClearBestBets(index, type, id);
         }
 
-        public IEnumerable<string> GetBestBetsForContent(string languageId, int contentId, string index)
+        public IEnumerable<string> GetBestBetsForContent(string languageId, int contentId, string index, bool isCommerceContent = false)
         {
-            return GetBestBets(languageId, index)
-                .Where(b => b.Id == contentId.ToString())
-                .SelectMany(b => b.GetTerms());
-        }
+            var id = isCommerceContent ? $"{contentId}__{Constants.CommerceProviderName}" : $"{contentId}";
 
-        public IEnumerable<string> GetBestBetsForCommerceContent(string languageId, int contentId, string index)
-        {
             return GetBestBets(languageId, index)
-                .Where(b => b.Id == $"{contentId}__{Constants.CommerceProviderName}")
+                .Where(b => b.Id == id)
                 .SelectMany(b => b.GetTerms());
         }
 

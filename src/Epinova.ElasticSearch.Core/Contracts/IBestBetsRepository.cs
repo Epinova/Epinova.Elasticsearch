@@ -10,7 +10,6 @@ namespace Epinova.ElasticSearch.Core.Contracts
         void AddBestBet(string languageId, string phrase, ContentReference contentLink, string index, Type type);
         void DeleteBestBet(string languageId, string phrase, string id, string index, Type type);
         IEnumerable<BestBet> GetBestBets(string languageId, string index);
-        IEnumerable<string> GetBestBetsForContent(string languageId, int contentId, string index);
-        IEnumerable<string> GetBestBetsForCommerceContent(string languageId, int contentId, string index);
+        IEnumerable<string> GetBestBetsForContent(string languageId, int contentId, string index, bool isCommerceContent = false);
     }
 }
