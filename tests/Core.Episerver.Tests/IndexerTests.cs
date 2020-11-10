@@ -354,10 +354,13 @@ namespace Core.Episerver.Tests
             Assert.True(result);
         }
 
-        [Fact]
-        public void IsExcludedType_ModuleType_ReturnsTrue()
+        [Theory]
+        [InlineData(typeof(BestBetsFile))]
+        [InlineData(typeof(AutoSuggestFile))]
+        [InlineData(typeof(SynonymBackupFile))]
+        public void IsExcludedType_ModuleType_ReturnsTrue(Type type)
         {
-            var result = _indexer.IsExcludedType(new BestBetsFile());
+            var result = _indexer.IsExcludedType(Activator.CreateInstance(type) as IContent);
 
             Assert.True(result);
         }

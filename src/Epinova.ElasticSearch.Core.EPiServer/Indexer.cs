@@ -197,6 +197,11 @@ namespace Epinova.ElasticSearch.Core.EPiServer
 
             if(type.Namespace.StartsWith("Epinova.ElasticSearch", StringComparison.OrdinalIgnoreCase))
             {
+                return false;
+            }
+
+            if(type.Namespace.StartsWith("Epinova.ElasticSearch", StringComparison.OrdinalIgnoreCase))
+            {
                 return true;
             }
 
