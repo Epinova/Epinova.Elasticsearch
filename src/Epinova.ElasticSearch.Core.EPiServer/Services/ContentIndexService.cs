@@ -5,20 +5,20 @@ using Epinova.ElasticSearch.Core.EPiServer.Contracts;
 using EPiServer;
 using EPiServer.Core;
 using EPiServer.DataAbstraction;
+using EPiServer.ServiceLocation;
 
 namespace Epinova.ElasticSearch.Core.EPiServer.Services
 {
+    [ServiceConfiguration(ServiceType = typeof(IContentIndexService), Lifecycle = ServiceInstanceScope.Transient)]
     public class ContentIndexService : IContentIndexService
     {
         private readonly IContentLoader _contentLoader;
         private readonly IIndexer _indexer;
-        private readonly ILanguageBranchRepository _languageBranchRepository;
 
-        public ContentIndexService(IContentLoader contentLoader, IIndexer indexer, ILanguageBranchRepository languageBranchRepository)
+        public ContentIndexService(IContentLoader contentLoader, IIndexer indexer)
         {
             _contentLoader = contentLoader;
             _indexer = indexer;
-            _languageBranchRepository = languageBranchRepository;
         }
 
         public Type[] GetAllTypes(List<IContent> contentList)
