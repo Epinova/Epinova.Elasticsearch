@@ -18,6 +18,7 @@ namespace TestData
         public Mock<ICoreIndexer> CoreIndexerMock { get; set; }
         public Mock<ISynonymRepository> SynonymRepositoryMock { get; set; }
         public Mock<IContentLoader> ContentLoaderMock { get; set; }
+        public Mock<IContentIndexService> ContentIndexServiceMock { get; set; }
         public Mock<IElasticSearchSettings> SettingsMock { get; set; }
         public Mock<IServerInfoService> ServerInfoMock { get; set; }
         public Mock<IHttpClientHelper> HttpClientMock { get; set; }

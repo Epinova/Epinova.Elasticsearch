@@ -117,6 +117,7 @@ namespace TestData
             result.IndexerMock = new Mock<IIndexer>();
             result.CoreIndexerMock = new Mock<ICoreIndexer>();
             result.ContentLoaderMock = new Mock<IContentLoader>();
+            result.ContentIndexServiceMock = new Mock<IContentIndexService>();
             result.ServiceMock = new Mock<IElasticSearchService<IContent>>();
 
             result.ServiceLocatorMock.Setup(m => m.GetInstance<IHttpClientHelper>()).Returns(httpClient.Object);
