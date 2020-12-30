@@ -1,8 +1,10 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Web.Mvc;
 using Epinova.ElasticSearch.Core.Admin;
 using Epinova.ElasticSearch.Core.Contracts;
+using Epinova.ElasticSearch.Core.EPiServer.Contracts;
 using Epinova.ElasticSearch.Core.EPiServer.Controllers.Abstractions;
 using Epinova.ElasticSearch.Core.EPiServer.Models.ViewModels;
 using Epinova.ElasticSearch.Core.Models;
@@ -10,6 +12,7 @@ using Epinova.ElasticSearch.Core.Models.Admin;
 using Epinova.ElasticSearch.Core.Settings;
 using Epinova.ElasticSearch.Core.Settings.Configuration;
 using Epinova.ElasticSearch.Core.Utilities;
+using EPiServer.Core;
 using EPiServer.DataAbstraction;
 using EPiServer.Scheduler;
 
@@ -17,6 +20,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Controllers
 {
     public class ElasticAdminController : ElasticSearchControllerBase
     {
+        private readonly IContentIndexService _contentIndexService;
         private readonly ICoreIndexer _coreIndexer;
         private readonly IElasticSearchSettings _settings;
         private readonly Health _healthHelper;
@@ -26,6 +30,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Controllers
         private readonly IScheduledJobExecutor _scheduledJobExecutor;
 
         public ElasticAdminController(
+            IContentIndexService contentIndexService,
             ILanguageBranchRepository languageBranchRepository,
             ICoreIndexer coreIndexer,
             IElasticSearchSettings settings,
@@ -35,6 +40,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Controllers
             IScheduledJobExecutor scheduledJobExecutor)
             : base(serverInfoService, settings, httpClientHelper, languageBranchRepository)
         {
+            _contentIndexService = contentIndexService;
             _coreIndexer = coreIndexer;
             _settings = settings;
             _healthHelper = new Health(settings, httpClientHelper);
@@ -74,7 +80,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Controllers
                 throw new InvalidOperationException("Elasticsearch version 5 or higher required");
             }
 
-            var config = ElasticSearchSection.GetConfiguration();
+            ElasticSearchSection config = ElasticSearchSection.GetConfiguration();
 
             foreach(var lang in Languages)
             {
@@ -87,27 +93,71 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Controllers
                     if(!index.Exists)
                     {
                         index.Initialize(indexType);
+                        index.WaitForStatus();
                     }
 
                     if(IsCustomType(indexType))
                     {
                         _coreIndexer.UpdateMapping(indexType, indexType, indexName, lang.Key, false);
                         index.WaitForStatus();
+                        continue;
                     }
-                    else if(_settings.CommerceEnabled)
+                    
+                    UpdateMappingForTypes(ContentReference.RootPage, indexType, indexName, lang.Key);
+                    index.WaitForStatus();
+
+                    //TODO really why?
+                    //index.DisableDynamicMapping(indexType);
+                    //index.WaitForStatus();
+
+                    if(_settings.CommerceEnabled)
                     {
-                        CreateCommerceIndex(lang.Key, indexConfig, indexType);
-                    }
-                    else
-                    {
-                        index.WaitForStatus();
-                        index.DisableDynamicMapping(indexType);
-                        index.WaitForStatus();
+                        string commerceIndexName = _settings.GetCustomIndexName($"{indexConfig.Name}-{Constants.CommerceProviderName}", lang.Key);
+                        Index commerceIndex = new Index(_serverInfoService, _settings, _httpClientHelper, commerceIndexName);
+                        if(!commerceIndex.Exists)
+                        {
+                            commerceIndex.Initialize(indexType);
+                            commerceIndex.WaitForStatus();
+
+                            ContentReference commerceRoot = GetCommerceRoot(config);
+                            UpdateMappingForTypes(commerceRoot, indexType, commerceIndexName, lang.Key);
+                            commerceIndex.WaitForStatus();
+
+                            //TODO really why?
+                            //commerceIndex.DisableDynamicMapping(indexType);
+                            //commerceIndex.WaitForStatus();
+                        }
                     }
                 }
             }
 
             return RedirectToAction("Index");
+        }
+
+        private ContentReference GetCommerceRoot(ElasticSearchSection config)
+        {
+            ContentReference commerceRoot = ContentReference.EmptyReference;
+            foreach(ContentSelectorConfiguration entry in config.ContentSelector)
+            {
+                if(entry.Provider == Constants.CommerceProviderName)
+                    commerceRoot = new ContentReference(entry.Id);
+            }
+
+            if(ContentReference.IsNullOrEmpty(commerceRoot))
+                throw new Exception("No commerce root");
+
+            return commerceRoot;
+        }
+
+        private void UpdateMappingForTypes(ContentReference rootLink, Type indexType, string indexName, string languageKey)
+        {
+            List<IContent> allContents = _contentIndexService.GetAllContents(_settings.BulkSize, rootLink, new List<LanguageBranch> { new LanguageBranch(languageKey) });
+            Type[] types = _contentIndexService.GetAllTypes(allContents);
+
+            foreach(Type type in types)
+            {
+                _coreIndexer.UpdateMapping(type, indexType, indexName, languageKey, false);
+            }
         }
 
         [Authorize(Roles = RoleNames.ElasticsearchAdmins)]
@@ -164,19 +214,6 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Controllers
             }
 
             return Type.GetType(index.Type, false, true);
-        }
-
-        private void CreateCommerceIndex(string language, IndexConfiguration indexConfig, Type indexType)
-        {
-            var indexName = _settings.GetCustomIndexName($"{indexConfig.Name}-{Constants.CommerceProviderName}", language);
-            var index = new Index(_serverInfoService, _settings, _httpClientHelper, indexName);
-            if(!index.Exists)
-            {
-                index.Initialize(indexType);
-                index.WaitForStatus();
-                index.DisableDynamicMapping(indexType);
-                index.WaitForStatus();
-            }
         }
     }
 }
