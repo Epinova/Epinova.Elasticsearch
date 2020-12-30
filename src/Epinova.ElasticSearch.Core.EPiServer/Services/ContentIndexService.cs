@@ -21,7 +21,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Services
             _indexer = indexer;
         }
 
-        public Type[] GetAllTypes(List<IContent> contentList)
+        public Type[] ListContainedTypes(List<IContent> contentList)
         {
             Type[] uniqueTypes = contentList.Select(content =>
                 {
@@ -34,15 +34,15 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Services
             return uniqueTypes;
         }
 
-        public List<IContent> GetAllContents(int bulkSize, ContentReference rootLink, List<LanguageBranch> languages)
+        public List<IContent> ListContentFromRoot(int bulkSize, ContentReference rootLink, List<LanguageBranch> languages)
         {
-            List<ContentReference> contentReferences = GetContentReferences(rootLink);
+            List<ContentReference> contentReferences = _contentLoader.GetDescendents(rootLink).ToList();
 
             List<IContent> contentList = new List<IContent>();
 
             while(contentReferences.Count > 0)
             {
-                List<IContent> bulkContents = GetDescendentContents(contentReferences.Take(bulkSize).ToList(), languages);
+                List<IContent> bulkContents = ListContent(contentReferences.Take(bulkSize).ToList(), languages).ToList();
 
                 bulkContents.RemoveAll(_indexer.SkipIndexing);
                 bulkContents.RemoveAll(_indexer.IsExcludedType);
@@ -55,21 +55,6 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Services
             return contentList;
         }
 
-        public List<ContentReference> GetContentReferences(ContentReference rootLink)
-        {
-            return _contentLoader.GetDescendents(rootLink).ToList();
-        }
-
-        public List<IContent> GetDescendentContents(List<ContentReference> contentReferences, List<LanguageBranch> languages)
-        {
-            var contentItems = new List<IContent>();
-
-            foreach(LanguageBranch languageBranch in languages)
-            {
-                contentItems.AddRange(_contentLoader.GetItems(contentReferences, languageBranch.Culture));
-            }
-
-            return contentItems;
-        }
+        public IEnumerable<IContent> ListContent(List<ContentReference> contentReferences, List<LanguageBranch> languages) => languages.SelectMany(l => _contentLoader.GetItems(contentReferences, l.Culture));
     }
 }

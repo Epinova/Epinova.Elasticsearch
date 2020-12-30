@@ -8,9 +8,9 @@ using Epinova.ElasticSearch.Core.Conventions;
 using Epinova.ElasticSearch.Core.EPiServer.Contracts;
 using Epinova.ElasticSearch.Core.Events;
 using Epinova.ElasticSearch.Core.Models;
-using Epinova.ElasticSearch.Core.Models.Admin;
 using Epinova.ElasticSearch.Core.Models.Bulk;
 using Epinova.ElasticSearch.Core.Settings;
+using EPiServer;
 using EPiServer.Core;
 using EPiServer.DataAbstraction;
 using EPiServer.Logging;
@@ -27,6 +27,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Plugin
     {
         public static event OnBeforeIndexContent BeforeIndexContent;
         private readonly ILogger _logger = LogManager.GetLogger(typeof(IndexEPiServerContent));
+        private readonly IContentLoader _contentLoader;
         private readonly IContentIndexService _contentIndexService;
         private readonly ICoreIndexer _coreIndexer;
         private readonly IIndexer _indexer;
@@ -34,13 +35,13 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Plugin
         private readonly ILanguageBranchRepository _languageBranchRepository;
         private readonly IElasticSearchSettings _settings;
         private readonly IServerInfoService _serverInfoService;
-        private readonly IHttpClientHelper _httpClientHelper;
-        private readonly ServerInfo _serverInfo;
+        
         private readonly Utilities.Indexing _indexing;
         protected string CustomIndexName;
 
         public IndexEPiServerContent(
             IContentIndexService contentIndexService,
+            IContentLoader contentLoader,
             ICoreIndexer coreIndexer,
             IIndexer indexer,
             IBestBetsRepository bestBetsRepository,
@@ -55,9 +56,8 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Plugin
             _contentIndexService = contentIndexService;
             _languageBranchRepository = languageBranchRepository;
             _settings = settings;
-            _httpClientHelper = httpClientHelper;
+            _contentLoader = contentLoader;
             _serverInfoService = serverInfoService;
-            _serverInfo = serverInfoService.GetInfo();
             _indexing = new Utilities.Indexing(serverInfoService, settings, httpClientHelper);
             IsStoppable = true;
         }
@@ -204,12 +204,12 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Plugin
         protected virtual List<ContentReference> GetContentReferences()
         {
             OnStatusChanged("Loading all references from database...");
-            return _contentIndexService.GetContentReferences(ContentReference.RootPage).ToList();
+            return _contentLoader.GetDescendents(ContentReference.RootPage).ToList();
         }
 
         protected virtual List<IContent> GetDescendentContents(List<ContentReference> contentReferences, IEnumerable<LanguageBranch> languages)
         {
-            return _contentIndexService.GetDescendentContents(contentReferences, languages.ToList());
+            return _contentIndexService.ListContent(contentReferences, languages.ToList()).ToList();
         }
 
         private bool IndicesExists(IEnumerable<LanguageBranch> languages)

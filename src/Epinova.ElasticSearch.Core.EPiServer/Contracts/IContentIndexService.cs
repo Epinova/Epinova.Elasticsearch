@@ -7,9 +7,8 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Contracts
 {
     public interface IContentIndexService
     {
-        Type[] GetAllTypes(List<IContent> contentList);
-        List<IContent> GetAllContents(int bulkSize, ContentReference rootLink, List<LanguageBranch> languages);
-        List<ContentReference> GetContentReferences(ContentReference rootLink);
-        List<IContent> GetDescendentContents(List<ContentReference> contentReferences, List<LanguageBranch> languages);
+        Type[] ListContainedTypes(List<IContent> contentList);
+        List<IContent> ListContentFromRoot(int bulkSize, ContentReference rootLink, List<LanguageBranch> languages);
+        IEnumerable<IContent> ListContent(List<ContentReference> contentReferences, List<LanguageBranch> languages);
     }
 }

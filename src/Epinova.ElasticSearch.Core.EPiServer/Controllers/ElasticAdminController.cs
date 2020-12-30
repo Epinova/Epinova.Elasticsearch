@@ -151,8 +151,8 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Controllers
 
         private void UpdateMappingForTypes(ContentReference rootLink, Type indexType, string indexName, string languageKey)
         {
-            List<IContent> allContents = _contentIndexService.GetAllContents(_settings.BulkSize, rootLink, new List<LanguageBranch> { new LanguageBranch(languageKey) });
-            Type[] types = _contentIndexService.GetAllTypes(allContents);
+            List<IContent> allContents = _contentIndexService.ListContentFromRoot(_settings.BulkSize, rootLink, new List<LanguageBranch> { new LanguageBranch(languageKey) });
+            Type[] types = _contentIndexService.ListContainedTypes(allContents);
 
             foreach(Type type in types)
             {
