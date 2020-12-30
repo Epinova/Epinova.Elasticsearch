@@ -84,7 +84,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Plugin
             var finalStatus = new StringBuilder();
             var skippedReason = new StringBuilder();
             var results = new BulkBatchResult();
-            var logMessage = $"Indexing starting. Content retrived and indexed in bulks of {_settings.BulkSize} items.";
+            var logMessage = $"Indexing starting. Content retrieved and indexed in bulks of {_settings.BulkSize} items.";
 
             _logger.Information(logMessage);
             OnStatusChanged(logMessage);
