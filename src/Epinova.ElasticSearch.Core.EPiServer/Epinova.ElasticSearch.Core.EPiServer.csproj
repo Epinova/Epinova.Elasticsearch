@@ -182,6 +182,7 @@
     <Compile Include="ContentSearchHit.cs" />
     <Compile Include="ContentSearchResult.cs" />
     <Compile Include="Contracts\IAutoSuggestRepository.cs" />
+    <Compile Include="Contracts\IContentIndexService.cs" />
     <Compile Include="Contracts\IIndexer.cs" />
     <Compile Include="Indexer.cs" />
     <Compile Include="Contracts\ISynonymRepository.cs" />
@@ -245,6 +246,7 @@
     <Compile Include="Services\AutoSuggestRepository.cs" />
     <Compile Include="Services\BestBetsRepository.cs" />
     <Compile Include="Services\BoostingRepository.cs" />
+    <Compile Include="Services\ContentIndexService.cs" />
     <Compile Include="Services\InspectorRepository.cs" />
     <Compile Include="Services\SynonymRepository.cs" />
     <Compile Include="Views\ElasticSearchAdmin\Admin\Index.generated.cs">

@@ -11,7 +11,6 @@ using Epinova.ElasticSearch.Core.Models;
 using Epinova.ElasticSearch.Core.Models.Admin;
 using Epinova.ElasticSearch.Core.Models.Bulk;
 using Epinova.ElasticSearch.Core.Settings;
-using EPiServer;
 using EPiServer.Core;
 using EPiServer.DataAbstraction;
 using EPiServer.Logging;
@@ -29,7 +28,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Plugin
     {
         public static event OnBeforeIndexContent BeforeIndexContent;
         private readonly ILogger _logger = LogManager.GetLogger(typeof(IndexEPiServerContent));
-        private readonly IContentLoader _contentLoader;
+        private readonly IContentIndexService _contentIndexService;
         private readonly ICoreIndexer _coreIndexer;
         private readonly IIndexer _indexer;
         private readonly IBestBetsRepository _bestBetsRepository;
@@ -42,7 +41,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Plugin
         protected string CustomIndexName;
 
         public IndexEPiServerContent(
-            IContentLoader contentLoader,
+            IContentIndexService contentIndexService,
             ICoreIndexer coreIndexer,
             IIndexer indexer,
             IBestBetsRepository bestBetsRepository,
@@ -54,7 +53,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Plugin
             _coreIndexer = coreIndexer;
             _indexer = indexer;
             _bestBetsRepository = bestBetsRepository;
-            _contentLoader = contentLoader;
+            _contentIndexService = contentIndexService;
             _languageBranchRepository = languageBranchRepository;
             _settings = settings;
             _httpClientHelper = httpClientHelper;
@@ -103,7 +102,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Plugin
                     throw new InvalidOperationException("Plugin 'ingest-attachment' is missing, please install it.");
                 }
 
-                var contentReferences = GetContentReferences();
+                List<ContentReference> contentReferences = GetContentReferences();
 
                 logMessage = $"Retrieved {contentReferences.Count} ContentReference items from the following languages: {String.Join(", ", languages.Select(l => l.LanguageID))}";
                 _logger.Information(logMessage);
