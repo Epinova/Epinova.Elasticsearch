@@ -16,7 +16,6 @@ using EPiServer.DataAbstraction;
 using EPiServer.Logging;
 using EPiServer.PlugIn;
 using EPiServer.Scheduler;
-using Newtonsoft.Json;
 
 namespace Epinova.ElasticSearch.Core.EPiServer.Plugin
 {
@@ -114,11 +113,9 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Plugin
                 while(contentReferences.Count > 0)
                 {
                     if(IsStopped)
-                    {
                         return "Aborted by user";
-                    }
 
-                    var contents = GetDescendentContents(contentReferences.Take(_settings.BulkSize).ToList(), languages);
+                    List<IContent> contents = GetDescendentContents(contentReferences.Take(_settings.BulkSize).ToList(), languages);
 
                     contents.RemoveAll(_indexer.SkipIndexing);
                     contents.RemoveAll(_indexer.IsExcludedType);
@@ -127,24 +124,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Plugin
                     var removeCount = contentReferences.Count >= _settings.BulkSize ? _settings.BulkSize : contentReferences.Count;
                     contentReferences.RemoveRange(0, removeCount);
                 }
-
-                // Is this the first run?
-                var isFirstRun = GetTotalDocumentCount(languages) == 0;
-
-                // Update mappings on first run after analyzing the actual content
-                if(isFirstRun)
-                {
-                    var uniqueTypes = contentList.Select(content =>
-                    {
-                        var type = content.GetType();
-                        return type.Name.EndsWith("Proxy") ? type.BaseType : type;
-                    })
-                        .Distinct()
-                        .ToArray();
-
-                    UpdateMappings(languages, uniqueTypes);
-                }
-
+                
                 var mediaData = contentList.OfType<MediaData>().ToList();
                 contentList.RemoveAll(c => c is MediaData);
 
@@ -224,19 +204,12 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Plugin
         protected virtual List<ContentReference> GetContentReferences()
         {
             OnStatusChanged("Loading all references from database...");
-            return _contentLoader.GetDescendents(ContentReference.RootPage).ToList();
+            return _contentIndexService.GetContentReferences(ContentReference.RootPage).ToList();
         }
 
         protected virtual List<IContent> GetDescendentContents(List<ContentReference> contentReferences, IEnumerable<LanguageBranch> languages)
         {
-            var contentItems = new List<IContent>();
-
-            foreach(var languageBranch in languages)
-            {
-                contentItems.AddRange(_contentLoader.GetItems(contentReferences, languageBranch.Culture));
-            }
-
-            return contentItems;
+            return _contentIndexService.GetDescendentContents(contentReferences, languages.ToList());
         }
 
         private bool IndicesExists(IEnumerable<LanguageBranch> languages)
@@ -252,38 +225,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Plugin
 
             return true;
         }
-
-        private int GetTotalDocumentCount(IEnumerable<LanguageBranch> languages)
-        {
-            var count = 0;
-            foreach(var language in languages.Select(l => l.LanguageID))
-            {
-                var indexName = GetIndexName(language);
-                count += GetDocumentCount(indexName);
-            }
-
-            return count;
-        }
-
-        private int GetDocumentCount(string indexName)
-        {
-            var extraParams = _serverInfo.Version >= Constants.IncludeTypeNameAddedVersion ? "size=0&rest_total_hits_as_int=true" : "size=0";
-            var uri = _indexing.GetUri(indexName, "_search", null, extraParams);
-            dynamic model = new { hits = new { total = 0 } };
-
-            try
-            {
-                var response = _httpClientHelper.GetString(uri);
-                var result = JsonConvert.DeserializeAnonymousType(response, model);
-                return result.hits.total;
-            }
-            catch(Exception ex)
-            {
-                _logger.Error("Could not get count", ex);
-                return 0;
-            }
-        }
-
+        
         private void RestoreBestBets(IEnumerable<LanguageBranch> languages)
         {
             foreach(var language in languages.Select(l => l.LanguageID))
@@ -305,40 +247,8 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Plugin
                 }
             }
         }
-
-        private void UpdateMappings(IEnumerable<LanguageBranch> languages, Type[] contentTypes)
-        {
-            foreach(var language in languages.Select(l => l.LanguageID))
-            {
-                try
-                {
-                    var indexName = GetIndexName(language);
-                    _logger.Debug("Index: " + indexName);
-                    OnStatusChanged("Updating mapping for index " + indexName);
-
-                    foreach(var type in contentTypes)
-                    {
-                        _coreIndexer.UpdateMapping(type, typeof(IndexItem), indexName);
-                        _coreIndexer.CreateAnalyzedMappingsIfNeeded(type, language, indexName);
-                    }
-                }
-                catch(Exception ex)
-                {
-                    _logger.Error("Failed to update mappings", ex);
-                    throw;
-                }
-            }
-        }
-
-        private string GetIndexName(string language)
-        {
-            if(!String.IsNullOrEmpty(CustomIndexName))
-            {
-                return _settings.GetCustomIndexName(CustomIndexName, language);
-            }
-
-            return _settings.GetDefaultIndexName(language);
-        }
+        
+        private string GetIndexName(string language) => !String.IsNullOrEmpty(CustomIndexName) ? _settings.GetCustomIndexName(CustomIndexName, language) : _settings.GetDefaultIndexName(language);
 
         private BulkBatchResult IndexMediaData(IList<MediaData> mediaData)
         {
