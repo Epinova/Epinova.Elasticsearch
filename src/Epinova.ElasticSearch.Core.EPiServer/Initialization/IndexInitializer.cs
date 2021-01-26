@@ -89,11 +89,20 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Initialization
 
         private static string GetControllers()
         {
-            IEnumerable<string> controllers = Assembly
+            var controllers = Assembly
                 .GetExecutingAssembly()
                 .GetTypes()
                 .Where(type => typeof(Controller).IsAssignableFrom(type))
-                .Select(c => c.Name.Substring(0, c.Name.IndexOf("Controller", StringComparison.OrdinalIgnoreCase)));
+                .Select(c => c.Name.Substring(0, c.Name.IndexOf("Controller", StringComparison.OrdinalIgnoreCase)))
+                .ToList();
+
+            var commerceControllers = Assembly.Load("Epinova.ElasticSearch.Core.EPiServer.Commerce")?
+                .GetTypes()
+                .Where(type => typeof(Controller).IsAssignableFrom(type))
+                .Select(c => c.Name.Substring(0, c.Name.IndexOf("Controller", StringComparison.OrdinalIgnoreCase))).ToList();
+
+            if(commerceControllers != null && commerceControllers.Any())
+                controllers.AddRange(commerceControllers);
 
             return String.Join("|", controllers);
         }
