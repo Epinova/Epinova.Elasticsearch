@@ -6,10 +6,12 @@ using System.Web.Mvc;
 using System.Web.Routing;
 using Epinova.ElasticSearch.Core.Attributes;
 using Epinova.ElasticSearch.Core.Contracts;
+using Epinova.ElasticSearch.Core.Settings;
 using Epinova.ElasticSearch.Core.Settings.Configuration;
 using EPiServer.Framework;
 using EPiServer.Framework.Initialization;
 using EPiServer.Logging;
+using EPiServer.ServiceLocation;
 using IndexingConvention = Epinova.ElasticSearch.Core.Conventions.Indexing;
 using InitializationModule = EPiServer.Web.InitializationModule;
 
@@ -20,7 +22,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Initialization
     public class IndexInitializer : IInitializableModule
     {
         private static readonly ILogger _logger = LogManager.GetLogger(typeof(IndexInitializer));
-
+        
         /// <summary>
         /// Assemblies to ignore when scanning for types to exclude.
         /// The names will be compared via String.StartsWith(OrdinalIgnoreCase)
@@ -96,13 +98,19 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Initialization
                 .Select(c => c.Name.Substring(0, c.Name.IndexOf("Controller", StringComparison.OrdinalIgnoreCase)))
                 .ToList();
 
-            var commerceControllers = Assembly.Load("Epinova.ElasticSearch.Core.EPiServer.Commerce")?
-                .GetTypes()
-                .Where(type => typeof(Controller).IsAssignableFrom(type))
-                .Select(c => c.Name.Substring(0, c.Name.IndexOf("Controller", StringComparison.OrdinalIgnoreCase))).ToList();
+            bool commerceEnabled = ServiceLocator.Current.GetInstance<IElasticSearchSettings>().CommerceEnabled;
 
-            if(commerceControllers != null && commerceControllers.Any())
-                controllers.AddRange(commerceControllers);
+            if(commerceEnabled)
+            {
+                var commerceControllers = Assembly.Load("Epinova.ElasticSearch.Core.EPiServer.Commerce")?
+                    .GetTypes()
+                    .Where(type => typeof(Controller).IsAssignableFrom(type))
+                    .Select(c => c.Name.Substring(0, c.Name.IndexOf("Controller", StringComparison.OrdinalIgnoreCase)))
+                    .ToList();
+
+                if(commerceControllers != null && commerceControllers.Any())
+                    controllers.AddRange(commerceControllers);
+            }
 
             return String.Join("|", controllers);
         }
