@@ -89,6 +89,11 @@ namespace Epinova.ElasticSearch.Core.Settings
             return CreateIndexName(Index, language);
         }
 
+        public string GetCommerceIndexName(string language)
+        {
+            return CreateIndexName($"{Index}-{Constants.CommerceProviderName}", language);
+        }
+
         public string GetCustomIndexName(string index, string language)
         {
             if(String.IsNullOrWhiteSpace(index))

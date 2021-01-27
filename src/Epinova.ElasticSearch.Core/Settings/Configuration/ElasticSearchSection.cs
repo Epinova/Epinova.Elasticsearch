@@ -141,14 +141,6 @@ namespace Epinova.ElasticSearch.Core.Settings.Configuration
             get => (FilesCollection)base["files"];
             set => base["files"] = value;
         }
-
-        [ConfigurationProperty("contentSelector", IsDefaultCollection = false)]
-        [ConfigurationCollection(typeof(ContentSelectorCollection))]
-        public virtual ContentSelectorCollection ContentSelector
-        {
-            get => (ContentSelectorCollection)base["contentSelector"];
-            set => base["contentSelector"] = value;
-        }
         
         [ConfigurationProperty("useTls12", DefaultValue = false, IsRequired = false)]
         public bool UseTls12

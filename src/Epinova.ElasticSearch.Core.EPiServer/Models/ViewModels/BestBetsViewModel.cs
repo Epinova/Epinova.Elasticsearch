@@ -17,16 +17,16 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Models.ViewModels
         {
         }
 
-        public List<ContentReference> SelectorRoots { get; }
-            = new List<ContentReference> { SiteDefinition.Current.StartPage };
+        public List<ContentReference> SelectorRoots { get; set; } = new List<ContentReference> { SiteDefinition.Current.StartPage };
 
-        public List<string> SelectorTypes { get; }
-            = new List<string> { "episerver.core.pagedata" };
+        public List<string> SelectorTypes { get; set; } = new List<string> { "episerver.core.pagedata" };
 
-        public List<BestBetsByLanguage> BestBetsByLanguage { get; } = new List<BestBetsByLanguage>();
+        public List<BestBetsByLanguage> BestBetsByLanguage { get; set; } = new List<BestBetsByLanguage>();
 
-        public string GetEditUrlPrefix(string language)
-            => $"{UriSupport.UIUrl}#viewsetting=viewlanguage:///{language}&context=epi.cms.contentdata:///";
+        public string TypeName { get; set; }
+        public string SearchProviderKey { get; set; }
+
+        public string GetEditUrlPrefix(string language) => $"{UriSupport.UIUrl}#viewsetting=viewlanguage:///{language}&context=epi.cms.contentdata:///";
 
         public IEnumerable<ModuleViewModel> GetModuleSettings()
         {
