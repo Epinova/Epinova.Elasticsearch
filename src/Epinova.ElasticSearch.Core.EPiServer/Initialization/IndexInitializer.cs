@@ -91,28 +91,29 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Initialization
 
         private static string GetControllers()
         {
-            var controllers = Assembly
-                .GetExecutingAssembly()
-                .GetTypes()
-                .Where(type => typeof(Controller).IsAssignableFrom(type))
-                .Select(c => c.Name.Substring(0, c.Name.IndexOf("Controller", StringComparison.OrdinalIgnoreCase)))
-                .ToList();
+            var cmsAssembly = Assembly.GetExecutingAssembly();
+            List<string> controllers = GetControllers(cmsAssembly).ToList();
 
             bool commerceEnabled = ServiceLocator.Current.GetInstance<IElasticSearchSettings>().CommerceEnabled;
-
             if(commerceEnabled)
             {
-                var commerceControllers = Assembly.Load("Epinova.ElasticSearch.Core.EPiServer.Commerce")?
-                    .GetTypes()
-                    .Where(type => typeof(Controller).IsAssignableFrom(type))
-                    .Select(c => c.Name.Substring(0, c.Name.IndexOf("Controller", StringComparison.OrdinalIgnoreCase)))
-                    .ToList();
-
-                if(commerceControllers != null && commerceControllers.Any())
+                Assembly commerceAssembly = Assembly.Load("Epinova.ElasticSearch.Core.EPiServer.Commerce");
+                var commerceControllers = GetControllers(commerceAssembly).ToList();
+                
+                if(commerceControllers.Any())
                     controllers.AddRange(commerceControllers);
             }
 
             return String.Join("|", controllers);
+        }
+
+        private static IEnumerable<string> GetControllers(Assembly assembly)
+        {
+            return assembly?
+                       .GetTypes()
+                       .Where(type => typeof(Controller).IsAssignableFrom(type))
+                       .Select(c => c.Name.Substring(0, c.Name.IndexOf("Controller", StringComparison.OrdinalIgnoreCase)))
+                   ?? Enumerable.Empty<string>();
         }
 
         private static IEnumerable<string> GetFileExtensions()
