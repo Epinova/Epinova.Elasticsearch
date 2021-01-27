@@ -6,10 +6,12 @@ using System.Web.Mvc;
 using System.Web.Routing;
 using Epinova.ElasticSearch.Core.Attributes;
 using Epinova.ElasticSearch.Core.Contracts;
+using Epinova.ElasticSearch.Core.Settings;
 using Epinova.ElasticSearch.Core.Settings.Configuration;
 using EPiServer.Framework;
 using EPiServer.Framework.Initialization;
 using EPiServer.Logging;
+using EPiServer.ServiceLocation;
 using IndexingConvention = Epinova.ElasticSearch.Core.Conventions.Indexing;
 using InitializationModule = EPiServer.Web.InitializationModule;
 
@@ -20,7 +22,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Initialization
     public class IndexInitializer : IInitializableModule
     {
         private static readonly ILogger _logger = LogManager.GetLogger(typeof(IndexInitializer));
-
+        
         /// <summary>
         /// Assemblies to ignore when scanning for types to exclude.
         /// The names will be compared via String.StartsWith(OrdinalIgnoreCase)
@@ -89,13 +91,29 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Initialization
 
         private static string GetControllers()
         {
-            IEnumerable<string> controllers = Assembly
-                .GetExecutingAssembly()
-                .GetTypes()
-                .Where(type => typeof(Controller).IsAssignableFrom(type))
-                .Select(c => c.Name.Substring(0, c.Name.IndexOf("Controller", StringComparison.OrdinalIgnoreCase)));
+            var cmsAssembly = Assembly.GetExecutingAssembly();
+            List<string> controllers = GetControllers(cmsAssembly).ToList();
+
+            bool commerceEnabled = ServiceLocator.Current.GetInstance<IElasticSearchSettings>().CommerceEnabled;
+            if(commerceEnabled)
+            {
+                Assembly commerceAssembly = Assembly.Load("Epinova.ElasticSearch.Core.EPiServer.Commerce");
+                var commerceControllers = GetControllers(commerceAssembly).ToList();
+                
+                if(commerceControllers.Any())
+                    controllers.AddRange(commerceControllers);
+            }
 
             return String.Join("|", controllers);
+        }
+
+        private static IEnumerable<string> GetControllers(Assembly assembly)
+        {
+            return assembly?
+                       .GetTypes()
+                       .Where(type => typeof(Controller).IsAssignableFrom(type))
+                       .Select(c => c.Name.Substring(0, c.Name.IndexOf("Controller", StringComparison.OrdinalIgnoreCase)))
+                   ?? Enumerable.Empty<string>();
         }
 
         private static IEnumerable<string> GetFileExtensions()

@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Web.Routing;
+using Epinova.ElasticSearch.Core.Settings;
 using EPiServer.Framework.Localization;
 using EPiServer.Security;
+using EPiServer.ServiceLocation;
 using EPiServer.Shell.Navigation;
 
 namespace Epinova.ElasticSearch.Core.EPiServer.Providers
@@ -10,9 +12,8 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Providers
     [MenuProvider]
     public class ElasticSearchMenuProvider : IMenuProvider
     {
-        private static Func<RequestContext, bool> GetAccessInfo()
-            => request => PrincipalInfo.CurrentPrincipal.IsInRole(RoleNames.ElasticsearchAdmins);
-
+        private static Func<RequestContext, bool> GetAccessInfo() => request => PrincipalInfo.CurrentPrincipal.IsInRole(RoleNames.ElasticsearchAdmins);
+        private readonly IElasticSearchSettings _elasticSearchSettings = ServiceLocator.Current.GetInstance<IElasticSearchSettings>();
         private readonly Func<string, string> _translate = key => LocalizationService.Current.GetString(String.Concat("/epinovaelasticsearch/", key));
 
         public IEnumerable<MenuItem> GetMenuItems()
@@ -46,7 +47,9 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Providers
                 SortIndex = 20
             };
 
-            var bestbets = new UrlMenuItem(_translate("bestbets/heading"), "/global/epinovaelasticsearchmenu/synonyms", "/ElasticSearchAdmin/ElasticBestBets")
+            string bestBetsUrl = _elasticSearchSettings.CommerceEnabled ? "/ElasticSearchAdmin/ElasticBestBetsCommerce" : "/ElasticSearchAdmin/ElasticBestBets";
+
+            var bestbets = new UrlMenuItem(_translate("bestbets/heading"), "/global/epinovaelasticsearchmenu/synonyms", bestBetsUrl)
             {
                 IsAvailable = GetAccessInfo(),
                 SortIndex = 25
