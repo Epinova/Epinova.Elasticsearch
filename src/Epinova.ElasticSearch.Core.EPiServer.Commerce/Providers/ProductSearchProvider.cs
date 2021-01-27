@@ -28,8 +28,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Commerce.Providers
         private string GetIndexName()
             => $"{_elasticSearchSettings.Index}-{Constants.CommerceProviderName}-{Language.GetRequestLanguageCode()}";
 
-        protected override string GetSearchRoot()
-            => ReferenceConverter.Service.GetRootLink().ID.ToString();
+        protected override string GetSearchRoot() => ReferenceConverter.Service.GetRootLink().ID.ToString();
 
         protected override string[] GetProviderKeys()
         {

@@ -94,7 +94,7 @@
                     {
                         <input type="hidden" name="LanguageId" value="@bb.LanguageId" />
                         <input type="hidden" name="Index" value="@ViewBag.SelectedIndex" />
-                        <input type="hidden" name="TypeName" value="@ViewBag.TypeName" />
+                        <input type="hidden" name="TypeName" value="@Model.TypeName" />
 
                         <div class="epi-form-container__section__row epi-form-container__section__row--field">
                             <label for="phrase_@bb.LanguageId">@Html.TranslateWithPathRaw("phrase", localizationPath)</label>
@@ -105,7 +105,7 @@
                             <div id="pageSelector_@bb.LanguageId"
                                  class="pageSelector"
                                  data-dojo-type="epi-cms/widget/ContentSelector"
-                                 data-dojo-props="showAllLanguages: false, roots: ['@String.Join("','", Model.SelectorRoots)'], repositoryKey: 'pages', allowedTypes: ['@String.Join("','", Model.SelectorTypes)'], allowedDndTypes: [], value: null, required:true">
+                                 data-dojo-props="showAllLanguages: false, roots: ['@String.Join("','", Model.SelectorRoots)'], repositoryKey: '@Model.SearchProviderKey', allowedTypes: ['@String.Join("','", Model.SelectorTypes)'], allowedDndTypes: [], value: null, required:true">
                                 <script type="dojo/method" data-dojo-event="onChange">
                                     dojo.byId('contentId_@bb.LanguageId').value = this.value;
                                 </script>

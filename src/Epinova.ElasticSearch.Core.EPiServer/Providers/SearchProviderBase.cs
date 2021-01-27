@@ -20,15 +20,14 @@ using EditUrlResolver = EPiServer.Web.Routing.EditUrlResolver;
 
 namespace Epinova.ElasticSearch.Core.EPiServer.Providers
 {
-    public abstract class SearchProviderBase<TSearchType, TContentData, TContentType> :
-        ContentSearchProviderBase<TContentData, TContentType>
+    public abstract class SearchProviderBase<TSearchType, TContentData, TContentType> : ContentSearchProviderBase<TContentData, TContentType>
         where TSearchType : class
         where TContentData : IContentData
         where TContentType : ContentType
     {
         private readonly string _categoryKey;
         protected string IndexName;
-
+     
         protected readonly IElasticSearchService<TSearchType> _elasticSearchService;
         protected readonly IElasticSearchSettings _elasticSearchSettings = ServiceLocator.Current.GetInstance<IElasticSearchSettings>();
         protected readonly IServerInfoService _serverInfoService = ServiceLocator.Current.GetInstance<IServerInfoService>();
@@ -48,10 +47,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Providers
                 ServiceLocator.Current.GetInstance<UIDescriptorRegistry>())
         {
             _categoryKey = categoryKey;
-            _elasticSearchService = new ElasticSearchService<TSearchType>(
-                _serverInfoService,
-                _elasticSearchSettings,
-                _httpClientHelper);
+            _elasticSearchService = new ElasticSearchService<TSearchType>(_serverInfoService, _elasticSearchSettings, _httpClientHelper);
         }
 
         public override string Area => AreaName;
@@ -100,11 +96,9 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Providers
                     .Select(hit => CreateSearchResult(hit.Content));
         }
 
-        protected virtual string GetSearchRoot()
-            => ContentReference.RootPage.ID.ToString();
+        protected virtual string GetSearchRoot() => ContentReference.RootPage.ID.ToString();
 
-        protected virtual string[] GetProviderKeys()
-            => Array.Empty<string>();
+        protected virtual string[] GetProviderKeys() => Array.Empty<string>();
 
         private IElasticSearchService<TContentData> CreateQuery(Query query, CultureInfo language, int searchRootId)
         {

@@ -325,8 +325,6 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ServerInfoService.cs" />
     <Compile Include="Services\TrackingRepository.cs" />
-    <Compile Include="Settings\Configuration\ContentSelectorCollection.cs" />
-    <Compile Include="Settings\Configuration\ContentSelectorConfiguration.cs" />
     <Compile Include="Settings\Configuration\ElasticSearchSection.cs" />
     <Compile Include="Settings\Configuration\FileConfiguration.cs" />
     <Compile Include="Settings\Configuration\FilesCollection.cs" />

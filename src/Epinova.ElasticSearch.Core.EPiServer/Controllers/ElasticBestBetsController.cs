@@ -35,9 +35,21 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Controllers
         }
 
         [Authorize(Roles = RoleNames.ElasticsearchAdmins)]
-        public ActionResult Index()
+        public virtual ActionResult Index()
         {
-            var model = new BestBetsViewModel(CurrentLanguage);
+            var model = new BestBetsViewModel(CurrentLanguage)
+            {
+                BestBetsByLanguage = GetBestBetsByLanguage(),
+                TypeName = GetTypeName(),
+                SearchProviderKey = "pages"
+            };
+            
+            return View("~/Views/ElasticSearchAdmin/BestBets/Index.cshtml", model);
+        }
+
+        protected List<BestBetsByLanguage> GetBestBetsByLanguage()
+        {
+            List<BestBetsByLanguage> list = new List<BestBetsByLanguage>();
 
             foreach(KeyValuePair<string, string> language in Languages)
             {
@@ -45,7 +57,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Controllers
                 name = String.Concat(name.Substring(0, 1).ToUpper(), name.Substring(1));
                 var indexName = SwapLanguage(CurrentIndex, language.Key);
 
-                model.BestBetsByLanguage.Add(new BestBetsByLanguage
+                list.Add(new BestBetsByLanguage
                 {
                     LanguageName = name,
                     LanguageId = language.Key,
@@ -54,18 +66,17 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Controllers
                 });
             }
 
+            return list;
+        }
+
+        protected string GetTypeName()
+        {
             var config = ElasticSearchSection.GetConfiguration();
 
-            foreach(ContentSelectorConfiguration entry in config.ContentSelector)
-            {
-                model.SelectorTypes.Add(entry.Type.ToLower());
-                model.SelectorRoots.Add(new ContentReference(entry.Id, entry.Provider));
-            }
-
             var currentType = config.IndicesParsed.FirstOrDefault(i => CurrentIndex.StartsWith(i.Name, StringComparison.InvariantCultureIgnoreCase))?.Type;
-            ViewBag.TypeName = !String.IsNullOrEmpty(currentType) ? Type.GetType(currentType)?.AssemblyQualifiedName : typeof(IndexItem).AssemblyQualifiedName;
-
-            return View("~/Views/ElasticSearchAdmin/BestBets/Index.cshtml", model);
+            return !String.IsNullOrEmpty(currentType)
+                ? Type.GetType(currentType)?.AssemblyQualifiedName
+                : typeof(IndexItem).AssemblyQualifiedName;
         }
 
         [HttpPost]
