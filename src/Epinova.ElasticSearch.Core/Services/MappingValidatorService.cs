@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using System.Runtime.CompilerServices;
 using Epinova.ElasticSearch.Core.Contracts;
 using Epinova.ElasticSearch.Core.Enums;
 using Epinova.ElasticSearch.Core.Extensions;
@@ -11,7 +10,6 @@ using Epinova.ElasticSearch.Core.Models.Admin;
 using Epinova.ElasticSearch.Core.Models.Mapping;
 using Epinova.ElasticSearch.Core.Settings;
 using Epinova.ElasticSearch.Core.Utilities;
-using EPiServer.DataAbstraction;
 using EPiServer.ServiceLocation;
 
 namespace Epinova.ElasticSearch.Core.Services
@@ -23,35 +21,20 @@ namespace Epinova.ElasticSearch.Core.Services
         private readonly IServerInfoService _serverInfoService;
         private readonly IElasticSearchSettings _elasticSearchSettings;
         private readonly IHttpClientHelper _httpClientHelper;
-        private readonly ILanguageBranchRepository _languageBranchRepository;
 
-        public MappingValidatorService(IServerInfoService serverInfoService, IElasticSearchSettings elasticSearchSettings, IHttpClientHelper httpClientHelper, ILanguageBranchRepository languageBranchRepository)
+        public MappingValidatorService(IServerInfoService serverInfoService, IElasticSearchSettings elasticSearchSettings, IHttpClientHelper httpClientHelper)
         {
             _serverInfoService = serverInfoService;
             _elasticSearchSettings = elasticSearchSettings;
             _httpClientHelper = httpClientHelper;
-            _languageBranchRepository = languageBranchRepository;
             _mapping = new Mapping(_serverInfoService, _elasticSearchSettings, _httpClientHelper);
         }
-
-        //private static ElasticSearchSection Configuration => ElasticSearchSection.GetConfiguration();
 
         public List<MappingValidatorType> Validate(IndexInformation index)
         {
             var errors = new List<MappingValidatorType>();
 
             IndexMapping currentMappings = GetCurrentIndexMappings(index);
-
-            //foreach(KeyValuePair<string, string> language in GetLanguages)
-            //{
-            //    ;
-
-            //    if(currentMappings == null)
-            //    {
-            //        log.Add($"{index.Index} not created");
-            //        return false;
-            //    }
-            //}
 
             List<(Type, List<IndexableProperty>)> correctMappings = GetCorrectMappings(index);
 
@@ -75,30 +58,18 @@ namespace Epinova.ElasticSearch.Core.Services
 
         private List<(Type, List<IndexableProperty>)> GetCorrectMappings(IndexInformation index)
         {
-            //TODO Look @ IndexEPiServerContent
-            //var content =  _contentLoader.GetDescendents(ContentReference.RootPage).ToList();
             Type attributeType;
 
             if(index.Index.IndexOf(Constants.CommerceProviderName, StringComparison.OrdinalIgnoreCase) > 0)
-            {
                 attributeType = Type.GetType("EPiServer.Commerce.Catalog.DataAnnotations.CatalogContentTypeAttribute, EPiServer.Business.Commerce");
-            }
             else
-            {
                 attributeType = Type.GetType("EPiServer.DataAnnotations.ContentTypeAttribute, EPiServer");
-            }
-            //other indextypes?
+            //handle other indextypes?
 
-            IEnumerable<Type> typesWithAttribute = GetTypesWithAttribute(attributeType);
-
-            var list = new List<(Type, List<IndexableProperty>)>();
-            foreach(Type type in typesWithAttribute)
-            {
-                if(!type.IsExcludedType())
-                    list.Add((type, CoreIndexer.GetIndexableProperties(type, false)));
-            }
-
-            return list;
+            return GetTypesWithAttribute(attributeType)
+                .Where(t => !t.IsExcludedType())
+                .Select(type => (type, CoreIndexer.GetIndexableProperties(type, optIn: false)))
+                .ToList();
         }
 
         private IEnumerable<Type> GetTypesWithAttribute(Type attributeType)
@@ -109,20 +80,9 @@ namespace Epinova.ElasticSearch.Core.Services
             
             foreach(Assembly assembly in assemblies)
             {
-                IEnumerable<Type> types;
-                try
+                foreach(Type type in assembly.GetTypes())
                 {
-                    types = assembly.GetTypes();
-                }
-                catch(Exception ex)
-                {
-                    var test = "";
-                    continue;
-                }
-
-                foreach(Type type in types)
-                {
-                    if(type.CustomAttributes.Any(a => a.AttributeType == attributeType)) // != null && !string.IsNullOrWhiteSpace(a.AttributeType.FullName) && a.AttributeType.FullName.Equals(attributeType.FullName)))
+                    if(type.CustomAttributes.Any(a => a.AttributeType == attributeType))
                         yield return type;
                 }
             }
@@ -135,9 +95,6 @@ namespace Epinova.ElasticSearch.Core.Services
                 : Type.GetType(indexConfig.Type);
             return _mapping.GetIndexMapping(type, null, indexConfig.Index);
         }
-
-        private Dictionary<string, string> GetLanguages => _languageBranchRepository.ListEnabled()
-            .ToDictionary(x => x.LanguageID, x => x.Name);
     }
 
     public interface IMappingValidatorService
