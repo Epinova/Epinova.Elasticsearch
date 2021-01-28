@@ -1,5 +1,9 @@
 # Changelog
 
+#### 11.7.2
+* Best bets content selector
+* Create indices with mappings
+
 #### 11.7.1
 * Geo-point filtering and sorting
 * Support for `IDictionary<string, object>` properties.
