@@ -12,7 +12,6 @@ using Mediachase.Commerce.Catalog;
 
 namespace Epinova.ElasticSearch.Core.EPiServer.Commerce.Controllers
 {
-    [Authorize(Roles = RoleNames.ElasticsearchAdmins)]
     public class ElasticBestBetsCommerceController : ElasticBestBetsController
     {
         private readonly IElasticSearchSettings _settings;
@@ -24,7 +23,6 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Commerce.Controllers
             _referenceConverter = referenceConverter;
         }
 
-        [Authorize(Roles = RoleNames.ElasticsearchAdmins)]
         public override ActionResult Index()
         {
             var model = new BestBetsViewModel(CurrentLanguage)

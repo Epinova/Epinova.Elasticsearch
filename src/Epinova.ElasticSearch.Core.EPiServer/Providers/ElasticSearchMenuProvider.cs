@@ -23,7 +23,9 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Providers
                 IsAvailable = GetAccessInfo()
             };
 
-            var admin = new UrlMenuItem(_translate("admin/heading"), "/global/epinovaelasticsearchmenu/admin", "/ElasticSearchAdmin/ElasticAdmin")
+            string adminUrl = _elasticSearchSettings.CommerceEnabled ? "/ElasticSearchAdmin/ElasticAdminCommerce" : "/ElasticSearchAdmin/ElasticAdmin";
+
+            var admin = new UrlMenuItem(_translate("admin/heading"), "/global/epinovaelasticsearchmenu/admin", adminUrl)
             {
                 IsAvailable = GetAccessInfo(),
                 SortIndex = 0

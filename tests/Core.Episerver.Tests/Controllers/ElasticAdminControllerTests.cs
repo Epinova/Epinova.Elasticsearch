@@ -31,6 +31,7 @@ namespace Core.Episerver.Tests.Controllers
                 });
 
             _controller = new ElasticAdminController(
+                fixture.ServiceLocationMock.ContentIndexServiceMock.Object,
                 languageBranchRepositoryMock.Object,
                 indexerMock.Object,
                 fixture.ServiceLocationMock.SettingsMock.Object,

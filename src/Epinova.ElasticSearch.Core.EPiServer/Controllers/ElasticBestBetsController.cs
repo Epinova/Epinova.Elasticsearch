@@ -15,7 +15,6 @@ using EPiServer.DataAbstraction;
 
 namespace Epinova.ElasticSearch.Core.EPiServer.Controllers
 {
-    [Authorize(Roles = RoleNames.ElasticsearchAdmins)]
     public class ElasticBestBetsController : ElasticSearchControllerBase
     {
         private readonly IContentLoader _contentLoader;
@@ -34,7 +33,6 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Controllers
             _bestBetsRepository = bestBetsRepository;
         }
 
-        [Authorize(Roles = RoleNames.ElasticsearchAdmins)]
         public virtual ActionResult Index()
         {
             var model = new BestBetsViewModel(CurrentLanguage)

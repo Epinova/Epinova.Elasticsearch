@@ -23,7 +23,6 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Controllers
             _autoSuggestRepository = autoSuggestRepository;
         }
 
-        [Authorize(Roles = RoleNames.ElasticsearchAdmins)]
         public ActionResult Index(string languageId = null)
         {
             var model = new AutoSuggestViewModel(languageId);

@@ -40,8 +40,6 @@ namespace Epinova.ElasticSearch.Core.Contracts
         /// </summary>
         void ClearBestBets(string indexName, Type indexType, string id);
 
-        void UpdateMapping(Type type, string index);
-
         void UpdateMapping(Type type, Type indexType, string index);
 
         void UpdateMapping(Type type, Type indexType, string index, string language, bool optIn);

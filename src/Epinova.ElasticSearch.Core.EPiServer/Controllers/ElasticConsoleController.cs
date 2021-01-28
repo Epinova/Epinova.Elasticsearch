@@ -30,7 +30,6 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Controllers
             _httpClientHelper = httpClientHelper;
         }
 
-        [Authorize(Roles = RoleNames.ElasticsearchAdmins)]
         [ValidateInput(false)]
         public ActionResult Index(string query, string index)
         {
@@ -79,11 +78,9 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Controllers
             return View("~/Views/ElasticSearchAdmin/Console/Index.cshtml");
         }
 
-        [Authorize(Roles = RoleNames.ElasticsearchAdmins)]
-        public ActionResult Settings(string index = null)
-        {
-            return GetJsonFromEndpoint(index, "settings");
-        }
+        public ActionResult Mapping(string index = null) => GetJsonFromEndpoint(index, "mapping");
+
+        public ActionResult Settings(string index = null) => GetJsonFromEndpoint(index, "settings");
 
         private ActionResult GetJsonFromEndpoint(string index, string endpoint)
         {

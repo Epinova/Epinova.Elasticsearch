@@ -146,6 +146,7 @@
         <addorupdateindexes>Installasjon</addorupdateindexes>
         <runindexjob>Kjør indekseringsjobb</runindexjob>
         <addorupdateindexesbutton>Opprett/oppdater</addorupdateindexesbutton>
+        <addorupdateindexesmappingbutton>Opprett/oppdater med mapping</addorupdateindexesmappingbutton>
         <addnewindexinfo>Bruker navn fra konfigurasjon.</addnewindexinfo>
         <confirmDelete>Er du sikker på at du vil slette denne indeksen?</confirmDelete>
         <confirmDeleteAll>Er du sikker på at du vil slette alle indekser?</confirmDeleteAll>
