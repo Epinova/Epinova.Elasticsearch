@@ -65,7 +65,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Controllers
             if(errors.Any())
                 return JsonConvert.SerializeObject(errors, Formatting.Indented);
 
-            return "It's all good";
+            return "No mapping errors found";
         }
 
         private string GetMappings(string index)
