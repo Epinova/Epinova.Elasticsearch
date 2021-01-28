@@ -140,6 +140,7 @@
         <addorupdateindexes>Setup</addorupdateindexes>
         <runindexjob>Run indexing job</runindexjob>
         <addorupdateindexesbutton>Create or update indices</addorupdateindexesbutton>
+        <addorupdateindexesmappingbutton>Create or update indices with mapping</addorupdateindexesmappingbutton>
         <addnewindexinfo>Uses name from configuration.</addnewindexinfo>
         <confirmDelete>Are you sure you want to delete this index?</confirmDelete>
         <confirmDeleteAll>Are you sure you want to delete all indices?</confirmDeleteAll>

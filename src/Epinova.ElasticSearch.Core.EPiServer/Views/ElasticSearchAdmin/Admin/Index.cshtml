@@ -50,6 +50,20 @@
         #indexGrid .field-docscount {
             width: 170px;
         }
+
+        .create-indices-buttons {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .create-indices-buttons .button-success .dijitButtonNode {
+            background-color: #81c784;
+        }
+
+        .create-indices-buttons p {
+            margin: 0;
+        }
     </style>
 }
 
@@ -81,22 +95,26 @@
 <div class="epi-padding-small">
 
     <h1>@Html.TranslateWithPath("addorupdateindexes", localizationPath)</h1>
-    <p>
+    <div class="create-indices-buttons">
         @using (Html.BeginForm("AddNewIndex", controllerName))
         {
             <button data-dojo-type="dijit/form/Button" type="submit" class="epi-primary">@IndexString("addorupdateindexesbutton")</button>
-            @IndexString("addnewindexinfo")
         }
-    </p>
+        @using (Html.BeginForm("AddNewIndexWithMappings", controllerName))
+        {
+            <button data-dojo-type="dijit/form/Button" type="submit" class="epi-primary button-success">@IndexString("addorupdateindexesmappingbutton")</button>
+        }
+        <p>@IndexString("addnewindexinfo")</p>
+    </div>
 
     @if (Model.AllIndexes.Any())
     {
-        <p>
+        <div>
             @using (Html.BeginForm("RunIndexJob", controllerName))
             {
                 <button data-dojo-type="dijit/form/Button" type="submit">@IndexString("runindexjob")</button>
             }
-        </p>
+        </div>
     }
 
     @if (Model.ClusterHealth != null)
