@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Web.Mvc;
+using System.Web.Routing;
 using Epinova.ElasticSearch.Core.Admin;
 using Epinova.ElasticSearch.Core.Contracts;
 using Epinova.ElasticSearch.Core.EPiServer.Contracts;
@@ -51,10 +52,10 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Controllers
         }
 
         [Authorize(Roles = RoleNames.ElasticsearchAdmins)]
-        public ActionResult Index()
+        public virtual ActionResult Index(bool redirected = false)
         {
-            if(_settings.CommerceEnabled)
-                return RedirectToAction("Index", "ElasticAdminCommerce");
+            if(_settings.CommerceEnabled && !redirected)
+                return RedirectToAction("Index", "ElasticAdminCommerce", new RouteValueDictionary {{ "redirect", true }});
 
             HealthInformation clusterHealth = _healthHelper.GetClusterHealth();
             Node[] nodeInfo = _healthHelper.GetNodeInfo();
