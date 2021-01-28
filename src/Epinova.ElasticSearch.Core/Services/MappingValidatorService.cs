@@ -62,18 +62,8 @@ namespace Epinova.ElasticSearch.Core.Services
                 foreach(IndexableProperty indexableProperty in correctMapping.Item2)
                 {
                     IndexMappingProperty indexMappingProperty = CoreIndexer.GetPropertyMapping(indexableProperty, "no", currentMappings, out MappingConflict mappingConflict);
-                    var log = new List<string>();
-                    //if(mappingConflict.HasFlag(MappingConflict.Found))
-                    //    log.Add("Found existing mapping");
-                    if(mappingConflict.HasFlag(MappingConflict.Missing))
-                        log.Add("Missing mapping");
-                    if(mappingConflict.HasFlag(MappingConflict.Mapping))
-                        log.Add("Mapping conflict");
-                    if(mappingConflict.HasFlag(MappingConflict.Analyzer))
-                        log.Add("Analyzer conflict");
-
-                    if(log.Any())
-                        properties.Add(new MappingValidatorProperty(indexableProperty.Name, log.ToArray()));
+                    if(mappingConflict != MappingConflict.Found)
+                        properties.Add(new MappingValidatorProperty(indexableProperty.Name, errors: mappingConflict.ToString()));
                 }
 
                 if(properties.Any())
