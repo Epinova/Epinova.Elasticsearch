@@ -36,7 +36,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Commerce.Controllers
         }
 
         [Authorize(Roles = RoleNames.ElasticsearchAdmins)]
-        public override ActionResult Index(bool redirected = false)
+        public override ActionResult Index()
         {
             return View("~/Views/ElasticSearchAdmin/Admin/Index.cshtml", GetModel());
         }
