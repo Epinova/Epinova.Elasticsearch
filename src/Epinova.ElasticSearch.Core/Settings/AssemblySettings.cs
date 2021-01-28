@@ -2,7 +2,7 @@
 {
     internal static class AssemblySettings
     {
-        internal static string[] Blacklist =>
+        internal static string[] IgnoreList =>
             new[] {
             "antlr",
             "AutoFac",

@@ -111,7 +111,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Initialization
             var types = new List<Type>();
             var assemblies = AppDomain.CurrentDomain.GetAssemblies().OrderBy(a => a.FullName).ToList();
 
-            AssemblySettings.Blacklist.ToList().ForEach(
+            AssemblySettings.IgnoreList.ToList().ForEach(
                 b => assemblies.RemoveAll(a => a.FullName.StartsWith(b, StringComparison.OrdinalIgnoreCase)));
 
             foreach(var assembly in assemblies)
