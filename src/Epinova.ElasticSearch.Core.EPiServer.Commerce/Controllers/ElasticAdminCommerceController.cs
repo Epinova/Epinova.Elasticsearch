@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Web.Mvc;
+using Epinova.ElasticSearch.Core.Admin;
 using Epinova.ElasticSearch.Core.Contracts;
 using Epinova.ElasticSearch.Core.EPiServer.Contracts;
 using Epinova.ElasticSearch.Core.EPiServer.Controllers;
@@ -32,6 +33,12 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Commerce.Controllers
         {
             _settings = settings;
             _referenceConverter = referenceConverter;
+        }
+
+        [Authorize(Roles = RoleNames.ElasticsearchAdmins)]
+        public override ActionResult Index(bool redirected = false)
+        {
+            return View("~/Views/ElasticSearchAdmin/Admin/Index.cshtml", GetModel());
         }
 
         public override ActionResult AddNewIndex()

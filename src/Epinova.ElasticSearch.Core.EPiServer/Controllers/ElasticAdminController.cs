@@ -52,17 +52,12 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Controllers
         }
 
         [Authorize(Roles = RoleNames.ElasticsearchAdmins)]
-        public virtual ActionResult Index(bool redirected = false)
+        public virtual ActionResult Index()
         {
-            if(_settings.CommerceEnabled && !redirected)
-                return RedirectToAction("Index", "ElasticAdminCommerce", new RouteValueDictionary {{ "redirect", true }});
+            if(_settings.CommerceEnabled)
+                return RedirectToAction("Index", "ElasticAdminCommerce");
 
-            HealthInformation clusterHealth = _healthHelper.GetClusterHealth();
-            Node[] nodeInfo = _healthHelper.GetNodeInfo();
-
-            var adminViewModel = new AdminViewModel(clusterHealth, Indices.OrderBy(i => i.Type), nodeInfo);
-
-            return View("~/Views/ElasticSearchAdmin/Admin/Index.cshtml", adminViewModel);
+            return View("~/Views/ElasticSearchAdmin/Admin/Index.cshtml", GetModel());
         }
 
         [Authorize(Roles = RoleNames.ElasticsearchAdmins)]
@@ -174,6 +169,14 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Controllers
             return RedirectToAction("Index");
         }
 
+        protected AdminViewModel GetModel()
+        {
+            HealthInformation clusterHealth = _healthHelper.GetClusterHealth();
+            Node[] nodeInfo = _healthHelper.GetNodeInfo();
+
+            return new AdminViewModel(clusterHealth, Indices.OrderBy(i => i.Type), nodeInfo);
+        }
+
         protected Index CreateIndex(Type indexType, string indexName)
         {
             var index = new Index(_serverInfoService, _settings, _httpClientHelper, indexName);
@@ -196,7 +199,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Controllers
                 _coreIndexer.UpdateMapping(type, indexType, indexName, languageKey, false);
             }
         }
-        
+
         private static bool IsCustomType(Type indexType) => indexType != null && indexType != typeof(IndexItem);
 
         private static Type GetIndexType(IndexConfiguration index, ElasticSearchSection config)
