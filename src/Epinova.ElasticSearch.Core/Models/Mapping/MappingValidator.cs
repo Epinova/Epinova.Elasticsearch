@@ -16,13 +16,13 @@ namespace Epinova.ElasticSearch.Core.Models.Mapping
 
     public class MappingValidatorProperty
     {
-        public MappingValidatorProperty(string propertyName, string[] errors)
+        public MappingValidatorProperty(string propertyName, string errors)
         {
             PropertyName = propertyName;
             Errors = errors;
         }
 
         public string PropertyName { get; }
-        public string[] Errors { get; }
+        public string Errors { get; }
     }
 }
