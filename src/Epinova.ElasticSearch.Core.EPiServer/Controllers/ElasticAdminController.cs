@@ -106,13 +106,13 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Controllers
                 foreach(IndexConfiguration indexConfig in config.IndicesParsed)
                 {
                     Type indexType = GetIndexType(indexConfig, config);
-                    var indexName = _settings.GetCustomIndexName(indexConfig.Name, lang.Key);
+                    var indexName = _settings.GetCustomIndexName(index: indexConfig.Name, language: lang.Key);
 
                     Index index = CreateIndex(indexType, indexName);
 
                     if(IsCustomType(indexType))
                     {
-                        _coreIndexer.UpdateMapping(indexType, indexType, indexName, lang.Key, false);
+                        _coreIndexer.UpdateMapping(type: indexType, indexType: indexType, index: indexName, language: lang.Key, optIn: false);
                     }
                     else
                     {
@@ -166,7 +166,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Controllers
             HealthInformation clusterHealth = _healthHelper.GetClusterHealth();
             Node[] nodeInfo = _healthHelper.GetNodeInfo();
 
-            return new AdminViewModel(clusterHealth, Indices.OrderBy(i => i.Type), nodeInfo);
+            return new AdminViewModel(clusterHealth, allIndexes: Indices.OrderBy(i => i.Type), nodeInfo);
         }
 
         protected Index CreateIndex(Type indexType, string indexName)
@@ -183,12 +183,12 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Controllers
 
         protected void UpdateMappingForTypes(ContentReference rootLink, Type indexType, string indexName, string languageKey)
         {
-            List<IContent> allContents = _contentIndexService.ListContentFromRoot(_settings.BulkSize, rootLink, new List<LanguageBranch> { new LanguageBranch(languageKey) });
+            List<IContent> allContents = _contentIndexService.ListContentFromRoot(bulkSize: _settings.BulkSize, rootLink: rootLink, languages: new List<LanguageBranch> { new LanguageBranch(languageID: languageKey) });
             Type[] types = _contentIndexService.ListContainedTypes(allContents);
 
             foreach(Type type in types)
             {
-                _coreIndexer.UpdateMapping(type, indexType, indexName, languageKey, false);
+                _coreIndexer.UpdateMapping(type, indexType, index: indexName, languageKey, optIn: false);
             }
         }
 
@@ -202,7 +202,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Controllers
             if(String.IsNullOrWhiteSpace(index.Type))
                 return null;
 
-            return Type.GetType(index.Type, false, true);
+            return Type.GetType(index.Type, throwOnError: false, ignoreCase: true);
         }
     }
 }
