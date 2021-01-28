@@ -53,6 +53,9 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Controllers
         [Authorize(Roles = RoleNames.ElasticsearchAdmins)]
         public ActionResult Index()
         {
+            if(_settings.CommerceEnabled)
+                return RedirectToAction("Index", "ElasticAdminCommerce");
+
             HealthInformation clusterHealth = _healthHelper.GetClusterHealth();
             Node[] nodeInfo = _healthHelper.GetNodeInfo();
 
