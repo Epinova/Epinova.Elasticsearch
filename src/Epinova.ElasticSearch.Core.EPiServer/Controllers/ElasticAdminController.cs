@@ -51,7 +51,6 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Controllers
             _scheduledJobExecutor = scheduledJobExecutor;
         }
 
-        [Authorize(Roles = RoleNames.ElasticsearchAdmins)]
         public virtual ActionResult Index()
         {
             if(_settings.CommerceEnabled)
@@ -60,7 +59,6 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Controllers
             return View("~/Views/ElasticSearchAdmin/Admin/Index.cshtml", GetModel());
         }
 
-        [Authorize(Roles = RoleNames.ElasticsearchAdmins)]
         public virtual ActionResult RunIndexJob()
         {
             var indexJob = _scheduledJobRepository.List().FirstOrDefault(job => job.Name == Constants.IndexEPiServerContentDisplayName);
@@ -71,7 +69,6 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Controllers
             return RedirectToAction("Index");
         }
 
-        [Authorize(Roles = RoleNames.ElasticsearchAdmins)]
         public virtual ActionResult AddNewIndex()
         {
             if(_serverInfoService.GetInfo().Version < Constants.MinimumSupportedVersion)
@@ -94,9 +91,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Controllers
 
             return RedirectToAction("Index");
         }
-
-
-        [Authorize(Roles = RoleNames.ElasticsearchAdmins)]
+        
         public virtual ActionResult AddNewIndexWithMappings()
         {
             if(_serverInfoService.GetInfo().Version < Constants.MinimumSupportedVersion)
@@ -131,7 +126,6 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Controllers
             return RedirectToAction("Index");
         }
 
-        [Authorize(Roles = RoleNames.ElasticsearchAdmins)]
         public virtual ActionResult DeleteIndex(string indexName)
         {
             var indexing = new Indexing(_serverInfoService, _settings, _httpClientHelper);
@@ -141,7 +135,6 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Controllers
         }
 
         [HttpPost]
-        [Authorize(Roles = RoleNames.ElasticsearchAdmins)]
         public virtual ActionResult DeleteAll()
         {
             var indexing = new Indexing(_serverInfoService, _settings, _httpClientHelper);
@@ -154,7 +147,6 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Controllers
             return RedirectToAction("Index");
         }
 
-        [Authorize(Roles = RoleNames.ElasticsearchAdmins)]
         public virtual ActionResult ChangeTokenizer(string indexName, string tokenizer)
         {
             var indexing = new Indexing(_serverInfoService, _settings, _httpClientHelper);

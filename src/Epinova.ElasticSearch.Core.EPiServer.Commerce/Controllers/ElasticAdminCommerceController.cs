@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Web.Mvc;
-using Epinova.ElasticSearch.Core.Admin;
 using Epinova.ElasticSearch.Core.Contracts;
 using Epinova.ElasticSearch.Core.EPiServer.Contracts;
 using Epinova.ElasticSearch.Core.EPiServer.Controllers;
@@ -35,7 +34,6 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Commerce.Controllers
             _referenceConverter = referenceConverter;
         }
 
-        [Authorize(Roles = RoleNames.ElasticsearchAdmins)]
         public override ActionResult Index()
         {
             return View("~/Views/ElasticSearchAdmin/Admin/Index.cshtml", GetModel());
@@ -54,7 +52,6 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Commerce.Controllers
             return RedirectToAction("Index");
         }
 
-        [Authorize(Roles = RoleNames.ElasticsearchAdmins)]
         public override ActionResult AddNewIndexWithMappings()
         {
             base.AddNewIndexWithMappings();
@@ -72,26 +69,22 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Commerce.Controllers
             return RedirectToAction("Index");
         }
 
-        [Authorize(Roles = RoleNames.ElasticsearchAdmins)]
         public override ActionResult RunIndexJob()
         {
             return base.RunIndexJob();
         }
         
-        [Authorize(Roles = RoleNames.ElasticsearchAdmins)]
         public override ActionResult DeleteIndex(string indexName)
         {
             return base.DeleteIndex(indexName);
         }
 
         [HttpPost]
-        [Authorize(Roles = RoleNames.ElasticsearchAdmins)]
         public override ActionResult DeleteAll()
         {
             return base.DeleteAll();
         }
 
-        [Authorize(Roles = RoleNames.ElasticsearchAdmins)]
         public override ActionResult ChangeTokenizer(string indexName, string tokenizer)
         {
             return base.ChangeTokenizer(indexName, tokenizer);

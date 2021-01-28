@@ -27,7 +27,6 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Controllers
             _pageTypeRepository = pageTypeRepository;
         }
 
-        [Authorize(Roles = RoleNames.ElasticsearchAdmins)]
         public ActionResult Index()
         {
             BoostingViewModel model = new BoostingViewModel();

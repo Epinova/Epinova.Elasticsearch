@@ -24,16 +24,13 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Controllers
             _trackingRepository = trackingRepository;
         }
 
-        [Authorize(Roles = RoleNames.ElasticsearchAdmins)]
         public ActionResult Clear()
         {
             _trackingRepository.Clear(CurrentLanguage, CurrentIndex);
             return RedirectToAction("Index", new { CurrentLanguage });
         }
 
-        [Authorize(Roles = RoleNames.ElasticsearchAdmins)]
-        public ActionResult Index()
-            => View("~/Views/ElasticSearchAdmin/Tracking/Index.cshtml", GetModel());
+        public ActionResult Index() => View("~/Views/ElasticSearchAdmin/Tracking/Index.cshtml", GetModel());
 
         private TrackingViewModel GetModel()
         {
