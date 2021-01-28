@@ -161,6 +161,20 @@ WriteLiteral(@"
         #indexGrid .field-docscount {
             width: 170px;
         }
+
+        .create-indices-buttons {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .create-indices-buttons .button-success .dijitButtonNode {
+            background-color: #81c784;
+        }
+
+        .create-indices-buttons p {
+            margin: 0;
+        }
     </style>
 ");
 
@@ -181,6 +195,7 @@ WriteLiteral("\r\n");
     }
 
     string localizationPath = "/epinovaelasticsearch/indexes/";
+    string controllerName = ViewContext.RouteData.Values["controller"] as string ?? "ElasticAdmin";
 
 WriteLiteral("\r\n\r\n<div");
 
@@ -190,10 +205,14 @@ WriteLiteral(">\r\n\r\n    <h1>");
 
    Write(Html.TranslateWithPath("addorupdateindexes", localizationPath));
 
-WriteLiteral("</h1>\r\n    <p>\r\n");
+WriteLiteral("</h1>\r\n    <div");
+
+WriteLiteral(" class=\"create-indices-buttons\"");
+
+WriteLiteral(">\r\n");
 
         
-         using (Html.BeginForm("AddNewIndex", "ElasticAdmin"))
+         using (Html.BeginForm("AddNewIndex", controllerName))
         {
 
 WriteLiteral("            <button");
@@ -210,22 +229,43 @@ WriteLiteral(">");
 
 WriteLiteral("</button>\r\n");
 
-            
-       Write(IndexString("addnewindexinfo"));
-
-                                           
         }
 
-WriteLiteral("    </p>\r\n\r\n");
+WriteLiteral("        ");
+
+         using (Html.BeginForm("AddNewIndexWithMappings", controllerName))
+        {
+
+WriteLiteral("            <button");
+
+WriteLiteral(" data-dojo-type=\"dijit/form/Button\"");
+
+WriteLiteral(" type=\"submit\"");
+
+WriteLiteral(" class=\"epi-primary button-success\"");
+
+WriteLiteral(">");
+
+                                                                                                   Write(IndexString("addorupdateindexesmappingbutton"));
+
+WriteLiteral("</button>\r\n");
+
+        }
+
+WriteLiteral("        <p>");
+
+      Write(IndexString("addnewindexinfo"));
+
+WriteLiteral("</p>\r\n    </div>\r\n\r\n");
 
     
      if (Model.AllIndexes.Any())
     {
 
-WriteLiteral("        <p>\r\n");
+WriteLiteral("        <div>\r\n");
 
             
-             using (Html.BeginForm("RunIndexJob", "ElasticAdmin"))
+             using (Html.BeginForm("RunIndexJob", controllerName))
             {
 
 WriteLiteral("                <button");
@@ -242,7 +282,7 @@ WriteLiteral("</button>\r\n");
 
             }
 
-WriteLiteral("        </p>\r\n");
+WriteLiteral("        </div>\r\n");
 
     }
 
@@ -307,7 +347,7 @@ WriteLiteral("></div>\r\n\r\n");
     
      if (Model.AllIndexes.Any())
     {
-        using (Html.BeginForm("DeleteAll", "ElasticAdmin"))
+        using (Html.BeginForm("DeleteAll", controllerName))
         {
 
 WriteLiteral("            <div");
@@ -322,12 +362,12 @@ WriteLiteral("\r\n                        type=\"submit\"");
 
 WriteLiteral("\r\n                        class=\"epi-danger\"");
 
-WriteAttribute("onclick", Tuple.Create("\r\n                        onclick=\"", 3240), Tuple.Create("\"", 3326)
-, Tuple.Create(Tuple.Create("", 3275), Tuple.Create("return", 3275), true)
-, Tuple.Create(Tuple.Create(" ", 3281), Tuple.Create("confirm(\'", 3282), true)
-, Tuple.Create(Tuple.Create("", 3291), Tuple.Create<System.Object, System.Int32>(IndexString("confirmDeleteAll")
-, 3291), false)
-, Tuple.Create(Tuple.Create("", 3323), Tuple.Create("\');", 3323), true)
+WriteAttribute("onclick", Tuple.Create("\r\n                        onclick=\"", 3982), Tuple.Create("\"", 4068)
+, Tuple.Create(Tuple.Create("", 4017), Tuple.Create("return", 4017), true)
+, Tuple.Create(Tuple.Create(" ", 4023), Tuple.Create("confirm(\'", 4024), true)
+, Tuple.Create(Tuple.Create("", 4033), Tuple.Create<System.Object, System.Int32>(IndexString("confirmDeleteAll")
+, 4033), false)
+, Tuple.Create(Tuple.Create("", 4065), Tuple.Create("\');", 4065), true)
 );
 
 WriteLiteral(">\r\n");
@@ -663,7 +703,7 @@ WriteLiteral(@""", value: ""trigram_tokenizer"", selected: object.tokenizer == "
                     select.on('change', function (value) {
                         window.location = """);
 
-                                      Write(Url.Action("ChangeTokenizer", "ElasticAdmin"));
+                                      Write(Url.Action("ChangeTokenizer", controllerName));
 
 WriteLiteral(@"?indexName="" + object.index + ""&tokenizer="" + value;
                     });
@@ -684,7 +724,7 @@ WriteLiteral("\",\r\n                        iconClass: \"dijitIcon epi-iconTras
 
 WriteLiteral("\")) {\r\n                                window.location = \"");
 
-                                              Write(Url.Action("DeleteIndex", "ElasticAdmin"));
+                                              Write(Url.Action("DeleteIndex", controllerName));
 
 WriteLiteral(@"?indexName="" + object.index;
                             }

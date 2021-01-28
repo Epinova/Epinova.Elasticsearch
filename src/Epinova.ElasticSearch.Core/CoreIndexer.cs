@@ -325,11 +325,7 @@ namespace Epinova.ElasticSearch.Core
             RefreshIndex(indexName);
         }
 
-        public void UpdateMapping(Type type, string index)
-            => UpdateMapping(type, type, index);
-
-        public void UpdateMapping(Type type, Type indexType, string index)
-            => UpdateMapping(type, indexType, index, null, false);
+        public void UpdateMapping(Type type, Type indexType, string index) => UpdateMapping(type, indexType, index, null, false);
 
         public void UpdateMapping(Type type, Type indexType, string index, string language, bool optIn)
         {

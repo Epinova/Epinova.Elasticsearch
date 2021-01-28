@@ -50,6 +50,20 @@
         #indexGrid .field-docscount {
             width: 170px;
         }
+
+        .create-indices-buttons {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .create-indices-buttons .button-success .dijitButtonNode {
+            background-color: #81c784;
+        }
+
+        .create-indices-buttons p {
+            margin: 0;
+        }
     </style>
 }
 
@@ -75,27 +89,32 @@
     }
 
     string localizationPath = "/epinovaelasticsearch/indexes/";
+    string controllerName = ViewContext.RouteData.Values["controller"] as string ?? "ElasticAdmin";
 }
 
 <div class="epi-padding-small">
 
     <h1>@Html.TranslateWithPath("addorupdateindexes", localizationPath)</h1>
-    <p>
-        @using (Html.BeginForm("AddNewIndex", "ElasticAdmin"))
+    <div class="create-indices-buttons">
+        @using (Html.BeginForm("AddNewIndex", controllerName))
         {
             <button data-dojo-type="dijit/form/Button" type="submit" class="epi-primary">@IndexString("addorupdateindexesbutton")</button>
-            @IndexString("addnewindexinfo")
         }
-    </p>
+        @using (Html.BeginForm("AddNewIndexWithMappings", controllerName))
+        {
+            <button data-dojo-type="dijit/form/Button" type="submit" class="epi-primary button-success">@IndexString("addorupdateindexesmappingbutton")</button>
+        }
+        <p>@IndexString("addnewindexinfo")</p>
+    </div>
 
     @if (Model.AllIndexes.Any())
     {
-        <p>
-            @using (Html.BeginForm("RunIndexJob", "ElasticAdmin"))
+        <div>
+            @using (Html.BeginForm("RunIndexJob", controllerName))
             {
                 <button data-dojo-type="dijit/form/Button" type="submit">@IndexString("runindexjob")</button>
             }
-        </p>
+        </div>
     }
 
     @if (Model.ClusterHealth != null)
@@ -117,7 +136,7 @@
 
     @if (Model.AllIndexes.Any())
     {
-        using (Html.BeginForm("DeleteAll", "ElasticAdmin"))
+        using (Html.BeginForm("DeleteAll", controllerName))
         {
             <div class="epi-paddingVertical-small epi-alignRight">
                 <button data-dojo-type="dijit/form/Button"
@@ -272,7 +291,7 @@
                     select.placeAt(node);
                     select.startup();
                     select.on('change', function (value) {
-                        window.location = "@Url.Action("ChangeTokenizer", "ElasticAdmin")?indexName=" + object.index + "&tokenizer=" + value;
+                        window.location = "@Url.Action("ChangeTokenizer", controllerName)?indexName=" + object.index + "&tokenizer=" + value;
                     });
                 }
             },
@@ -284,7 +303,7 @@
                         iconClass: "dijitIcon epi-iconTrash",
                         onClick: function() {
                             if (confirm("@IndexString("confirmDelete")")) {
-                                window.location = "@Url.Action("DeleteIndex", "ElasticAdmin")?indexName=" + object.index;
+                                window.location = "@Url.Action("DeleteIndex", controllerName)?indexName=" + object.index;
                             }
                         }
                     })

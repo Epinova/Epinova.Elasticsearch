@@ -1,8 +1,11 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Web.Mvc;
+using System.Web.Routing;
 using Epinova.ElasticSearch.Core.Admin;
 using Epinova.ElasticSearch.Core.Contracts;
+using Epinova.ElasticSearch.Core.EPiServer.Contracts;
 using Epinova.ElasticSearch.Core.EPiServer.Controllers.Abstractions;
 using Epinova.ElasticSearch.Core.EPiServer.Models.ViewModels;
 using Epinova.ElasticSearch.Core.Models;
@@ -10,6 +13,7 @@ using Epinova.ElasticSearch.Core.Models.Admin;
 using Epinova.ElasticSearch.Core.Settings;
 using Epinova.ElasticSearch.Core.Settings.Configuration;
 using Epinova.ElasticSearch.Core.Utilities;
+using EPiServer.Core;
 using EPiServer.DataAbstraction;
 using EPiServer.Scheduler;
 
@@ -17,6 +21,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Controllers
 {
     public class ElasticAdminController : ElasticSearchControllerBase
     {
+        private readonly IContentIndexService _contentIndexService;
         private readonly ICoreIndexer _coreIndexer;
         private readonly IElasticSearchSettings _settings;
         private readonly Health _healthHelper;
@@ -26,6 +31,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Controllers
         private readonly IScheduledJobExecutor _scheduledJobExecutor;
 
         public ElasticAdminController(
+            IContentIndexService contentIndexService,
             ILanguageBranchRepository languageBranchRepository,
             ICoreIndexer coreIndexer,
             IElasticSearchSettings settings,
@@ -35,6 +41,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Controllers
             IScheduledJobExecutor scheduledJobExecutor)
             : base(serverInfoService, settings, httpClientHelper, languageBranchRepository)
         {
+            _contentIndexService = contentIndexService;
             _coreIndexer = coreIndexer;
             _settings = settings;
             _healthHelper = new Health(settings, httpClientHelper);
@@ -44,19 +51,15 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Controllers
             _scheduledJobExecutor = scheduledJobExecutor;
         }
 
-        [Authorize(Roles = RoleNames.ElasticsearchAdmins)]
-        public ActionResult Index()
+        public virtual ActionResult Index()
         {
-            HealthInformation clusterHealth = _healthHelper.GetClusterHealth();
-            Node[] nodeInfo = _healthHelper.GetNodeInfo();
+            if(_settings.CommerceEnabled)
+                return RedirectToAction("Index", "ElasticAdminCommerce");
 
-            var adminViewModel = new AdminViewModel(clusterHealth, Indices.OrderBy(i => i.Type), nodeInfo);
-
-            return View("~/Views/ElasticSearchAdmin/Admin/Index.cshtml", adminViewModel);
+            return View("~/Views/ElasticSearchAdmin/Admin/Index.cshtml", GetModel());
         }
 
-        [Authorize(Roles = RoleNames.ElasticsearchAdmins)]
-        public ActionResult RunIndexJob()
+        public virtual ActionResult RunIndexJob()
         {
             var indexJob = _scheduledJobRepository.List().FirstOrDefault(job => job.Name == Constants.IndexEPiServerContentDisplayName);
             if(indexJob != null)
@@ -66,52 +69,64 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Controllers
             return RedirectToAction("Index");
         }
 
-        [Authorize(Roles = RoleNames.ElasticsearchAdmins)]
-        public ActionResult AddNewIndex()
+        public virtual ActionResult AddNewIndex()
         {
             if(_serverInfoService.GetInfo().Version < Constants.MinimumSupportedVersion)
             {
                 throw new InvalidOperationException("Elasticsearch version 5 or higher required");
             }
 
-            var config = ElasticSearchSection.GetConfiguration();
+            ElasticSearchSection config = ElasticSearchSection.GetConfiguration();
 
-            foreach(var lang in Languages)
+            foreach(KeyValuePair<string, string> lang in Languages)
             {
                 foreach(IndexConfiguration indexConfig in config.IndicesParsed)
                 {
-                    var indexName = _settings.GetCustomIndexName(indexConfig.Name, lang.Key);
                     Type indexType = GetIndexType(indexConfig, config);
+                    var indexName = _settings.GetCustomIndexName(indexConfig.Name, lang.Key);
 
-                    var index = new Index(_serverInfoService, _settings, _httpClientHelper, indexName);
-                    if(!index.Exists)
-                    {
-                        index.Initialize(indexType);
-                    }
+                    CreateIndex(indexType, indexName);
+                }
+            }
+
+            return RedirectToAction("Index");
+        }
+        
+        public virtual ActionResult AddNewIndexWithMappings()
+        {
+            if(_serverInfoService.GetInfo().Version < Constants.MinimumSupportedVersion)
+            {
+                throw new InvalidOperationException("Elasticsearch version 5 or higher required");
+            }
+
+            ElasticSearchSection config = ElasticSearchSection.GetConfiguration();
+
+            foreach(KeyValuePair<string, string> lang in Languages)
+            {
+                foreach(IndexConfiguration indexConfig in config.IndicesParsed)
+                {
+                    Type indexType = GetIndexType(indexConfig, config);
+                    var indexName = _settings.GetCustomIndexName(indexConfig.Name, lang.Key);
+
+                    Index index = CreateIndex(indexType, indexName);
 
                     if(IsCustomType(indexType))
                     {
-                        _coreIndexer.UpdateMapping(indexType, indexType, indexName, lang.Key, false);
-                        index.WaitForStatus();
-                    }
-                    else if(_settings.CommerceEnabled)
-                    {
-                        CreateCommerceIndex(lang.Key, indexConfig, indexType);
+                        _coreIndexer.UpdateMapping(indexType, indexType, indexName, lang.Key, optIn: false);
                     }
                     else
                     {
-                        index.WaitForStatus();
-                        index.DisableDynamicMapping(indexType);
-                        index.WaitForStatus();
+                        UpdateMappingForTypes(ContentReference.RootPage, indexType, indexName, lang.Key);
                     }
+
+                    index.WaitForStatus();
                 }
             }
 
             return RedirectToAction("Index");
         }
 
-        [Authorize(Roles = RoleNames.ElasticsearchAdmins)]
-        public ActionResult DeleteIndex(string indexName)
+        public virtual ActionResult DeleteIndex(string indexName)
         {
             var indexing = new Indexing(_serverInfoService, _settings, _httpClientHelper);
             indexing.DeleteIndex(indexName);
@@ -120,8 +135,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Controllers
         }
 
         [HttpPost]
-        [Authorize(Roles = RoleNames.ElasticsearchAdmins)]
-        public ActionResult DeleteAll()
+        public virtual ActionResult DeleteAll()
         {
             var indexing = new Indexing(_serverInfoService, _settings, _httpClientHelper);
 
@@ -133,8 +147,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Controllers
             return RedirectToAction("Index");
         }
 
-        [Authorize(Roles = RoleNames.ElasticsearchAdmins)]
-        public ActionResult ChangeTokenizer(string indexName, string tokenizer)
+        public virtual ActionResult ChangeTokenizer(string indexName, string tokenizer)
         {
             var indexing = new Indexing(_serverInfoService, _settings, _httpClientHelper);
             var index = new Index(_serverInfoService, _settings, _httpClientHelper, indexName);
@@ -148,35 +161,48 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Controllers
             return RedirectToAction("Index");
         }
 
-        private static bool IsCustomType(Type indexType)
-            => indexType != null && indexType != typeof(IndexItem);
-
-        private static Type GetIndexType(IndexConfiguration index, ElasticSearchSection config)
+        protected AdminViewModel GetModel()
         {
-            if(index.Default || config.IndicesParsed.Count() == 1)
-            {
-                return typeof(IndexItem);
-            }
+            HealthInformation clusterHealth = _healthHelper.GetClusterHealth();
+            Node[] nodeInfo = _healthHelper.GetNodeInfo();
 
-            if(String.IsNullOrWhiteSpace(index.Type))
-            {
-                return null;
-            }
-
-            return Type.GetType(index.Type, false, true);
+            return new AdminViewModel(clusterHealth, allIndexes: Indices.OrderBy(i => i.Type), nodeInfo);
         }
 
-        private void CreateCommerceIndex(string language, IndexConfiguration indexConfig, Type indexType)
+        protected Index CreateIndex(Type indexType, string indexName)
         {
-            var indexName = _settings.GetCustomIndexName($"{indexConfig.Name}-{Constants.CommerceProviderName}", language);
             var index = new Index(_serverInfoService, _settings, _httpClientHelper, indexName);
             if(!index.Exists)
             {
                 index.Initialize(indexType);
                 index.WaitForStatus();
-                index.DisableDynamicMapping(indexType);
-                index.WaitForStatus();
             }
+
+            return index;
+        }
+
+        protected void UpdateMappingForTypes(ContentReference rootLink, Type indexType, string indexName, string languageKey)
+        {
+            List<IContent> allContents = _contentIndexService.ListContentFromRoot(_settings.BulkSize, rootLink, new List<LanguageBranch> { new LanguageBranch(languageKey) });
+            Type[] types = _contentIndexService.ListContainedTypes(allContents);
+
+            foreach(Type type in types)
+            {
+                _coreIndexer.UpdateMapping(type, indexType, indexName, languageKey, optIn: false);
+            }
+        }
+
+        private static bool IsCustomType(Type indexType) => indexType != null && indexType != typeof(IndexItem);
+
+        private static Type GetIndexType(IndexConfiguration index, ElasticSearchSection config)
+        {
+            if(index.Default || config.IndicesParsed.Count() == 1)
+                return typeof(IndexItem);
+
+            if(String.IsNullOrWhiteSpace(index.Type))
+                return null;
+
+            return Type.GetType(index.Type, throwOnError: false, ignoreCase: true);
         }
     }
 }

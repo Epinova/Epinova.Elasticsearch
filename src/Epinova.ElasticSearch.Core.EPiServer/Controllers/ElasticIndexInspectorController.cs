@@ -25,9 +25,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Controllers
             _inspectorRepository = inspectorRepository;
         }
 
-        [Authorize(Roles = RoleNames.ElasticsearchAdmins)]
-        public ActionResult Index(InspectViewModel model)
-            => View("~/Views/ElasticSearchAdmin/IndexInspector/Index.cshtml", GetModel(model));
+        public ActionResult Index(InspectViewModel model) => View("~/Views/ElasticSearchAdmin/IndexInspector/Index.cshtml", GetModel(model));
 
         private InspectViewModel GetModel(InspectViewModel model)
         {

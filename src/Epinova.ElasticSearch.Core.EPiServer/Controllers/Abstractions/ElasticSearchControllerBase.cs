@@ -15,6 +15,7 @@ using EPiServer.Shell.Navigation;
 
 namespace Epinova.ElasticSearch.Core.EPiServer.Controllers.Abstractions
 {
+    [Authorize(Roles = RoleNames.ElasticsearchAdmins)]
     public abstract class ElasticSearchControllerBase : Controller
     {
         internal const string IndexParam = "index";
