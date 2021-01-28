@@ -89,75 +89,47 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Controllers
                     Type indexType = GetIndexType(indexConfig, config);
                     var indexName = _settings.GetCustomIndexName(indexConfig.Name, lang.Key);
 
-                    var index = new Index(_serverInfoService, _settings, _httpClientHelper, indexName);
-                    if(!index.Exists)
-                    {
-                        index.Initialize(indexType);
-                        index.WaitForStatus();
-                    }
-
-                    if(IsCustomType(indexType))
-                    {
-                        _coreIndexer.UpdateMapping(indexType, indexType, indexName, lang.Key, false);
-                        index.WaitForStatus();
-                        continue;
-                    }
-                    
-                    UpdateMappingForTypes(ContentReference.RootPage, indexType, indexName, lang.Key);
-                    index.WaitForStatus();
-
-                    //TODO really why?
-                    //index.DisableDynamicMapping(indexType);
-                    //index.WaitForStatus();
-
-                    if(_settings.CommerceEnabled)
-                    {
-                        string commerceIndexName = _settings.GetCustomIndexName($"{indexConfig.Name}-{Constants.CommerceProviderName}", lang.Key);
-                        Index commerceIndex = new Index(_serverInfoService, _settings, _httpClientHelper, commerceIndexName);
-                        if(!commerceIndex.Exists)
-                        {
-                            commerceIndex.Initialize(indexType);
-                            commerceIndex.WaitForStatus();
-
-                            ContentReference commerceRoot = GetCommerceRoot(config);
-                            UpdateMappingForTypes(commerceRoot, indexType, commerceIndexName, lang.Key);
-                            commerceIndex.WaitForStatus();
-
-                            //TODO really why?
-                            //commerceIndex.DisableDynamicMapping(indexType);
-                            //commerceIndex.WaitForStatus();
-                        }
-                    }
+                    CreateIndex(indexType, indexName);
                 }
             }
 
             return RedirectToAction("Index");
         }
 
-        private ContentReference GetCommerceRoot(ElasticSearchSection config)
+
+        [Authorize(Roles = RoleNames.ElasticsearchAdmins)]
+        public virtual ActionResult AddNewIndexWithMappings()
         {
-            ContentReference commerceRoot = ContentReference.EmptyReference;
-            foreach(ContentSelectorConfiguration entry in config.ContentSelector)
+            if(_serverInfoService.GetInfo().Version < Constants.MinimumSupportedVersion)
             {
-                if(entry.Provider == Constants.CommerceProviderName)
-                    commerceRoot = new ContentReference(entry.Id);
+                throw new InvalidOperationException("Elasticsearch version 5 or higher required");
             }
 
-            if(ContentReference.IsNullOrEmpty(commerceRoot))
-                throw new Exception("No commerce root");
+            ElasticSearchSection config = ElasticSearchSection.GetConfiguration();
 
-            return commerceRoot;
-        }
-
-        private void UpdateMappingForTypes(ContentReference rootLink, Type indexType, string indexName, string languageKey)
-        {
-            List<IContent> allContents = _contentIndexService.ListContentFromRoot(_settings.BulkSize, rootLink, new List<LanguageBranch> { new LanguageBranch(languageKey) });
-            Type[] types = _contentIndexService.ListContainedTypes(allContents);
-
-            foreach(Type type in types)
+            foreach(KeyValuePair<string, string> lang in Languages)
             {
-                _coreIndexer.UpdateMapping(type, indexType, indexName, languageKey, false);
+                foreach(IndexConfiguration indexConfig in config.IndicesParsed)
+                {
+                    Type indexType = GetIndexType(indexConfig, config);
+                    var indexName = _settings.GetCustomIndexName(indexConfig.Name, lang.Key);
+
+                    Index index = CreateIndex(indexType, indexName);
+
+                    if(IsCustomType(indexType))
+                    {
+                        _coreIndexer.UpdateMapping(indexType, indexType, indexName, lang.Key, false);
+                    }
+                    else
+                    {
+                        UpdateMappingForTypes(ContentReference.RootPage, indexType, indexName, lang.Key);
+                    }
+
+                    index.WaitForStatus();
+                }
             }
+
+            return RedirectToAction("Index");
         }
 
         [Authorize(Roles = RoleNames.ElasticsearchAdmins)]
@@ -198,8 +170,30 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Controllers
             return RedirectToAction("Index");
         }
 
-        private static bool IsCustomType(Type indexType)
-            => indexType != null && indexType != typeof(IndexItem);
+        protected Index CreateIndex(Type indexType, string indexName)
+        {
+            var index = new Index(_serverInfoService, _settings, _httpClientHelper, indexName);
+            if(!index.Exists)
+            {
+                index.Initialize(indexType);
+                index.WaitForStatus();
+            }
+
+            return index;
+        }
+
+        protected void UpdateMappingForTypes(ContentReference rootLink, Type indexType, string indexName, string languageKey)
+        {
+            List<IContent> allContents = _contentIndexService.ListContentFromRoot(_settings.BulkSize, rootLink, new List<LanguageBranch> { new LanguageBranch(languageKey) });
+            Type[] types = _contentIndexService.ListContainedTypes(allContents);
+
+            foreach(Type type in types)
+            {
+                _coreIndexer.UpdateMapping(type, indexType, indexName, languageKey, false);
+            }
+        }
+        
+        private static bool IsCustomType(Type indexType) => indexType != null && indexType != typeof(IndexItem);
 
         private static Type GetIndexType(IndexConfiguration index, ElasticSearchSection config)
         {
