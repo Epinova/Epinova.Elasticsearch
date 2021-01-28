@@ -28,7 +28,6 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Controllers
             _httpClientHelper = httpClientHelper;
         }
 
-        [Authorize(Roles = RoleNames.ElasticsearchAdmins)]
         public ActionResult Index(string index, string selectedButton)
         {
             var model = new MappingViewModel(CurrentLanguage);
