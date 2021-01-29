@@ -6,16 +6,18 @@ namespace Epinova.ElasticSearch.Core.Enums
     [Flags]
     internal enum MappingConflict
     {
-        [Display(Description = "Mapping is ok")]
-        Found = 1,
+        NotSet = 0x0000,
+
+        [Display(Name = "Mapping is ok")]
+        Found = 0x0001,
        
-        [Display(Description = "Mapping is missing")]
-        Missing = 2,
+        [Display(Name = "Mapping is missing")]
+        Missing = 0x0010,
+
+        [Display(Name = "Mapping is in conflict")]
+        Mapping = 0x0100,
         
-        [Display(Description = "Mapping is in conflict")]
-        Mapping = 3,
-        
-        [Display(Description = "Mapping has different analyzer")]
-        Analyzer = 4
+        [Display(Name = "Mapping has different analyzer")]
+        Analyzer = 0x1000,
     }
 }
