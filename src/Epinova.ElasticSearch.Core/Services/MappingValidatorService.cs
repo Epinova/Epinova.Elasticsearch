@@ -44,7 +44,7 @@ namespace Epinova.ElasticSearch.Core.Services
 
                 foreach(IndexableProperty indexableProperty in correctMapping.Item2)
                 {
-                    IndexMappingProperty indexMappingProperty = CoreIndexer.GetPropertyMapping(indexableProperty, "no", currentMappings, out MappingConflict mappingConflict);
+                    CoreIndexer.GetPropertyMapping(indexableProperty, "no", currentMappings, out MappingConflict mappingConflict);
                     if(mappingConflict != MappingConflict.Found)
                     {
                         IEnumerable<string> errorDescriptions = mappingConflict.AsEnumDescriptions();
