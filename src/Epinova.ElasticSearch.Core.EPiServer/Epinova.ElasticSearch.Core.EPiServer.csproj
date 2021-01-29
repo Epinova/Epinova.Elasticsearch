@@ -184,6 +184,7 @@
     <Compile Include="Contracts\IAutoSuggestRepository.cs" />
     <Compile Include="Contracts\IContentIndexService.cs" />
     <Compile Include="Contracts\IIndexer.cs" />
+    <Compile Include="Controllers\ElasticMappingController.cs" />
     <Compile Include="Indexer.cs" />
     <Compile Include="Contracts\ISynonymRepository.cs" />
     <Compile Include="Controllers\Abstractions\ElasticSearchControllerBase.cs" />
@@ -225,6 +226,7 @@
     <Compile Include="Models\ViewModels\AutoSuggestViewModel.cs" />
     <Compile Include="Models\ViewModels\BestBetsByLanguage.cs" />
     <Compile Include="Models\ViewModels\BestBetsViewModel.cs" />
+    <Compile Include="Models\ViewModels\MappingViewModel.cs" />
     <Compile Include="Models\ViewModels\InspectViewModel.cs" />
     <Compile Include="Models\ViewModels\LanguageAutoSuggestWords.cs" />
     <Compile Include="Models\ViewModels\Abstractions\LanguageAwareViewModelBase.cs" />
@@ -250,6 +252,11 @@
     <Compile Include="Services\InspectorRepository.cs" />
     <Compile Include="Services\SynonymRepository.cs" />
     <Compile Include="Views\ElasticSearchAdmin\Admin\Index.generated.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Index.cshtml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\ElasticSearchAdmin\Mapping\Index.generated.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
       <DependentUpon>Index.cshtml</DependentUpon>
@@ -316,6 +323,10 @@
     <None Include="modules\_protected\ElasticSearch\module.config" />
     <None Include="modules\_protected\web.config" />
     <None Include="packages.config" />
+    <None Include="Views\ElasticSearchAdmin\Mapping\Index.cshtml">
+      <Generator>RazorGenerator</Generator>
+      <LastGenOutput>Index.generated.cs</LastGenOutput>
+    </None>
     <None Include="Views\ElasticSearchAdmin\_ElasticSearch.cshtml">
       <Generator>RazorGenerator</Generator>
       <LastGenOutput>_ElasticSearch.generated.cs</LastGenOutput>

@@ -1,0 +1,45 @@
+@* DisableLinePragmas: true *@
+@using Epinova.ElasticSearch.Core.EPiServer.Extensions
+@using Epinova.ElasticSearch.Core.EPiServer.Models.ViewModels
+@using Epinova.ElasticSearch.Core.Models.Admin
+
+@model MappingViewModel
+
+@{
+    Layout = "~/Views/ElasticSearchAdmin/_ElasticSearch.cshtml";
+}
+
+@if (Model == null)
+{
+    return;
+}
+
+@{
+    string localizationPath = "/epinovaelasticsearch/mapping/";
+}
+
+
+    <div class="epi-padding-small">
+        @using (Html.BeginForm("Index", "ElasticMapping"))
+        {
+            <h2>@Html.TranslateWithPathRaw("heading", localizationPath)</h2>
+            <p>
+                <label>
+                    @Html.TranslateWithPathRaw("index", localizationPath)
+                    <select data-dojo-type="dijit/form/Select" name="index">
+                        @foreach (IndexInformation index in Model.Indices)
+                        {
+                            <option value="@index.Index" selected="@(Model.SelectedIndex == index.Index ? "selected" : null)">@index.Index</option>
+                        }
+                    </select>
+                </label>
+                <button data-dojo-type="dijit/form/Button" type="submit" class="epi-primary" name="selectedButton" value="show">@Html.TranslateWithPathRaw("show", localizationPath)</button>
+                <button data-dojo-type="dijit/form/Button" type="submit" class="epi-primary" name="selectedButton" value="validate">@Html.TranslateWithPathRaw("validate", localizationPath)</button>
+            </p>
+        }
+
+        @if (Model.Mappings != null)
+        {
+            <pre>@Model.Mappings</pre>
+        }
+    </div>

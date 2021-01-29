@@ -9,6 +9,7 @@ using EPiServer.Logging;
 
 namespace Epinova.ElasticSearch.Core.EPiServer.Controllers
 {
+    [Authorize(Roles = RoleNames.ElasticsearchEditors)]
     public class ElasticIndexerController : Controller
     {
         private static readonly ILogger Logger = LogManager.GetLogger(typeof(ElasticIndexerController));
@@ -25,7 +26,6 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Controllers
         }
 
         [HttpPost]
-        [Authorize(Roles = RoleNames.ElasticsearchEditors)]
         public JsonResult UpdateItem(string id, bool recursive = false)
         {
             try

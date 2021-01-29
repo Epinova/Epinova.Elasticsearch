@@ -1,5 +1,8 @@
 # Changelog
 
+#### 11.7.3
+* Added mapping validator.
+
 #### 11.7.2
 * Best bets content selector
 * Create indices with mappings

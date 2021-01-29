@@ -214,11 +214,13 @@
     <Compile Include="ElasticSearchService{T}.cs" />
     <Compile Include="Engine\QueryBuilder.cs" />
     <Compile Include="Engine\SearchEngine.cs" />
+    <Compile Include="Enums\MappingConflict.cs" />
     <Compile Include="Enums\MappingType.cs" />
     <Compile Include="Enums\Operator.cs" />
     <Compile Include="Events\BestBetEventArgs.cs" />
     <Compile Include="Events\Events.cs" />
     <Compile Include="Events\IndexItemEventArgs.cs" />
+    <Compile Include="Extensions\EnumExtensions.cs" />
     <Compile Include="Extensions\TypeExtensions.cs" />
     <Compile Include="Extensions\UrlExtensions.cs" />
     <Compile Include="FilterGroup.cs" />
@@ -262,6 +264,7 @@
     <Compile Include="Models\JsonNames.cs" />
     <Compile Include="Models\Mapping\IndexMapping.cs" />
     <Compile Include="Models\Mapping\IndexMappingProperty.cs" />
+    <Compile Include="Models\Mapping\MappingValidator.cs" />
     <Compile Include="Models\Properties\GeoPoint.cs" />
     <Compile Include="Models\Properties\IntegerRange.cs" />
     <Compile Include="Models\Query\AggregationTerms.cs" />
@@ -324,7 +327,9 @@
     <Compile Include="Pipelines\Attachment.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ServerInfoService.cs" />
+    <Compile Include="Services\MappingValidatorService.cs" />
     <Compile Include="Services\TrackingRepository.cs" />
+    <Compile Include="Settings\AssemblySettings.cs" />
     <Compile Include="Settings\Configuration\ElasticSearchSection.cs" />
     <Compile Include="Settings\Configuration\FileConfiguration.cs" />
     <Compile Include="Settings\Configuration\FilesCollection.cs" />

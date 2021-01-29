@@ -74,7 +74,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Providers
                 SortIndex = 50
             };
 
-            var mapping = new UrlMenuItem(_translate("console/mapping"), "/global/epinovaelasticsearchmenu/mapping", "/ElasticSearchAdmin/ElasticConsole/Mapping")
+            var mapping = new UrlMenuItem(_translate("mapping/heading"), "/global/epinovaelasticsearchmenu/mapping", "/ElasticSearchAdmin/ElasticMapping")
             {
                 IsAvailable = GetAccessInfo(),
                 SortIndex = 60

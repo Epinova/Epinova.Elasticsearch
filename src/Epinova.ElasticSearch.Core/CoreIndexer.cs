@@ -349,71 +349,10 @@ namespace Epinova.ElasticSearch.Core
             mapping.Properties.Remove(DefaultFields.DidYouMean);
             mapping.Properties.Remove(DefaultFields.Suggest);
 
-            foreach(var prop in indexableProperties)
+            foreach(IndexableProperty prop in indexableProperties)
             {
-                var propName = prop.Name;
-                IndexMappingProperty propertyMapping = mapping.Properties.ContainsKey(propName)
-                        ? mapping.Properties[propName]
-                        : Language.GetPropertyMapping(language, prop.Type, prop.Analyzable);
-
-                string mappingType = Mapping.GetMappingTypeAsString(prop.Type);
-
-                // If mapping with same name exists, use its type. 
-                // Different name/type combos is not allowed.
-                if(mapping.Properties.ContainsKey(propName))
-                {
-                    string existingType = mapping.Properties[propName].Type;
-                    if(mappingType != existingType)
-                    {
-                        _logger.Warning($"Conflicting mapping type '{mappingType}' for property '{propName}' detected. Using already mapped type '{existingType}'");
-                    }
-
-                    mappingType = existingType;
-                }
-
-                var analyzerFull = Language.GetLanguageAnalyzer(language);
-                var analyzerSimple = Language.GetSimpleLanguageAnalyzer(language);
-
-                if(prop.Analyzable && language != null)
-                {
-                    propertyMapping.Analyzer = analyzerFull;
-                }
-                else if(!WellKnownProperties.IgnoreAnalyzer.Contains(propName)
-                    && language != null
-                    && mappingType == nameof(MappingType.Text).ToLower()
-                    && propertyMapping.Analyzer != analyzerFull)
-                {
-                    propertyMapping.Analyzer = analyzerSimple;
-                }
-
-                if(prop.IncludeInDidYouMean)
-                {
-                    if(propertyMapping.CopyTo == null || propertyMapping.CopyTo.Length == 0)
-                    {
-                        propertyMapping.CopyTo = new[] { DefaultFields.DidYouMean };
-                    }
-                    else if(!propertyMapping.CopyTo.Contains(DefaultFields.DidYouMean))
-                    {
-                        propertyMapping.CopyTo = propertyMapping.CopyTo.Concat(new[] { DefaultFields.DidYouMean }).ToArray();
-                    }
-                }
-
-                // If mapping with different analyzer exists, use its analyzer. 
-                if(!WellKnownProperties.IgnoreAnalyzer.Contains(propName) && mapping.Properties.ContainsKey(propName))
-                {
-                    string existingAnalyzer = mapping.Properties[propName].Analyzer;
-                    if(propertyMapping.Analyzer != existingAnalyzer)
-                    {
-                        _logger.Warning($"Conflicting mapping analyzer for property '{propName}' detected. Using already mapped analyzer '{existingAnalyzer}'");
-                    }
-
-                    propertyMapping.Analyzer = existingAnalyzer;
-                }
-
-                if(String.IsNullOrEmpty(propertyMapping.Type) || propertyMapping.Type != mappingType)
-                {
-                    propertyMapping.Type = mappingType;
-                }
+                string propName = prop.Name;
+                IndexMappingProperty propertyMapping = GetPropertyMapping(prop, language, mapping, out _);
 
                 mapping.AddOrUpdateProperty(propName, propertyMapping);
 
@@ -449,6 +388,86 @@ namespace Epinova.ElasticSearch.Core
             _httpClientHelper.Put(new Uri(uri), data);
         }
 
+        internal static IndexMappingProperty GetPropertyMapping(IndexableProperty prop, string language, IndexMapping existingMapping, out MappingConflict mappingConflict)
+        {
+            var propName = prop.Name;
+            IndexMappingProperty propertyMapping;
+
+            if(existingMapping.Properties.ContainsKey(propName))
+            {
+                propertyMapping = existingMapping.Properties[propName];
+                mappingConflict = MappingConflict.Found;
+            }
+            else
+            {
+                propertyMapping = Language.GetPropertyMapping(language, prop.Type, prop.Analyzable);
+                mappingConflict = MappingConflict.Missing;
+            }
+
+            string mappingType = Mapping.GetMappingTypeAsString(prop.Type);
+
+            // If mapping with same name exists, use its type. 
+            // Different name/type combos is not allowed.
+            if(existingMapping.Properties.ContainsKey(propName))
+            {
+                string existingType = existingMapping.Properties[propName].Type;
+                if(mappingType != existingType)
+                {
+                    _logger.Warning($"Conflicting mapping type '{mappingType}' for property '{propName}' detected. Using already mapped type '{existingType}'");
+                    mappingConflict = mappingConflict | MappingConflict.Mapping;
+                }
+
+                mappingType = existingType;
+            }
+
+            var analyzerFull = Language.GetLanguageAnalyzer(language);
+            var analyzerSimple = Language.GetSimpleLanguageAnalyzer(language);
+
+            if(prop.Analyzable && language != null)
+            {
+                propertyMapping.Analyzer = analyzerFull;
+            }
+            else if(!WellKnownProperties.IgnoreAnalyzer.Contains(propName)
+                && language != null
+                && mappingType == nameof(MappingType.Text).ToLower()
+                && propertyMapping.Analyzer != analyzerFull)
+            {
+                propertyMapping.Analyzer = analyzerSimple;
+            }
+
+            if(prop.IncludeInDidYouMean)
+            {
+                if(propertyMapping.CopyTo == null || propertyMapping.CopyTo.Length == 0)
+                {
+                    propertyMapping.CopyTo = new[] { DefaultFields.DidYouMean };
+                }
+                else if(!propertyMapping.CopyTo.Contains(DefaultFields.DidYouMean))
+                {
+                    propertyMapping.CopyTo = propertyMapping.CopyTo.Concat(new[] { DefaultFields.DidYouMean }).ToArray();
+                }
+            }
+
+            // If mapping with different analyzer exists, use its analyzer. 
+            if(!WellKnownProperties.IgnoreAnalyzer.Contains(propName) && existingMapping.Properties.ContainsKey(propName))
+            {
+                string existingAnalyzer = existingMapping.Properties[propName].Analyzer;
+                if(propertyMapping.Analyzer != existingAnalyzer)
+                {
+                    _logger.Warning($"Conflicting mapping analyzer for property '{propName}' detected. Using already mapped analyzer '{existingAnalyzer}'");
+                    mappingConflict = mappingConflict | MappingConflict.Analyzer;
+                }
+
+                propertyMapping.Analyzer = existingAnalyzer;
+            }
+
+            if(String.IsNullOrEmpty(propertyMapping.Type) || propertyMapping.Type != mappingType)
+            {
+                propertyMapping.Type = mappingType;
+            }
+
+            return propertyMapping;
+        }
+
         /// <summary>
         /// Refresh the index
         /// </summary>
@@ -475,7 +494,7 @@ namespace Epinova.ElasticSearch.Core
             _httpClientHelper.GetString(new Uri(endpointUri));
         }
 
-        private static List<IndexableProperty> GetIndexableProperties(Type type, bool optIn)
+        public static List<IndexableProperty> GetIndexableProperties(Type type, bool optIn)
         {
             // string, XhtmlString, [Searchable(true)]
             var props = type.GetIndexableProps(optIn)

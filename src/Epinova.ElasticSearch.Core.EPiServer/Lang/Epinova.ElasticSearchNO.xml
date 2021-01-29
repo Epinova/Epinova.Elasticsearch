@@ -41,7 +41,6 @@
         <all>Alle</all>
         <query>Spørring</query>
         <result>Resultat</result>
-        <mapping>Mapping</mapping>
         <settings>Settings</settings>
       </console>
       <indexinspector>
@@ -121,6 +120,12 @@
         <mem>Minne</mem>
         <uptime>Oppetid</uptime>
       </node>
+      <mapping>
+        <heading>Mapping</heading>
+        <index>Indeks</index>
+        <show>Vis</show>
+        <validate>Valider</validate>
+      </mapping>
       <clusterhealth>
         <cluster>Navn</cluster>
         <heading>Cluster</heading>

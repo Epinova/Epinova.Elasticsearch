@@ -184,26 +184,9 @@ namespace Epinova.ElasticSearch.Core.EPiServer
 
         public bool IsExcludedType(IContent content)
         {
-            return IsExcludedType(content?.GetUnproxiedType())
-                || IsExcludedType(content?.GetType());
+            return (content?.GetUnproxiedType()).IsExcludedType() || (content?.GetType()).IsExcludedType();
         }
-
-        private static bool IsExcludedType(Type type)
-        {
-            if(type?.Namespace is null)
-            {
-                return false;
-            }
-
-            if(type.Namespace.StartsWith("Epinova.ElasticSearch", StringComparison.OrdinalIgnoreCase))
-            {
-                return true;
-            }
-
-            return Indexing.ExcludedTypes.Contains(type)
-                   || type.GetCustomAttributes(typeof(ExcludeFromSearchAttribute), true).Length > 0
-                   || DerivesFromExcludedType(type);
-        }
+        
 
         public bool SkipIndexing(IContent content)
         {
@@ -322,13 +305,6 @@ namespace Epinova.ElasticSearch.Core.EPiServer
                    && localizable.Language?.Equals(CultureInfo.InvariantCulture) == false
                 ? localizable.Language.Name
                 : GetFallbackLanguage();
-        }
-
-        private static bool DerivesFromExcludedType(Type typeToCheck)
-        {
-            return Indexing.ExcludedTypes
-                .Any(type => (type.IsClass && typeToCheck.IsSubclassOf(type))
-                    || (type.IsInterface && type.IsAssignableFrom(typeToCheck)));
         }
 
         private static bool GetEpiserverBoolProperty(PropertyData content)
