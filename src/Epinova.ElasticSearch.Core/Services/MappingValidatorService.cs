@@ -46,7 +46,10 @@ namespace Epinova.ElasticSearch.Core.Services
                 {
                     IndexMappingProperty indexMappingProperty = CoreIndexer.GetPropertyMapping(indexableProperty, "no", currentMappings, out MappingConflict mappingConflict);
                     if(mappingConflict != MappingConflict.Found)
-                        properties.Add(new MappingValidatorProperty(indexableProperty.Name, errors: mappingConflict.ToString()));
+                    {
+                        IEnumerable<string> errorDescriptions = mappingConflict.AsEnumDescriptions();
+                        properties.Add(new MappingValidatorProperty(indexableProperty.Name, errors: errorDescriptions));
+                    }
                 }
 
                 if(properties.Any())
