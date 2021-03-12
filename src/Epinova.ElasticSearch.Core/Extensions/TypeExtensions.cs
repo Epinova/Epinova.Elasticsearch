@@ -6,6 +6,7 @@ using Castle.DynamicProxy;
 using Epinova.ElasticSearch.Core.Attributes;
 using Epinova.ElasticSearch.Core.Contracts;
 using Epinova.ElasticSearch.Core.Conventions;
+using EPiServer;
 using EPiServer.Core;
 using EPiServer.Data.Entity;
 using EPiServer.DataAnnotations;
@@ -83,12 +84,7 @@ namespace Epinova.ElasticSearch.Core.Extensions
 
         internal static Type GetUnproxiedType(this object source)
         {
-            if(!(source is IProxyTargetAccessor proxy))
-            {
-                return source?.GetType();
-            }
-
-            return proxy.GetType().BaseType;
+            return source.GetOriginalType();
         }
 
         internal static bool IsAnonymousType(this Type type)
