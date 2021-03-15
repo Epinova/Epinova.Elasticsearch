@@ -81,7 +81,7 @@ for:
   - provider: GitHub
     release: v$(appveyor_build_version)
     auth_token:
-      secure: EnrSFA6ns5MzVPNdNGq0Gbu/NuNbcw5FyZF0c/KRo/hor7TmKCg4SQ4ad6FGn+3P
+      secure: QXdIw8nPTBXldj6Wk7Zi9cPV8bW0LgEag1Vyrx3eAUq6SlWO1GIq8ojSuJCKLxQo
     draft: true
     artifact: /.*\.nupkg/
     description: 
