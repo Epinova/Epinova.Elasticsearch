@@ -66,6 +66,7 @@ namespace Epinova.ElasticSearch.Core
         public int FromValue { get; private set; }
         public int SizeValue { get; private set; }
         public CultureInfo SearchLanguage { get; private set; }
+        public bool IsSimpleQuerystring { get; private set; }
 
         private string _indexName;
         private PrincipalInfo _aclPrincipal;
@@ -297,6 +298,7 @@ namespace Epinova.ElasticSearch.Core
                 FromValue = FromValue,
                 SizeValue = SizeValue,
                 IsWildcard = IsWildcard,
+                IsSimpleQuerystring = IsSimpleQuerystring,
                 TrackSearch = TrackSearch,
                 IsGetQuery = IsGetQuery,
                 IndexName = IndexName
@@ -391,6 +393,7 @@ namespace Epinova.ElasticSearch.Core
                 RootId = RootId,
                 IsWildcard = IsWildcard,
                 IsGetQuery = IsGetQuery,
+                IsSimpleQuerystring = IsSimpleQuerystring,
                 SourceFields = fields,
                 SearchType = SearchType,
                 SortFields = SortFields,
@@ -446,6 +449,7 @@ namespace Epinova.ElasticSearch.Core
                 FromValue = FromValue,
                 SizeValue = SizeValue,
                 IsWildcard = false,
+                IsSimpleQuerystring = false,
                 IndexName = IndexName
             };
         }
@@ -469,6 +473,29 @@ namespace Epinova.ElasticSearch.Core
                 SizeValue = SizeValue,
                 IsWildcard = true,
                 IndexName = IndexName
+            };
+        }
+
+        public IElasticSearchService<object> SimpleQuerystringSearch(string searchText, Operator @operator = Operator.Or)
+            => SimpleQuerystringSearch<object>(searchText, @operator);
+
+        public IElasticSearchService<T> SimpleQuerystringSearch<T>(string searchText, Operator @operator = Operator.Or)
+        {
+            return new ElasticSearchService<T>(_serverInfoService, _settings, _httpClientHelper)
+            {
+                Type = typeof(T),
+                SearchText = searchText,
+                Operator = @operator,
+                SearchLanguage = SearchLanguage,
+                RootId = RootId,
+                SearchType = SearchType,
+                UseBoosting = UseBoosting,
+                EnableBestBets = EnableBestBets,
+                FromValue = FromValue,
+                SizeValue = SizeValue,
+                IsWildcard = false,
+                IndexName = IndexName,
+                IsSimpleQuerystring = true
             };
         }
 

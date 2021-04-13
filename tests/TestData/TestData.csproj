@@ -208,6 +208,8 @@
     <None Include="app.config">
       <SubType>Designer</SubType>
     </None>
+    <None Include="Json\SimpleQuerystring_Term_Foo_Bar.json" />
+    <None Include="Json\SimpleQuerystring_Term_Foo.json" />
     <None Include="Json\Settings.json" />
     <None Include="Json\NodeInfo.json" />
     <None Include="Json\HealthInfo.json" />

@@ -1,0 +1,15 @@
+﻿"must": [
+  {
+    "simple_query_string": {
+      "query": "foo bar",
+      "lenient": true,
+      "default_operator": "or",
+      "fields": [
+        "bar",
+        "attachment.content",
+        "attachment.author",
+        "attachment.keywords"
+      ]
+    }
+  }
+]

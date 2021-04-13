@@ -14,6 +14,7 @@
         public const string Component = "component";
         public const string Content = "content";
         public const string CopyTo = "copy_to";
+        public const string DefaultOperator = "default_operator";
         public const string DidYouMean = "dym";
         public const string Distance = "distance";
         public const string Doc = "doc";
@@ -87,6 +88,7 @@
         public const string ScoreRoot = "_score";
         public const string Score = "score";
         public const string Should = "should";
+        public const string SimpleQuerystring = "simple_query_string";
         public const string Size = "size";
         public const string SkipDuplicates = "skip_duplicates";
         public const string Sort = "sort";

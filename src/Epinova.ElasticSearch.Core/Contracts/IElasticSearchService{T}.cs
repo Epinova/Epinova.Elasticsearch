@@ -24,6 +24,7 @@ namespace Epinova.ElasticSearch.Core.Contracts
         int FromValue { get; }
         int SizeValue { get; }
         bool IsWildcard { get; }
+        bool IsSimpleQuerystring { get; }
         bool IsGetQuery { get; }
         bool TrackSearch { get; }
 
@@ -539,6 +540,22 @@ namespace Epinova.ElasticSearch.Core.Contracts
         /// <param name="searchText">The text to search for</param>
         /// <returns>The current <see cref="IElasticSearchService"/> instance</returns>
         IElasticSearchService<T> WildcardSearch<T>(string searchText);
+
+        /// <summary>
+        /// Performs a generic simple querystring query on type <typeparamref name="T"/>
+        /// </summary>
+        /// <param name="searchText">The text to search for</param>
+        /// <param name="operator">Specifies the operator to use when searching, either <see cref="Enums.Operator.Or"/> or <see cref="Enums.Operator.And"/></param>
+        /// <returns>The current <see cref="IElasticSearchService"/> instance</returns>
+        IElasticSearchService<object> SimpleQuerystringSearch(string searchText, Operator @operator = Operator.Or);
+
+        /// <summary>
+        /// Performs a generic simple querystring query on type <typeparamref name="T"/>
+        /// </summary>
+        /// <param name="searchText">The text to search for</param>
+        /// <param name="operator">Specifies the operator to use when searching, either <see cref="Enums.Operator.Or"/> or <see cref="Enums.Operator.And"/></param>
+        /// <returns>The current <see cref="IElasticSearchService"/> instance</returns>
+        IElasticSearchService<T> SimpleQuerystringSearch<T>(string searchText, Operator @operator = Operator.Or);
 
         /// <summary>
         /// <para>

@@ -633,6 +633,37 @@ namespace Core.Tests.Engine
             Assert.True(result);
         }
 
+        [Fact]
+        public void SimpleQueryString_AddsMatchSimpleQueryString()
+        {
+            var request = (QueryRequest)_builder.Search(new QuerySetup
+            {
+                IsSimpleQuerystring = true,
+                SearchText = "term"
+            });
+
+            var result = request.Query.Bool.Must.Cast<MatchSimpleQueryString>().Any();
+
+            Assert.True(result);
+        }
+
+        [Theory]
+        [InlineData("SimpleQuerystring_Term_Foo.json", "Foo")]
+        [InlineData("SimpleQuerystring_Term_Foo_Bar.json", "Foo Bar")]
+        public void Search_SimpleQuerystring_ReturnsExpectedJson(string testFile, string term)
+        {
+            var expected = RemoveWhitespace(GetJsonTestData(testFile));
+
+            string result = RemoveWhitespace(Serialize(_builder.Search(new QuerySetup
+            {
+                IsSimpleQuerystring = true,
+                SearchText = term,
+                Language = _language
+            })));
+
+            Assert.Contains(expected, result);
+        }
+
         private static string Serialize(object data)
         {
             return JsonConvert.SerializeObject(data,
