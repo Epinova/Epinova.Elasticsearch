@@ -25,6 +25,7 @@
         public const string FieldData = "fielddata";
         public const string Fields = "fields";
         public const string Filter = "filter";
+        public const string Flags = "flags";
         public const string Format = "format";
         public const string From = "from";
         public const string FunctionScore = "function_score";

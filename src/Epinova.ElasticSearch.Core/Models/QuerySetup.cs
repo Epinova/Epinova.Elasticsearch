@@ -72,5 +72,6 @@ namespace Epinova.ElasticSearch.Core.Models
         public bool AppendAclFilters { get; internal set; }
         public PrincipalInfo AclPrincipal { get; internal set; }
         public Version ServerVersion { get; internal set; }
+        public SimpleQuerystringOperators SimpleQuerystringOperators { get; set; }
     }
 }

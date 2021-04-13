@@ -149,6 +149,7 @@ namespace Epinova.ElasticSearch.Core.Engine
                             request.Query.SearchText,
                             setup.SearchFields,
                             setup.Operator,
+                            setup.SimpleQuerystringOperators,
                             setup.Analyzer));
                 }
                 else

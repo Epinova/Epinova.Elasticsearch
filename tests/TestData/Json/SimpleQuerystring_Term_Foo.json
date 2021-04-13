@@ -4,6 +4,7 @@
       "query": "foo",
       "lenient": true,
       "default_operator": "or",
+      "flags": "ALL",
       "fields": [
         "bar",
         "attachment.content",

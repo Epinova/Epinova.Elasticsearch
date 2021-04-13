@@ -67,6 +67,7 @@ namespace Epinova.ElasticSearch.Core
         public int SizeValue { get; private set; }
         public CultureInfo SearchLanguage { get; private set; }
         public bool IsSimpleQuerystring { get; private set; }
+        public SimpleQuerystringOperators SimpleQuerystringOperators { get; private set; }
 
         private string _indexName;
         private PrincipalInfo _aclPrincipal;
@@ -301,7 +302,8 @@ namespace Epinova.ElasticSearch.Core
                 IsSimpleQuerystring = IsSimpleQuerystring,
                 TrackSearch = TrackSearch,
                 IsGetQuery = IsGetQuery,
-                IndexName = IndexName
+                IndexName = IndexName,
+                SimpleQuerystringOperators = SimpleQuerystringOperators
             };
         }
 
@@ -399,7 +401,8 @@ namespace Epinova.ElasticSearch.Core
                 SortFields = SortFields,
                 UseBestBets = EnableBestBets,
                 UseHighlight = EnableHighlight,
-                IndexName = IndexName
+                IndexName = IndexName,
+                SimpleQuerystringOperators = SimpleQuerystringOperators
             };
         }
 
@@ -476,16 +479,16 @@ namespace Epinova.ElasticSearch.Core
             };
         }
 
-        public IElasticSearchService<object> SimpleQuerystringSearch(string searchText, Operator @operator = Operator.Or)
-            => SimpleQuerystringSearch<object>(searchText, @operator);
+        public IElasticSearchService<object> SimpleQuerystringSearch(string searchText, Operator defaultOperator = Operator.Or, SimpleQuerystringOperators allowedOperators = SimpleQuerystringOperators.All)
+            => SimpleQuerystringSearch<object>(searchText, defaultOperator, allowedOperators);
 
-        public IElasticSearchService<T> SimpleQuerystringSearch<T>(string searchText, Operator @operator = Operator.Or)
+        public IElasticSearchService<T> SimpleQuerystringSearch<T>(string searchText, Operator defaultOperator = Operator.Or, SimpleQuerystringOperators allowedOperators = SimpleQuerystringOperators.All)
         {
             return new ElasticSearchService<T>(_serverInfoService, _settings, _httpClientHelper)
             {
                 Type = typeof(T),
                 SearchText = searchText,
-                Operator = @operator,
+                Operator = defaultOperator,
                 SearchLanguage = SearchLanguage,
                 RootId = RootId,
                 SearchType = SearchType,
@@ -495,7 +498,8 @@ namespace Epinova.ElasticSearch.Core
                 SizeValue = SizeValue,
                 IsWildcard = false,
                 IndexName = IndexName,
-                IsSimpleQuerystring = true
+                IsSimpleQuerystring = true,
+                SimpleQuerystringOperators = allowedOperators,
             };
         }
 

@@ -649,7 +649,6 @@ namespace Core.Tests.Engine
 
         [Theory]
         [InlineData("SimpleQuerystring_Term_Foo.json", "Foo")]
-        [InlineData("SimpleQuerystring_Term_Foo_Bar.json", "Foo Bar")]
         public void Search_SimpleQuerystring_ReturnsExpectedJson(string testFile, string term)
         {
             var expected = RemoveWhitespace(GetJsonTestData(testFile));
@@ -658,6 +657,27 @@ namespace Core.Tests.Engine
             {
                 IsSimpleQuerystring = true,
                 SearchText = term,
+                SimpleQuerystringOperators = SimpleQuerystringOperators.All,
+                Language = _language
+            })));
+
+            Assert.Contains(expected, result);
+        }
+
+        [Theory]
+        [InlineData("SimpleQuerystring_Term_Foo_Bar_And_Near_Or.json", "Foo Bar")]
+        public void Search_SimpleQuerystring_ReturnsExpectedJson_With_Flags(string testFile, string term)
+        {
+            var expected = RemoveWhitespace(GetJsonTestData(testFile));
+
+            string result = RemoveWhitespace(Serialize(_builder.Search(new QuerySetup
+            {
+                IsSimpleQuerystring = true,
+                SearchText = term,
+                SimpleQuerystringOperators = 
+                    SimpleQuerystringOperators.And | 
+                    SimpleQuerystringOperators.Near |
+                    SimpleQuerystringOperators.Or,
                 Language = _language
             })));
 
