@@ -49,7 +49,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Controllers.Abstractions
         {
             base.OnActionExecuting(filterContext);
             CurrentLanguage = Request?.QueryString[LanguageParam] ?? Languages.First().Key;
-            CurrentIndex = Request?.QueryString[IndexParam] ?? Indices.FirstOrDefault(i => i.Index.EndsWith($"-{CurrentLanguage}"))?.Index;
+            CurrentIndex = Request?.QueryString[IndexParam] ?? Indices.FirstOrDefault(i => i.Index.EndsWith($"-{CurrentLanguage?.ToLower()}"))?.Index;
             CurrentIndexDisplayName = Indices.FirstOrDefault(i => i.Index == CurrentIndex)?.DisplayName;
         }
 
@@ -78,9 +78,25 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Controllers.Abstractions
                 return null;
             }
 
-            var lang = indexName.ToLower().Split('-').Last();
-            var nameWithoutLanguage = indexName.Substring(0, indexName.Length - lang.Length - 1);
+            var nameWithoutLanguage = GetIndexNameWithoutLanguage(indexName);
             return $"{nameWithoutLanguage}-{newLanguage}";
+        }
+
+        protected string GetIndexNameWithoutLanguage(string indexName)
+        {
+            if(string.IsNullOrWhiteSpace(indexName))
+                return null;
+
+            var nameWithoutLanguage = string.Empty;
+            foreach(var item in Languages)
+            {
+                if(indexName.EndsWith(item.Key.ToLower()))
+                {
+                    nameWithoutLanguage = indexName.Substring(0, indexName.Length - item.Key.Length - 1);
+                }
+            }
+
+            return nameWithoutLanguage;
         }
 
         protected List<IndexInformation> Indices { get; }
