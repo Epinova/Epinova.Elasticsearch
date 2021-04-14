@@ -142,15 +142,28 @@ namespace Epinova.ElasticSearch.Core.Engine
             }
             else
             {
-                request.Query.Bool.Must.Add(
-                    new MatchMulti(
-                        request.Query.SearchText,
-                        setup.SearchFields,
-                        setup.Operator,
-                        null,
-                        null,
-                        setup.FuzzyLength,
-                        setup.Analyzer));
+                if(setup.IsSimpleQuerystring)
+                {
+                    request.Query.Bool.Must.Add(
+                        new MatchSimpleQueryString(
+                            request.Query.SearchText,
+                            setup.SearchFields,
+                            setup.Operator,
+                            setup.SimpleQuerystringOperators,
+                            setup.Analyzer));
+                }
+                else
+                {
+                    request.Query.Bool.Must.Add(
+                        new MatchMulti(
+                            request.Query.SearchText,
+                            setup.SearchFields,
+                            setup.Operator,
+                            null,
+                            null,
+                            setup.FuzzyLength,
+                            setup.Analyzer));
+                }
 
                 // Boost phrase matches if multiple words
                 if(request.Query.SearchText?.IndexOf(" ", StringComparison.OrdinalIgnoreCase) > 0)

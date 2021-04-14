@@ -371,5 +371,13 @@ namespace Core.Tests
 
             Assert.True(result.IsGetQuery);
         }
+
+        [Fact]
+        public void SimpleQuerystringSearch_SetsFlag()
+        {
+            var result = _service.SimpleQuerystringSearch<TestPage>("test-query");
+
+            Assert.True(result.IsSimpleQuerystring);
+        }
     }
 }

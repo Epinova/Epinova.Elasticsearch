@@ -217,6 +217,7 @@
     <Compile Include="Enums\MappingConflict.cs" />
     <Compile Include="Enums\MappingType.cs" />
     <Compile Include="Enums\Operator.cs" />
+    <Compile Include="Enums\SimpleQuerystringOperators.cs" />
     <Compile Include="Events\BestBetEventArgs.cs" />
     <Compile Include="Events\Events.cs" />
     <Compile Include="Events\IndexItemEventArgs.cs" />
@@ -278,6 +279,7 @@
     <Compile Include="Models\Query\Gauss.cs" />
     <Compile Include="Models\Query\GeoPolygon.cs" />
     <Compile Include="Models\Query\GeoDistance.cs" />
+    <Compile Include="Models\Query\MatchSimpleQueryString.cs" />
     <Compile Include="Models\Query\ScriptSort.cs" />
     <Compile Include="Models\Query\GeoSort.cs" />
     <Compile Include="Models\Query\Highlight.cs" />

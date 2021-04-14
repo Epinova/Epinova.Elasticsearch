@@ -52,6 +52,7 @@ namespace Epinova.ElasticSearch.Core.Models
         public int Size { get; set; }
         public bool IsWildcard { get; set; }
         public bool IsGetQuery { get; set; }
+        public bool IsSimpleQuerystring { get; set; }
         public List<Filter> Filters { get; set; }
         public Dictionary<string, FilterGroupQuery> FilterGroups { get; set; }
         public Type SearchType { get; set; }
@@ -71,5 +72,6 @@ namespace Epinova.ElasticSearch.Core.Models
         public bool AppendAclFilters { get; internal set; }
         public PrincipalInfo AclPrincipal { get; internal set; }
         public Version ServerVersion { get; internal set; }
+        public SimpleQuerystringOperators SimpleQuerystringOperators { get; set; }
     }
 }

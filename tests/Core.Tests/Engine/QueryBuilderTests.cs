@@ -633,6 +633,57 @@ namespace Core.Tests.Engine
             Assert.True(result);
         }
 
+        [Fact]
+        public void SimpleQueryString_AddsMatchSimpleQueryString()
+        {
+            var request = (QueryRequest)_builder.Search(new QuerySetup
+            {
+                IsSimpleQuerystring = true,
+                SearchText = "term"
+            });
+
+            var result = request.Query.Bool.Must.Cast<MatchSimpleQueryString>().Any();
+
+            Assert.True(result);
+        }
+
+        [Theory]
+        [InlineData("SimpleQuerystring_Term_Foo.json", "Foo")]
+        public void Search_SimpleQuerystring_ReturnsExpectedJson(string testFile, string term)
+        {
+            var expected = RemoveWhitespace(GetJsonTestData(testFile));
+
+            string result = RemoveWhitespace(Serialize(_builder.Search(new QuerySetup
+            {
+                IsSimpleQuerystring = true,
+                SearchText = term,
+                SimpleQuerystringOperators = SimpleQuerystringOperators.All,
+                Language = _language
+            })));
+
+            Assert.Contains(expected, result);
+        }
+
+        [Theory]
+        [InlineData("SimpleQuerystring_Term_Foo_Bar_And_Near_Or.json", "Foo Bar")]
+        public void Search_SimpleQuerystring_ReturnsExpectedJson_With_Flags(string testFile, string term)
+        {
+            var expected = RemoveWhitespace(GetJsonTestData(testFile));
+
+            string result = RemoveWhitespace(Serialize(_builder.Search(new QuerySetup
+            {
+                IsSimpleQuerystring = true,
+                SearchText = term,
+                SimpleQuerystringOperators = 
+                    SimpleQuerystringOperators.And | 
+                    SimpleQuerystringOperators.Near |
+                    SimpleQuerystringOperators.Or,
+                Language = _language
+            })));
+
+            Assert.Contains(expected, result);
+        }
+
         private static string Serialize(object data)
         {
             return JsonConvert.SerializeObject(data,
