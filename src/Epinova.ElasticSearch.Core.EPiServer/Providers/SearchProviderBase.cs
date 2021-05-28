@@ -27,7 +27,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Providers
     {
         private readonly string _categoryKey;
         protected string IndexName;
-     
+
         protected readonly IElasticSearchService<TSearchType> _elasticSearchService;
         protected readonly IElasticSearchSettings _elasticSearchSettings = ServiceLocator.Current.GetInstance<IElasticSearchSettings>();
         protected readonly IServerInfoService _serverInfoService = ServiceLocator.Current.GetInstance<IServerInfoService>();
@@ -65,7 +65,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Providers
         public override IEnumerable<SearchResult> Search(Query query)
         {
             var contentSearchHits = new List<ContentSearchHit<TContentData>>();
-            CultureInfo language = Language.GetRequestLanguage();
+            CultureInfo language = GetLanguage();
 
             if(!query.SearchRoots.Any() || ForceRootLookup)
             {
@@ -99,6 +99,8 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Providers
         protected virtual string GetSearchRoot() => ContentReference.RootPage.ID.ToString();
 
         protected virtual string[] GetProviderKeys() => Array.Empty<string>();
+
+        protected virtual CultureInfo GetLanguage() => Language.GetRequestLanguage();
 
         private IElasticSearchService<TContentData> CreateQuery(Query query, CultureInfo language, int searchRootId)
         {
