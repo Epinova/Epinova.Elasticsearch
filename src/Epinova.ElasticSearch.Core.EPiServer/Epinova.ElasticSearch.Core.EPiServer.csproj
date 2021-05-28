@@ -241,6 +241,7 @@
     <Compile Include="Providers\BlockSearchProvider.cs" />
     <Compile Include="Providers\ElasticSearchMenuProvider.cs" />
     <Compile Include="Providers\FileSearchProvider.cs" />
+    <Compile Include="Providers\FileSearchProviderWithInvariantCulture.cs" />
     <Compile Include="Providers\PageSearchProvider.cs" />
     <Compile Include="Providers\ProviderConstants.cs" />
     <Compile Include="Providers\SearchProviderBase.cs" />
