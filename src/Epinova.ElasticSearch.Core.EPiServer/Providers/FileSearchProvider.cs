@@ -1,3 +1,4 @@
+﻿using System.Globalization;
 using EPiServer.Core;
 using EPiServer.DataAbstraction;
 using EPiServer.Shell.Search;
@@ -12,5 +13,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Providers
             IconClass = ProviderConstants.FileIconCssClass;
             AreaName = ProviderConstants.FileArea;
         }
+
+        protected override CultureInfo GetLanguage() => CultureInfo.InvariantCulture;
     }
 }

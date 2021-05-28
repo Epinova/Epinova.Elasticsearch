@@ -182,7 +182,7 @@
       </tracking>
       <providers>
         <page>Epinova page search</page>
-        <file>Epinova file search</file>
+        <file>Epinova file search (searches on all languges)</file>
         <block>Epinova block search</block>
         <product>Epinova products</product>
         <campaigns>Epinova campaigns</campaigns>
