@@ -142,8 +142,8 @@ namespace Core.Tests.Engine
             Assert.Equal(text, result.Hits.First().CustomProperties["Text"]);
             Assert.Equal(lng1, result.Hits.First().CustomProperties["Int"]);
             Assert.Equal(dec1, result.Hits.First().CustomProperties["Dec"]);
-            Assert.True(Factory.ArrayEquals(arr1, result.Hits.First().CustomProperties["Array1"] as IEnumerable<object>));
-            Assert.True(Factory.ArrayEquals(arr2, result.Hits.First().CustomProperties["Array2"] as IEnumerable<object>));
+            Assert.True(Factory.ArrayEquals(arr1, result.Hits.First().CustomProperties["Array1"] as IEnumerable<long>));
+            Assert.True(Factory.ArrayEquals(arr2, result.Hits.First().CustomProperties["Array2"] as IEnumerable<string>));
         }
 
         [Fact]
