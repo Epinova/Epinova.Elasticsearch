@@ -103,7 +103,7 @@ namespace Epinova.ElasticSearch.Core.Utilities
         {
             if(language == null)
             {
-                return null;
+                return "fallback";
             }
 
             if(AnalyzerMappings.TryGetValue(language, out string analyzer))
@@ -111,7 +111,7 @@ namespace Epinova.ElasticSearch.Core.Utilities
                 return analyzer;
             }
 
-            return null;
+            return "fallback";
         }
 
         internal static CultureInfo GetRequestLanguage()

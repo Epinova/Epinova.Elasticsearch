@@ -85,9 +85,9 @@ namespace Core.Tests.Utilities
         [InlineData("es", "spanish")]
         [InlineData("sv", "swedish")]
         [InlineData("nl", "dutch")]
-        [InlineData(null, null)]
-        [InlineData("", null)]
-        [InlineData("foo", null)]
+        [InlineData(null, "fallback")]
+        [InlineData("", "fallback")]
+        [InlineData("foo", "fallback")]
         public void GetLanguageAnalyzer_ReturnsCorrectAnalyzerForLanguage(string language, string expectedAnalyzer)
         {
             string result = Language.GetLanguageAnalyzer(language);
