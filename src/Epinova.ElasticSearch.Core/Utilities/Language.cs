@@ -14,15 +14,41 @@ namespace Epinova.ElasticSearch.Core.Utilities
         /// </summary>
         private static readonly Dictionary<string, string> AnalyzerMappings = new Dictionary<string, string>
         {
+            { "ar", "arabic" },
+            { "am", "armenian" },
+            { "eu", "basque" },
+            { "bn", "bengali" },
+            { "pt-br", "brazilian" },
+            { "bg", "bulgarian" },
+            { "ca", "catalan" },
+            //{ "", "cjk" },    Don't know the language code for this. If you do feel free to add it.
+            { "cs", "czech" },
             { "da", "danish" },
-            { "en", "english" },
-			{ "us", "english" },
-            { "fr", "french" },
-            { "de", "german" },
-            { "no", "norwegian" },
             { "nl", "dutch" },
+            { "en", "english" },
+            { "us", "english" },
+            { "fi", "finnish" },
+            { "fr", "french" },
+            { "gl", "galican" },
+            { "de", "german" },
+            { "el", "greek" },
+            { "hi", "hindi" },
+            { "hu", "hungarian" },
+            { "id", "indonesian" },
+            { "ga", "irish" },
+            { "it", "italian" },
+            { "lv", "latvian" },
+            { "lt", "lithuanian" },
+            { "no", "norwegian" },
+            { "fa", "persian" },
+            { "pt", "portuguese" },
+            { "ro", "romanian" },
+            { "ru", "russian" },
+            //{ "", "sorani" },     Don't know the language code for this. If you do feel free to add it.
             { "es", "spanish" },
-            { "sv", "swedish" }
+            { "sv", "swedish" },
+            { "tr", "turkish" },
+            { "th", "thai" }
         };
 
         internal static string GetRequestLanguageCode()
