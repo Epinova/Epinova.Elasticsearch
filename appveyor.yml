@@ -62,7 +62,7 @@ for:
   deploy:
     provider: NuGet
     api_key:
-      secure: 7QIXmYEJvGxp8vowI11fmoibulBMgQLioCLqkSx0QMmfxZoH21qKz717zvd5vVpR
+      secure: SWz/Ieabx3zoLEPEGOxmppv6OfF5F2QsFHhj2knriRbOT77CLP/p7U/KBLdf6UNP
     skip_symbols: false
     artifact: /.*\.nupkg/
 
@@ -74,7 +74,7 @@ for:
   deploy:
   - provider: NuGet
     api_key:
-      secure: 7QIXmYEJvGxp8vowI11fmoibulBMgQLioCLqkSx0QMmfxZoH21qKz717zvd5vVpR
+      secure: SWz/Ieabx3zoLEPEGOxmppv6OfF5F2QsFHhj2knriRbOT77CLP/p7U/KBLdf6UNP
     skip_symbols: false
     artifact: /.*\.nupkg/
 
