@@ -73,9 +73,16 @@ namespace Epinova.ElasticSearch.Core.Utilities
 
         private static dynamic GetSuggestAnalyzer(string languageName)
         {
+            var filter = new[] { "lowercase", languageName + "_stop" };
+
+            if(languageName == "fallback")
+            {
+                filter = new[] { "lowercase" };
+            }
+
             return new
             {
-                filter = new[] { "lowercase", languageName + "_stop" },
+                filter,
                 char_filter = analyzerCharFilter,
                 tokenizer = "uax_url_email"
             };
@@ -99,8 +106,12 @@ namespace Epinova.ElasticSearch.Core.Utilities
                 dict.Add("english_possessive_stemmer", new { type = "stemmer", language = "possessive_english" });
             }
 
-            dict.Add(languageName + "_stop", new { type = "stop", stopwords = "_" + languageName + "_" });
-            dict.Add(languageName + "_stemmer", new { type = "stemmer", language = stemmerLanguage });
+            if(languageName != "fallback")
+            {
+                dict.Add(languageName + "_stemmer", new { type = "stemmer", language = stemmerLanguage });
+                dict.Add(languageName + "_stop", new { type = "stop", stopwords = "_" + languageName + "_" });
+            }
+
             dict.Add(languageName + "_synonym_filter", synonymSettings);
 
             return filter;
@@ -115,12 +126,12 @@ namespace Epinova.ElasticSearch.Core.Utilities
                 yield return "english_possessive_stemmer";
                 yield return "light_english_stemmer";
             }
-            else
+            else if (languageName != "fallback")
             {
                 yield return languageName + "_stemmer";
+                yield return languageName + "_stop";
             }
 
-            yield return languageName + "_stop";
             yield return "shingle_filter";
         }
 
@@ -170,7 +181,11 @@ namespace Epinova.ElasticSearch.Core.Utilities
             }
 
             yield return "lowercase";
-            yield return languageName + "_stop";
+
+            if (languageName != "fallback")
+            {
+                yield return languageName + "_stop";
+            }
 
             if(languageName == "german")
             {
@@ -194,7 +209,11 @@ namespace Epinova.ElasticSearch.Core.Utilities
                 yield return "english_possessive_stemmer";
             }
 
-            yield return languageName + "_stop";
+            if (languageName != "fallback")
+            {
+                yield return languageName + "_stop";
+                yield return languageName + "_stemmer";
+            }
 
             if(languageName == "german")
             {
@@ -202,7 +221,6 @@ namespace Epinova.ElasticSearch.Core.Utilities
             }
 
             yield return languageName + "_synonym_filter";
-            yield return languageName + "_stemmer";
         }
     }
 }
