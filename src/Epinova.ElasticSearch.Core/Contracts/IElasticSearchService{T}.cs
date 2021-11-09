@@ -24,8 +24,10 @@ namespace Epinova.ElasticSearch.Core.Contracts
         int FromValue { get; }
         int SizeValue { get; }
         bool IsWildcard { get; }
+        bool IsSimpleQuerystring { get; }
         bool IsGetQuery { get; }
         bool TrackSearch { get; }
+        SimpleQuerystringOperators SimpleQuerystringOperators { get; }
 
         /// <summary>
         /// Set your index name here if you want to use a different index from what is given in configuration.
@@ -539,6 +541,24 @@ namespace Epinova.ElasticSearch.Core.Contracts
         /// <param name="searchText">The text to search for</param>
         /// <returns>The current <see cref="IElasticSearchService"/> instance</returns>
         IElasticSearchService<T> WildcardSearch<T>(string searchText);
+
+        /// <summary>
+        /// Performs a generic simple querystring query on type <typeparamref name="T"/>
+        /// </summary>
+        /// <param name="searchText">The text to search for</param>
+        /// <param name="defaultOperator">Specifies the operator to use when searching, either <see cref="Enums.Operator.Or"/> or <see cref="Enums.Operator.And"/></param>
+        /// <param name="allowedOperators">Specifies the supported operators for the simple query string syntax.</param>
+        /// <returns>The current <see cref="IElasticSearchService"/> instance</returns>
+        IElasticSearchService<object> SimpleQuerystringSearch(string searchText, Operator defaultOperator = Operator.Or, SimpleQuerystringOperators allowedOperators = SimpleQuerystringOperators.All);
+
+        /// <summary>
+        /// Performs a generic simple querystring query on type <typeparamref name="T"/>
+        /// </summary>
+        /// <param name="searchText">The text to search for</param>
+        /// <param name="defaultOperator">Specifies the operator to use when searching, either <see cref="Enums.Operator.Or"/> or <see cref="Enums.Operator.And"/></param>
+        /// <param name="allowedOperators">Specifies the supported operators for the simple query string syntax.</param>
+        /// <returns>The current <see cref="IElasticSearchService"/> instance</returns>
+        IElasticSearchService<T> SimpleQuerystringSearch<T>(string searchText, Operator defaultOperator = Operator.Or, SimpleQuerystringOperators allowedOperators = SimpleQuerystringOperators.All);
 
         /// <summary>
         /// <para>
