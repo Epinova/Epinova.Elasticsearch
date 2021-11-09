@@ -221,6 +221,7 @@
     <Compile Include="Events\BestBetEventArgs.cs" />
     <Compile Include="Events\Events.cs" />
     <Compile Include="Events\IndexItemEventArgs.cs" />
+    <Compile Include="Extensions\SimpleSearchExtensions.cs" />
     <Compile Include="Extensions\EnumExtensions.cs" />
     <Compile Include="Extensions\TypeExtensions.cs" />
     <Compile Include="Extensions\UrlExtensions.cs" />
