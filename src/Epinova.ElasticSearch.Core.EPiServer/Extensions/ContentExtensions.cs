@@ -67,10 +67,18 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Extensions
             bool enableHighlighting,
             bool enableDidYouMean) where T : IContentData
         {
+            // Override .Skip() and .Take() to performe filtering on the entire resultset
+            var from = service.FromValue;
+            var size = service.SizeValue;
+            service = service.Skip(0).Take(10000);
+
             SearchResult results = await service.GetResultsAsync(cancellationToken, enableHighlighting, enableDidYouMean, !ignoreFilters, DefaultFields.Id).ConfigureAwait(false);
 
             IEnumerable<Task<ContentSearchHit<T>>> tasks =
-                results.Hits.Select(h => FilterAsync<T>(h, requirePageTemplate, providerNames, ignoreFilters));
+                results.Hits
+                .Select(h => FilterAsync<T>(h, requirePageTemplate, providerNames, ignoreFilters))
+                .Skip(from)
+                .Take(size);
 
             ContentSearchHit<T>[] hits = await Task.WhenAll(tasks).ConfigureAwait(false);
             hits = hits.Where(h => h != null).ToArray();
@@ -106,6 +114,11 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Extensions
             bool enableHighlighting,
             bool enableDidYouMean) where T : IContentData
         {
+            // Override .Skip() and .Take() to performe filtering on the entire resultset
+            var from = service.FromValue;
+            var size = service.SizeValue; 
+            service = service.Skip(0).Take(10000);
+
             SearchResult results = service.GetResults(enableHighlighting, enableDidYouMean, applyDefaultFilters: !ignoreFilters);
             var hits = new List<ContentSearchHit<T>>();
             
@@ -120,6 +133,8 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Extensions
                     results.TotalHits--;
                 }
             }
+
+            hits = hits.Skip(from).Take(size).ToList();
 
             if(service.TrackSearch)
             {
