@@ -185,6 +185,7 @@
     <Compile Include="Contracts\IContentIndexService.cs" />
     <Compile Include="Contracts\IIndexer.cs" />
     <Compile Include="Controllers\ElasticMappingController.cs" />
+    <Compile Include="EpiserverSearchLanguage.cs" />
     <Compile Include="Indexer.cs" />
     <Compile Include="Contracts\ISynonymRepository.cs" />
     <Compile Include="Controllers\Abstractions\ElasticSearchControllerBase.cs" />

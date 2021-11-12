@@ -191,6 +191,7 @@
     <Compile Include="Contracts\IFilterGroup.cs" />
     <Compile Include="Contracts\IInspectorRepository.cs" />
     <Compile Include="Contracts\IProperty.cs" />
+    <Compile Include="Contracts\ISearchLanguage.cs" />
     <Compile Include="Contracts\ITrackingRepository.cs" />
     <Compile Include="Conventions\BestBet.cs" />
     <Compile Include="Conventions\CustomProperty.cs" />
@@ -329,6 +330,7 @@
     <Compile Include="Models\TypeCount.cs" />
     <Compile Include="Pipelines\Attachment.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="DefaultSearchLanguage.cs" />
     <Compile Include="ServerInfoService.cs" />
     <Compile Include="Services\MappingValidatorService.cs" />
     <Compile Include="Services\TrackingRepository.cs" />
