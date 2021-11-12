@@ -208,6 +208,7 @@
     <Compile Include="Initialization\IndexingInitializer.cs" />
     <Compile Include="Initialization\IndexInitializer.cs" />
     <Compile Include="Initialization\LocalizationInitialization.cs" />
+    <Compile Include="Initialization\SearchLanguageInitializer.cs" />
     <Compile Include="Initialization\TrackingInitializer.cs" />
     <Compile Include="Initialization\ViewEngineInitializer.cs" />
     <Compile Include="Models\AutoSuggestFile.cs" />
