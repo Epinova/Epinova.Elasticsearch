@@ -218,9 +218,7 @@ namespace Epinova.ElasticSearch.Core
         public IElasticSearchService<T> Exclude(int rootId, bool recursive = true)
         {
             if(!ExcludedRoots.ContainsKey(rootId))
-            {
                 ExcludedRoots.Add(rootId, recursive);
-            }
 
             return this;
         }
@@ -228,34 +226,28 @@ namespace Epinova.ElasticSearch.Core
         public IElasticSearchService<T> From(int from)
         {
             FromValue = from;
-
             return this;
         }
 
         public IElasticSearchService<T> Language(CultureInfo language)
         {
             SearchLanguage = language;
-
             return this;
         }
 
-        public IElasticSearchService<T> Skip(int skip)
-            => From(skip);
+        public IElasticSearchService<T> Skip(int skip) => From(skip);
 
         public IElasticSearchService<T> Size(int size)
         {
             SizeValue = size;
-
             return this;
         }
 
-        public IElasticSearchService<T> Take(int take)
-            => Size(take);
+        public IElasticSearchService<T> Take(int take) => Size(take);
 
         public IElasticSearchService<T> NoBoosting()
         {
             UseBoosting = false;
-
             return this;
         }
 
@@ -277,14 +269,11 @@ namespace Epinova.ElasticSearch.Core
             };
         }
 
-        public IElasticSearchService<object> Search(string searchText, Operator @operator = Operator.Or)
-            => Search<object>(searchText, null, @operator);
+        public IElasticSearchService<object> Search(string searchText, Operator @operator = Operator.Or) => Search<object>(searchText, facetFieldName: null, @operator);
 
-        public IElasticSearchService<T> Search<T>(string searchText, Operator @operator = Operator.Or)
-            => Search<T>(searchText, null, @operator);
+        public IElasticSearchService<T> Search<T>(string searchText, Operator @operator = Operator.Or) => Search<T>(searchText, facetFieldName: null, @operator);
 
-        public IElasticSearchService<T> Search<T>(string searchText, string facetFieldName,
-            Operator @operator = Operator.Or)
+        public IElasticSearchService<T> Search<T>(string searchText, string facetFieldName, Operator @operator = Operator.Or)
         {
             return new ElasticSearchService<T>(_serverInfoService, _settings, _httpClientHelper)
             {
@@ -457,8 +446,7 @@ namespace Epinova.ElasticSearch.Core
             };
         }
 
-        public IElasticSearchService<object> WildcardSearch(string searchText)
-            => WildcardSearch<object>(searchText);
+        public IElasticSearchService<object> WildcardSearch(string searchText) => WildcardSearch<object>(searchText);
 
         public IElasticSearchService<T> WildcardSearch<T>(string searchText)
         {
