@@ -78,13 +78,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Extensions
             results.TotalHits -= hits.Count(h => h == null);
 
             if(service.TrackSearch)
-            {
-                TrackingRepository.AddSearch(
-                    Language.GetLanguageCode(service.SearchLanguage),
-                    service.SearchText,
-                    results.TotalHits == 0,
-                    GetIndexName(service));
-            }
+                TrackingRepository.AddSearch(service, results.TotalHits == 0);
 
             return new ContentSearchResult<T>(results, hits);
         }
@@ -122,13 +116,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Extensions
             }
 
             if(service.TrackSearch)
-            {
-                TrackingRepository.AddSearch(
-                    Language.GetLanguageCode(service.SearchLanguage),
-                    service.SearchText,
-                    results.TotalHits == 0,
-                    GetIndexName(service));
-            }
+                TrackingRepository.AddSearch(service, results.TotalHits == 0);
 
             return new ContentSearchResult<T>(results, hits);
         }
