@@ -21,7 +21,8 @@ namespace Core.Episerver.Tests
             _serviceStub = new ElasticSearchService(
                 fixture.ServiceLocationMock.ServerInfoMock.Object,
                 fixture.ServiceLocationMock.SettingsMock.Object,
-                fixture.ServiceLocationMock.HttpClientMock.Object);
+                fixture.ServiceLocationMock.HttpClientMock.Object,
+                fixture.ServiceLocationMock.SearchLanguageMock.Object);
         }
 
         [Fact]
@@ -77,7 +78,7 @@ namespace Core.Episerver.Tests
                 _fixture.ServiceLocationMock.ServerInfoMock.Object,
                 _fixture.ServiceLocationMock.SettingsMock.Object,
                 _fixture.ServiceLocationMock.HttpClientMock.Object);
-
+            
             var results = _serviceStub.GetSuggestions("foo", engine);
             Assert.Contains("foo", results);
         }
