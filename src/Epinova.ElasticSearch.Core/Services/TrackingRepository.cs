@@ -57,7 +57,7 @@ namespace Epinova.ElasticSearch.Core.Services
 
         private string GetIndexName<T>(IElasticSearchService<T> service)
         {
-            return !String.IsNullOrEmpty(service.IndexName) ? service.IndexName : _settings.GetDefaultIndexName(service.SearchLanguage);
+            return !String.IsNullOrEmpty(service.IndexName) ? service.IndexName : _settings.GetDefaultIndexName(service.SearchLanguage.Name);
         }
 
         public void Clear(string languageId, string index)
