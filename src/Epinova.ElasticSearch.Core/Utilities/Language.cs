@@ -51,24 +51,6 @@ namespace Epinova.ElasticSearch.Core.Utilities
             { "th", "thai" }
         };
 
-        internal static string GetRequestLanguageCode()
-            => GetLanguageCode(GetRequestLanguage());
-
-        internal static string GetLanguageCode(CultureInfo cultureInfo)
-        {
-            //INFO: TwoLetterISOLanguageName returns "nb" for norwegian EPiServer-language
-
-            if(CultureInfo.InvariantCulture.Equals(cultureInfo))
-            {
-                return "*";
-            }
-
-            // Return same code for normal and neutral languages, by looking at parent
-            string code = String.Concat(cultureInfo.Name, cultureInfo.Parent.Name, cultureInfo.Parent.Parent.Name).Trim();
-
-            return code.Substring(code.Length - 2, 2).ToLower();
-        }
-
         internal static IndexMappingProperty GetPropertyMapping(string language, Type type, bool isAnalyzable)
         {
             string analyzer = null;
