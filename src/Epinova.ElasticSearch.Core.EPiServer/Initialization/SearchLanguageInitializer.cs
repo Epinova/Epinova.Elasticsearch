@@ -1,54 +1,34 @@
-﻿//using Epinova.ElasticSearch.Core.Contracts;
-//using EPiServer.Framework;
-//using EPiServer.Framework.Initialization;
-//using EPiServer.ServiceLocation;
-//using StructureMap;
+﻿using Epinova.ElasticSearch.Core.Contracts;
+using EPiServer.Framework;
+using EPiServer.Framework.Initialization;
+using EPiServer.ServiceLocation;
 
-//namespace Epinova.ElasticSearch.Core.EPiServer.Initialization
-//{
-//    [InitializableModule]
-//    [ModuleDependency(typeof(FrameworkInitialization))]
-//    public class DependencyResolverInitialization : IConfigurableModule
-//    {
-//        public void ConfigureContainer(ServiceConfigurationContext context)
-//        {
-//            context.StructureMap().Configure(ConfigureContainer);
+namespace Epinova.ElasticSearch.Core.EPiServer.Initialization
+{
+    [InitializableModule]
+    [ModuleDependency(typeof(FrameworkInitialization))]
+    public class DependencyResolverInitialization : IConfigurableModule
+    {
+        public void ConfigureContainer(ServiceConfigurationContext context)
+        {
+            context.ConfigurationComplete += (sender, args) =>
+            {
+                context.Services.RemoveAll<ISearchLanguage>();
+                context.Services.Add<ISearchLanguage, EpiserverSearchLanguage>(ServiceInstanceScope.Hybrid);
+            };
+        }
 
-
-//            context.ConfigurationComplete += (sender, args) =>
-//            {
-//                args.StructureMap().Model.For<ISearchLanguage>().EjectAndRemove();
-
-
-//                args.StructureMap().Configure(ConfigureContainerAfter);
-//            };
-//        }
-
-
-//        private static void ConfigureContainer(ConfigurationExpression container)
-//        {
-//            //Register custom
-//        }
+        public void Initialize(InitializationEngine context)
+        {
+        }
+        
+        public void Uninitialize(InitializationEngine context)
+        {
+        }
 
 
-//        private static void ConfigureContainerAfter(ConfigurationExpression container)
-//        {
-//            //Register our own to replace what we ejected
-//            container.For<ISearchLanguage>().Add<EpiserverSearchLanguage>();
-//        }
-
-
-//        public void Initialize(InitializationEngine context)
-//        {
-//        }
-
-
-//        public void Uninitialize(InitializationEngine context)
-//        {
-//        }
-
-//        public void Preload(string[] parameters)
-//        {
-//        }
-//    }
-//}
+        public void Preload(string[] parameters)
+        {
+        }
+    }
+}
