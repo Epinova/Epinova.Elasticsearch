@@ -14,7 +14,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Initialization
             context.ConfigurationComplete += (sender, args) =>
             {
                 context.Services.RemoveAll<ISearchLanguage>();
-                context.Services.Add<ISearchLanguage, EpiserverSearchLanguage>(ServiceInstanceScope.Hybrid);
+                context.Services.Add<ISearchLanguage, EpiserverSearchLanguage>(ServiceInstanceScope.Singleton);
             };
         }
 
