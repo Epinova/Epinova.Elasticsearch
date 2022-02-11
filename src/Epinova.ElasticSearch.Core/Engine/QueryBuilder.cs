@@ -130,7 +130,7 @@ namespace Epinova.ElasticSearch.Core.Engine
                 setup.SearchFields.ForEach(field =>
                     request.Query.Bool.Should.Add(new Wildcard(field, request.Query.SearchText)));
 
-                // Boost hits that starts with searchtext, ie. when searching for "*foo*", 
+                // Boost hits that starts with searchtext, ie. when searching for "*foo*",
                 // hits on "foobar" will score higher than hits on "barfoo"
                 if(request.Query.SearchText.StartsWith("*"))
                 {
@@ -527,7 +527,7 @@ namespace Epinova.ElasticSearch.Core.Engine
                 request.Query.Bool.MinimumNumberShouldMatch = null;
             }
 
-            if(request.PostFilter.Bool.Should.Count > 0 && request.PostFilter.Bool.Must.Count == 0)
+            if(request.PostFilter.Bool.Should.Count > 0)
             {
                 request.PostFilter.Bool.MinimumNumberShouldMatch = 1;
             }
