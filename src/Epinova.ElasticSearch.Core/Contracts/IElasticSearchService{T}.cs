@@ -583,7 +583,7 @@ namespace Epinova.ElasticSearch.Core.Contracts
         /// <param name="groupExpression">The expression to perform ORs or ANDs on
         /// Defaults to <see cref="Epinova.ElasticSearch.Core.Enums.Operator.And"/></param>
         /// <returns>The current <see cref="IElasticSearchService"/> instance</returns>
-        IElasticSearchService<T> FilterGroup(Expression<Func<IFilterGroup<T>, IFilterGroup<T>>> groupExpression);
+        IElasticSearchService<T> FilterGroup(Expression<Func<IFilterGroup<T>, IFilterGroup<T>>> groupExpression, Operator @operator = Operator.And);
 
         /// <summary>
         /// Use a different query-time analyzer. Overrides analyzer in mapping.

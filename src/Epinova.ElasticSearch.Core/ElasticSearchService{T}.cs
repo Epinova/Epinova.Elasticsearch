@@ -767,11 +767,11 @@ namespace Epinova.ElasticSearch.Core
             return FiltersMustNot(fieldInfo.Item1, filterValues, raw);
         }
 
-        public IElasticSearchService<T> FilterGroup(Expression<Func<IFilterGroup<T>, IFilterGroup<T>>> groupExpression)
+        public IElasticSearchService<T> FilterGroup(Expression<Func<IFilterGroup<T>, IFilterGroup<T>>> groupExpression, Operator @operator = Operator.And)
         {
             if(groupExpression.Body is MethodCallExpression expression)
             {
-                groupExpression.Compile().Invoke(new FilterGroup<T>(this, Guid.NewGuid().ToString()));
+                groupExpression.Compile().Invoke(new FilterGroup<T>(this, Guid.NewGuid().ToString(), @operator));
             }
 
             return this;
