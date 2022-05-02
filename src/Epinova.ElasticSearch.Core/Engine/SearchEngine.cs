@@ -249,10 +249,7 @@ namespace Epinova.ElasticSearch.Core.Engine
 
         public RawResults<TRoot> GetRawResults<TRoot>(RequestBase query, string language, string indexName = null)
         {
-            if(indexName == null)
-            {
-                indexName = _settings.GetDefaultIndexName(language);
-            }
+            indexName ??= _settings.GetDefaultIndexName(new CultureInfo(language));
 
             _logger.Information($"Index:\n{indexName}\n");
             _logger.Information($"Query:\n{query?.ToString(Formatting.Indented)}\n");
@@ -280,10 +277,7 @@ namespace Epinova.ElasticSearch.Core.Engine
 
         public async Task<TRoot> GetRawResultsAsync<TRoot>(RequestBase query, string language, CancellationToken cancellationToken, string indexName = null)
         {
-            if(indexName == null)
-            {
-                indexName = _settings.GetDefaultIndexName(language);
-            }
+            indexName ??= _settings.GetDefaultIndexName(new CultureInfo(language));
 
             _logger.Information($"Index:\n{indexName}\n");
             _logger.Information($"Query:\n{query?.ToString(Formatting.Indented)}\n");
@@ -325,7 +319,7 @@ namespace Epinova.ElasticSearch.Core.Engine
         {
             if(indexName == null)
             {
-                indexName = _settings.GetDefaultIndexName(Language.GetLanguageCode(culture));
+                indexName = _settings.GetDefaultIndexName(culture);
             }
 
             var endpoint = GetSearchEndpoint(indexName, $"?filter_path={JsonNames.Suggest}");

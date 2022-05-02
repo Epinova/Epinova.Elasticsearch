@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Web.Mvc;
 using Epinova.ElasticSearch.Core.Contracts;
@@ -20,14 +21,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Controllers
         private readonly IContentLoader _contentLoader;
         private readonly IBestBetsRepository _bestBetsRepository;
 
-        public ElasticBestBetsController(
-            IContentLoader contentLoader,
-            IBestBetsRepository bestBetsRepository,
-            ILanguageBranchRepository languageBranchRepository,
-            IElasticSearchSettings settings,
-            IServerInfoService serverInfoService,
-            IHttpClientHelper httpClientHelper)
-            : base(serverInfoService, settings, httpClientHelper, languageBranchRepository)
+        public ElasticBestBetsController(IContentLoader contentLoader, IBestBetsRepository bestBetsRepository, ILanguageBranchRepository languageBranchRepository, IElasticSearchSettings settings, IServerInfoService serverInfoService, IHttpClientHelper httpClientHelper) : base(serverInfoService, settings, httpClientHelper, languageBranchRepository)
         {
             _contentLoader = contentLoader;
             _bestBetsRepository = bestBetsRepository;
@@ -53,14 +47,15 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Controllers
             {
                 var name = language.Value;
                 name = String.Concat(name.Substring(0, 1).ToUpper(), name.Substring(1));
-                var indexName = SwapLanguage(CurrentIndex, language.Key);
+                CultureInfo currentCulture = new CultureInfo(language.Key);
+                var indexName = SwapLanguage(CurrentIndex, currentCulture);
 
                 list.Add(new BestBetsByLanguage
                 {
                     LanguageName = name,
                     LanguageId = language.Key,
                     Indices = UniqueIndices,
-                    BestBets = GetBestBetsForLanguage(language.Key, indexName)
+                    BestBets = GetBestBetsForLanguage(currentCulture, indexName).ToList()
                 });
             }
 
@@ -82,11 +77,14 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Controllers
         {
             if(!String.IsNullOrWhiteSpace(phrase) && !ContentReference.IsNullOrEmpty(contentId))
             {
+                var language = new CultureInfo(languageId);
+                var indexName = SwapLanguage(index, language);
+
                 phrase = phrase
                     .Replace("¤", String.Empty)
                     .Replace("|", String.Empty);
-
-                _bestBetsRepository.AddBestBet(languageId, phrase, contentId, index, Type.GetType(typeName));
+                
+                _bestBetsRepository.AddBestBet(language, phrase, contentId, indexName, Type.GetType(typeName));
 
                 Indexing.SetupBestBets();
             }
@@ -98,7 +96,10 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Controllers
         {
             if(!String.IsNullOrWhiteSpace(phrase))
             {
-                _bestBetsRepository.DeleteBestBet(languageId, phrase, contentId, index, Type.GetType(typeName));
+                var language = new CultureInfo(languageId);
+                var indexName = SwapLanguage(index, language);
+
+                _bestBetsRepository.DeleteBestBet(language, phrase, contentId, indexName, Type.GetType(typeName));
             }
 
             Indexing.SetupBestBets();
@@ -106,7 +107,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Controllers
             return RedirectToAction("Index", new { languageId });
         }
 
-        private IEnumerable<BestBet> GetBestBetsForLanguage(string language, string index)
+        private IEnumerable<BestBet> GetBestBetsForLanguage(CultureInfo language, string index)
         {
             foreach(BestBet bestBet in _bestBetsRepository.GetBestBets(language, index))
             {

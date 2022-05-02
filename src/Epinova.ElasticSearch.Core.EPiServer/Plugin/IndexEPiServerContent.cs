@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -37,18 +38,8 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Plugin
         private readonly IServerInfoService _serverInfoService;
         
         private readonly Utilities.Indexing _indexing;
-        protected string CustomIndexName;
-
-        public IndexEPiServerContent(
-            IContentIndexService contentIndexService,
-            IContentLoader contentLoader,
-            ICoreIndexer coreIndexer,
-            IIndexer indexer,
-            IBestBetsRepository bestBetsRepository,
-            ILanguageBranchRepository languageBranchRepository,
-            IElasticSearchSettings settings,
-            IServerInfoService serverInfoService,
-            IHttpClientHelper httpClientHelper)
+        
+        public IndexEPiServerContent(IContentIndexService contentIndexService, IContentLoader contentLoader, ICoreIndexer coreIndexer, IIndexer indexer, IBestBetsRepository bestBetsRepository, ILanguageBranchRepository languageBranchRepository, IElasticSearchSettings settings, IServerInfoService serverInfoService, IHttpClientHelper httpClientHelper)
         {
             _coreIndexer = coreIndexer;
             _indexer = indexer;
@@ -127,13 +118,13 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Plugin
                 
                 var mediaData = contentList.OfType<MediaData>().ToList();
                 contentList.RemoveAll(c => c is MediaData);
-
+                
                 var bulkCount = Math.Ceiling(contentList.Count / (double)_settings.BulkSize);
                 for(var i = 1; i <= bulkCount; i++)
                 {
                     OnStatusChanged($"Indexing bulk {i} of {bulkCount} (Bulk size: {_settings.BulkSize})");
                     var batch = contentList.Take(_settings.BulkSize);
-                    var batchResult = IndexContents(batch);
+                    var batchResult = IndexContents(batch, _settings.Index);
 
                     results.Batches.AddRange(batchResult.Batches);
                     var removeCount = contentList.Count >= _settings.BulkSize ? _settings.BulkSize : contentList.Count;
@@ -214,9 +205,9 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Plugin
 
         private bool IndicesExists(IEnumerable<LanguageBranch> languages)
         {
-            foreach(var language in languages.Select(l => l.LanguageID))
+            foreach(var language in languages.Select(l => l.Culture))
             {
-                var indexName = GetIndexName(language);
+                var indexName = _settings.GetDefaultIndexName(language);
                 if(!_indexing.IndexExists(indexName))
                 {
                     return false;
@@ -228,11 +219,11 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Plugin
         
         private void RestoreBestBets(IEnumerable<LanguageBranch> languages)
         {
-            foreach(var language in languages.Select(l => l.LanguageID))
+            foreach(var language in languages.Select(l => l.Culture))
             {
                 try
                 {
-                    var indexName = GetIndexName(language);
+                    var indexName = _settings.GetDefaultIndexName(language);
                     _logger.Debug("Index: " + indexName);
                     OnStatusChanged("Restoring best bets for index " + indexName);
                     var bestBets = _bestBetsRepository.GetBestBets(language, indexName);
@@ -248,23 +239,39 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Plugin
             }
         }
         
-        private string GetIndexName(string language) => !String.IsNullOrEmpty(CustomIndexName) ? _settings.GetCustomIndexName(CustomIndexName, language) : _settings.GetDefaultIndexName(language);
-
         private BulkBatchResult IndexMediaData(IList<MediaData> mediaData)
         {
-            var filteredMediaData = mediaData.Distinct()
-                .Where(IsAllowedExtension).ToList();
+            List<MediaData> filteredMediaData = mediaData.Distinct().Where(IsAllowedExtension).ToList();
 
             var message = $"Indexing {filteredMediaData.Count} media data";
             _logger.Information(message);
             OnStatusChanged(message);
-
+            
             var mediaBatchResults = new BulkBatchResult();
-            for(var i = 0; i < filteredMediaData.Count; i++)
+           
+            string indexName = _settings.GetDefaultIndexName(CultureInfo.InvariantCulture);
+            string index = _settings.GetIndexNameWithoutLanguage(indexName);
+
+
+            if(!_indexing.IndexExists(indexName))
             {
-                var batchResult = IndexContents(new[] { filteredMediaData[i] });
+                mediaBatchResults.Batches.Add(new BulkResult
+                {
+                    Errors = true,
+                    Items = new[]
+                    {
+                        new BulkResultItem { Error = new Error { Reason = "No index for invariant culture"}, Status = 404}
+                    }
+                });
+                return mediaBatchResults;
+            }
+                        
+            foreach (MediaData mediaItem in filteredMediaData)
+            {
+                BulkBatchResult batchResult = IndexContents(new[] {mediaItem}, index);
                 mediaBatchResults.Batches.AddRange(batchResult.Batches);
             }
+
             return mediaBatchResults;
 
             static bool IsAllowedExtension(MediaData m)
@@ -274,14 +281,14 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Plugin
             }
         }
 
-        private BulkBatchResult IndexContents(IEnumerable<IContent> contentItems)
+        private BulkBatchResult IndexContents(IEnumerable<IContent> contentItems, string index)
         {
             // Perform bulk update
             return _indexer.BulkUpdate(contentItems, str =>
             {
                 OnStatusChanged(str);
                 _logger.Debug(str);
-            }, CustomIndexName);
+            }, index);
         }
     }
 }

@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Web.Mvc;
 using System.Web.Routing;
 using Epinova.ElasticSearch.Core.Admin;
@@ -83,11 +85,15 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Controllers
                 foreach(IndexConfiguration indexConfig in config.IndicesParsed)
                 {
                     Type indexType = GetIndexType(indexConfig, config);
-                    var indexName = _settings.GetCustomIndexName(indexConfig.Name, lang.Key);
+                    CultureInfo currentCulture = new CultureInfo(lang.Key);
+                    var indexName = _settings.GetCustomIndexName(indexConfig.Name, currentCulture);
 
                     CreateIndex(indexType, indexName);
                 }
             }
+
+            string invariantCultureIndexName = _settings.GetCustomIndexName(_settings.Index, CultureInfo.InvariantCulture);
+            CreateIndex(typeof(IndexItem), invariantCultureIndexName);
 
             return RedirectToAction("Index");
         }
@@ -106,24 +112,27 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Controllers
                 foreach(IndexConfiguration indexConfig in config.IndicesParsed)
                 {
                     Type indexType = GetIndexType(indexConfig, config);
-                    var indexName = _settings.GetCustomIndexName(indexConfig.Name, lang.Key);
-
-                    Index index = CreateIndex(indexType, indexName);
-
-                    if(IsCustomType(indexType))
-                    {
-                        _coreIndexer.UpdateMapping(indexType, indexType, indexName, lang.Key, optIn: false);
-                    }
-                    else
-                    {
-                        UpdateMappingForTypes(ContentReference.RootPage, indexType, indexName, lang.Key);
-                    }
-
-                    index.WaitForStatus();
+                    string indexName = _settings.GetCustomIndexName(indexConfig.Name, new CultureInfo(lang.Key));
+                    CreateIndexAndMappings(indexName, indexType, lang.Key);
                 }
             }
 
+            string invariantCultureIndexName = _settings.GetCustomIndexName(_settings.Index, CultureInfo.InvariantCulture);
+            CreateIndexAndMappings(invariantCultureIndexName, typeof(IndexItem), Constants.InvariantCultureIndexNamePostfix);
+
             return RedirectToAction("Index");
+        }
+
+        private void CreateIndexAndMappings(string indexName, Type indexType, string lang)
+        {
+            Index index = CreateIndex(indexType, indexName);
+
+            if(IsCustomType(indexType))
+                _coreIndexer.UpdateMapping(indexType, indexType, indexName, lang, optIn: false);
+            else
+                UpdateMappingForTypes(ContentReference.RootPage, indexType, indexName, lang);
+
+            index.WaitForStatus();
         }
 
         public virtual ActionResult DeleteIndex(string indexName)
@@ -161,15 +170,17 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Controllers
             return RedirectToAction("Index");
         }
 
-        protected AdminViewModel GetModel()
+
+        private AdminViewModel GetModel()
         {
             HealthInformation clusterHealth = _healthHelper.GetClusterHealth();
             Node[] nodeInfo = _healthHelper.GetNodeInfo();
 
-            return new AdminViewModel(clusterHealth, allIndexes: Indices.OrderBy(i => i.Type), nodeInfo);
+            return new AdminViewModel(clusterHealth, allIndexes: Indices.OrderBy(i => i.TypeName), nodeInfo);
         }
 
-        protected Index CreateIndex(Type indexType, string indexName)
+
+        private Index CreateIndex(Type indexType, string indexName)
         {
             var index = new Index(_serverInfoService, _settings, _httpClientHelper, indexName);
             if(!index.Exists)
@@ -181,9 +192,12 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Controllers
             return index;
         }
 
-        protected void UpdateMappingForTypes(ContentReference rootLink, Type indexType, string indexName, string languageKey)
+
+        private void UpdateMappingForTypes(ContentReference rootLink, Type indexType, string indexName, string languageKey)
         {
-            List<IContent> allContents = _contentIndexService.ListContentFromRoot(_settings.BulkSize, rootLink, new List<LanguageBranch> { new LanguageBranch(languageKey) });
+            List<IContent> allContents = languageKey.Equals(Constants.InvariantCultureIndexNamePostfix) ?
+                _contentIndexService.ListContentFromRoot(_settings.BulkSize, rootLink, new List<LanguageBranch>())
+                : _contentIndexService.ListContentFromRoot(_settings.BulkSize, rootLink, new List<LanguageBranch> { new LanguageBranch(languageKey) });
             Type[] types = _contentIndexService.ListContainedTypes(allContents);
 
             foreach(Type type in types)

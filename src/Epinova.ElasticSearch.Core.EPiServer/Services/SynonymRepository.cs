@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -49,7 +50,8 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Services
 
             if(String.IsNullOrWhiteSpace(index))
             {
-                index = _settings.GetDefaultIndexName(languageId);
+                CultureInfo currentCulture = new CultureInfo(languageId);
+                index = _settings.GetDefaultIndexName(currentCulture);
             }
 
             var indexing = new Indexing(_serverInfoService, _settings, _httpClientHelper);
@@ -121,7 +123,8 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Services
         {
             if(String.IsNullOrWhiteSpace(index))
             {
-                index = _settings.GetDefaultIndexName(languageId);
+                CultureInfo currentCulture = new CultureInfo(languageId);
+                index = _settings.GetDefaultIndexName(currentCulture);
             }
 
             var indexing = new Indexing(_serverInfoService, _settings, _httpClientHelper);
@@ -145,7 +148,8 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Services
 
             if(String.IsNullOrWhiteSpace(index))
             {
-                index = _settings.GetDefaultIndexName(languageId);
+                CultureInfo currentCulture = new CultureInfo(languageId);
+                index = _settings.GetDefaultIndexName(currentCulture);
             }
 
             var indexing = new Indexing(_serverInfoService, _settings, _httpClientHelper);
@@ -156,12 +160,14 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Services
             }
 
             var json = _httpClientHelper.GetString(indexing.GetUri(index, "_settings"));
-
-            var jpath = $"{index}.settings.index.analysis.filter.{Language.GetLanguageAnalyzer(languageId)}_synonym_filter.synonyms";
+            string analyzer = Language.GetLanguageAnalyzer(languageId);
+            var jpath = $"{index}.settings.index.analysis.filter.{analyzer}_synonym_filter.synonyms";
 
             JContainer settings = JsonConvert.DeserializeObject<JContainer>(json);
             JToken synonymPairs = settings.SelectToken(jpath);
             string[] parsedSynonyms;
+            bool restoreSynonyms = false;
+
             if(synonymPairs?.Any(s => s.ToString() != "example_from,example_to") == true)
             {
                 parsedSynonyms = synonymPairs.Select(s => s.ToString()).ToArray();
@@ -181,6 +187,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Services
                         string data = reader.ReadToEnd();
                         _logger.Debug("Synonym data: " + data);
                         parsedSynonyms = data.Split('|');
+                        restoreSynonyms = parsedSynonyms.Any();
                     }
                 }
             }
@@ -212,26 +219,26 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Services
                 }
             }
 
+            if(restoreSynonyms)
+                SetSynonyms(languageId, analyzer, synonyms, index);
+
             return synonyms;
         }
 
         private SynonymBackupFile GetBackup(string name)
         {
+            name = name.Replace("2", "");
             ContentReference backupFolder = GetBackupFolder().ContentLink;
 
             SynonymBackupFile backupFile = _contentRepository
                 .GetChildren<SynonymBackupFile>(backupFolder)
-                .FirstOrDefault(s => s.Name.Equals(name, StringComparison.OrdinalIgnoreCase));
+                .FirstOrDefault(s => s.Name.Equals(name, StringComparison.OrdinalIgnoreCase) || name.Replace(Constants.IndexNameLanguageSplitChar, '-').Equals(s.Name, StringComparison.OrdinalIgnoreCase)); //Added hack for old name
 
             if(backupFile == null)
-            {
                 return null;
-            }
 
             if(backupFile.BinaryData is FileBlob fileBlob && !File.Exists(fileBlob.FilePath))
-            {
                 return null;
-            }
 
             return backupFile;
         }

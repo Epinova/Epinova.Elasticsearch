@@ -12,41 +12,32 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Controllers
 {
     public class ElasticIndexInspectorController : ElasticSearchControllerBase
     {
+        private readonly IElasticSearchSettings _settings;
         private readonly IInspectorRepository _inspectorRepository;
 
-        public ElasticIndexInspectorController(
-            IElasticSearchSettings settings,
-            IServerInfoService serverInfoService,
-            IHttpClientHelper httpClientHelper,
-            IInspectorRepository inspectorRepository,
-            ILanguageBranchRepository languageBranchRepository)
-            : base(serverInfoService, settings, httpClientHelper, languageBranchRepository)
+        public ElasticIndexInspectorController(IElasticSearchSettings settings, IServerInfoService serverInfoService, IHttpClientHelper httpClientHelper, IInspectorRepository inspectorRepository, ILanguageBranchRepository languageBranchRepository) : base(serverInfoService, settings, httpClientHelper, languageBranchRepository)
         {
+            _settings = settings;
             _inspectorRepository = inspectorRepository;
         }
 
-        public ActionResult Index(InspectViewModel model) => View("~/Views/ElasticSearchAdmin/IndexInspector/Index.cshtml", GetModel(model));
-
-        private InspectViewModel GetModel(InspectViewModel model)
+        public ActionResult Index(InspectViewModel model, string index)
         {
-            foreach(var language in Languages)
-            {
-                var id = language.Key;
-                var name = language.Value;
-                name = String.Concat(name.Substring(0, 1).ToUpper(), name.Substring(1));
+            model.SelectedIndex = string.IsNullOrWhiteSpace(index)
+                ? _settings.GetDefaultIndexName(new System.Globalization.CultureInfo(CurrentLanguage))
+                : index;
 
-                model.AddLanguage(
-                    name,
-                    id,
-                    UniqueIndices);
-            }
-
+            model.Indices = Indices.Select(i => new KeyValuePair<string,string>(i.Index, $"{i.DisplayName} ({_settings.GetLanguageFromIndexName(i.Index)})")).ToList();
             model.NumberOfItems = new List<int> { 10, 20, 50, 100, 1000, 10000 };
             model.SelectedNumberOfItems = model.SelectedNumberOfItems > 0 ? model.SelectedNumberOfItems : model.NumberOfItems.First();
-            model.SearchHits = _inspectorRepository.Search(model.SearchText, model.Analyzed, CurrentLanguage, CurrentIndex, model.SelectedNumberOfItems, model.SelectedType, CurrentIndex);
-            model.TypeCounts = _inspectorRepository.GetTypes(model.SearchText, CurrentIndex);
+            model.SearchHits = _inspectorRepository.Search(model.SearchText, model.Analyzed, model.SelectedIndex, model.SelectedNumberOfItems, model.SelectedType);
+            model.TypeCounts = _inspectorRepository.GetTypes(model.SearchText, model.SelectedIndex);
+            model.SelectedIndexName = model.Indices.FirstOrDefault(i => i.Key.Equals(model.SelectedIndex, StringComparison.OrdinalIgnoreCase)).Value;
 
-            return model;
+            return View("~/Views/ElasticSearchAdmin/IndexInspector/Index.cshtml", model);
         }
+
+
+
     }
 }

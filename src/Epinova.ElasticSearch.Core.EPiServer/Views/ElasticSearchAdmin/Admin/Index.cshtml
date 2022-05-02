@@ -250,11 +250,11 @@
             {
                 <text>
                 {
-                    index:     "@index.Index",
+                    index:     "@Html.Raw(index.Index)",
                     display:   "@index.DisplayName",
                     health:    "@index.HealthColor",
                     status:    "@index.Status",
-                    type:      "@index.Type",
+                    type:      "@index.TypeName",
                     docscount: "@index.DocsCount / @index.DocsDeleted",
                     storesize: "@index.StoreSize",
                     tokenizer: "@index.Tokenizer"

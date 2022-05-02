@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Reflection;
 using Epinova.ElasticSearch.Core.Settings.Configuration;
@@ -12,7 +13,7 @@ namespace Epinova.ElasticSearch.Core.Settings
     {
         private readonly ElasticSearchSection _configuration;
         private bool? _commerceEnabled;
-
+        
         public ElasticSearchSettings()
         {
             _configuration = ElasticSearchSection.GetConfiguration();
@@ -29,9 +30,7 @@ namespace Epinova.ElasticSearch.Core.Settings
             get
             {
                 if(_commerceEnabled.HasValue)
-                {
                     return _commerceEnabled.Value;
-                }
 
                 try
                 {
@@ -79,64 +78,54 @@ namespace Epinova.ElasticSearch.Core.Settings
 
         public bool UseTls12 =>  _configuration.UseTls12;
 
-        public string GetDefaultIndexName(string language)
+        public string GetDefaultIndexName(CultureInfo language)
         {
-            if(String.IsNullOrWhiteSpace(language))
-            {
+            if(language == null)
                 throw new InvalidOperationException("Language must be specified");
-            }
 
             return CreateIndexName(Index, language);
         }
 
-        public string GetCommerceIndexName(string language)
-        {
-            return CreateIndexName($"{Index}-{Constants.CommerceProviderName}", language);
-        }
+        public string GetCommerceIndexName(CultureInfo language) => CreateIndexName($"{Index}-{Constants.CommerceProviderName}", language);
 
-        public string GetCustomIndexName(string index, string language)
+        public string GetCustomIndexName(string index, CultureInfo language)
         {
             if(String.IsNullOrWhiteSpace(index))
-            {
                 throw new InvalidOperationException("IndexInformation is null");
-            }
 
-            if(String.IsNullOrWhiteSpace(language))
-            {
+            if(language == null)
                 throw new InvalidOperationException("Language must be specified");
-            }
 
             return CreateIndexName(index, language);
         }
 
-        private static string CreateIndexName(string index, string language)
+        private static string CreateIndexName(string index, CultureInfo language)
         {
             if(String.IsNullOrWhiteSpace(index))
-            {
                 throw new InvalidOperationException("Index must be specified");
-            }
 
-            if(String.IsNullOrWhiteSpace(language))
-            {
+            if(language == null)
                 throw new InvalidOperationException("Language must be specified");
-            }
 
-            return $"{index}-{language}".ToLower();
+            if(index.Contains(Constants.IndexNameLanguageSplitChar))
+                index = index.Split(Constants.IndexNameLanguageSplitChar).FirstOrDefault();
+
+            return language.Equals(CultureInfo.InvariantCulture)
+                ? $"{index}{Constants.IndexNameLanguageSplitChar}{Constants.InvariantCultureIndexNamePostfix}".ToLower()
+                : $"{index}{Constants.IndexNameLanguageSplitChar}{language}".ToLower();
         }
 
-        public string GetLanguage(string indexName)
+        public string GetLanguageFromIndexName(string indexName)
         {
             if(String.IsNullOrWhiteSpace(indexName))
-            {
                 throw new InvalidOperationException("Index must be specified");
-            }
 
-            if(!indexName.Contains("-"))
-            {
-                throw new InvalidOperationException("Invalid index name '" + indexName + "' (Must be <name>-<lang>)");
-            }
+            if(!indexName.Contains(Constants.IndexNameLanguageSplitChar))
+                throw new InvalidOperationException("Invalid index name '" + indexName + "' (Must be <name>¤<lang>)");
 
-            return indexName.Split('-').Last();
+            return indexName.Split(Constants.IndexNameLanguageSplitChar).Last();
         }
+
+        public string GetIndexNameWithoutLanguage(string indexName) => indexName?.Split(Constants.IndexNameLanguageSplitChar).FirstOrDefault();
     }
 }

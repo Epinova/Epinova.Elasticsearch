@@ -29,7 +29,6 @@ namespace ASP
     using System.Web.WebPages;
     using Epinova.ElasticSearch.Core.EPiServer.Extensions;
     using Epinova.ElasticSearch.Core.EPiServer.Models.ViewModels;
-    using Epinova.ElasticSearch.Core.Models.Admin;
     using EPiServer;
     using EPiServer.Core;
     using EPiServer.Editor;
@@ -97,9 +96,9 @@ WriteLiteral("            <div");
 
 WriteLiteral(" data-dojo-type=\"dijit/layout/ContentPane\"");
 
-WriteAttribute("title", Tuple.Create(" title=\"", 898), Tuple.Create("\"", 924)
-, Tuple.Create(Tuple.Create("", 906), Tuple.Create<System.Object, System.Int32>(lang.LanguageName
-, 906), false)
+WriteAttribute("title", Tuple.Create(" title=\"", 850), Tuple.Create("\"", 876)
+, Tuple.Create(Tuple.Create("", 858), Tuple.Create<System.Object, System.Int32>(lang.LanguageName
+, 858), false)
 );
 
 WriteLiteral(" data-dojo-props=\"");
@@ -143,8 +142,7 @@ WriteLiteral(">\r\n");
                                 
                                  foreach (var index in lang.Indices)
                                 {
-                                    var indexName = $"{index.Key}-{lang.LanguageId}";
-                                    if (indexName != ViewBag.SelectedIndex)
+                                    if (index.Key != Model.SelectedIndex)
                                     {
 
 WriteLiteral("                                        <div");
@@ -154,7 +152,7 @@ WriteLiteral(" data-dojo-type=\"dijit/MenuItem\"");
 WriteLiteral("\r\n                                             data-dojo-props=\"onClick:function(" +
 "){document.location=\'?index=");
 
-                                                                                                      Write(indexName);
+                                                                                                      Write(index.Key);
 
 WriteLiteral("&languageId=");
 
@@ -183,10 +181,10 @@ WriteLiteral("\r\n                    <h2>");
 
 WriteLiteral("</h2>\r\n                    <div");
 
-WriteAttribute("id", Tuple.Create(" id=\"", 2378), Tuple.Create("\"", 2411)
-, Tuple.Create(Tuple.Create("", 2383), Tuple.Create<System.Object, System.Int32>(lang.LanguageId
-, 2383), false)
-, Tuple.Create(Tuple.Create("", 2401), Tuple.Create("-wordsGrid", 2401), true)
+WriteAttribute("id", Tuple.Create(" id=\"", 2241), Tuple.Create("\"", 2274)
+, Tuple.Create(Tuple.Create("", 2246), Tuple.Create<System.Object, System.Int32>(lang.LanguageId
+, 2246), false)
+, Tuple.Create(Tuple.Create("", 2264), Tuple.Create("-wordsGrid", 2264), true)
 );
 
 WriteLiteral("></div>\r\n                    <h2>");
@@ -195,10 +193,10 @@ WriteLiteral("></div>\r\n                    <h2>");
 
 WriteLiteral("</h2>\r\n                    <div");
 
-WriteAttribute("id", Tuple.Create(" id=\"", 2535), Tuple.Create("\"", 2569)
-, Tuple.Create(Tuple.Create("", 2540), Tuple.Create<System.Object, System.Int32>(lang.LanguageId
-, 2540), false)
-, Tuple.Create(Tuple.Create("", 2558), Tuple.Create("-nohitsGrid", 2558), true)
+WriteAttribute("id", Tuple.Create(" id=\"", 2398), Tuple.Create("\"", 2432)
+, Tuple.Create(Tuple.Create("", 2403), Tuple.Create<System.Object, System.Int32>(lang.LanguageId
+, 2403), false)
+, Tuple.Create(Tuple.Create("", 2421), Tuple.Create("-nohitsGrid", 2421), true)
 );
 
 WriteLiteral("></div>\r\n\r\n");
@@ -211,11 +209,11 @@ WriteLiteral("                        <input");
 
 WriteLiteral(" type=\"hidden\"");
 
-WriteLiteral(" name=\"LanguageID\"");
+WriteLiteral(" name=\"languageID\"");
 
-WriteAttribute("value", Tuple.Create(" value=\"", 2739), Tuple.Create("\"", 2763)
-, Tuple.Create(Tuple.Create("", 2747), Tuple.Create<System.Object, System.Int32>(lang.LanguageId
-, 2747), false)
+WriteAttribute("value", Tuple.Create(" value=\"", 2602), Tuple.Create("\"", 2626)
+, Tuple.Create(Tuple.Create("", 2610), Tuple.Create<System.Object, System.Int32>(lang.LanguageId
+, 2610), false)
 );
 
 WriteLiteral(" />\r\n");
@@ -226,9 +224,9 @@ WriteLiteral(" type=\"hidden\"");
 
 WriteLiteral(" name=\"index\"");
 
-WriteAttribute("value", Tuple.Create(" value=\"", 2826), Tuple.Create("\"", 2856)
-, Tuple.Create(Tuple.Create("", 2834), Tuple.Create<System.Object, System.Int32>(ViewBag.SelectedIndex
-, 2834), false)
+WriteAttribute("value", Tuple.Create(" value=\"", 2689), Tuple.Create("\"", 2717)
+, Tuple.Create(Tuple.Create("", 2697), Tuple.Create<System.Object, System.Int32>(Model.SelectedIndex
+, 2697), false)
 );
 
 WriteLiteral(" />\r\n");
@@ -239,21 +237,21 @@ WriteLiteral("                        <p>\r\n                            <button
 
 WriteLiteral(" data-dojo-type=\"dijit/form/Button\"");
 
-WriteAttribute("onClick", Tuple.Create("\r\n                                    onClick=\"", 3000), Tuple.Create("\"", 3123)
-, Tuple.Create(Tuple.Create("", 3047), Tuple.Create("return", 3047), true)
-, Tuple.Create(Tuple.Create(" ", 3053), Tuple.Create("confirm(\'", 3054), true)
-, Tuple.Create(Tuple.Create("", 3063), Tuple.Create<System.Object, System.Int32>(Html.TranslateWithPath("clearconfirm", localizationPath)
-, 3063), false)
-, Tuple.Create(Tuple.Create("", 3120), Tuple.Create("\');", 3120), true)
+WriteAttribute("onClick", Tuple.Create("\r\n                                    onClick=\"", 2861), Tuple.Create("\"", 2984)
+, Tuple.Create(Tuple.Create("", 2908), Tuple.Create("return", 2908), true)
+, Tuple.Create(Tuple.Create(" ", 2914), Tuple.Create("confirm(\'", 2915), true)
+, Tuple.Create(Tuple.Create("", 2924), Tuple.Create<System.Object, System.Int32>(Html.TranslateWithPath("clearconfirm", localizationPath)
+, 2924), false)
+, Tuple.Create(Tuple.Create("", 2981), Tuple.Create("\');", 2981), true)
 );
 
 WriteLiteral("\r\n                                    type=\"submit\"");
 
 WriteLiteral("\r\n                                    class=\"epi-primary\"");
 
-WriteAttribute("disabled", Tuple.Create("\r\n                                    disabled=\"", 3232), Tuple.Create("\"", 3307)
-, Tuple.Create(Tuple.Create("", 3280), Tuple.Create<System.Object, System.Int32>(lang.Searches.Count == 0
-, 3280), false)
+WriteAttribute("disabled", Tuple.Create("\r\n                                    disabled=\"", 3093), Tuple.Create("\"", 3168)
+, Tuple.Create(Tuple.Create("", 3141), Tuple.Create<System.Object, System.Int32>(lang.Searches.Count == 0
+, 3141), false)
 );
 
 WriteLiteral(">\r\n");

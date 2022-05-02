@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Text.RegularExpressions;
 using Epinova.ElasticSearch.Core.Contracts;
@@ -115,13 +116,8 @@ namespace Epinova.ElasticSearch.Core.Utilities
         /// <summary>
         /// Gets all property mappings for the configured index and the supplied type
         /// </summary>
-        internal IndexMapping GetIndexMapping(Type type, string language, string index)
+        internal IndexMapping GetIndexMapping(Type type, string index)
         {
-            if(String.IsNullOrEmpty(index))
-            {
-                index = _settings.GetDefaultIndexName(language);
-            }
-
             string typeName = type.GetTypeName();
             string mappingUri = GetMappingUri(index, typeName);
             IndexMapping mappings;

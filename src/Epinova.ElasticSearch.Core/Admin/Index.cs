@@ -27,24 +27,19 @@ namespace Epinova.ElasticSearch.Core.Admin
         private readonly IElasticSearchSettings _settings;
         private readonly IHttpClientHelper _httpClientHelper;
 
-        public Index(
-            IServerInfoService serverInfoService,
-            IElasticSearchSettings settings,
-            IHttpClientHelper httpClientHelper,
-            string name)
+        public Index(IServerInfoService serverInfoService, IElasticSearchSettings settings, IHttpClientHelper httpClientHelper, string name)
         {
-            if(String.IsNullOrWhiteSpace(name))
-            {
-                throw new InvalidOperationException("'name' can not be empty.");
-            }
-
-            _name = name.ToLower();
-            _language = _name.Split('-').Last();
-            _nameWithoutLanguage = _name.Substring(0, _name.Length - _language.Length - 1);
             _httpClientHelper = httpClientHelper;
             _settings = settings;
             _indexing = new Indexing(serverInfoService, settings, httpClientHelper);
             _serverInfo = serverInfoService.GetInfo();
+
+            if(!string.IsNullOrWhiteSpace(name))
+            {
+                _name = name.ToLower();
+                _language = _settings.GetLanguageFromIndexName(_name);
+                _nameWithoutLanguage = _settings.GetIndexNameWithoutLanguage(_name);
+            }
         }
 
         public virtual IEnumerable<IndexInformation> GetIndices()
@@ -80,7 +75,7 @@ namespace Epinova.ElasticSearch.Core.Admin
             }
 
             var json = _httpClientHelper.GetString(_indexing.GetUri(name, "_settings"));
-            var languageAnalyzer = Language.GetLanguageAnalyzer(_settings.GetLanguage(name));
+            var languageAnalyzer = Language.GetLanguageAnalyzer(_settings.GetLanguageFromIndexName(name));
 
             if(String.IsNullOrWhiteSpace(languageAnalyzer))
             {
@@ -174,7 +169,7 @@ namespace Epinova.ElasticSearch.Core.Admin
 
         internal void ChangeTokenizer(string tokenizer)
         {
-            dynamic body = MappingPatterns.GetTokenizerTemplate(_settings.GetLanguage(_name), tokenizer);
+            dynamic body = MappingPatterns.GetTokenizerTemplate(_settings.GetLanguageFromIndexName(_name), tokenizer);
             var json = Serialization.Serialize(body);
             var data = Encoding.UTF8.GetBytes(json);
             var uri = _indexing.GetUri(_name, "_settings");
@@ -262,17 +257,6 @@ namespace Epinova.ElasticSearch.Core.Admin
             _logger.Information($"Enabling cluster index closing:\n{json}");
         }
 
-        private bool MatchName(IndexInformation i)
-        {
-            foreach(string indexName in _settings.Indices)
-            {
-                if(i.Index.StartsWith(String.Concat(indexName, "-"), StringComparison.OrdinalIgnoreCase))
-                {
-                    return true;
-                }
-            }
-
-            return false;
-        }
+        private bool MatchName(IndexInformation i) => _settings.Indices.Any(indexName => i.Index.StartsWith(String.Concat(indexName, Constants.IndexNameLanguageSplitChar), StringComparison.OrdinalIgnoreCase));
     }
 }

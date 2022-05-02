@@ -102,13 +102,19 @@ namespace Epinova.ElasticSearch.Core.Utilities
         internal static string GetLanguageAnalyzer(string language)
         {
             if(language == null)
-            {
                 return "fallback";
-            }
 
             if(AnalyzerMappings.TryGetValue(language, out string analyzer))
-            {
                 return analyzer;
+
+            if(language.Contains("-"))
+            {
+                string[] languageCodes = language.ToLower().Split(new[] { '-' }, StringSplitOptions.RemoveEmptyEntries);
+                foreach(string languageCode in languageCodes)
+                {
+                    if(AnalyzerMappings.TryGetValue(languageCode, out analyzer))
+                        return analyzer;
+                }
             }
 
             return "fallback";

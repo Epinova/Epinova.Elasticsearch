@@ -329,10 +329,9 @@ namespace Epinova.ElasticSearch.Core
             return await GetResultsAsync(query, cancellationToken).ConfigureAwait(false);
         }
 
-        public async Task<CustomSearchResult<T>> GetCustomResultsAsync()
-            => await GetCustomResultsAsync(CancellationToken.None).ConfigureAwait(false);
+        public async Task<CustomSearchResult<T>> GetResultsCustomAsync() => await GetResultsCustomAsync(CancellationToken.None).ConfigureAwait(false);
 
-        public async Task<CustomSearchResult<T>> GetCustomResultsAsync(CancellationToken cancellationToken)
+        public async Task<CustomSearchResult<T>> GetResultsCustomAsync(CancellationToken cancellationToken)
         {
             QuerySetup query = CreateQuery(true);
             query.EnableDidYouMean = false;
@@ -340,10 +339,10 @@ namespace Epinova.ElasticSearch.Core
             // Always return all fields for custom objects
             query.SourceFields = null;
 
-            return await GetCustomResultsAsync<T>(query, cancellationToken).ConfigureAwait(false);
+            return await GetResultsCustomAsync<T>(query, cancellationToken).ConfigureAwait(false);
         }
 
-        public CustomSearchResult<T> GetCustomResults()
+        public CustomSearchResult<T> GetResultsCustom()
         {
             QuerySetup query = CreateQuery(false);
 
@@ -816,7 +815,7 @@ namespace Epinova.ElasticSearch.Core
             return _engine.Query(request, querySetup.Language, IndexName);
         }
 
-        internal async Task<CustomSearchResult<T>> GetCustomResultsAsync<T>(QuerySetup querySetup, CancellationToken cancellationToken)
+        internal async Task<CustomSearchResult<T>> GetResultsCustomAsync<T>(QuerySetup querySetup, CancellationToken cancellationToken)
         {
             RequestBase request = _builder.TypedSearch(querySetup);
             return await _engine.CustomQueryAsync<T>(request, querySetup.Language, cancellationToken, IndexName).ConfigureAwait(false);

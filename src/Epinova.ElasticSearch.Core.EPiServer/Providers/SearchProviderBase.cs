@@ -26,28 +26,22 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Providers
         where TContentType : ContentType
     {
         private readonly string _categoryKey;
-        protected string IndexName;
-     
-        protected readonly IElasticSearchService<TSearchType> _elasticSearchService;
-        protected readonly IElasticSearchSettings _elasticSearchSettings = ServiceLocator.Current.GetInstance<IElasticSearchSettings>();
-        protected readonly IServerInfoService _serverInfoService = ServiceLocator.Current.GetInstance<IServerInfoService>();
-        protected readonly IHttpClientHelper _httpClientHelper = ServiceLocator.Current.GetInstance<IHttpClientHelper>();
-        protected readonly LocalizationService _localizationService = ServiceLocator.Current.GetInstance<LocalizationService>();
+        private string IndexName;
+        private CultureInfo SearchLanguage;
 
-        protected SearchProviderBase(string categoryKey)
-            : base(
-                ServiceLocator.Current.GetInstance<LocalizationService>(),
-                ServiceLocator.Current.GetInstance<ISiteDefinitionResolver>(),
-                ServiceLocator.Current.GetInstance<IContentTypeRepository<TContentType>>(),
-                ServiceLocator.Current.GetInstance<EditUrlResolver>(),
-                ServiceLocator.Current.GetInstance<ServiceAccessor<SiteDefinition>>(),
-                ServiceLocator.Current.GetInstance<LanguageResolver>(),
-                ServiceLocator.Current.GetInstance<UrlResolver>(),
-                ServiceLocator.Current.GetInstance<TemplateResolver>(),
-                ServiceLocator.Current.GetInstance<UIDescriptorRegistry>())
+        protected readonly IElasticSearchService<TSearchType> _elasticSearchService;
+
+        private readonly IElasticSearchSettings _elasticSearchSettings = ServiceLocator.Current.GetInstance<IElasticSearchSettings>();
+        private readonly IServerInfoService _serverInfoService = ServiceLocator.Current.GetInstance<IServerInfoService>();
+        private readonly IHttpClientHelper _httpClientHelper = ServiceLocator.Current.GetInstance<IHttpClientHelper>();
+        private readonly LocalizationService _localizationService = ServiceLocator.Current.GetInstance<LocalizationService>();
+
+        protected SearchProviderBase(string categoryKey, CultureInfo language = null) : base(ServiceLocator.Current.GetInstance<LocalizationService>(), ServiceLocator.Current.GetInstance<ISiteDefinitionResolver>(), ServiceLocator.Current.GetInstance<IContentTypeRepository<TContentType>>(), ServiceLocator.Current.GetInstance<EditUrlResolver>(), ServiceLocator.Current.GetInstance<ServiceAccessor<SiteDefinition>>(), ServiceLocator.Current.GetInstance<LanguageResolver>(), ServiceLocator.Current.GetInstance<UrlResolver>(), ServiceLocator.Current.GetInstance<TemplateResolver>(), ServiceLocator.Current.GetInstance<UIDescriptorRegistry>())
         {
             _categoryKey = categoryKey;
             _elasticSearchService = new ElasticSearchService<TSearchType>(_serverInfoService, _elasticSearchSettings, _httpClientHelper);
+            SearchLanguage = language ?? Language.GetRequestLanguage();
+            IndexName = _elasticSearchSettings.GetDefaultIndexName(SearchLanguage); //TODO validate
         }
 
         public override string Area => AreaName;
@@ -65,8 +59,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Providers
         public override IEnumerable<SearchResult> Search(Query query)
         {
             var contentSearchHits = new List<ContentSearchHit<TContentData>>();
-            CultureInfo language = Language.GetRequestLanguage();
-
+            
             if(!query.SearchRoots.Any() || ForceRootLookup)
             {
                 query.SearchRoots = new[] { GetSearchRoot() };
@@ -81,17 +74,15 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Providers
 
                 if(searchRootId != 0)
                 {
-                    IElasticSearchService<TContentData> searchQuery = CreateQuery(query, language, searchRootId);
+                    IElasticSearchService<TContentData> searchQuery = CreateQuery(query, SearchLanguage, searchRootId);
 
-                    ContentSearchResult<TContentData> contentSearchResult =
-                        searchQuery.GetContentResults(false, true, GetProviderKeys(), false, false);
+                    ContentSearchResult<TContentData> contentSearchResult = searchQuery.GetContentResults(false, true, GetProviderKeys(), false, false);
 
                     contentSearchHits.AddRange(contentSearchResult.Hits);
                 }
             }
 
-            return
-                contentSearchHits.OrderByDescending(hit => hit.Score)
+            return contentSearchHits.OrderByDescending(hit => hit.Score)
                     .Take(_elasticSearchSettings.ProviderMaxResults)
                     .Select(hit => CreateSearchResult(hit.Content));
         }

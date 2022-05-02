@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
 using Epinova.ElasticSearch.Core.Contracts;
 using Epinova.ElasticSearch.Core.Conventions;
 using Epinova.ElasticSearch.Core.EPiServer.Models;
+using Epinova.ElasticSearch.Core.Settings;
 using EPiServer;
 using EPiServer.Core;
 using EPiServer.DataAccess;
@@ -26,30 +28,33 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Services
         private readonly IBlobFactory _blobFactory;
         private readonly ICoreIndexer _coreIndexer;
         private readonly IContentRepository _contentRepository;
+        private readonly IElasticSearchSettings _settings;
         private readonly UrlResolver _urlResolver;
 
         public BestBetsRepository(
             IContentRepository contentRepository,
+            IElasticSearchSettings settings,
             UrlResolver urlResolver,
             IBlobFactory blobFactory,
             ICoreIndexer coreIndexer)
         {
             _contentRepository = contentRepository;
+            _settings = settings;
             _urlResolver = urlResolver;
             _blobFactory = blobFactory;
             _coreIndexer = coreIndexer;
         }
 
-        public void AddBestBet(string languageId, string phrase, ContentReference contentLink, string index, Type type)
+        public void AddBestBet(CultureInfo language, string phrase, ContentReference contentLink, string index, Type type)
         {
-            List<BestBet> bestBets = GetBestBets(languageId, index).ToList();
+            List<BestBet> bestBets = GetBestBets(language, index).ToList();
             bestBets.Add(new BestBet(phrase, contentLink));
-            SetBestBets(languageId, bestBets.ToArray(), index, type);
+            SetBestBets(language, bestBets.ToArray(), index, type);
         }
 
-        public void DeleteBestBet(string languageId, string phrase, string id, string index, Type type)
+        public void DeleteBestBet(CultureInfo language, string phrase, string id, string index, Type type)
         {
-            List<BestBet> bestBets = GetBestBets(languageId, index).ToList();
+            List<BestBet> bestBets = GetBestBets(language, index).ToList();
             BestBet target = bestBets.FirstOrDefault(b => b.Phrase == phrase && b.Id == id);
 
             if(target == null)
@@ -59,22 +64,22 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Services
 
             bestBets.Remove(target);
             var result = bestBets.Where(b => !String.IsNullOrWhiteSpace(b.Phrase));
-            SetBestBets(languageId, result.ToArray(), index, type);
+            SetBestBets(language, result.ToArray(), index, type);
             _coreIndexer.ClearBestBets(index, type, id);
         }
 
-        public IEnumerable<string> GetBestBetsForContent(string languageId, int contentId, string index, bool isCommerceContent = false)
+        public IEnumerable<string> GetBestBetsForContent(CultureInfo language, int contentId, string index, bool isCommerceContent = false)
         {
             var id = isCommerceContent ? $"{contentId}__{Constants.CommerceProviderName}" : $"{contentId}";
 
-            return GetBestBets(languageId, index)
+            return GetBestBets(language, index)
                 .Where(b => b.Id == id)
                 .SelectMany(b => b.GetTerms());
         }
 
-        public IEnumerable<BestBet> GetBestBets(string languageId, string index)
+        public IEnumerable<BestBet> GetBestBets(CultureInfo language, string index)
         {
-            var backup = GetBestBetsFile(GetFilename(languageId, index));
+            var backup = GetBestBetsFile(GetFilename(language, index));
             if(backup?.BinaryData == null)
             {
                 return Enumerable.Empty<BestBet>();
@@ -97,7 +102,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Services
 
                         return raw.Split(RowDelim[0])
                             .Where(IsValidRow)
-                            .Select(b => ParseRow(b, languageId))
+                            .Select(b => ParseRow(b, language))
                             .Where(b => b != null);
                     }
                 }
@@ -115,20 +120,20 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Services
                    && row.Contains(PhraseDelim);
         }
 
-        private BestBet ParseRow(string row, string languageId)
+        private BestBet ParseRow(string row, CultureInfo language)
         {
             string[] parts = row.Split(PhraseDelim);
             string rawId = parts[1];
             var phrase = parts[0];
             var contentLink = ContentReference.Parse(rawId);
-            var url = _urlResolver.GetUrl(contentLink, languageId);
+            var url = _urlResolver.GetUrl(contentLink, language.Name);
 
             return new BestBet(phrase, contentLink, url);
         }
 
-        private void SetBestBets(string languageId, BestBet[] bestBetsToAdd, string index, Type type)
+        private void SetBestBets(CultureInfo language, BestBet[] bestBetsToAdd, string index, Type type)
         {
-            var name = GetFilename(languageId, index);
+            var name = GetFilename(language, index);
             var contentFile = GetBestBetsFile(name);
 
             contentFile = contentFile == null
@@ -140,7 +145,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Services
                 return;
             }
 
-            Logger.Information($"Saving BestBest for language:{languageId}");
+            Logger.Information($"Saving BestBest for language:{language.Name}");
 
             using(Stream stream = contentFile.BinaryData?.OpenRead() ?? Stream.Null)
             {
@@ -165,9 +170,10 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Services
 
             contentFile.Name = name;
             contentFile.BinaryData = blob;
-            contentFile.LanguageId = languageId;
+            contentFile.Language = language;
 
             _contentRepository.Save(contentFile, SaveAction.Publish, AccessLevel.NoAccess);
+            
             UpdateIndex(bestBetsToAdd, index, type);
         }
 
@@ -196,11 +202,10 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Services
 
             return _contentRepository
                 .GetChildren<BestBetsFile>(backupFolder)
-                .FirstOrDefault(s => s.Name.Equals(name, StringComparison.OrdinalIgnoreCase));
+                .FirstOrDefault(s => s.Name.Equals(name, StringComparison.OrdinalIgnoreCase) || name.Replace(Constants.IndexNameLanguageSplitChar, '-').Equals(s.Name));
         }
 
-        private static string GetFilename(string languageId, string index)
-            => $"{languageId}_{index}.{BestBetsFile.Extension}";
+        private static string GetFilename(CultureInfo language, string index) => $"{language.Name}_{index}.{BestBetsFile.Extension}";
 
         private BestBetsFileFolder GetBestBetsFolder()
         {

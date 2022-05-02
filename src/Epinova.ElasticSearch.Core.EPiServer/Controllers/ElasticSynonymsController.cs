@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Web.Mvc;
 using Epinova.ElasticSearch.Core.Contracts;
@@ -28,7 +29,12 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Controllers
             _synonymRepository = synonymRepository;
         }
 
-        public ActionResult Index() => View("~/Views/ElasticSearchAdmin/Synonyms/Index.cshtml", GetModel());
+        public ActionResult Index()
+        {
+            SynonymsViewModel model = GetModel();
+            return View("~/Views/ElasticSearchAdmin/Synonyms/Index.cshtml", model);
+        }
+
 
         public ActionResult Delete(Synonym synonym, string languageId, string analyzer, string index)
         {
@@ -93,9 +99,10 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Controllers
             {
                 var name = language.Value;
                 name = String.Concat(name.Substring(0, 1).ToUpper(), name.Substring(1));
-                var indexName = SwapLanguage(CurrentIndex, language.Key);
+                CultureInfo currentCulture = new CultureInfo(language.Key);
+                var indexName = SwapLanguage(CurrentIndex, currentCulture);
 
-                model.SynonymsByLanguage.Add(new LanguageSynonyms
+                LanguageSynonyms languageSynonyms = new LanguageSynonyms
                 {
                     Analyzer = Language.GetLanguageAnalyzer(language.Key),
                     LanguageName = name,
@@ -103,7 +110,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Controllers
                     IndexName = indexName,
                     Indices = UniqueIndices,
                     HasSynonymsFile = !String.IsNullOrWhiteSpace(_synonymRepository.GetSynonymsFilePath(language.Key, indexName)),
-                    Synonyms = _synonymRepository.GetSynonyms(language.Key, CurrentIndex)
+                    Synonyms = _synonymRepository.GetSynonyms(language.Key, indexName)
                         .Select(s =>
                         {
                             var key = s.From;
@@ -116,7 +123,9 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Controllers
                             return new Synonym { From = fromDisplay, To = s.To, TwoWay = s.TwoWay, MultiWord = s.MultiWord };
                         })
                         .ToList()
-                });
+                };
+
+                model.SynonymsByLanguage.Add(languageSynonyms);
             }
 
             return model;

@@ -184,7 +184,9 @@
     <Compile Include="Contracts\IAutoSuggestRepository.cs" />
     <Compile Include="Contracts\IContentIndexService.cs" />
     <Compile Include="Contracts\IIndexer.cs" />
+    <Compile Include="Controllers\ElasticSettingsController.cs" />
     <Compile Include="Controllers\ElasticMappingController.cs" />
+    <Compile Include="Extensions\CustomResultExtensions.cs" />
     <Compile Include="Indexer.cs" />
     <Compile Include="Contracts\ISynonymRepository.cs" />
     <Compile Include="Controllers\Abstractions\ElasticSearchControllerBase.cs" />
@@ -222,6 +224,8 @@
     <Compile Include="Models\SynonymBackupFile.cs" />
     <Compile Include="Models\SynonymBackupFileFolder.cs" />
     <Compile Include="Models\ViewModels\Abstractions\LanguageViewModelBase.cs" />
+    <Compile Include="Models\ViewModels\SettingsViewModel.cs" />
+    <Compile Include="Models\ViewModels\ConsoleViewModel.cs" />
     <Compile Include="Models\ViewModels\AdminViewModel.cs" />
     <Compile Include="Models\ViewModels\AutoSuggestViewModel.cs" />
     <Compile Include="Models\ViewModels\BestBetsByLanguage.cs" />
@@ -286,10 +290,10 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Index.cshtml</DependentUpon>
     </Compile>
-    <Compile Include="Views\ElasticSearchAdmin\Console\_JsonDump.generated.cs">
+    <Compile Include="Views\ElasticSearchAdmin\Settings\Index.generated.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
-      <DependentUpon>_JsonDump.cshtml</DependentUpon>
+      <DependentUpon>Index.cshtml</DependentUpon>
     </Compile>
     <Compile Include="Views\ElasticSearchAdmin\Console\Index.generated.cs">
       <AutoGen>True</AutoGen>
@@ -347,9 +351,9 @@
       <Generator>RazorGenerator</Generator>
       <LastGenOutput>Index.generated.cs</LastGenOutput>
     </None>
-    <None Include="Views\ElasticSearchAdmin\Console\_JsonDump.cshtml">
+    <None Include="Views\ElasticSearchAdmin\Settings\Index.cshtml">
       <Generator>RazorGenerator</Generator>
-      <LastGenOutput>_JsonDump.generated.cs</LastGenOutput>
+      <LastGenOutput>Index.generated.cs</LastGenOutput>
     </None>
     <None Include="Views\ElasticSearchAdmin\Console\Index.cshtml">
       <Generator>RazorGenerator</Generator>

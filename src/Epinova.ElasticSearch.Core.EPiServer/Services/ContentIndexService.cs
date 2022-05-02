@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using Epinova.ElasticSearch.Core.EPiServer.Contracts;
 using EPiServer;
@@ -46,6 +47,11 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Services
 
                 bulkContents.RemoveAll(_indexer.SkipIndexing);
                 bulkContents.RemoveAll(_indexer.IsExcludedType);
+                List<IContent> contents = bulkContents.Where(b => _indexer.IsExcludedType(b)).ToList();
+                if(languages.Any())
+                    bulkContents.RemoveAll(c => c is MediaData);
+                else
+                    bulkContents.RemoveAll(c => !(c is MediaData));
 
                 contentList.AddRange(bulkContents);
                 var removeCount = contentReferences.Count >= bulkSize ? bulkSize : contentReferences.Count;
@@ -54,7 +60,12 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Services
 
             return contentList;
         }
-
-        public IEnumerable<IContent> ListContent(List<ContentReference> contentReferences, List<LanguageBranch> languages) => languages.SelectMany(l => _contentLoader.GetItems(contentReferences, l.Culture));
+        
+        public IEnumerable<IContent> ListContent(List<ContentReference> contentReferences, List<LanguageBranch> languages)
+        {
+            return languages.Any()
+                ? languages.SelectMany(l => _contentLoader.GetItems(contentReferences, l.Culture))
+                : _contentLoader.GetItems(contentReferences, CultureInfo.InvariantCulture);
+        }
     }
 }

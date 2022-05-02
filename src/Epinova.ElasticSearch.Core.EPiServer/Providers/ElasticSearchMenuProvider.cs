@@ -80,7 +80,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Providers
                 SortIndex = 60
             };
 
-            var settings = new UrlMenuItem(_translate("console/settings"), "/global/epinovaelasticsearchmenu/settings", "/ElasticSearchAdmin/ElasticConsole/Settings")
+            var settings = new UrlMenuItem(_translate("console/settings"), "/global/epinovaelasticsearchmenu/settings", "/ElasticSearchAdmin/ElasticSettings")
             {
                 IsAvailable = GetAccessInfo(),
                 SortIndex = 70

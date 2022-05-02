@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Configuration;
+using System.Globalization;
 using System.Linq;
 using Epinova.ElasticSearch.Core.Contracts;
 using Epinova.ElasticSearch.Core.Models;
+using Epinova.ElasticSearch.Core.Settings;
 using Epinova.ElasticSearch.Core.Settings.Configuration;
 using Epinova.ElasticSearch.Core.Utilities;
 using EPiServer.ServiceLocation;
@@ -13,9 +15,15 @@ namespace Epinova.ElasticSearch.Core.Services
     [ServiceConfiguration(ServiceType = typeof(ITrackingRepository), Lifecycle = ServiceInstanceScope.Transient)]
     public class TrackingRepository : ITrackingRepository
     {
+        private readonly IElasticSearchSettings _settings;
         private static readonly string ConnectionString = GetConnectionString();
+        
+        public TrackingRepository(IElasticSearchSettings settings)
+        {
+            _settings = settings;
+        }
 
-        public void AddSearch(string languageId, string text, bool noHits, string index)
+        public void AddSearch(CultureInfo language, string text, bool noHits, string indexName)
         {
             text = text ?? String.Empty;
             if(text.Length > 200)
@@ -23,7 +31,10 @@ namespace Epinova.ElasticSearch.Core.Services
                 text = text.Substring(0, 200);
             }
 
-            if(SearchExists(text, languageId, index))
+            string index = _settings.GetIndexNameWithoutLanguage(indexName);
+
+
+            if(SearchExists(text, language, indexName))
             {
                 DbHelper.ExecuteCommand(
                     ConnectionString, 
@@ -31,7 +42,7 @@ namespace Epinova.ElasticSearch.Core.Services
                     new Dictionary<string, object>
                     {
                         {"@query", text},
-                        {"@lang", languageId},
+                        {"@lang", language.Name},
                         {"@index", index}
                     });
 
@@ -45,7 +56,7 @@ namespace Epinova.ElasticSearch.Core.Services
                 {
                     {"@query", text},
                     {"@nohits", noHits ? 1 : 0},
-                    {"@lang", languageId},
+                    {"@lang", language.Name},
                     {"@index", index}
                 });
         }
@@ -98,7 +109,7 @@ namespace Epinova.ElasticSearch.Core.Services
             });
         }
 
-        private bool SearchExists(string text, string languageId, string index)
+        private bool SearchExists(string text, CultureInfo language, string index)
         {
             var results = DbHelper.ExecuteReader(
                 ConnectionString, 
@@ -106,7 +117,7 @@ namespace Epinova.ElasticSearch.Core.Services
                 new Dictionary<string, object>
                 {
                     {"@query", text},
-                    {"@lang", languageId},
+                    {"@lang", language.Name},
                     {"@index", index}
                 });
 

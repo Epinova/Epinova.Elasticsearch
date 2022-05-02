@@ -598,7 +598,7 @@ WriteLiteral("                ");
 
 WriteLiteral("\r\n                {\r\n                    index:     \"");
 
-                           Write(index.Index);
+                           Write(Html.Raw(index.Index));
 
 WriteLiteral("\",\r\n                    display:   \"");
 
@@ -614,7 +614,7 @@ WriteLiteral("\",\r\n                    status:    \"");
 
 WriteLiteral("\",\r\n                    type:      \"");
 
-                           Write(index.Type);
+                           Write(index.TypeName);
 
 WriteLiteral("\",\r\n                    docscount: \"");
 

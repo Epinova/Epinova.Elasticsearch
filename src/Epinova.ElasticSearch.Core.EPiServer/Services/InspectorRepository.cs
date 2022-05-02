@@ -7,6 +7,7 @@ using Epinova.ElasticSearch.Core.EPiServer.Extensions;
 using Epinova.ElasticSearch.Core.Extensions;
 using Epinova.ElasticSearch.Core.Models;
 using Epinova.ElasticSearch.Core.Models.Admin;
+using Epinova.ElasticSearch.Core.Models.Mapping;
 using Epinova.ElasticSearch.Core.Settings;
 using Epinova.ElasticSearch.Core.Settings.Configuration;
 using Epinova.ElasticSearch.Core.Utilities;
@@ -44,7 +45,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Services
             _serverInfo = serverInfoService.GetInfo();
         }
 
-        public List<InspectItem> Search(string searchText, bool analyzed, string language, string indexName, int size, string type = null, string selectedIndex = null)
+        public List<InspectItem> Search(string searchText, bool analyzed, string indexName, int size, string type = null)
         {
             if(String.IsNullOrWhiteSpace(searchText) && String.IsNullOrWhiteSpace(type))
             {
@@ -65,7 +66,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Services
                         {
                             query = searchText,
                             lenient = true,
-                            fields = GetMappedFields(indexName, language)
+                            fields = GetMappedFields(indexName)
                         }
                     }
 
@@ -92,13 +93,13 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Services
             return hits.Select(h => new InspectItem(h)).ToList();
         }
 
-        private string[] GetMappedFields(string indexName, string language)
+        private string[] GetMappedFields(string indexName)
         {
-            var config = ElasticSearchSection.GetConfiguration();
-            var nameWithoutLanguage = indexName.Substring(0, indexName.Length - language.Length - 1);
-            var index = config.IndicesParsed.Single(i => i.Name == nameWithoutLanguage);
-            var mappingType = String.IsNullOrEmpty(index.Type) ? typeof(IndexItem) : Type.GetType(index.Type);
-            var mapping = _mapping.GetIndexMapping(mappingType, language, indexName);
+            ElasticSearchSection config = ElasticSearchSection.GetConfiguration();
+            string nameWithoutLanguage = _elasticSearchSettings.GetIndexNameWithoutLanguage(indexName);
+            IndexConfiguration index = config.IndicesParsed.Single(i => i.Name == nameWithoutLanguage);
+            Type mappingType = String.IsNullOrEmpty(index.Type) ? typeof(IndexItem) : Type.GetType(index.Type);
+            IndexMapping mapping = _mapping.GetIndexMapping(mappingType, indexName);
             return mapping.Properties.Select(p => p.Key).ToArray();
         }
 

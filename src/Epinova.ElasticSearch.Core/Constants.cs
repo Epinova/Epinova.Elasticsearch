@@ -7,6 +7,8 @@ namespace Epinova.ElasticSearch.Core
         public const string EPiServerConnectionStringName = "EPiServerDB";
         public const string TrackingFieldIndex = "IndexName";
         public const string CommerceProviderName = "CatalogContent";
+        public const string InvariantCultureIndexNamePostfix = "invariantculture";
+        public const char IndexNameLanguageSplitChar = '¤';
         public const string IndexEPiServerContentDisplayName = "Elasticsearch: Index CMS content";
 
         internal static readonly Version MinimumSupportedVersion = new Version(5, 0);

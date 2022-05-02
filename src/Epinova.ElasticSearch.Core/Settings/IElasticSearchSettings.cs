@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Globalization;
 
 namespace Epinova.ElasticSearch.Core.Settings
 {
@@ -13,10 +14,11 @@ namespace Epinova.ElasticSearch.Core.Settings
         string Index { get; }
         IEnumerable<string> Indices { get; }
         int ProviderMaxResults { get; }
-        string GetCustomIndexName(string index, string language);
-        string GetDefaultIndexName(string language);
-        string GetCommerceIndexName(string language);
-        string GetLanguage(string indexName);
+        string GetCommerceIndexName(CultureInfo language);
+        string GetCustomIndexName(string index, CultureInfo language);
+        string GetDefaultIndexName(CultureInfo language);
+        string GetLanguageFromIndexName(string indexName);
+        string GetIndexNameWithoutLanguage(string indexName);
         int CloseIndexDelay { get; }
         bool IgnoreXhtmlStringContentFragments { get; }
         int ClientTimeoutSeconds { get; }

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using Epinova.ElasticSearch.Core.Events;
 using Epinova.ElasticSearch.Core.Models.Bulk;
 
@@ -21,7 +22,7 @@ namespace Epinova.ElasticSearch.Core.Contracts
         /// <param name="language">Language</param>
         /// <param name="type">Type</param>
         /// <param name="indexName">Index name</param>
-        void Delete(string id, string language, Type type, string indexName = null);
+        void Delete(string id, CultureInfo language, Type type, string indexName = null);
 
         /// <summary>
         /// Adds or updates an item in the index
@@ -40,8 +41,6 @@ namespace Epinova.ElasticSearch.Core.Contracts
         /// </summary>
         void ClearBestBets(string indexName, Type indexType, string id);
 
-        void UpdateMapping(Type type, Type indexType, string index);
-
         void UpdateMapping(Type type, Type indexType, string index, string language, bool optIn);
 
         /// <summary>
@@ -58,6 +57,6 @@ namespace Epinova.ElasticSearch.Core.Contracts
         /// Refresh the index
         /// </summary>
         /// <remarks>https://www.elastic.co/guide/en/elasticsearch/reference/current/indices-refresh.html</remarks>
-        void Refresh(string language);
+        void Refresh(CultureInfo language);
     }
 }

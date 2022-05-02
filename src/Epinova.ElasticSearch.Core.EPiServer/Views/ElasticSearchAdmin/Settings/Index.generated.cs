@@ -39,21 +39,18 @@ namespace ASP
     using EPiServer.Web.Routing;
     
     [System.CodeDom.Compiler.GeneratedCodeAttribute("RazorGenerator", "2.0.0.0")]
-    [System.Web.WebPages.PageVirtualPathAttribute("~/Views/ElasticSearchAdmin/Console/_JsonDump.cshtml")]
-    public partial class _Views_ElasticSearchAdmin_Console__JsonDump_cshtml : System.Web.Mvc.WebViewPage<dynamic>
+    [System.Web.WebPages.PageVirtualPathAttribute("~/Views/ElasticSearchAdmin/Settings/Index.cshtml")]
+    public partial class _Views_ElasticSearchAdmin_Settings_Index_cshtml : System.Web.Mvc.WebViewPage<Epinova.ElasticSearch.Core.EPiServer.Models.ViewModels.SettingsViewModel>
     {
-        public _Views_ElasticSearchAdmin_Console__JsonDump_cshtml()
+        public _Views_ElasticSearchAdmin_Settings_Index_cshtml()
         {
         }
         public override void Execute()
         {
 WriteLiteral("\r\n");
 
-WriteLiteral("\r\n");
-
   
     Layout = "~/Views/ElasticSearchAdmin/_ElasticSearch.cshtml";
-    string endpoint = ViewBag.Endpoint ?? "";
     string localizationPath = "/epinovaelasticsearch/console/";
 
 WriteLiteral("\r\n\r\n<div");
@@ -63,12 +60,12 @@ WriteLiteral(" class=\"epi-padding-small\"");
 WriteLiteral(">\r\n");
 
     
-     using (Html.BeginForm(endpoint, "ElasticConsole"))
+     using (Html.BeginForm("Index", "ElasticSettings"))
     {
 
 WriteLiteral("        <h2>");
 
-       Write(Html.TranslateWithPathRaw(endpoint, localizationPath));
+       Write(Html.TranslateWithPathRaw("settings", localizationPath));
 
 WriteLiteral("</h2>\r\n");
 
@@ -87,24 +84,24 @@ WriteLiteral(" name=\"index\"");
 WriteLiteral(">\r\n");
 
                     
-                     foreach (string index in ViewBag.Indices)
+                     foreach (string index in Model.Indices)
                     {
 
 WriteLiteral("                        <option");
 
-WriteAttribute("value", Tuple.Create(" value=\"", 809), Tuple.Create("\"", 823)
-, Tuple.Create(Tuple.Create("", 817), Tuple.Create<System.Object, System.Int32>(index
-, 817), false)
+WriteAttribute("value", Tuple.Create(" value=\"", 843), Tuple.Create("\"", 867)
+, Tuple.Create(Tuple.Create("", 851), Tuple.Create<System.Object, System.Int32>(Html.Raw(index)
+, 851), false)
 );
 
-WriteAttribute("selected", Tuple.Create(" selected=\"", 824), Tuple.Create("\"", 888)
-, Tuple.Create(Tuple.Create("", 835), Tuple.Create<System.Object, System.Int32>(ViewBag.SelectedIndex == index ? "selected" : null
-, 835), false)
+WriteAttribute("selected", Tuple.Create(" selected=\"", 868), Tuple.Create("\"", 971)
+, Tuple.Create(Tuple.Create("", 879), Tuple.Create<System.Object, System.Int32>(Model.SelectedIndex.Equals(index, StringComparison.OrdinalIgnoreCase) ? "selected" : null
+, 879), false)
 );
 
 WriteLiteral(">");
 
-                                                                                                           Write(index);
+                                                                                                                                                            Write(index);
 
 WriteLiteral("</option>\r\n");
 
@@ -129,12 +126,12 @@ WriteLiteral("</button>\r\n        </p>\r\n");
 WriteLiteral("\r\n");
 
     
-     if (ViewBag.Result != null)
+     if (Model.Result != null)
     {
 
 WriteLiteral("        <pre>");
 
-        Write(ViewBag.Result);
+        Write(Model.Result);
 
 WriteLiteral("</pre>\r\n");
 

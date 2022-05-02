@@ -79,8 +79,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Extensions
 
             if(service.TrackSearch)
             {
-                TrackingRepository.AddSearch(
-                    Language.GetLanguageCode(service.SearchLanguage),
+                TrackingRepository.AddSearch(service.SearchLanguage,
                     service.SearchText,
                     results.TotalHits == 0,
                     GetIndexName(service));
@@ -123,8 +122,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Extensions
 
             if(service.TrackSearch)
             {
-                TrackingRepository.AddSearch(
-                    Language.GetLanguageCode(service.SearchLanguage),
+                TrackingRepository.AddSearch(service.SearchLanguage,
                     service.SearchText,
                     results.TotalHits == 0,
                     GetIndexName(service));
@@ -372,14 +370,14 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Extensions
             }
         }
 
-        private static void TryAddLanguageProperty(dynamic indexItem, IContent content, IDictionary<string, object> dictionary, out string language)
+        private static void TryAddLanguageProperty(dynamic indexItem, IContent content, IDictionary<string, object> dictionary, out CultureInfo language)
         {
             language = null;
             
             if(!(content is ILocale locale) || locale.Language == null || CultureInfo.InvariantCulture.Equals(locale.Language))
                 return;
             
-            language = locale.Language.Name;
+            language = locale.Language;
             dictionary.Add(DefaultFields.Lang, language);
 
             if(Logger.IsDebugEnabled())
@@ -467,7 +465,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Extensions
 
         private static void AppendIndexableProperties(dynamic indexItem, IContent content, Type contentType, IDictionary<string, object> dictionary)
         {
-            TryAddLanguageProperty(indexItem, content, dictionary, out string language);
+            TryAddLanguageProperty(indexItem, content, dictionary, out CultureInfo language);
 
             List<PropertyInfo> indexableProperties = contentType.GetIndexableProps(false);
             bool ignoreXhtmlStringContentFragments = ElasticSearchSettings.IgnoreXhtmlStringContentFragments;
@@ -755,7 +753,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Extensions
                 return service.IndexName;
             }
 
-            return ElasticSearchSettings.GetDefaultIndexName(Language.GetLanguageCode(service.SearchLanguage));
+            return ElasticSearchSettings.GetDefaultIndexName(service.SearchLanguage);
         }
 
         private static bool BlobIsTooLarge(in long bytes)

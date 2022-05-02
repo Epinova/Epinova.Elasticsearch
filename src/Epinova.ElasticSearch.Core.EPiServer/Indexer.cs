@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Web.Hosting;
-using Epinova.ElasticSearch.Core.Attributes;
 using Epinova.ElasticSearch.Core.Contracts;
 using Epinova.ElasticSearch.Core.Conventions;
 using Epinova.ElasticSearch.Core.EPiServer.Contracts;
@@ -24,7 +23,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer
     [ServiceConfiguration(typeof(IIndexer))]
     internal class Indexer : IIndexer
     {
-        private const string FallbackLanguage = "en";
+        private readonly CultureInfo _fallbackLanguage = new CultureInfo("en");
         private static readonly ILogger Logger = LogManager.GetLogger(typeof(Indexer));
         private readonly ICoreIndexer _coreIndexer;
         private readonly ContentAssetHelper _contentAssetHelper;
@@ -54,7 +53,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer
             _contentAssetHelper = contentAssetHelper;
         }
 
-        public BulkBatchResult BulkUpdate(IEnumerable<IContent> contents, Action<string> logger, string indexName = null)
+        public BulkBatchResult BulkUpdate(IEnumerable<IContent> contents, Action<string> logger, string index)
         {
             var contentList = contents.ToList();
             logger = logger ?? delegate { };
@@ -71,18 +70,13 @@ namespace Epinova.ElasticSearch.Core.EPiServer
                 contentList.Select(
                         content =>
                         {
-                            var language = GetLanguage(content);
-                            var index = String.IsNullOrWhiteSpace(indexName)
-                                    ? _elasticSearchSettings.GetDefaultIndexName(language)
-                                    : _elasticSearchSettings.GetCustomIndexName(indexName, language);
+                            CultureInfo language = GetLanguage(content);
+                            string indexName = _elasticSearchSettings.GetCustomIndexName(index, language);
 
-                            return new BulkOperation(
-                                content.AsIndexItem(),
-                                Operation.Index,
-                                GetLanguage(content),
-                                typeof(IndexItem),
-                                content.ContentLink.ToReferenceWithoutVersion().ToString(),
-                                index);
+                            dynamic indexItem = content.AsIndexItem();
+                            string id = content.ContentLink.ToReferenceWithoutVersion().ToString();
+
+                            return new BulkOperation(indexName, indexItem, Operation.Index, typeof(IndexItem), id);
                         }
                     )
                     .Where(b => b.Data != null)
@@ -95,7 +89,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer
 
         public void Delete(ContentReference contentLink)
         {
-            var language = Utilities.Language.GetRequestLanguageCode();
+            var language = Utilities.Language.GetRequestLanguage();
 
             var indexName = GetIndexname(contentLink, null, language);
             _coreIndexer.Delete(contentLink.ToReferenceWithoutVersion().ToString(), language, typeof(IndexItem), indexName);
@@ -266,11 +260,11 @@ namespace Epinova.ElasticSearch.Core.EPiServer
             return false;
         }
 
-        private string GetFallbackLanguage()
+        private CultureInfo GetFallbackLanguage()
         {
             if(!HostingEnvironment.IsHosted)
             {
-                return FallbackLanguage;
+                return _fallbackLanguage;
             }
 
             ContentReference startPageLink = ContentReference.StartPage;
@@ -290,20 +284,19 @@ namespace Epinova.ElasticSearch.Core.EPiServer
                 var contentLoader = ServiceLocator.Current.GetInstance<IContentLoader>();
                 if(contentLoader.TryGet(startPageLink, out PageData startPage))
                 {
-                    return startPage.MasterLanguage.Name;
+                    return startPage.MasterLanguage;
                 }
             }
 
             Logger.Warning("Could not retrieve StartPage. Are you missing a wildcard mapping in CMS Admin -> Manage Websites?");
 
-            return FallbackLanguage;
+            return _fallbackLanguage;
         }
 
-        public string GetLanguage(IContent content)
+        public CultureInfo GetLanguage(IContent content)
         {
             return content is ILocale localizable
-                   && localizable.Language?.Equals(CultureInfo.InvariantCulture) == false
-                ? localizable.Language.Name
+                ? localizable.Language
                 : GetFallbackLanguage();
         }
 
@@ -324,7 +317,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer
                 .Contains(FormsUploadNamespace);
         }
 
-        private string GetIndexname(ContentReference contentLink, string indexName, string language)
+        private string GetIndexname(ContentReference contentLink, string indexName, CultureInfo language)
         {
             if(String.IsNullOrWhiteSpace(indexName) && contentLink.ProviderName == null)
             {
