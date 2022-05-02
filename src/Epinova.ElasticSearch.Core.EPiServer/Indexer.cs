@@ -296,7 +296,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer
         public CultureInfo GetLanguage(IContent content)
         {
             return content is ILocale localizable
-                ? localizable.Language
+                ? localizable.Language ?? CultureInfo.InvariantCulture
                 : GetFallbackLanguage();
         }
 

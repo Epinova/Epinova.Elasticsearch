@@ -27,6 +27,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Plugin
     public class IndexEPiServerContent : ScheduledJobBase
     {
         public static event OnBeforeIndexContent BeforeIndexContent;
+        protected string CustomIndexName;
         private readonly ILogger _logger = LogManager.GetLogger(typeof(IndexEPiServerContent));
         private readonly IContentLoader _contentLoader;
         private readonly IContentIndexService _contentIndexService;
@@ -50,6 +51,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Plugin
             _contentLoader = contentLoader;
             _serverInfoService = serverInfoService;
             _indexing = new Utilities.Indexing(serverInfoService, settings, httpClientHelper);
+            CustomIndexName = settings.Index;
             IsStoppable = true;
         }
 
@@ -124,7 +126,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Plugin
                 {
                     OnStatusChanged($"Indexing bulk {i} of {bulkCount} (Bulk size: {_settings.BulkSize})");
                     var batch = contentList.Take(_settings.BulkSize);
-                    var batchResult = IndexContents(batch, _settings.Index);
+                    var batchResult = IndexContents(batch, CustomIndexName);
 
                     results.Batches.AddRange(batchResult.Batches);
                     var removeCount = contentList.Count >= _settings.BulkSize ? _settings.BulkSize : contentList.Count;

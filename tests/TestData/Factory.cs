@@ -84,8 +84,7 @@ namespace TestData
             settings.Setup(m => m.Index).Returns(ElasticFixtureSettings.IndexName);
             settings.Setup(m => m.Indices).Returns(new[] { ElasticFixtureSettings.IndexNameWithoutLang });
             settings.Setup(m => m.GetLanguageFromIndexName(It.IsAny<string>())).Returns("no");
-            settings.Setup(m => m.GetDefaultIndexName(It.IsAny<string>()))
-                .Returns(ElasticFixtureSettings.IndexName);
+            settings.Setup(m => m.GetDefaultIndexName(It.IsAny<CultureInfo>())).Returns(ElasticFixtureSettings.IndexName);
             settings.Setup(m => m.Host).Returns("http://example.com");
             result.SettingsMock = settings;
 

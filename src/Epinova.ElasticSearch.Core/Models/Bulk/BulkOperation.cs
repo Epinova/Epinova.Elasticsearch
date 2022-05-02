@@ -77,7 +77,7 @@ namespace Epinova.ElasticSearch.Core.Models.Bulk
                 DataType = dataType,
                 Type = dataType.GetTypeName(),
                 Id = id,
-                IndexCandidate = index.ToLower()
+                IndexCandidate = index?.ToLower()
             };
 
             Data = data;

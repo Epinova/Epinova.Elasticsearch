@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Web.Mvc;
 using Epinova.ElasticSearch.Core.Contracts;
 using Epinova.ElasticSearch.Core.EPiServer.Contracts;
@@ -45,7 +46,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Commerce.Controllers
 
             foreach(var lang in Languages)
             {
-                string commerceIndexName = _settings.GetCommerceIndexName(lang.Key);
+                string commerceIndexName = _settings.GetCommerceIndexName(new CultureInfo(lang.Key));
                 CreateIndex(typeof(IndexItem), commerceIndexName);
             }
 
@@ -59,7 +60,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Commerce.Controllers
 
             foreach(KeyValuePair<string, string> lang in Languages)
             {
-                var commerceIndexName = _settings.GetCommerceIndexName(lang.Key);
+                var commerceIndexName = _settings.GetCommerceIndexName(new CultureInfo(lang.Key));
                 CreateIndex(indexType, commerceIndexName);
                 
                 ContentReference commerceRoot = _referenceConverter.GetRootLink();

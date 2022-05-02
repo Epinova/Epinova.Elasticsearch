@@ -2,6 +2,7 @@
 using System.Globalization;
 using System.Web.Mvc;
 using System.Web.Routing;
+using Epinova.ElasticSearch.Core;
 using Epinova.ElasticSearch.Core.Contracts;
 using Epinova.ElasticSearch.Core.EPiServer.Controllers.Abstractions;
 using Epinova.ElasticSearch.Core.Models.Admin;
@@ -33,9 +34,14 @@ namespace Core.Episerver.Tests.Controllers.Abstractions
                     new LanguageBranch(new CultureInfo("no"))
                 });
 
+            var elasticSearchSettingsMock = fixture.ServiceLocationMock.SettingsMock;
+            elasticSearchSettingsMock
+                .Setup(m => m.Indices)
+                .Returns(new List<string>{ "my-index"});
+            
             _controller = new ControllerStub(
                 fixture.ServiceLocationMock.ServerInfoMock.Object,
-                fixture.ServiceLocationMock.SettingsMock.Object,
+                elasticSearchSettingsMock.Object,
                 fixture.ServiceLocationMock.HttpClientMock.Object,
                 _languageBranchRepositoryMock.Object);
         }

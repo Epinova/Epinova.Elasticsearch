@@ -171,7 +171,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Controllers
         }
 
 
-        private AdminViewModel GetModel()
+        protected AdminViewModel GetModel()
         {
             HealthInformation clusterHealth = _healthHelper.GetClusterHealth();
             Node[] nodeInfo = _healthHelper.GetNodeInfo();
@@ -180,7 +180,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Controllers
         }
 
 
-        private Index CreateIndex(Type indexType, string indexName)
+        protected Index CreateIndex(Type indexType, string indexName)
         {
             var index = new Index(_serverInfoService, _settings, _httpClientHelper, indexName);
             if(!index.Exists)
@@ -193,7 +193,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Controllers
         }
 
 
-        private void UpdateMappingForTypes(ContentReference rootLink, Type indexType, string indexName, string languageKey)
+        protected void UpdateMappingForTypes(ContentReference rootLink, Type indexType, string indexName, string languageKey)
         {
             List<IContent> allContents = languageKey.Equals(Constants.InvariantCultureIndexNamePostfix) ?
                 _contentIndexService.ListContentFromRoot(_settings.BulkSize, rootLink, new List<LanguageBranch>())

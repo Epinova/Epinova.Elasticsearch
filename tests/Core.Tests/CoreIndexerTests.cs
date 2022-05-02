@@ -1,9 +1,11 @@
 ﻿using System;
+using System.Globalization;
 using System.IO;
 using System.Net;
 using Epinova.ElasticSearch.Core;
 using Epinova.ElasticSearch.Core.Extensions;
 using Epinova.ElasticSearch.Core.Models.Bulk;
+using Epinova.ElasticSearch.Core.Settings;
 using Moq;
 using TestData;
 using Xunit;
@@ -20,11 +22,11 @@ namespace Core.Tests
         {
             _fixture = fixture;
             _fixture.ServiceLocationMock.SettingsMock
-                .Setup(m => m.GetDefaultIndexName("de"))
+                .Setup(m => m.GetDefaultIndexName(new CultureInfo("de")))
                 .Returns("my-index");
 
             _fixture.ServiceLocationMock.SettingsMock
-                .Setup(m => m.GetDefaultIndexName("sv"))
+                .Setup(m => m.GetDefaultIndexName(new CultureInfo("sv")))
                 .Returns("delete-me");
 
             _fixture.ServiceLocationMock.HttpClientMock
@@ -59,7 +61,8 @@ namespace Core.Tests
         public void Bulk_CallsClientPost()
         {
             var id = Factory.GetInteger().ToString();
-            _coreIndexer.Bulk(new BulkOperation(new { Foo = "bar" }, "en", id, "my-index"));
+            string indexName = new ElasticSearchSettings().GetCustomIndexName("my-index", new CultureInfo("en"));
+            _coreIndexer.Bulk(new BulkOperation(indexName, new { Foo = "bar" }, Operation.Index, null, id));
 
             _fixture.ServiceLocationMock.HttpClientMock
                 .Verify(m => m.Post(new Uri($"http://example.com/_bulk?pipeline={Epinova.ElasticSearch.Core.Pipelines.Attachment.Name}"), It.IsAny<Stream>()), Times.AtLeastOnce);
@@ -68,7 +71,8 @@ namespace Core.Tests
         [Fact]
         public void Bulk_ReturnsBatchResults()
         {
-            var result = _coreIndexer.Bulk(new BulkOperation(new { Foo = 42 }, "en", "123", "my-index"));
+            string indexName = new ElasticSearchSettings().GetCustomIndexName("my-index", new CultureInfo("en"));
+            var result = _coreIndexer.Bulk(new BulkOperation(indexName,  new { Foo = 42 }, Operation.Index, null, "123"));
             Assert.NotEmpty(result.Batches);
         }
 
@@ -76,7 +80,7 @@ namespace Core.Tests
         public void Delete_CallsClientHeadAndDelete()
         {
             var id = Factory.GetInteger().ToString();
-            _coreIndexer.Delete(id, "sv", typeof(TestPage));
+            _coreIndexer.Delete(id, new CultureInfo("sv"), typeof(TestPage));
             var uri = new Uri($"http://example.com/delete-me/{typeof(TestPage).GetTypeName()}/{id}");
 
             _fixture.ServiceLocationMock.HttpClientMock

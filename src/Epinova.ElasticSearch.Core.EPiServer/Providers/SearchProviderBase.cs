@@ -26,12 +26,12 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Providers
         where TContentType : ContentType
     {
         private readonly string _categoryKey;
-        private string IndexName;
+        protected string IndexName;
         private CultureInfo SearchLanguage;
 
         protected readonly IElasticSearchService<TSearchType> _elasticSearchService;
 
-        private readonly IElasticSearchSettings _elasticSearchSettings = ServiceLocator.Current.GetInstance<IElasticSearchSettings>();
+        protected readonly IElasticSearchSettings _elasticSearchSettings = ServiceLocator.Current.GetInstance<IElasticSearchSettings>();
         private readonly IServerInfoService _serverInfoService = ServiceLocator.Current.GetInstance<IServerInfoService>();
         private readonly IHttpClientHelper _httpClientHelper = ServiceLocator.Current.GetInstance<IHttpClientHelper>();
         private readonly LocalizationService _localizationService = ServiceLocator.Current.GetInstance<LocalizationService>();

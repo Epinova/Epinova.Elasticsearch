@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Globalization;
 using System.Web.Mvc;
 using Epinova.ElasticSearch.Core.Contracts;
 using Epinova.ElasticSearch.Core.EPiServer.Controllers;
@@ -31,7 +32,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Commerce.Controllers
                 TypeName = GetTypeName(),
             };
 
-            bool commerceSelected = _settings.GetCommerceIndexName(CurrentLanguage).Equals(CurrentIndex);
+            bool commerceSelected = _settings.GetCommerceIndexName(new CultureInfo(CurrentLanguage)).Equals(CurrentIndex);
             
             if(commerceSelected)
             {

@@ -120,7 +120,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Controllers.Abstractions
 
         private List<IndexInformation> GetIndices()
         {
-            var indexHelper = new Admin.Index(_serverInfoService, _settings, _httpClientHelper, null);
+            var indexHelper = new Admin.Index(_serverInfoService, _settings, _httpClientHelper, "GetIndices-NA");
 
             var indices = indexHelper.GetIndices().ToList();
 
