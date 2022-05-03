@@ -29,7 +29,7 @@ namespace Epinova.ElasticSearch.Core.Services
             if(text.Length > 200)
                 text = text.Substring(0, 200);
 
-            string index = GetIndexName(service);
+            string index = _settings.GetIndexNameWithoutLanguage(service.IndexName);
             if(SearchExists(text, service.SearchLanguage, index))
             {
                 DbHelper.ExecuteCommand(
@@ -55,13 +55,10 @@ namespace Epinova.ElasticSearch.Core.Services
                 });
         }
 
-        private string GetIndexName<T>(IElasticSearchService<T> service)
-        {
-            return !String.IsNullOrEmpty(service.IndexName) ? service.IndexName : _settings.GetDefaultIndexName(service.SearchLanguage);
-        }
-
         public void Clear(string languageId, string index)
         {
+            index = _settings.GetIndexNameWithoutLanguage(index);
+
             DbHelper.ExecuteCommand(
                 ConnectionString,
                 Constants.Tracking.Sql.Delete,
@@ -74,6 +71,8 @@ namespace Epinova.ElasticSearch.Core.Services
 
         public IEnumerable<Tracking> GetSearches(string languageId, string index)
         {
+            index = _settings.GetIndexNameWithoutLanguage(index);
+
             var results = DbHelper.ExecuteReader(
                 ConnectionString, 
                 Constants.Tracking.Sql.Select,
@@ -92,6 +91,8 @@ namespace Epinova.ElasticSearch.Core.Services
 
         public IEnumerable<Tracking> GetSearchesWithoutHits(string languageId, string index)
         {
+            index = _settings.GetIndexNameWithoutLanguage(index);
+
             var results = DbHelper.ExecuteReader(
                 ConnectionString, 
                 Constants.Tracking.Sql.SelectNoHits,
@@ -110,6 +111,8 @@ namespace Epinova.ElasticSearch.Core.Services
 
         private bool SearchExists(string text, CultureInfo language, string index)
         {
+            index = _settings.GetIndexNameWithoutLanguage(index);
+
             var results = DbHelper.ExecuteReader(
                 ConnectionString, 
                 Constants.Tracking.Sql.Exists,
