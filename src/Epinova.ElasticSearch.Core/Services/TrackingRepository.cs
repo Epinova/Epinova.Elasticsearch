@@ -29,7 +29,8 @@ namespace Epinova.ElasticSearch.Core.Services
             if(text.Length > 200)
                 text = text.Substring(0, 200);
 
-            string index = _settings.GetIndexNameWithoutLanguage(service.IndexName);
+            string index = GetTrackingIndexName(service.IndexName, service.SearchLanguage);
+            
             if(SearchExists(text, service.SearchLanguage, index))
             {
                 DbHelper.ExecuteCommand(
@@ -57,7 +58,7 @@ namespace Epinova.ElasticSearch.Core.Services
 
         public void Clear(string languageId, string index)
         {
-            index = _settings.GetIndexNameWithoutLanguage(index);
+            index = GetTrackingIndexName(index, new CultureInfo(languageId));
 
             DbHelper.ExecuteCommand(
                 ConnectionString,
@@ -71,7 +72,7 @@ namespace Epinova.ElasticSearch.Core.Services
 
         public IEnumerable<Tracking> GetSearches(string languageId, string index)
         {
-            index = _settings.GetIndexNameWithoutLanguage(index);
+            index = GetTrackingIndexName(index, new CultureInfo(languageId));
 
             var results = DbHelper.ExecuteReader(
                 ConnectionString, 
@@ -91,7 +92,7 @@ namespace Epinova.ElasticSearch.Core.Services
 
         public IEnumerable<Tracking> GetSearchesWithoutHits(string languageId, string index)
         {
-            index = _settings.GetIndexNameWithoutLanguage(index);
+            index = GetTrackingIndexName(index, new CultureInfo(languageId));
 
             var results = DbHelper.ExecuteReader(
                 ConnectionString, 
@@ -109,9 +110,16 @@ namespace Epinova.ElasticSearch.Core.Services
             });
         }
 
+        private string GetTrackingIndexName(string indexName, CultureInfo language)
+        {
+            indexName ??= _settings.GetDefaultIndexName(language);
+
+            return _settings.GetIndexNameWithoutLanguage(indexName);
+        }
+
         private bool SearchExists(string text, CultureInfo language, string index)
         {
-            index = _settings.GetIndexNameWithoutLanguage(index);
+            index = GetTrackingIndexName(index, language);
 
             var results = DbHelper.ExecuteReader(
                 ConnectionString, 
