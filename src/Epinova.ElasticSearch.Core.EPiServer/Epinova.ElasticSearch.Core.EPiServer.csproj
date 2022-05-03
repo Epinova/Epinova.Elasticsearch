@@ -187,6 +187,7 @@
     <Compile Include="Controllers\ElasticSettingsController.cs" />
     <Compile Include="Controllers\ElasticMappingController.cs" />
     <Compile Include="Extensions\CustomResultExtensions.cs" />
+    <Compile Include="EpiserverSearchLanguage.cs" />
     <Compile Include="Indexer.cs" />
     <Compile Include="Contracts\ISynonymRepository.cs" />
     <Compile Include="Controllers\Abstractions\ElasticSearchControllerBase.cs" />
@@ -209,6 +210,7 @@
     <Compile Include="Initialization\IndexingInitializer.cs" />
     <Compile Include="Initialization\IndexInitializer.cs" />
     <Compile Include="Initialization\LocalizationInitialization.cs" />
+    <Compile Include="Initialization\SearchLanguageInitializer.cs" />
     <Compile Include="Initialization\TrackingInitializer.cs" />
     <Compile Include="Initialization\ViewEngineInitializer.cs" />
     <Compile Include="Models\AutoSuggestFile.cs" />

@@ -23,18 +23,14 @@ namespace Epinova.ElasticSearch.Core.Services
             _settings = settings;
         }
 
-        public void AddSearch(CultureInfo language, string text, bool noHits, string indexName)
+        public void AddSearch<T>(IElasticSearchService<T> service, bool noHits)
         {
-            text = text ?? String.Empty;
+            string text = service.SearchText ?? String.Empty;
             if(text.Length > 200)
-            {
                 text = text.Substring(0, 200);
-            }
 
-            string index = _settings.GetIndexNameWithoutLanguage(indexName);
-
-
-            if(SearchExists(text, language, indexName))
+            string index = GetIndexName(service);
+            if(SearchExists(text, service.SearchLanguage, index))
             {
                 DbHelper.ExecuteCommand(
                     ConnectionString, 
@@ -42,23 +38,26 @@ namespace Epinova.ElasticSearch.Core.Services
                     new Dictionary<string, object>
                     {
                         {"@query", text},
-                        {"@lang", language.Name},
+                        {"@lang", service.SearchLanguage.Name},
                         {"@index", index}
                     });
 
                 return;
             }
 
-            DbHelper.ExecuteCommand(
-                ConnectionString,
-                Constants.Tracking.Sql.Insert,
+            DbHelper.ExecuteCommand(ConnectionString, Constants.Tracking.Sql.Insert,
                 new Dictionary<string, object>
                 {
                     {"@query", text},
                     {"@nohits", noHits ? 1 : 0},
-                    {"@lang", language.Name},
+                    {"@lang", service.SearchLanguage.Name},
                     {"@index", index}
                 });
+        }
+
+        private string GetIndexName<T>(IElasticSearchService<T> service)
+        {
+            return !String.IsNullOrEmpty(service.IndexName) ? service.IndexName : _settings.GetDefaultIndexName(service.SearchLanguage);
         }
 
         public void Clear(string languageId, string index)

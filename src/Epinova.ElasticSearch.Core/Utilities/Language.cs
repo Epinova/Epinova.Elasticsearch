@@ -51,9 +51,11 @@ namespace Epinova.ElasticSearch.Core.Utilities
             { "th", "thai" }
         };
 
+#warning delete
         internal static string GetRequestLanguageCode()
             => GetLanguageCode(GetRequestLanguage());
 
+#warning delete
         internal static string GetLanguageCode(CultureInfo cultureInfo)
         {
             //INFO: TwoLetterISOLanguageName returns "nb" for norwegian EPiServer-language

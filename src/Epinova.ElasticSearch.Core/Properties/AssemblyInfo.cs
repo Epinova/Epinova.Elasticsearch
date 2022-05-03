@@ -7,7 +7,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Epinova AS")]
 [assembly: AssemblyProduct("Epinova.ElasticSearch.Core")]
-[assembly: AssemblyCopyright("Copyright © 2020 - Epinova AS")]
+[assembly: AssemblyCopyright("Copyright© 2022 - Epinova AS")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 [assembly: ComVisible(false)]

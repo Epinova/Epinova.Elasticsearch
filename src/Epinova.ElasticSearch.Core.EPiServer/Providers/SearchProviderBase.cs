@@ -32,14 +32,16 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Providers
         protected readonly IElasticSearchService<TSearchType> _elasticSearchService;
 
         protected readonly IElasticSearchSettings _elasticSearchSettings = ServiceLocator.Current.GetInstance<IElasticSearchSettings>();
+
         private readonly IServerInfoService _serverInfoService = ServiceLocator.Current.GetInstance<IServerInfoService>();
         private readonly IHttpClientHelper _httpClientHelper = ServiceLocator.Current.GetInstance<IHttpClientHelper>();
+        private readonly ISearchLanguage _searchLanguage = ServiceLocator.Current.GetInstance<ISearchLanguage>();
         private readonly LocalizationService _localizationService = ServiceLocator.Current.GetInstance<LocalizationService>();
 
-        protected SearchProviderBase(string categoryKey, CultureInfo language = null) : base(ServiceLocator.Current.GetInstance<LocalizationService>(), ServiceLocator.Current.GetInstance<ISiteDefinitionResolver>(), ServiceLocator.Current.GetInstance<IContentTypeRepository<TContentType>>(), ServiceLocator.Current.GetInstance<EditUrlResolver>(), ServiceLocator.Current.GetInstance<ServiceAccessor<SiteDefinition>>(), ServiceLocator.Current.GetInstance<LanguageResolver>(), ServiceLocator.Current.GetInstance<UrlResolver>(), ServiceLocator.Current.GetInstance<TemplateResolver>(), ServiceLocator.Current.GetInstance<UIDescriptorRegistry>())
+        protected SearchProviderBase(string categoryKey, CultureInfo language = null) : base(ServiceLocator.Current.GetInstance<LocalizationService>(), ServiceLocator.Current.GetInstance<ISiteDefinitionResolver>(), ServiceLocator.Current.GetInstance<IContentTypeRepository<TContentType>>(), ServiceLocator.Current.GetInstance<EditUrlResolver>(), ServiceLocator.Current.GetInstance<ServiceAccessor<SiteDefinition>>(), ServiceLocator.Current.GetInstance<LanguageResolver>(), ServiceLocator.Current.GetInstance<UrlResolver>(), ServiceLocator.Current.GetInstance<TemplateResolver>(), ServiceLocator.Current.GetInstance<UIDescriptorRegistry>()) 
         {
             _categoryKey = categoryKey;
-            _elasticSearchService = new ElasticSearchService<TSearchType>(_serverInfoService, _elasticSearchSettings, _httpClientHelper);
+            _elasticSearchService = new ElasticSearchService<TSearchType>(_serverInfoService, _elasticSearchSettings, _httpClientHelper, _searchLanguage);
             SearchLanguage = language ?? Language.GetRequestLanguage();
             IndexName = _elasticSearchSettings.GetDefaultIndexName(SearchLanguage); //TODO validate
         }

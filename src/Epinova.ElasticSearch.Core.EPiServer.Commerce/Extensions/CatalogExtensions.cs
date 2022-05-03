@@ -52,14 +52,8 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Commerce.Extensions
                 }
             }
 
-            if(service.TrackSearch)
-            {
-                TrackingRepository.AddSearch(
-                    service.SearchLanguage,
-                    service.SearchText,
-                    results.TotalHits == 0,
-                    service.IndexName);
-            }
+            if(service.TrackSearch) 
+                TrackingRepository.AddSearch(service, results.TotalHits == 0);
 
             return new CatalogSearchResult<T>(results, hits);
         }

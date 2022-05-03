@@ -107,6 +107,10 @@ namespace TestData
 
             result.ServerInfoMock = serverInfo;
 
+            var searchLanguageMock = new Mock<ISearchLanguage>();
+            searchLanguageMock.Setup(m => m.SearchLanguage).Returns(CultureInfo.CurrentCulture);
+            result.SearchLanguageMock = searchLanguageMock;
+
             var synonymRepositoryMock = new Mock<ISynonymRepository>();
             synonymRepositoryMock
                 .Setup(m => m.GetSynonyms(It.IsAny<string>(), It.IsAny<string>()))
@@ -118,7 +122,7 @@ namespace TestData
             result.ContentLoaderMock = new Mock<IContentLoader>();
             result.ContentIndexServiceMock = new Mock<IContentIndexService>();
             result.ServiceMock = new Mock<IElasticSearchService<IContent>>();
-
+            
             result.ServiceLocatorMock.Setup(m => m.GetInstance<IHttpClientHelper>()).Returns(httpClient.Object);
             result.ServiceLocatorMock.Setup(m => m.GetInstance<ILanguageBranchRepository>()).Returns(languageMock.Object);
             result.ServiceLocatorMock.Setup(m => m.GetInstance<IContentLoader>()).Returns(result.ContentLoaderMock.Object);
@@ -129,7 +133,7 @@ namespace TestData
             result.ServiceLocatorMock.Setup(m => m.GetInstance<IBestBetsRepository>()).Returns(bestbetMock.Object);
             result.ServiceLocatorMock.Setup(m => m.GetInstance<IServerInfoService>()).Returns(serverInfo.Object);
             result.ServiceLocatorMock.Setup(m => m.GetInstance<IElasticSearchSettings>()).Returns(settings.Object);
-            result.ServiceLocatorMock.Setup(m => m.GetInstance<IElasticSearchService>()).Returns(new ElasticSearchService(serverInfo.Object, settings.Object, httpClient.Object));
+            result.ServiceLocatorMock.Setup(m => m.GetInstance<IElasticSearchService>()).Returns(new ElasticSearchService(serverInfo.Object, settings.Object, httpClient.Object, searchLanguageMock.Object));
             result.ServiceLocatorMock.Setup(m => m.GetInstance<IPublishedStateAssessor>()).Returns(result.StateAssesorMock.Object);
             result.ServiceLocatorMock.Setup(m => m.GetInstance<ITemplateResolver>()).Returns(result.TemplateResolver);
             result.ServiceLocatorMock.Setup(m => m.GetInstance<ContentPathDB>()).Returns(contentPathMock.Object);

@@ -21,7 +21,8 @@ namespace Core.Tests
             _service = new ElasticSearchService<ComplexType>(
                 fixture.ServiceLocationMock.ServerInfoMock.Object,
                 fixture.ServiceLocationMock.SettingsMock.Object,
-                fixture.ServiceLocationMock.HttpClientMock.Object);
+                fixture.ServiceLocationMock.HttpClientMock.Object,
+                fixture.ServiceLocationMock.SearchLanguageMock.Object);
         }
 
         [Theory]
