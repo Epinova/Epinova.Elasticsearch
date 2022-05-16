@@ -89,7 +89,7 @@ namespace Epinova.ElasticSearch.Core.Utilities
                         command.ExecuteScalar();
                         command.Connection.Close();
 
-                        Log.Debug($"Table '{table}' created succesfully");
+                        Log.Debug($"Table '{table}' created successfully");
                     }
                 }
             }
@@ -127,7 +127,7 @@ namespace Epinova.ElasticSearch.Core.Utilities
                         int rowsAffected = command.ExecuteNonQuery();
                         command.Connection.Close();
 
-                        Log.Debug($"Command '{sql}' executed succesfully. {rowsAffected} rows affected.");
+                        Log.Debug($"Command '{sql}' executed successfully. {rowsAffected} rows affected.");
 
                         return rowsAffected;
                     }
@@ -183,7 +183,7 @@ namespace Epinova.ElasticSearch.Core.Utilities
 
                         command.Connection.Close();
 
-                        Log.Debug($"Command '{sql}' executed succesfully.");
+                        Log.Debug($"Command '{sql}' executed successfully.");
                     }
                 }
             }
