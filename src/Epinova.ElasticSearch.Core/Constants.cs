@@ -31,25 +31,13 @@ namespace Epinova.ElasticSearch.Core
 
             internal static class Sql
             {
-                internal const string Definition = "[Query] [nvarchar](400) NOT NULL, "
-                    + "[Searches] [int] NOT NULL, "
-                    + "[NoHits] [bit] NOT NULL, "
-                    + "[Language] [nvarchar](10) NOT NULL, "
-                    + "[IndexName] [nvarchar](200) NOT NULL";
-                internal const string Update = "UPDATE [" + TableName + "] "
-                    + "SET [Searches] = [Searches]+1 "
-                    + "WHERE [Query] = @query AND [Language] = @lang AND [IndexName] = @index";
-                internal const string Insert = "INSERT INTO [" + TableName + "] "
-                    + "([Query], [Searches], [NoHits], [Language], [IndexName])"
-                    + "VALUES (@query, 1, @nohits, @lang, @index)";
-                internal const string Delete = "DELETE FROM [" + TableName + "] "
-                    + "WHERE Language = @lang AND [IndexName] = @index";
-                internal const string Select = "SELECT [Query], [Searches] "
-                    + "FROM [" + TableName + "] "
-                    + "WHERE Language = @lang AND [IndexName] = @index";
+                internal const string Definition = "[Query] [nvarchar](400) NOT NULL, [Searches] [int] NOT NULL, [NoHits] [bit] NOT NULL, [Language] [nvarchar](10) NOT NULL, [IndexName] [nvarchar](200) NOT NULL";
+                internal const string Update = "UPDATE [" + TableName + "] SET [Searches] = [Searches]+1 WHERE [Query] = @query AND [Language] = @lang AND [IndexName] = @index";
+                internal const string Insert = "INSERT INTO [" + TableName + "] ([Query], [Searches], [NoHits], [Language], [IndexName]) VALUES (@query, 1, @nohits, @lang, @index)";
+                internal const string Delete = "DELETE FROM [" + TableName + "] WHERE Language = @lang AND [IndexName] = @index";
+                internal const string Select = "SELECT [Query], [Searches] FROM [" + TableName + "] WHERE Language = @lang AND [IndexName] = @index";
                 internal const string SelectNoHits = Select + " AND NoHits=1";
-                internal const string Exists = "SELECT Query FROM [" + TableName + "] "
-                    + "WHERE Query = @query AND Language = @lang AND [IndexName] = @index";
+                internal const string Exists = "SELECT Query FROM [" + TableName + "] WHERE Query = @query AND Language = @lang AND [IndexName] = @index";
             }
         }
     }
