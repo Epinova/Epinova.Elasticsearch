@@ -227,7 +227,6 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Services
 
         private SynonymBackupFile GetBackup(string name)
         {
-            name = name.Replace("2", "");
             ContentReference backupFolder = GetBackupFolder().ContentLink;
 
             SynonymBackupFile backupFile = _contentRepository
