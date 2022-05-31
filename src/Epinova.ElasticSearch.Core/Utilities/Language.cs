@@ -128,7 +128,7 @@ namespace Epinova.ElasticSearch.Core.Utilities
 
             if(headers?["X-EPiContentLanguage"] != null)
             {
-                return CultureInfo.CreateSpecificCulture(headers["X-EPiContentLanguage"]);
+                return new CultureInfo(headers["X-EPiContentLanguage"]);
             }
 
             return CultureInfo.InvariantCulture;

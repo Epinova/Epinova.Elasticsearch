@@ -70,16 +70,12 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Providers
             foreach(string searchRoot in query.SearchRoots)
             {
                 if(!Int32.TryParse(searchRoot, out int searchRootId) && searchRoot.Contains("__"))
-                {
                     Int32.TryParse(searchRoot.Split(new[] { "__" }, StringSplitOptions.None)[0], out searchRootId);
-                }
 
                 if(searchRootId != 0)
                 {
                     IElasticSearchService<TContentData> searchQuery = CreateQuery(query, SearchLanguage, searchRootId);
-
                     ContentSearchResult<TContentData> contentSearchResult = searchQuery.GetContentResults(false, true, GetProviderKeys(), false, false);
-
                     contentSearchHits.AddRange(contentSearchResult.Hits);
                 }
             }
