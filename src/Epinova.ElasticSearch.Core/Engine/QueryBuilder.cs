@@ -540,8 +540,15 @@ namespace Epinova.ElasticSearch.Core.Engine
         private static Dictionary<int, bool> GetExcludedRoots(QuerySetup setup)
         {
             Dictionary<int, bool> excludedRoots = setup.ExcludedRoots;
-            Conventions.Indexing.ExcludedRoots.ToList().ForEach(x =>
-                excludedRoots.Add(x, true));
+
+            foreach(int excludedRoot in Conventions.Indexing.ExcludedRoots)
+            {
+                if(excludedRoots.Any(r => r.Key.Equals(excludedRoot)))
+                    continue;
+
+                excludedRoots.Add(excludedRoot, true);
+            }
+            
             return excludedRoots;
         }
 
