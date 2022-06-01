@@ -37,10 +37,7 @@ namespace Epinova.ElasticSearch.Core.Engine
             nameof(MappingType.Attachment).ToLower()
         };
 
-        public QueryBuilder(
-            IServerInfoService serverInfoService,
-            IElasticSearchSettings settings,
-            IHttpClientHelper httpClientHelper)
+        public QueryBuilder(IServerInfoService serverInfoService, IElasticSearchSettings settings, IHttpClientHelper httpClientHelper)        
         {
             _settings = settings;
             _mapping = new Mapping(serverInfoService, settings, httpClientHelper);
@@ -108,9 +105,6 @@ namespace Epinova.ElasticSearch.Core.Engine
 
             if(setup.SearchFields.Count == 0)
             {
-                if(string.IsNullOrWhiteSpace(setup.IndexName))
-                    setup.IndexName = _settings.GetDefaultIndexName(setup.Language);
-
                 setup.SearchFields.AddRange(GetMappedFields(setup.IndexName, setup.SearchType));
             }
 
