@@ -39,6 +39,7 @@ namespace Epinova.ElasticSearch.Core.Services
                     new Dictionary<string, object>
                     {
                         {"@query", text},
+                        {"@nohits", noHits ? 1 : 0},
                         {"@lang", service.SearchLanguage.Name},
                         {"@index", index}
                     });
