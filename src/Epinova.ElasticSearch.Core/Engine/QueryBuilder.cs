@@ -53,7 +53,7 @@ namespace Epinova.ElasticSearch.Core.Engine
         internal void SetMappedFields(string[] fields) =>
             _mappedFields = fields;
 
-        private string[] GetMappedFields(string language, string index, Type type)
+        private string[] GetMappedFields(string index, Type type)
         {
             _logger.Debug("Get mapped fields");
 
@@ -95,8 +95,7 @@ namespace Epinova.ElasticSearch.Core.Engine
         /// A standard freetext search against all fields
         /// </summary>
         /// <param name="querySetup">The QuerySetup. <see cref="QuerySetup"/></param>
-        public RequestBase Search(QuerySetup querySetup)
-            => SearchInternal(querySetup);
+        public RequestBase Search(QuerySetup querySetup) => SearchInternal(querySetup);
 
         internal RequestBase MoreLikeThis(QuerySetup setup)
             => new MoreLikeThisRequest(setup);
@@ -109,7 +108,10 @@ namespace Epinova.ElasticSearch.Core.Engine
 
             if(setup.SearchFields.Count == 0)
             {
-                setup.SearchFields.AddRange(GetMappedFields(Language.GetLanguageCode(setup.Language), setup.IndexName, setup.SearchType));
+                if(string.IsNullOrWhiteSpace(setup.IndexName))
+                    setup.IndexName = _settings.GetDefaultIndexName(setup.Language);
+
+                setup.SearchFields.AddRange(GetMappedFields(setup.IndexName, setup.SearchType));
             }
 
             if(_logger.IsDebugEnabled())
