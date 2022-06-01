@@ -10,7 +10,7 @@ namespace Epinova.ElasticSearch.Core.Utilities
         {
             string languageName = Language.GetLanguageAnalyzer(languageCode);
 
-            dynamic synonymSettings = new { type = "synonym", synonyms = new[] { "example_from,example_to" } };
+            dynamic synonymSettings = new { type = "synonym", synonyms = new[] { Constants.DefaultSynonym } };
             if(!String.IsNullOrWhiteSpace(synonymsFilePath))
             {
                 synonymSettings = new { type = "synonym", synonyms_path = languageCode + "_" + synonymsFilePath };

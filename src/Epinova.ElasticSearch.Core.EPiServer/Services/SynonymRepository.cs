@@ -30,7 +30,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Services
         private readonly IElasticSearchSettings _settings;
         private readonly IServerInfoService _serverInfoService;
         private readonly IHttpClientHelper _httpClientHelper;
-
+        
         public SynonymRepository(
             IContentRepository contentRepository,
             IBlobFactory blobFactory,
@@ -65,7 +65,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Services
 
                 if(synonymPairs.Length == 0)
                 {
-                    synonymPairs = new[] {"example_from,example_to"};
+                    synonymPairs = new[] {Constants.DefaultSynonym};
                 }
 
                 _logger.Information(
@@ -168,7 +168,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Services
             string[] parsedSynonyms;
             bool restoreSynonyms = false;
 
-            if(synonymPairs?.Any(s => s.ToString() != "example_from,example_to") == true)
+            if(synonymPairs?.Any(s => s.ToString() != Constants.DefaultSynonym) == true)
             {
                 parsedSynonyms = synonymPairs.Select(s => s.ToString()).ToArray();
             }
@@ -192,7 +192,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Services
                 }
             }
 
-            foreach(string synonym in parsedSynonyms)
+            foreach(string synonym in parsedSynonyms.Where(s => !Constants.DefaultSynonym.Equals(s)))
             {
                 if(String.IsNullOrWhiteSpace(synonym))
                 {
@@ -277,8 +277,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Services
             }
         }
 
-        private static string GetFilename(string languageId, string index)
-            => $"{languageId}_{index}.synonyms";
+        private static string GetFilename(string languageId, string index) => $"{languageId}_{index}.synonyms";
 
         private SynonymBackupFileFolder GetBackupFolder(string folderName = "Elasticsearch Synonyms")
         {

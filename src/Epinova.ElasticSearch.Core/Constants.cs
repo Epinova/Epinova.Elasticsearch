@@ -10,6 +10,7 @@ namespace Epinova.ElasticSearch.Core
         public const string InvariantCultureIndexNamePostfix = "invariantculture";
         public const char IndexNameLanguageSplitChar = '¤';
         public const string IndexEPiServerContentDisplayName = "Elasticsearch: Index CMS content";
+        public const string DefaultSynonym = "example_from,example_to";
 
         internal static readonly Version MinimumSupportedVersion = new Version(5, 0);
 
