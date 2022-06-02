@@ -19,17 +19,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Commerce.Controllers
         private readonly IElasticSearchSettings _settings;
         private readonly ReferenceConverter _referenceConverter;
 
-        public ElasticAdminCommerceController(
-            IContentIndexService contentIndexService,
-            ILanguageBranchRepository languageBranchRepository,
-            ICoreIndexer coreIndexer,
-            IElasticSearchSettings settings,
-            IHttpClientHelper httpClientHelper,
-            IServerInfoService serverInfoService,
-            IScheduledJobRepository scheduledJobRepository,
-            IScheduledJobExecutor scheduledJobExecutor,
-            ReferenceConverter referenceConverter)
-            : base(contentIndexService, languageBranchRepository, coreIndexer, settings, httpClientHelper, serverInfoService, scheduledJobRepository, scheduledJobExecutor)
+        public ElasticAdminCommerceController(IContentIndexService contentIndexService, ILanguageBranchRepository languageBranchRepository, ICoreIndexer coreIndexer, IElasticSearchSettings settings, IHttpClientHelper httpClientHelper, IServerInfoService serverInfoService, IScheduledJobRepository scheduledJobRepository, IScheduledJobExecutor scheduledJobExecutor, ReferenceConverter referenceConverter)  : base(contentIndexService, languageBranchRepository, coreIndexer, settings, httpClientHelper, serverInfoService, scheduledJobRepository, scheduledJobExecutor)
         {
             _settings = settings;
             _referenceConverter = referenceConverter;
