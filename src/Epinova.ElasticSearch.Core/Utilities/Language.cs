@@ -12,7 +12,7 @@ namespace Epinova.ElasticSearch.Core.Utilities
         /// For available language analyzers, see 
         /// https://www.elastic.co/guide/en/elasticsearch/reference/current/analysis-lang-analyzer.html
         /// </summary>
-        private static readonly Dictionary<string, string> AnalyzerMappings = new Dictionary<string, string>
+        private static readonly Dictionary<string, string> _analyzerMappings = new Dictionary<string, string>
         {
             { "ar", "arabic" },
             { "am", "armenian" },
@@ -52,8 +52,7 @@ namespace Epinova.ElasticSearch.Core.Utilities
         };
 
 #warning delete
-        internal static string GetRequestLanguageCode()
-            => GetLanguageCode(GetRequestLanguage());
+        internal static string GetRequestLanguageCode() => GetLanguageCode(GetRequestLanguage());
 
 #warning delete
         internal static string GetLanguageCode(CultureInfo cultureInfo)
@@ -106,7 +105,7 @@ namespace Epinova.ElasticSearch.Core.Utilities
             if(language == null)
                 return "fallback";
 
-            if(AnalyzerMappings.TryGetValue(language, out string analyzer))
+            if(_analyzerMappings.TryGetValue(language, out string analyzer))
                 return analyzer;
 
             if(language.Contains("-"))
@@ -114,7 +113,7 @@ namespace Epinova.ElasticSearch.Core.Utilities
                 string[] languageCodes = language.ToLower().Split(new[] { '-' }, StringSplitOptions.RemoveEmptyEntries);
                 foreach(string languageCode in languageCodes)
                 {
-                    if(AnalyzerMappings.TryGetValue(languageCode, out analyzer))
+                    if(_analyzerMappings.TryGetValue(languageCode, out analyzer))
                         return analyzer;
                 }
             }

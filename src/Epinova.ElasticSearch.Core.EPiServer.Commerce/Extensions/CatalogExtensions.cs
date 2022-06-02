@@ -1,12 +1,10 @@
 ﻿using System.Collections.Generic;
-using System.Globalization;
 using System.Threading.Tasks;
 using Epinova.ElasticSearch.Core.Contracts;
 using Epinova.ElasticSearch.Core.EPiServer.Extensions;
 using Epinova.ElasticSearch.Core.EPiServer.Providers;
 using Epinova.ElasticSearch.Core.Models;
 using Epinova.ElasticSearch.Core.Settings;
-using Epinova.ElasticSearch.Core.Utilities;
 using EPiServer.Commerce.Catalog.ContentTypes;
 using EPiServer.ServiceLocation;
 
@@ -14,15 +12,12 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Commerce.Extensions
 {
     public static class CatalogExtensions
     {
-        private static readonly ITrackingRepository TrackingRepository = ServiceLocator.Current.GetInstance<ITrackingRepository>();
-        private static readonly IElasticSearchSettings ElasticSearchSettings = ServiceLocator.Current.GetInstance<IElasticSearchSettings>();
-
-        private static string GetIndexName(CultureInfo searchLanguage)
-            => $"{ElasticSearchSettings.Index}-{Constants.CommerceProviderName}-{Language.GetLanguageCode(searchLanguage)}";
+        private static readonly ITrackingRepository _trackingRepository = ServiceLocator.Current.GetInstance<ITrackingRepository>();
+        private static readonly IElasticSearchSettings _elasticSearchSettings = ServiceLocator.Current.GetInstance<IElasticSearchSettings>();
 
         public static CatalogSearchResult<T> GetCatalogResults<T>(this IElasticSearchService<T> service) where T : EntryContentBase
         {
-            service.UseIndex(GetIndexName(service.SearchLanguage));
+            service.UseIndex(_elasticSearchSettings.GetCommerceIndexName(service.SearchLanguage));
 
             SearchResult results = service.GetResults();
             return GetCatalogSearchResult(service, results);
@@ -30,7 +25,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Commerce.Extensions
 
         public static async Task<CatalogSearchResult<T>> GetCatalogResultsAsync<T>(this IElasticSearchService<T> service) where T : EntryContentBase
         {
-            service.UseIndex(GetIndexName(service.SearchLanguage));
+            service.UseIndex(_elasticSearchSettings.GetCommerceIndexName(service.SearchLanguage));
 
             SearchResult results = await service.GetResultsAsync();
             return GetCatalogSearchResult(service, results);
@@ -53,7 +48,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Commerce.Extensions
             }
 
             if(service.TrackSearch) 
-                TrackingRepository.AddSearch(service, results.TotalHits == 0);
+                _trackingRepository.AddSearch(service, results.TotalHits == 0);
 
             return new CatalogSearchResult<T>(results, hits);
         }

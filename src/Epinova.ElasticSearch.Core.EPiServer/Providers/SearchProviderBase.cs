@@ -27,7 +27,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Providers
     {
         private readonly string _categoryKey;
         protected string IndexName;
-        private CultureInfo SearchLanguage;
+        protected CultureInfo SearchLanguage;
 
         protected readonly IElasticSearchService<TSearchType> _elasticSearchService;
 
