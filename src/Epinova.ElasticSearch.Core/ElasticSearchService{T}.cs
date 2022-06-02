@@ -78,7 +78,7 @@ namespace Epinova.ElasticSearch.Core
 
         public string IndexName
         {
-            get => _indexName?.ToLower();
+            get => !string.IsNullOrWhiteSpace(_indexName) ? _indexName?.ToLower() : _settings.GetDefaultIndexName(SearchLanguage);
             private set => _indexName = value;
         }
 
