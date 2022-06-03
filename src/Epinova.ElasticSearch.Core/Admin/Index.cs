@@ -257,6 +257,6 @@ namespace Epinova.ElasticSearch.Core.Admin
             _logger.Information($"Enabling cluster index closing:\n{json}");
         }
 
-        private bool MatchName(IndexInformation i) => _settings.Indices.Any(indexName => i.Index.StartsWith(String.Concat(indexName, Constants.IndexNameLanguageSplitChar), StringComparison.OrdinalIgnoreCase));
+        private bool MatchName(IndexInformation i) => _settings.Indices.Any(indexName => i.Index.StartsWith(indexName, StringComparison.OrdinalIgnoreCase) && i.Index.Contains("¤"));
     }
 }
