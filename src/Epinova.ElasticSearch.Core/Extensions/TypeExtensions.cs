@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using Castle.DynamicProxy;
 using Epinova.ElasticSearch.Core.Attributes;
 using Epinova.ElasticSearch.Core.Contracts;
 using Epinova.ElasticSearch.Core.Conventions;
@@ -132,7 +131,7 @@ namespace Epinova.ElasticSearch.Core.Extensions
 
         private static bool IsIndexable(Type contentType, PropertyInfo p, bool optIn)
         {
-            if(p == null || contentType == null)
+            if(p == null || contentType == null || Indexing.ExcludedProperties.Any(ex => ex.Name.Equals(p.Name)))
             {
                 return false;
             }
@@ -161,10 +160,7 @@ namespace Epinova.ElasticSearch.Core.Extensions
             var searchable = p.GetCustomAttribute<SearchableAttribute>();
             if(searchable != null)
             {
-                Logger.Debug(searchable.IsSearchable
-                    ? "Yes: Attribute"
-                    : "No: Attribute");
-
+                Logger.Debug(searchable.IsSearchable ? "Yes: Attribute" : "No: Attribute");
                 return searchable.IsSearchable;
             }
 

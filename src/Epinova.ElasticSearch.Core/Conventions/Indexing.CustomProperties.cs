@@ -9,6 +9,7 @@ namespace Epinova.ElasticSearch.Core.Conventions
         internal ConcurrentDictionary<Type, string[]> SearchableProperties { get; } = new ConcurrentDictionary<Type, string[]>();
 
         internal static List<CustomProperty> CustomProperties { get; } = new List<CustomProperty>();
+        internal static List<CustomProperty> ExcludedProperties { get; } = new List<CustomProperty>();
 
         /// <summary>
         /// Add a convention for the specified type
