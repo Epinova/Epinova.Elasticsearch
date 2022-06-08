@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Configuration;
+using System.Globalization;
 using System.Linq;
 using Epinova.ElasticSearch.Core.Contracts;
 using Epinova.ElasticSearch.Core.Models;
+using Epinova.ElasticSearch.Core.Settings;
 using Epinova.ElasticSearch.Core.Settings.Configuration;
 using Epinova.ElasticSearch.Core.Utilities;
 using EPiServer.ServiceLocation;
@@ -13,17 +15,23 @@ namespace Epinova.ElasticSearch.Core.Services
     [ServiceConfiguration(ServiceType = typeof(ITrackingRepository), Lifecycle = ServiceInstanceScope.Transient)]
     public class TrackingRepository : ITrackingRepository
     {
+        private readonly IElasticSearchSettings _settings;
         private static readonly string ConnectionString = GetConnectionString();
-
-        public void AddSearch(string languageId, string text, bool noHits, string index)
+        
+        public TrackingRepository(IElasticSearchSettings settings)
         {
-            text = text ?? String.Empty;
-            if(text.Length > 200)
-            {
-                text = text.Substring(0, 200);
-            }
+            _settings = settings;
+        }
 
-            if(SearchExists(text, languageId, index))
+        public void AddSearch<T>(IElasticSearchService<T> service, bool noHits)
+        {
+            string text = service.SearchText ?? String.Empty;
+            if(text.Length > 200)
+                text = text.Substring(0, 200);
+
+            string index = GetTrackingIndexName(service.IndexName, service.SearchLanguage);
+            
+            if(SearchExists(text, service.SearchLanguage, index))
             {
                 DbHelper.ExecuteCommand(
                     ConnectionString, 
@@ -31,27 +39,28 @@ namespace Epinova.ElasticSearch.Core.Services
                     new Dictionary<string, object>
                     {
                         {"@query", text},
-                        {"@lang", languageId},
+                        {"@nohits", noHits ? 1 : 0},
+                        {"@lang", service.SearchLanguage.Name},
                         {"@index", index}
                     });
 
                 return;
             }
 
-            DbHelper.ExecuteCommand(
-                ConnectionString,
-                Constants.Tracking.Sql.Insert,
+            DbHelper.ExecuteCommand(ConnectionString, Constants.Tracking.Sql.Insert,
                 new Dictionary<string, object>
                 {
                     {"@query", text},
                     {"@nohits", noHits ? 1 : 0},
-                    {"@lang", languageId},
+                    {"@lang", service.SearchLanguage.Name},
                     {"@index", index}
                 });
         }
 
         public void Clear(string languageId, string index)
         {
+            index = GetTrackingIndexName(index, new CultureInfo(languageId));
+
             DbHelper.ExecuteCommand(
                 ConnectionString,
                 Constants.Tracking.Sql.Delete,
@@ -64,6 +73,8 @@ namespace Epinova.ElasticSearch.Core.Services
 
         public IEnumerable<Tracking> GetSearches(string languageId, string index)
         {
+            index = GetTrackingIndexName(index, new CultureInfo(languageId));
+
             var results = DbHelper.ExecuteReader(
                 ConnectionString, 
                 Constants.Tracking.Sql.Select,
@@ -82,6 +93,8 @@ namespace Epinova.ElasticSearch.Core.Services
 
         public IEnumerable<Tracking> GetSearchesWithoutHits(string languageId, string index)
         {
+            index = GetTrackingIndexName(index, new CultureInfo(languageId));
+
             var results = DbHelper.ExecuteReader(
                 ConnectionString, 
                 Constants.Tracking.Sql.SelectNoHits,
@@ -98,15 +111,24 @@ namespace Epinova.ElasticSearch.Core.Services
             });
         }
 
-        private bool SearchExists(string text, string languageId, string index)
+        private string GetTrackingIndexName(string indexName, CultureInfo language)
         {
+            indexName ??= _settings.GetDefaultIndexName(language);
+
+            return _settings.GetIndexNameWithoutLanguage(indexName);
+        }
+
+        private bool SearchExists(string text, CultureInfo language, string index)
+        {
+            index = GetTrackingIndexName(index, language);
+
             var results = DbHelper.ExecuteReader(
                 ConnectionString, 
                 Constants.Tracking.Sql.Exists,
                 new Dictionary<string, object>
                 {
                     {"@query", text},
-                    {"@lang", languageId},
+                    {"@lang", language.Name},
                     {"@index", index}
                 });
 

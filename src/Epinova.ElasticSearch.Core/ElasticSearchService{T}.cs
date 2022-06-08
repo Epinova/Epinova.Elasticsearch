@@ -74,26 +74,29 @@ namespace Epinova.ElasticSearch.Core
         private readonly IHttpClientHelper _httpClientHelper;
         private readonly IServerInfoService _serverInfoService;
         private readonly IElasticSearchSettings _settings;
+        private readonly ISearchLanguage _searchLanguage;
 
         public string IndexName
         {
-            get => _indexName?.ToLower();
+            get => !string.IsNullOrWhiteSpace(_indexName) ? _indexName?.ToLower() : _settings.GetDefaultIndexName(SearchLanguage);
             private set => _indexName = value;
         }
 
         public CultureInfo CurrentLanguage => SearchLanguage;
 
-        internal ElasticSearchService(
-            IServerInfoService serverInfoService,
-            IElasticSearchSettings settings,
-            IHttpClientHelper httpClientHelper)
+        internal ElasticSearchService(IServerInfoService serverInfoService, IElasticSearchSettings settings, IHttpClientHelper httpClientHelper, ISearchLanguage searchLanguage)
         {
+            _serverInfoService = serverInfoService;
+            _settings = settings;
+            _httpClientHelper = httpClientHelper;
+            _searchLanguage = searchLanguage;
+
             BoostFields = new Dictionary<string, byte>();
             BoostAncestors = new Dictionary<int, sbyte>();
             ExcludedRoots = new Dictionary<int, bool>();
             SortFields = new List<Sort>();
             SearchFields = new List<string>();
-            SearchLanguage = CultureInfo.CurrentCulture;
+            SearchLanguage = searchLanguage.SearchLanguage;
             SearchType = typeof(IndexItem);
             SizeValue = 10;
             PostFilters = new List<Filter>();
@@ -105,10 +108,7 @@ namespace Epinova.ElasticSearch.Core
             _excludedTypes = new List<Type>();
             _facetFields = new Dictionary<string, MappingType>();
             _gauss = new List<Gauss>();
-            _httpClientHelper = httpClientHelper;
             _ranges = new List<RangeBase>();
-            _serverInfoService = serverInfoService;
-            _settings = settings;
             _usePostfilters = true;
         }
 
@@ -218,9 +218,7 @@ namespace Epinova.ElasticSearch.Core
         public IElasticSearchService<T> Exclude(int rootId, bool recursive = true)
         {
             if(!ExcludedRoots.ContainsKey(rootId))
-            {
                 ExcludedRoots.Add(rootId, recursive);
-            }
 
             return this;
         }
@@ -228,40 +226,35 @@ namespace Epinova.ElasticSearch.Core
         public IElasticSearchService<T> From(int from)
         {
             FromValue = from;
-
             return this;
         }
 
         public IElasticSearchService<T> Language(CultureInfo language)
         {
             SearchLanguage = language;
-
             return this;
         }
 
-        public IElasticSearchService<T> Skip(int skip)
-            => From(skip);
+        public IElasticSearchService<T> Skip(int skip) => From(skip);
+
 
         public IElasticSearchService<T> Size(int size)
         {
             SizeValue = size;
-
             return this;
         }
 
-        public IElasticSearchService<T> Take(int take)
-            => Size(take);
+        public IElasticSearchService<T> Take(int take) => Size(take);
 
         public IElasticSearchService<T> NoBoosting()
         {
             UseBoosting = false;
-
             return this;
         }
 
         public IElasticSearchService<T> Get<T>()
         {
-            return new ElasticSearchService<T>(_serverInfoService, _settings, _httpClientHelper)
+            return new ElasticSearchService<T>(_serverInfoService, _settings, _httpClientHelper, _searchLanguage)
             {
                 Type = typeof(T),
                 SearchLanguage = SearchLanguage,
@@ -277,16 +270,13 @@ namespace Epinova.ElasticSearch.Core
             };
         }
 
-        public IElasticSearchService<object> Search(string searchText, Operator @operator = Operator.Or)
-            => Search<object>(searchText, null, @operator);
+        public IElasticSearchService<object> Search(string searchText, Operator @operator = Operator.Or) => Search<object>(searchText, facetFieldName: null, @operator);
 
-        public IElasticSearchService<T> Search<T>(string searchText, Operator @operator = Operator.Or)
-            => Search<T>(searchText, null, @operator);
+        public IElasticSearchService<T> Search<T>(string searchText, Operator @operator = Operator.Or) => Search<T>(searchText, facetFieldName: null, @operator);
 
-        public IElasticSearchService<T> Search<T>(string searchText, string facetFieldName,
-            Operator @operator = Operator.Or)
+        public IElasticSearchService<T> Search<T>(string searchText, string facetFieldName, Operator @operator = Operator.Or)
         {
-            return new ElasticSearchService<T>(_serverInfoService, _settings, _httpClientHelper)
+            return new ElasticSearchService<T>(_serverInfoService, _settings, _httpClientHelper, _searchLanguage)
             {
                 Type = typeof(T),
                 SearchText = searchText,
@@ -329,10 +319,9 @@ namespace Epinova.ElasticSearch.Core
             return await GetResultsAsync(query, cancellationToken).ConfigureAwait(false);
         }
 
-        public async Task<CustomSearchResult<T>> GetCustomResultsAsync()
-            => await GetCustomResultsAsync(CancellationToken.None).ConfigureAwait(false);
+        public async Task<CustomSearchResult<T>> GetResultsCustomAsync() => await GetResultsCustomAsync(CancellationToken.None).ConfigureAwait(false);
 
-        public async Task<CustomSearchResult<T>> GetCustomResultsAsync(CancellationToken cancellationToken)
+        public async Task<CustomSearchResult<T>> GetResultsCustomAsync(CancellationToken cancellationToken)
         {
             QuerySetup query = CreateQuery(true);
             query.EnableDidYouMean = false;
@@ -340,10 +329,10 @@ namespace Epinova.ElasticSearch.Core
             // Always return all fields for custom objects
             query.SourceFields = null;
 
-            return await GetCustomResultsAsync<T>(query, cancellationToken).ConfigureAwait(false);
+            return await GetResultsCustomAsync<T>(query, cancellationToken).ConfigureAwait(false);
         }
 
-        public CustomSearchResult<T> GetCustomResults()
+        public CustomSearchResult<T> GetResultsCustom()
         {
             QuerySetup query = CreateQuery(false);
 
@@ -436,7 +425,7 @@ namespace Epinova.ElasticSearch.Core
 
         public IElasticSearchService<T> MoreLikeThis<T>(string id, int minimumTermFrequency = 1, int maxQueryTerms = 25, int minimumDocFrequency = 3, int minimumWordLength = 3)
         {
-            return new ElasticSearchService<T>(_serverInfoService, _settings, _httpClientHelper)
+            return new ElasticSearchService<T>(_serverInfoService, _settings, _httpClientHelper, _searchLanguage)
             {
                 MoreLikeId = id,
                 MltMinTermFreq = minimumTermFrequency,
@@ -457,12 +446,12 @@ namespace Epinova.ElasticSearch.Core
             };
         }
 
-        public IElasticSearchService<object> WildcardSearch(string searchText)
-            => WildcardSearch<object>(searchText);
+
+        public IElasticSearchService<object> WildcardSearch(string searchText) => WildcardSearch<object>(searchText);
 
         public IElasticSearchService<T> WildcardSearch<T>(string searchText)
         {
-            return new ElasticSearchService<T>(_serverInfoService, _settings, _httpClientHelper)
+            return new ElasticSearchService<T>(_serverInfoService, _settings, _httpClientHelper, _searchLanguage)
             {
                 Type = typeof(T),
                 SearchText = searchText,
@@ -484,7 +473,7 @@ namespace Epinova.ElasticSearch.Core
 
         public IElasticSearchService<T> SimpleQuerystringSearch<T>(string searchText, Operator defaultOperator = Operator.Or, SimpleQuerystringOperators allowedOperators = SimpleQuerystringOperators.All)
         {
-            return new ElasticSearchService<T>(_serverInfoService, _settings, _httpClientHelper)
+            return new ElasticSearchService<T>(_serverInfoService, _settings, _httpClientHelper, _searchLanguage)
             {
                 Type = typeof(T),
                 SearchText = searchText,
@@ -816,7 +805,7 @@ namespace Epinova.ElasticSearch.Core
             return _engine.Query(request, querySetup.Language, IndexName);
         }
 
-        internal async Task<CustomSearchResult<T>> GetCustomResultsAsync<T>(QuerySetup querySetup, CancellationToken cancellationToken)
+        internal async Task<CustomSearchResult<T>> GetResultsCustomAsync<T>(QuerySetup querySetup, CancellationToken cancellationToken)
         {
             RequestBase request = _builder.TypedSearch(querySetup);
             return await _engine.CustomQueryAsync<T>(request, querySetup.Language, cancellationToken, IndexName).ConfigureAwait(false);

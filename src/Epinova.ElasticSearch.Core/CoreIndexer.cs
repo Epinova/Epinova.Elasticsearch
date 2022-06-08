@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Dynamic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -164,7 +165,7 @@ namespace Epinova.ElasticSearch.Core
             return bulkBatchResult;
         }
 
-        public void Delete(string id, string language, Type type, string indexName = null)
+        public void Delete(string id, CultureInfo language, Type type, string indexName = null)
         {
             if(indexName == null)
             {
@@ -224,11 +225,12 @@ namespace Epinova.ElasticSearch.Core
             {
                 if(String.IsNullOrWhiteSpace(indexName))
                 {
-                    indexName = _settings.GetDefaultIndexName(language);
+                    CultureInfo currentCulture = new CultureInfo(language);
+                    indexName = _settings.GetDefaultIndexName(currentCulture);
                 }
 
                 // Get mappings from server
-                mapping = _mapping.GetIndexMapping(typeof(IndexItem), language, indexName);
+                mapping = _mapping.GetIndexMapping(typeof(IndexItem), indexName);
 
                 // Ignore special mappings
                 mapping.Properties.Remove(DefaultFields.AttachmentData);
@@ -325,23 +327,18 @@ namespace Epinova.ElasticSearch.Core
             RefreshIndex(indexName);
         }
 
-        public void UpdateMapping(Type type, Type indexType, string index) => UpdateMapping(type, indexType, index, null, false);
-
         public void UpdateMapping(Type type, Type indexType, string index, string language, bool optIn)
         {
-            if(type.Name.EndsWith("Proxy"))
-            {
+            if(type.Name.EndsWith("Proxy")) 
                 type = type.BaseType;
-            }
 
-            language = language ?? _settings.GetLanguage(index);
             var indexableProperties = GetIndexableProperties(type, optIn);
             var typeName = type?.Name;
 
             _logger.Information("IndexableProperties for " + typeName + ": " + String.Join(", ", indexableProperties.Select(p => p.Name)));
 
             // Get existing mapping
-            IndexMapping mapping = _mapping.GetIndexMapping(indexType, null, index);
+            IndexMapping mapping = _mapping.GetIndexMapping(indexType, index);
 
             // Ignore special mappings
             mapping.Properties.Remove(DefaultFields.AttachmentData);
@@ -473,7 +470,7 @@ namespace Epinova.ElasticSearch.Core
         /// </summary>
         /// <param name="language"></param>
         /// <remarks>https://www.elastic.co/guide/en/elasticsearch/reference/current/indices-refresh.html</remarks>
-        public void Refresh(string language)
+        public void Refresh(CultureInfo language)
         {
             foreach(string indexName in _settings.Indices.Select(i => _settings.GetCustomIndexName(i, language)))
             {

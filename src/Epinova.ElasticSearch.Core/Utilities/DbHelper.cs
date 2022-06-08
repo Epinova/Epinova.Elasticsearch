@@ -45,6 +45,59 @@ namespace Epinova.ElasticSearch.Core.Utilities
             }
         }
 
+        public static bool ColumnIsNullable(string connectionString, string table, string column)
+        {
+            try
+            {
+                using(var connection = new SqlConnection(connectionString))
+                {
+                    var sql = $"SELECT is_nullable FROM sys.columns WHERE object_id = object_id('{table}') and name = '{column}'";
+
+                    using(var command = new SqlCommand(sql))
+                    {
+                        command.Connection = connection;
+                        command.Connection.Open();
+                        object result = command.ExecuteScalar();
+                        command.Connection.Close();
+
+                        var count = Convert.ToInt32(result);
+
+                        return count == 1;
+                    }
+                }
+            }
+            catch(Exception exception)
+            {
+                Log.Warning($"Issue when checking if '{table}.{column}' is nullable", exception);
+                return false;
+            }
+        }
+
+        public static bool AdjustColumnNullable(string connectionString, string table, string column, string dataType, bool isNullable)
+        {
+            try
+            {
+                using(var connection = new SqlConnection(connectionString))
+                {
+                    var sql = $"ALTER TABLE {table} ALTER COLUMN {column} {dataType} {(isNullable ? "NULL" : "NOT NULL")}";
+
+                    using(var command = new SqlCommand(sql))
+                    {
+                        command.Connection = connection;
+                        command.Connection.Open();
+                        command.ExecuteNonQuery();
+                        command.Connection.Close();
+                        return true;
+                    }
+                }
+            }
+            catch(Exception exception)
+            {
+                Log.Warning($"Issue when adjusting '{table}.{column}' is nullable", exception);
+                return false;
+            }
+        }
+
         public static bool TableExists(string connectionString, string table)
         {
             try
@@ -89,7 +142,7 @@ namespace Epinova.ElasticSearch.Core.Utilities
                         command.ExecuteScalar();
                         command.Connection.Close();
 
-                        Log.Debug($"Table '{table}' created succesfully");
+                        Log.Debug($"Table '{table}' created successfully");
                     }
                 }
             }
@@ -127,7 +180,7 @@ namespace Epinova.ElasticSearch.Core.Utilities
                         int rowsAffected = command.ExecuteNonQuery();
                         command.Connection.Close();
 
-                        Log.Debug($"Command '{sql}' executed succesfully. {rowsAffected} rows affected.");
+                        Log.Debug($"Command '{sql}' executed successfully. {rowsAffected} rows affected.");
 
                         return rowsAffected;
                     }
@@ -183,7 +236,7 @@ namespace Epinova.ElasticSearch.Core.Utilities
 
                         command.Connection.Close();
 
-                        Log.Debug($"Command '{sql}' executed succesfully.");
+                        Log.Debug($"Command '{sql}' executed successfully.");
                     }
                 }
             }

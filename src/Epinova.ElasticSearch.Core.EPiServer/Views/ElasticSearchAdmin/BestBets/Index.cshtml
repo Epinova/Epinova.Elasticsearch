@@ -11,6 +11,7 @@
     ViewBag.DojoParseOnLoad = false;
     Layout = "~/Views/ElasticSearchAdmin/_ElasticSearch.cshtml";
     string localizationPath = "/epinovaelasticsearch/bestbets/";
+    string selectedIndex = ViewBag.SelectedIndex as string;
 }
 
 @if (Model == null)
@@ -75,11 +76,10 @@
                             <div data-dojo-type="dijit/DropDownMenu">
                                 @foreach (var index in bb.Indices)
                                 {
-                                    var indexName = $"{index.Key}-{bb.LanguageId}";
-                                    if (indexName != ViewBag.SelectedIndex)
+                                    if (index.Key != selectedIndex)
                                     {
                                         <div data-dojo-type="dijit/MenuItem"
-                                             data-dojo-props="onClick:function(){document.location='?index=@indexName&languageId=@bb.LanguageId';}">
+                                             data-dojo-props="onClick:function(){document.location='?index=@index.Key&languageId=@bb.LanguageId';}">
                                             @index.Value
                                         </div>
                                     }
@@ -93,7 +93,7 @@
                     @using (Html.BeginForm("Add", "ElasticBestBets"))
                     {
                         <input type="hidden" name="LanguageId" value="@bb.LanguageId" />
-                        <input type="hidden" name="Index" value="@ViewBag.SelectedIndex" />
+                        <input type="hidden" name="Index" value="@selectedIndex" />
                         <input type="hidden" name="TypeName" value="@Model.TypeName" />
 
                         <div class="epi-form-container__section__row epi-form-container__section__row--field">
@@ -169,7 +169,7 @@
                     topic.publish("/epi/cms/action/viewsettingvaluechanged", "viewlanguage", "no");
                     connect.publish("/epi/shell/context/request", [{ uri: "epi.cms.contentdata:///" + ApplicationSettings.startPage }]);
                     // All done! Everything should be set up now. Run your own code here.
-                    
+
                     // Should probably run this at some point as it's not done automatically - this initializes all the declarative
                     // widgets (elements with data-dojo-type). Use .then() if you want to run code after this to ensure everything has
                     // finished executing.
@@ -207,8 +207,8 @@
                                                                         title: "@Html.TranslateWithPath("confirmDelete", localizationPath)",
                                                                         onAction: function (confirmed) {
                                                                             if (confirmed) {
-                                                                                window.location = "@Url.Action("Delete", "ElasticBestBets")?index=@(ViewBag.SelectedIndex)&typeName=@(ViewBag.TypeName)&languageId=" + object.lang + "&phrase=" + object.phrase + "&contentId=" + object.contentId;
-                                                                            }
+                                                                                window.location = "@Url.Action("Delete", "ElasticBestBets")?index=@(Html.Raw(selectedIndex))&typeName=@(Model.TypeName)&languageId=" + object.lang + "&phrase=" + object.phrase + "&contentId=" + object.contentId;
+                                                                            };
                                                                         }
                                                                     })
                                                                     .show();

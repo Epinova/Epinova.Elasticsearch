@@ -10,6 +10,8 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Models.ViewModels
         }
 
         public List<TrackingLanguage> Languages { get; } = new List<TrackingLanguage>();
+        public string SelectedIndex { get; set; }
+
 
         public void AddLanguage(string name, string id, Dictionary<string, string> indices, Dictionary<string, long> searches, Dictionary<string, long> searchesWithoutHits)
         {

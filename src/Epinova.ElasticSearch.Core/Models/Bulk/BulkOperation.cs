@@ -4,10 +4,8 @@ using System.Dynamic;
 using System.Globalization;
 using System.Reflection;
 using Epinova.ElasticSearch.Core.Extensions;
-using Epinova.ElasticSearch.Core.Settings;
 using Epinova.ElasticSearch.Core.Utilities;
 using EPiServer.Logging;
-using EPiServer.ServiceLocation;
 
 namespace Epinova.ElasticSearch.Core.Models.Bulk
 {
@@ -27,7 +25,7 @@ namespace Epinova.ElasticSearch.Core.Models.Bulk
         /// <summary>
         /// Creates a bulk-operation to be used in <see cref="CoreIndexer.Bulk(Epinova.ElasticSearch.Core.Models.Bulk.BulkOperation[])"/>. 
         /// </summary>
-        public BulkOperation(object data, string language, string id = null, string index = null) : this(data, Operation.Index, language, id: id, index: index)
+        public BulkOperation(string index, object data, string id = null) : this(index, data, Operation.Index, id: id)
         {
         }
 
@@ -35,14 +33,9 @@ namespace Epinova.ElasticSearch.Core.Models.Bulk
         /// Creates a bulk-operation to be used in <see cref="CoreIndexer.Bulk(Epinova.ElasticSearch.Core.Models.Bulk.BulkOperation[])"/>. 
         /// Uses configured index if <paramref name="index"/> is empty.
         /// </summary>
-        internal BulkOperation(object data, Operation operation, string language = null, Type dataType = null, string id = null, string index = null)
+        internal BulkOperation(string index, object data, Operation operation, Type dataType = null, string id = null)
         {
-            if(String.IsNullOrWhiteSpace(language) && String.IsNullOrWhiteSpace(index))
-            {
-                throw new InvalidOperationException("Either 'language' or 'index' must be specified.");
-            }
-
-            dataType = dataType ?? data.GetType();
+            dataType ??= data.GetType();
 
             id = GetId(id, dataType, data);
 
@@ -78,19 +71,13 @@ namespace Epinova.ElasticSearch.Core.Models.Bulk
                 data = indexItem;
             }
 
-            if(String.IsNullOrWhiteSpace(index))
-            {
-                var settings = ServiceLocator.Current.GetInstance<IElasticSearchSettings>();
-                index = settings.GetDefaultIndexName(language);
-            }
-
             MetaData = new BulkMetadata
             {
                 Operation = operation,
                 DataType = dataType,
                 Type = dataType.GetTypeName(),
                 Id = id,
-                IndexCandidate = index.ToLower()
+                IndexCandidate = index?.ToLower()
             };
 
             Data = data;
@@ -98,53 +85,41 @@ namespace Epinova.ElasticSearch.Core.Models.Bulk
 
         private static object GetPropertyValue(object data, PropertyInfo property)
         {
-            var value = property.GetValue(data);
+            object value = property.GetValue(data);
             if(value == null)
-            {
                 return null;
-            }
 
             if(property.PropertyType == typeof(bool) || property.PropertyType == typeof(bool?))
-            {
                 return (bool)value;
-            }
-            else if(property.PropertyType.IsEnum)
-            {
+
+            if(property.PropertyType.IsEnum)
                 return (int)value;
-            }
-            else if(value is DateTime)
+            
+            if(value is DateTime)
             {
                 // Don't ToString or anything funky here
                 return value;
             }
-            else if(value is decimal dec)
-            {
+
+            if(value is decimal dec)
                 return dec.ToString(DotSeparatorFormat);
-            }
-            else if(value is double dbl)
-            {
+
+            if(value is double dbl)
                 return dbl.ToString(DotSeparatorFormat);
-            }
-            else if(value is float flt)
-            {
+
+            if(value is float flt)
                 return flt.ToString(DotSeparatorFormat);
-            }
-            else if(ArrayHelper.IsArrayCandidate(property))
-            {
+
+            if(ArrayHelper.IsArrayCandidate(property))
                 return ArrayHelper.ToArray(value);
-            }
-            else if(Utilities.Mapping.IsNumericType(property.PropertyType))
-            {
+
+            if(Utilities.Mapping.IsNumericType(property.PropertyType))
                 return value.ToString().Trim('\"');
-            }
-            else if(property.PropertyType.IsValueType || property.PropertyType.IsPrimitive)
-            {
+
+            if(property.PropertyType.IsValueType || property.PropertyType.IsPrimitive)
                 return value.ToString().Trim('\"');
-            }
-            else
-            {
-                return value.ToString().Trim('\"');
-            }
+            
+            return value.ToString().Trim('\"');
         }
 
         private string GetId(string id, Type dataType, object data)

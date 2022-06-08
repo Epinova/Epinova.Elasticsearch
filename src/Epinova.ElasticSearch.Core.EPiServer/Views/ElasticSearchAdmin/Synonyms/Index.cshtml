@@ -67,11 +67,10 @@
                             <div data-dojo-type="dijit/DropDownMenu">
                                 @foreach (var index in lang.Indices)
                                 {
-                                    var indexName = $"{index.Key}-{lang.LanguageId}";
-                                    if (indexName != ViewBag.SelectedIndex)
+                                    if (index.Key != ViewBag.SelectedIndex)
                                     {
                                         <div data-dojo-type="dijit/MenuItem"
-                                             data-dojo-props="onClick:function(){document.location='?index=@indexName&languageId=@lang.LanguageId';}">
+                                             data-dojo-props="onClick:function(){document.location='?index=@index.Key&languageId=@lang.LanguageId';}">
                                             @index.Value
                                         </div>
                                     }
@@ -140,7 +139,7 @@
                                             iconClass: "dijitIcon epi-iconTrash",
                                             onClick: function() {
                                                 if (confirm("@Html.TranslateWithPath("confirmDelete", localizationPath)")) {
-                                                    window.location = "@Url.Action("Delete", "ElasticSynonyms")?index=@(ViewBag.SelectedIndex)&languageId=" + object.lang + "&analyzer=@(lang.Analyzer)&from=" + object.from + "&to=" + object.to + "&twoway=" + object.twoway + "&multiword=" + object.multi;
+                                                    window.location = "@Url.Action("Delete", "ElasticSynonyms")?index=@(Html.Raw(ViewBag.SelectedIndex))&languageId=" + object.lang + "&analyzer=@(lang.Analyzer)&from=" + object.from + "&to=" + object.to + "&twoway=" + object.twoway + "&multiword=" + object.multi;
                                                 }
                                             }
                                         })

@@ -44,17 +44,17 @@ namespace Epinova.ElasticSearch.Core.Engine
         /// Execute the provided query
         /// </summary>
         /// <param name="query">Use <see cref="QueryBuilder"/> to generate a suitable query.</param>
-        /// <param name="culture"></param>
+        /// <param name="language"></param>
         /// <param name="cancellationToken"></param>
         /// <param name="indexName"></param>
-        public async Task<SearchResult> QueryAsync(RequestBase query, CultureInfo culture, CancellationToken cancellationToken, string indexName = null)
+        public async Task<SearchResult> QueryAsync(RequestBase query, CultureInfo language, CancellationToken cancellationToken, string indexName = null)
         {
             if(query == null)
             {
                 return new SearchResult();
             }
 
-            EsRootObject results = await GetRawResultsAsync<EsRootObject>(query, Language.GetLanguageCode(culture), cancellationToken, indexName).ConfigureAwait(false);
+            EsRootObject results = await GetRawResultsAsync<EsRootObject>(query, language, cancellationToken, indexName).ConfigureAwait(false);
             if(results == null)
             {
                 return new SearchResult();
@@ -72,16 +72,16 @@ namespace Epinova.ElasticSearch.Core.Engine
         /// Execute the provided query
         /// </summary>
         /// <param name="query">Use <see cref="QueryBuilder"/> to generate a suitable query.</param>
-        /// <param name="culture"></param>
+        /// <param name="language"></param>
         /// <param name="indexName"></param>
-        public SearchResult Query(RequestBase query, CultureInfo culture, string indexName = null)
+        public SearchResult Query(RequestBase query, CultureInfo language, string indexName = null)
         {
             if(query == null)
             {
                 return new SearchResult();
             }
 
-            RawResults<EsRootObject> rawResults = GetRawResults<EsRootObject>(query, Language.GetLanguageCode(culture), indexName);
+            RawResults<EsRootObject> rawResults = GetRawResults<EsRootObject>(query, language, indexName);
 
             if(rawResults?.RootObject == null)
             {
@@ -95,14 +95,14 @@ namespace Epinova.ElasticSearch.Core.Engine
             return searchResult;
         }
 
-        public async Task<CustomSearchResult<T>> CustomQueryAsync<T>(RequestBase query, CultureInfo culture, CancellationToken cancellationToken, string indexName = null)
+        public async Task<CustomSearchResult<T>> CustomQueryAsync<T>(RequestBase query, CultureInfo language, CancellationToken cancellationToken, string indexName = null)
         {
             if(query == null)
             {
                 return new CustomSearchResult<T>();
             }
 
-            EsCustomRootObject<T> rawResults = await GetRawResultsAsync<EsCustomRootObject<T>>(query, Language.GetLanguageCode(culture), cancellationToken, indexName);
+            EsCustomRootObject<T> rawResults = await GetRawResultsAsync<EsCustomRootObject<T>>(query, language, cancellationToken, indexName);
 
             if(rawResults == null)
             {
@@ -128,14 +128,14 @@ namespace Epinova.ElasticSearch.Core.Engine
             return customSearchResult;
         }
 
-        public CustomSearchResult<T> CustomQuery<T>(RequestBase query, CultureInfo culture, string indexName = null)
+        public CustomSearchResult<T> CustomQuery<T>(RequestBase query, CultureInfo language, string indexName = null)
         {
             if(query == null)
             {
                 return new CustomSearchResult<T>();
             }
 
-            RawResults<EsCustomRootObject<T>> rawResults = GetRawResults<EsCustomRootObject<T>>(query, Language.GetLanguageCode(culture), indexName);
+            RawResults<EsCustomRootObject<T>> rawResults = GetRawResults<EsCustomRootObject<T>>(query, language, indexName);
             if(rawResults?.RootObject == null)
             {
                 return new CustomSearchResult<T>();
@@ -247,12 +247,9 @@ namespace Epinova.ElasticSearch.Core.Engine
             }
         }
 
-        public RawResults<TRoot> GetRawResults<TRoot>(RequestBase query, string language, string indexName = null)
+        public RawResults<TRoot> GetRawResults<TRoot>(RequestBase query, CultureInfo language, string indexName = null)
         {
-            if(indexName == null)
-            {
-                indexName = _settings.GetDefaultIndexName(language);
-            }
+            indexName ??= _settings.GetDefaultIndexName(language);
 
             _logger.Information($"Index:\n{indexName}\n");
             _logger.Information($"Query:\n{query?.ToString(Formatting.Indented)}\n");
@@ -278,12 +275,9 @@ namespace Epinova.ElasticSearch.Core.Engine
             };
         }
 
-        public async Task<TRoot> GetRawResultsAsync<TRoot>(RequestBase query, string language, CancellationToken cancellationToken, string indexName = null)
+        public async Task<TRoot> GetRawResultsAsync<TRoot>(RequestBase query, CultureInfo language, CancellationToken cancellationToken, string indexName = null)
         {
-            if(indexName == null)
-            {
-                indexName = _settings.GetDefaultIndexName(language);
-            }
+            indexName ??= _settings.GetDefaultIndexName(language);
 
             _logger.Information($"Index:\n{indexName}\n");
             _logger.Information($"Query:\n{query?.ToString(Formatting.Indented)}\n");
@@ -325,7 +319,7 @@ namespace Epinova.ElasticSearch.Core.Engine
         {
             if(indexName == null)
             {
-                indexName = _settings.GetDefaultIndexName(Language.GetLanguageCode(culture));
+                indexName = _settings.GetDefaultIndexName(culture);
             }
 
             var endpoint = GetSearchEndpoint(indexName, $"?filter_path={JsonNames.Suggest}");

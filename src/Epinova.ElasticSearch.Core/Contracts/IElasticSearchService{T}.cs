@@ -491,19 +491,19 @@ namespace Epinova.ElasticSearch.Core.Contracts
         /// Materializes the search query and returns the results, 
         /// </summary>
         /// <returns>An instance of <see cref="CustomSearchResult{T}"/></returns>
-        CustomSearchResult<T> GetCustomResults();
+        CustomSearchResult<T> GetResultsCustom();
 
         /// <summary>
         /// Materializes the search query and returns the results, 
         /// </summary>
         /// <returns>An instance of <see cref="CustomSearchResult{T}"/></returns>
-        Task<CustomSearchResult<T>> GetCustomResultsAsync();
+        Task<CustomSearchResult<T>> GetResultsCustomAsync();
 
         /// <summary>
         /// Materializes the search query and returns the results, 
         /// </summary>
         /// <returns>An instance of <see cref="CustomSearchResult{T}"/></returns>
-        Task<CustomSearchResult<T>> GetCustomResultsAsync(CancellationToken cancellationToken);
+        Task<CustomSearchResult<T>> GetResultsCustomAsync(CancellationToken cancellationToken);
 
         /// <summary>
         /// Materializes the search query and returns the results.
@@ -582,6 +582,7 @@ namespace Epinova.ElasticSearch.Core.Contracts
         /// </summary>
         /// <param name="groupExpression">The expression to perform ORs or ANDs on
         /// Defaults to <see cref="Epinova.ElasticSearch.Core.Enums.Operator.And"/></param>
+        /// <param name="operator">And/or operator</param>
         /// <returns>The current <see cref="IElasticSearchService"/> instance</returns>
         IElasticSearchService<T> FilterGroup(Expression<Func<IFilterGroup<T>, IFilterGroup<T>>> groupExpression, Operator @operator = Operator.And);
 

@@ -20,7 +20,7 @@ namespace Epinova.ElasticSearch.Core.Models.Bulk
 
         public int Version { get; set; }
 
-        public int Status { get; private set; }
+        public int Status { get; set; }
 
 
         public override string ToString()

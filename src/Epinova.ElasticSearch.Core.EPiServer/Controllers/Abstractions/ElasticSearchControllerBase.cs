@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Web.Mvc;
 using System.Web.Routing;
 using Epinova.ElasticSearch.Core.Contracts;
+using Epinova.ElasticSearch.Core.Models;
 using Epinova.ElasticSearch.Core.Models.Admin;
 using Epinova.ElasticSearch.Core.Settings;
 using Epinova.ElasticSearch.Core.Settings.Configuration;
@@ -49,8 +51,11 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Controllers.Abstractions
         {
             base.OnActionExecuting(filterContext);
             CurrentLanguage = Request?.QueryString[LanguageParam] ?? Languages.First().Key;
-            CurrentIndex = Request?.QueryString[IndexParam] ?? Indices.FirstOrDefault(i => i.Index.EndsWith($"-{CurrentLanguage}"))?.Index;
-            CurrentIndexDisplayName = Indices.FirstOrDefault(i => i.Index == CurrentIndex)?.DisplayName;
+            var language = new CultureInfo(CurrentLanguage);
+            
+            CurrentIndex = Request?.QueryString[IndexParam] ?? _settings.GetDefaultIndexName(language);
+
+            CurrentIndexDisplayName = Indices.FirstOrDefault(i => i.Index.Equals(_settings.GetCustomIndexName(CurrentIndex, language), StringComparison.OrdinalIgnoreCase))?.DisplayName;
         }
 
         protected override void OnResultExecuting(ResultExecutingContext filterContext)
@@ -71,33 +76,36 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Controllers.Abstractions
             }
         }
 
-        protected string SwapLanguage(string indexName, string newLanguage)
+        protected string SwapLanguage(string indexName, CultureInfo newLanguage)
         {
             if(String.IsNullOrEmpty(indexName))
             {
                 return null;
             }
 
-            var lang = indexName.ToLower().Split('-').Last();
-            var nameWithoutLanguage = indexName.Substring(0, indexName.Length - lang.Length - 1);
-            return $"{nameWithoutLanguage}-{newLanguage}";
+            return _settings.GetCustomIndexName(_settings.GetIndexNameWithoutLanguage(indexName), newLanguage);
         }
 
         protected List<IndexInformation> Indices { get; }
 
         protected Dictionary<string, string> UniqueIndices =>
             Indices.Select(i =>
-            {
-                var lang = i.Index.ToLower().Split('-').Last();
-                var nameWithoutLanguage = i.Index.Substring(0, i.Index.Length - lang.Length - 1);
-                return new
                 {
-                    Index = nameWithoutLanguage,
-                    i.DisplayName
-                };
-            })
-            .Distinct()
-            .ToDictionary(x => x.Index, x => x.DisplayName);
+                    string lang = _settings.GetLanguageFromIndexName(i.Index);
+
+                    return string.IsNullOrWhiteSpace(CurrentLanguage) ||
+                           CurrentLanguage.Equals(lang, StringComparison.OrdinalIgnoreCase)
+                        ? new {i.Index, i.DisplayName}
+                        : null;
+                })
+                .Where(i => i != null)
+                .Distinct()
+                .ToDictionary(x => x.Index, x => x.DisplayName);
+
+        protected Dictionary<string, string> UniqueIndicesNoLanguage =>
+                UniqueIndices.Select(i => new { Index = _settings.GetIndexNameWithoutLanguage(i.Key), DisplayName = i.Value })
+                .Distinct()
+                .ToDictionary(x => x.Index, x => x.DisplayName);
 
         protected Dictionary<string, string> Languages { get; }
 
@@ -111,7 +119,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Controllers.Abstractions
 
         private List<IndexInformation> GetIndices()
         {
-            var indexHelper = new Admin.Index(_serverInfoService, _settings, _httpClientHelper, "GetIndices-NA");
+            var indexHelper = new Admin.Index(_serverInfoService, _settings, _httpClientHelper, name: null);
 
             var indices = indexHelper.GetIndices().ToList();
 
@@ -123,9 +131,17 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Controllers.Abstractions
                     .OrderByDescending(i => i.Name.Length)
                     .FirstOrDefault(i => indexInfo.Index.StartsWith(i.Name, StringComparison.InvariantCultureIgnoreCase));
 
-                indexInfo.Type = String.IsNullOrWhiteSpace(parsed?.Type)
-                    ? "[default]"
-                    : Type.GetType(parsed.Type)?.Name;
+                if(String.IsNullOrWhiteSpace(parsed?.Type))
+                {
+                    indexInfo.TypeName = "[default]";
+                    indexInfo.Type = typeof(IndexItem);
+                }
+                else
+                {
+                    Type type = Type.GetType(parsed.Type);
+                    indexInfo.TypeName = type?.FullName;
+                    indexInfo.Type = type;
+                }
 
                 if(parsed?.Default ?? false)
                 {

@@ -38,13 +38,21 @@ namespace Core.Episerver.Tests.Extensions
         [InlineData(DefaultFields.ParentLink, 200)]
         [InlineData(DefaultFields.Name, "Foo")]
         [InlineData(DefaultFields.Type, "EPiServer_Core_PageData")]
-        [InlineData(DefaultFields.Lang, "no")]
         public void AsIndexItem_SetsStandardFields(string propName, object expectedValue)
         {
             dynamic result = _content.AsIndexItem();
             var dictionary = (IDictionary<string, object>)result;
 
             Assert.Equal(expectedValue, dictionary[propName]);
+        }
+
+        [Fact]
+        public void AsIndexItem_SetsStandardFields()
+        {
+            dynamic result = _content.AsIndexItem();
+            var dictionary = (IDictionary<string, object>)result;
+            
+            Assert.Equal(new CultureInfo("no"), dictionary[DefaultFields.Lang]);
         }
 
         [Fact]

@@ -15,7 +15,10 @@ namespace Epinova.ElasticSearch.Core.Models.Admin
         public string Status { get; private set; }
 
         [JsonIgnore]
-        public string Type { get; internal set; }
+        public string TypeName { get; internal set; }
+
+        [JsonIgnore]
+        public Type Type { get; internal set; }
 
         [JsonProperty("index")]
         public string Index { get; internal set; }

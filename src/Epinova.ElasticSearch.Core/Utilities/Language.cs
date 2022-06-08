@@ -12,7 +12,7 @@ namespace Epinova.ElasticSearch.Core.Utilities
         /// For available language analyzers, see 
         /// https://www.elastic.co/guide/en/elasticsearch/reference/current/analysis-lang-analyzer.html
         /// </summary>
-        private static readonly Dictionary<string, string> AnalyzerMappings = new Dictionary<string, string>
+        private static readonly Dictionary<string, string> _analyzerMappings = new Dictionary<string, string>
         {
             { "ar", "arabic" },
             { "am", "armenian" },
@@ -51,9 +51,10 @@ namespace Epinova.ElasticSearch.Core.Utilities
             { "th", "thai" }
         };
 
-        internal static string GetRequestLanguageCode()
-            => GetLanguageCode(GetRequestLanguage());
+#warning delete
+        internal static string GetRequestLanguageCode() => GetLanguageCode(GetRequestLanguage());
 
+#warning delete
         internal static string GetLanguageCode(CultureInfo cultureInfo)
         {
             //INFO: TwoLetterISOLanguageName returns "nb" for norwegian EPiServer-language
@@ -102,13 +103,19 @@ namespace Epinova.ElasticSearch.Core.Utilities
         internal static string GetLanguageAnalyzer(string language)
         {
             if(language == null)
-            {
                 return "fallback";
-            }
 
-            if(AnalyzerMappings.TryGetValue(language, out string analyzer))
-            {
+            if(_analyzerMappings.TryGetValue(language, out string analyzer))
                 return analyzer;
+
+            if(language.Contains("-"))
+            {
+                string[] languageCodes = language.ToLower().Split(new[] { '-' }, StringSplitOptions.RemoveEmptyEntries);
+                foreach(string languageCode in languageCodes)
+                {
+                    if(_analyzerMappings.TryGetValue(languageCode, out analyzer))
+                        return analyzer;
+                }
             }
 
             return "fallback";
@@ -120,7 +127,7 @@ namespace Epinova.ElasticSearch.Core.Utilities
 
             if(headers?["X-EPiContentLanguage"] != null)
             {
-                return CultureInfo.CreateSpecificCulture(headers["X-EPiContentLanguage"]);
+                return new CultureInfo(headers["X-EPiContentLanguage"]);
             }
 
             return CultureInfo.InvariantCulture;

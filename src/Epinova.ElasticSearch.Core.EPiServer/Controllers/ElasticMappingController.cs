@@ -46,7 +46,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Controllers
                     model.Mappings = GetMappings(index);
                     break;
                 case "validate":
-                    model.Mappings = ValidateMappings(Indices.Single(i => i.Index == index));
+                    model.Mappings = ValidateMappings(index);
                     break;
                 default:
                     break;
@@ -59,9 +59,10 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Controllers
             return View("~/Views/ElasticSearchAdmin/Mapping/Index.cshtml", model);
         }
 
-        private string ValidateMappings(IndexInformation index)
+        private string ValidateMappings(string indexName)
         {
-            List<MappingValidatorType> errors = _mappingValidatorService.Validate(index);
+            IndexInformation indexInformation = Indices.Single(i => i.Index.Equals(indexName));
+            List<MappingValidatorType> errors = _mappingValidatorService.Validate(indexName, indexInformation.Type);
             if(errors.Any())
                 return JsonConvert.SerializeObject(errors, Formatting.Indented);
 

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Globalization;
 using System.Web.Mvc;
 using Epinova.ElasticSearch.Core.EPiServer.Contracts;
 using Epinova.ElasticSearch.Core.EPiServer.Enums;
@@ -37,8 +38,8 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Controllers
                     // Point catalog content to correct index
                     if(Constants.CommerceProviderName.Equals(content.ContentLink.ProviderName))
                     {
-                        string lang = _indexer.GetLanguage(content);
-                        indexName = _settings.GetCustomIndexName($"{_settings.Index}-{Constants.CommerceProviderName}", lang);
+                        CultureInfo language = _indexer.GetLanguage(content);
+                        indexName = _settings.GetCustomIndexName($"{_settings.Index}-{Constants.CommerceProviderName}", language);
                     }
 
                     IndexingStatus status = recursive

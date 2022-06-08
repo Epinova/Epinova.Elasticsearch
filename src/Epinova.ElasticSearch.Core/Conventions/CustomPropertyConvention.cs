@@ -71,6 +71,49 @@ namespace Epinova.ElasticSearch.Core.Conventions
             return _instance;
         }
 
+
+
+        /// <summary>
+        /// Exclude a property when indexing this type.
+        /// The name of the property will be the same as the property/method in the <paramref name="fieldSelector"/> parameter.
+        /// <para>
+        /// If you need more control over the name, and/or the method supplying the data to be indexed has
+        /// no relations to the type, use the overload <c>ExcludeField(string, Expression, bool)</c>
+        /// </para>
+        /// </summary>
+        /// <example>
+        /// <para>Extension/instance method: ExcludeField(x => x.CustomStuff());</para>
+        /// <para>Property method: ExcludeField(x => x.MyCustomProp);</para>
+        /// <para>Custom name: ExcludeField("Foobar", x => x.MyCustomProp);</para>
+        /// </example>
+        /// <param name="fieldSelector">An expression, typically a property or an instance/extension method.</param>
+        public Indexing ExcludeField<TProperty>(Expression<Func<T, TProperty>> fieldSelector)
+        {
+            string fieldName = ElasticSearchService<T>.GetFieldInfo(fieldSelector).Item1;
+
+            return ExcludeField(fieldName, fieldSelector);
+        }
+
+        /// <summary>
+        /// Exclude a property when indexing this type.
+        /// </summary>
+        /// <param name="fieldName">The name the property will be indexed as</param>
+        /// <param name="fieldSelector">An expression, typically a property or an instance/extension method.</param>
+        public Indexing ExcludeField<TProperty>(string fieldName, Expression<Func<T, TProperty>> fieldSelector)
+        {
+            _logger.Debug("Excluding field: " + fieldName);
+
+            if(!String.IsNullOrEmpty(fieldName))
+            {
+                //Is compile needed?
+                Func<T, TProperty> getter = fieldSelector.Compile();
+
+                Indexing.ExcludedProperties.Add(new CustomProperty(fieldName, getter, typeof(T)));
+            }
+            
+            return _instance;
+        }
+
         /// <summary>
         /// Apply stemming for field <paramref name="fieldSelector"/>
         /// </summary>

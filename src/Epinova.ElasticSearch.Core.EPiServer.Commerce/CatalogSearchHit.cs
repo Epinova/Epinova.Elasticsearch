@@ -1,10 +1,9 @@
 ﻿using System.Collections.Generic;
 using EPiServer.Commerce.Catalog.ContentTypes;
 
-namespace Epinova.ElasticSearch.Core.EPiServer
+namespace Epinova.ElasticSearch.Core.EPiServer.Commerce
 {
-    public sealed class CatalogSearchHit<T>
-        where T : EntryContentBase
+    public sealed class CatalogSearchHit<T> where T : EntryContentBase
     {
         public CatalogSearchHit(T content, Dictionary<string, object> custom, double queryScore, string highlight)
         {

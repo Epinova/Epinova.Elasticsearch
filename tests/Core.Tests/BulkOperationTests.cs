@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Globalization;
 using Epinova.ElasticSearch.Core.Models.Bulk;
 using TestData;
 using Xunit;
@@ -8,18 +9,28 @@ namespace Core.Tests
     [Collection(nameof(ServiceLocatiorCollection))]
     public class BulkOperationTests
     {
-        [Fact]
-        public void Ctor_EmptyLanguageAndIndex_Throws()
+        private ServiceLocatorFixture _fixture;
+
+        public BulkOperationTests(ServiceLocatorFixture fixture)
         {
-            Assert.Throws<InvalidOperationException>(() =>
-                new BulkOperation(null, Operation.Index, null, null, null));
+            _fixture = fixture;
+            _fixture.ServiceLocationMock.SettingsMock
+                .Setup(m => m.GetDefaultIndexName(new CultureInfo("de")))
+                .Returns("my-index");
+
+            _fixture.ServiceLocationMock.SettingsMock
+                .Setup(m => m.GetDefaultIndexName(new CultureInfo("sv")))
+                .Returns("delete-me");
+
         }
 
+    
         [Fact]
         public void Ctor_TypeWithID_SetsMetaDataId()
         {
             var data = new ComplexType { Id = 42 };
-            var result = new BulkOperation(data, Operation.Index, "en", null, null, "test-en");
+            string indexName = _fixture.ServiceLocationMock.SettingsMock.Object.GetDefaultIndexName(new CultureInfo("en"));
+            var result = new BulkOperation(indexName, data, Operation.Index);
 
             Assert.Equal("42", result.MetaData.Id);
         }
@@ -28,7 +39,8 @@ namespace Core.Tests
         public void Ctor_SetsMetaDataDataType()
         {
             var data = new ComplexType { Id = 42 };
-            var result = new BulkOperation(data, Operation.Index, "en", null, null, "test-en");
+            string indexName = _fixture.ServiceLocationMock.SettingsMock.Object.GetDefaultIndexName(new CultureInfo("en"));
+            var result = new BulkOperation(indexName, data, Operation.Index);
 
             Assert.True(result.MetaData.DataType.IsAssignableFrom(typeof(ComplexType)));
         }
@@ -51,7 +63,8 @@ namespace Core.Tests
                 DateTimeProperty = date
             };
 
-            var result = new BulkOperation(data, Operation.Index, "en", null, null, "test-en");
+            string indexName = _fixture.ServiceLocationMock.SettingsMock.Object.GetDefaultIndexName(new CultureInfo("en"));
+            var result = new BulkOperation(indexName, data, Operation.Index);
             dynamic resultData = result.Data;
 
             Assert.Equal(id.ToString(), resultData.Id);

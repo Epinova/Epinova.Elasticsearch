@@ -5,7 +5,7 @@ namespace Epinova.ElasticSearch.Core.Contracts
 {
     public interface ITrackingRepository
     {
-        void AddSearch(string languageId, string text, bool noHits, string index);
+        void AddSearch<T>(IElasticSearchService<T> service, bool noHits);
         void Clear(string languageId, string index);
         IEnumerable<Tracking> GetSearches(string languageId, string index);
         IEnumerable<Tracking> GetSearchesWithoutHits(string languageId, string index);
