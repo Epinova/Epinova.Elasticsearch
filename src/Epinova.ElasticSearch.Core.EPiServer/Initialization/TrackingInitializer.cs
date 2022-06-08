@@ -14,7 +14,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Initialization
     [ModuleDependency(typeof(PlugInInitialization))]
     public class TrackingInitializer : IInitializableModule
     {
-        private static readonly ILogger Logger = LogManager.GetLogger(typeof(TrackingInitializer));
+        private static readonly ILogger _logger = LogManager.GetLogger(typeof(TrackingInitializer));
 
         public void Initialize(InitializationEngine context)
         {
@@ -22,13 +22,13 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Initialization
 
             if(!DbHelper.TableExists(connectionString, Constants.Tracking.TableName))
             {
-                Logger.Information("Creating tracking table");
+                _logger.Information("Creating tracking table");
                 DbHelper.CreateTable(connectionString, Constants.Tracking.TableName, Constants.Tracking.Sql.Definition);
             }
 
             if(!DbHelper.ColumnExists(connectionString, Constants.Tracking.TableName, Constants.TrackingFieldIndex))
             {
-                Logger.Information($"Extending table with {Constants.TrackingFieldIndex} column");
+                _logger.Information($"Extending table with {Constants.TrackingFieldIndex} column");
                 DbHelper.ExecuteCommand(connectionString, $"ALTER TABLE {Constants.Tracking.TableName} ADD {Constants.TrackingFieldIndex} nvarchar(200) NOT NULL");
             }
             else if(DbHelper.ColumnIsNullable(connectionString, Constants.Tracking.TableName, Constants.TrackingFieldIndex))
