@@ -131,12 +131,16 @@ namespace Epinova.ElasticSearch.Core.Extensions
 
         private static bool IsIndexable(Type contentType, PropertyInfo p, bool optIn)
         {
-            if(p == null || contentType == null || Indexing.ExcludedProperties.Any(ex => ex.Name.Equals(p.Name)))
-            {
+            if(p == null || contentType == null)
                 return false;
-            }
 
             Logger.Debug("IsIndexable: " + contentType.Name + " -> " + p.Name);
+
+            if(Indexing.ExcludedProperties.Any(ex => ex.OwnerType == contentType && ex.Name.Equals(p.Name)))
+            {
+                Logger.Debug($"{contentType.Name}.{p.Name} is excluded");
+                return false;
+            }
 
             if(typeof(BlockData).IsAssignableFrom(p.PropertyType))
             {
