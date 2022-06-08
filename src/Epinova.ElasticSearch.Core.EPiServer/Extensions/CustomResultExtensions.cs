@@ -12,23 +12,21 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Extensions
         public static async Task<CustomSearchResult<T>> GetCustomResultsAsync<T>(this IElasticSearchService<T> service)
         {
             CustomSearchResult<T> results = await service.GetResultsCustomAsync();
-
-            if(service.TrackSearch && !string.IsNullOrWhiteSpace(service.IndexName))
-                _trackingRepository.AddSearch(service, noHits: results.TotalHits == 0);
-
+            HandleTracking(service, results.TotalHits);
             return results;
         }
 
         public static CustomSearchResult<T> GetCustomResults<T>(this IElasticSearchService<T> service)
         {
             CustomSearchResult<T> results = service.GetResultsCustom();
-            
-            if(service.TrackSearch && !string.IsNullOrWhiteSpace(service.IndexName))
-            {
-                _trackingRepository.AddSearch(service, noHits: results.TotalHits == 0);
-            }
-
+            HandleTracking(service, results.TotalHits);
             return results;
+        }
+
+        private static void HandleTracking<T>(this IElasticSearchService<T> service, int totalHits)
+        {
+            if(service.TrackSearch && !string.IsNullOrWhiteSpace(service.IndexName))
+                _trackingRepository.AddSearch(service, noHits: totalHits == 0);
         }
     }
 }

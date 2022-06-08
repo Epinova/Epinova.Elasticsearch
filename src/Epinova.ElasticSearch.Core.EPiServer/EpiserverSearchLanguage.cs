@@ -33,7 +33,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer
         
         private CultureInfo GetEnabledCulture(CultureInfo cultureInfo)
         {
-            return _enabledLanguages.FirstOrDefault(l => l.Equals(cultureInfo));
+            return _enabledLanguages.SingleOrDefault(l => l.Equals(cultureInfo));
         }
     }
 }

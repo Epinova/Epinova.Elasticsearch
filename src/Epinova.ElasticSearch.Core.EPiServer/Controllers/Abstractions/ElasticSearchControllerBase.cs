@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
-using System.Reflection;
 using System.Text;
 using System.Web.Mvc;
 using System.Web.Routing;
@@ -93,12 +92,12 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Controllers.Abstractions
             Indices.Select(i =>
                 {
                     string lang = _settings.GetLanguageFromIndexName(i.Index);
-                    //var nameWithoutLanguage = _settings.GetIndexNameWithoutLanguage(i.Index);
 
-                        return string.IsNullOrWhiteSpace(CurrentLanguage) || CurrentLanguage.Equals(lang, StringComparison.OrdinalIgnoreCase)
-                            ? new { i.Index, i.DisplayName }
-                            : null;
-                    })
+                    return string.IsNullOrWhiteSpace(CurrentLanguage) ||
+                           CurrentLanguage.Equals(lang, StringComparison.OrdinalIgnoreCase)
+                        ? new {i.Index, i.DisplayName}
+                        : null;
+                })
                 .Where(i => i != null)
                 .Distinct()
                 .ToDictionary(x => x.Index, x => x.DisplayName);
@@ -120,7 +119,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Controllers.Abstractions
 
         private List<IndexInformation> GetIndices()
         {
-            var indexHelper = new Admin.Index(_serverInfoService, _settings, _httpClientHelper, null);
+            var indexHelper = new Admin.Index(_serverInfoService, _settings, _httpClientHelper, name: null);
 
             var indices = indexHelper.GetIndices().ToList();
 
