@@ -301,17 +301,7 @@ namespace Core.Episerver.Tests
 
             Assert.True(result);
         }
-
-        [Fact]
-        public void ShouldHideFromSearch_HideFromSearchPropertyIsTrue_ReturnsTrue()
-        {
-            var content = Factory.GetPageData();
-            content.Property.Add(new PropertyBoolean(true) { Name = "HideFromSearch" });
-            var result = _indexer.ShouldHideFromSearch(content);
-
-            Assert.True(result);
-        }
-
+        
         [Fact]
         public void ShouldHideFromSearch_PageDeletedPropertyIsTrue_ReturnsTrue()
         {
