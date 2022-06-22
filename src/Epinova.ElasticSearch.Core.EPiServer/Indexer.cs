@@ -227,9 +227,8 @@ namespace Epinova.ElasticSearch.Core.EPiServer
             }
 
             // Common property in Epinova template
-            var hideFromSearch = GetEpiserverBoolProperty(content.Property["HideFromSearch"]);
-
-            return hideFromSearch;
+            object value = content.GetType().GetProperty("HideFromSearch")?.GetValue(content);
+            return value != null && Convert.ToBoolean(value);
         }
 
         private static bool IsPageWithInvalidLinkType(IContent content)
