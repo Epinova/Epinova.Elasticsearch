@@ -53,18 +53,19 @@ namespace Epinova.ElasticSearch.Core.EPiServer
             _contentAssetHelper = contentAssetHelper;
         }
 
-        public BulkBatchResult BulkUpdate(IEnumerable<IContent> contents, Action<string> logger, string index)
+        public BulkBatchResult BulkUpdate(IEnumerable<IContent> contents, Action<string> logger, string index, int bulkIndex, double bulkCount, string indexingContentType)
         {
             var contentList = contents.ToList();
             logger = logger ?? delegate { };
             var before = contentList.Count;
+            string bulkTracker =  $"{indexingContentType} {bulkIndex}/{bulkCount}:";
 
-            logger("Filtering away content of excluded types and content with property HideFromSearch enabled...");
+            logger($"{bulkTracker} Filtering away content of excluded types");
 
             contentList.RemoveAll(SkipIndexing);
             contentList.RemoveAll(IsExcludedType);
 
-            logger($"Filtered away content of excluded types and content with property HideFromSearch enabled... {before - contentList.Count} of {before} items removed. Next will IContent be converted to indexable items and added to indexed. Depending on number of IContent items this is a time-consuming task.");
+            logger($"{bulkTracker} Excluded {before - contentList.Count} of {before} items.");
 
             var operations =
                 contentList.Select(
@@ -82,7 +83,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer
                     .Where(b => b.Data != null)
                     .ToList();
 
-            logger($"Initializing bulk operation... Bulk indexing {operations.Count} items");
+            logger($"{bulkTracker} {operations.Count} indexing operation ready for indexing");
 
             return _coreIndexer.Bulk(operations, logger);
         }

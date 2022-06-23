@@ -9,7 +9,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Contracts
 {
     public interface IIndexer
     {
-        BulkBatchResult BulkUpdate(IEnumerable<IContent> contents, Action<string> logger, string index);
+        BulkBatchResult BulkUpdate(IEnumerable<IContent> contents, Action<string> logger, string index, int bulkIndex, double bulkCount, string indexingContentType);
         void Delete(ContentReference contentLink);
         void Delete(IContent content, string indexName = null);
         IndexingStatus UpdateStructure(IContent root, string indexName = null);

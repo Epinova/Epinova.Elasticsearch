@@ -126,7 +126,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Plugin
                 {
                     OnStatusChanged($"Indexing bulk {i} of {bulkCount} (Bulk size: {_settings.BulkSize})");
                     var batch = contentList.Take(_settings.BulkSize);
-                    var batchResult = IndexContents(batch, CustomIndexName);
+                    var batchResult = IndexContents(batch, CustomIndexName, i, bulkCount, "Bulk");
 
                     results.Batches.AddRange(batchResult.Batches);
                     var removeCount = contentList.Count >= _settings.BulkSize ? _settings.BulkSize : contentList.Count;
@@ -267,10 +267,11 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Plugin
                 });
                 return mediaBatchResults;
             }
-                        
-            foreach (MediaData mediaItem in filteredMediaData)
+
+            for(var i = 0; i < filteredMediaData.Count; i++)
             {
-                BulkBatchResult batchResult = IndexContents(new[] {mediaItem}, index);
+                MediaData mediaItem = filteredMediaData[i];
+                BulkBatchResult batchResult = IndexContents(new[] { mediaItem }, index, i, filteredMediaData.Count, "MediaData");
                 mediaBatchResults.Batches.AddRange(batchResult.Batches);
             }
 
@@ -283,14 +284,14 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Plugin
             }
         }
 
-        private BulkBatchResult IndexContents(IEnumerable<IContent> contentItems, string index)
+        private BulkBatchResult IndexContents(IEnumerable<IContent> contentItems, string index, int bulkIndex, double bulkCount, string indexingContentType)
         {
             // Perform bulk update
             return _indexer.BulkUpdate(contentItems, str =>
             {
                 OnStatusChanged(str);
                 _logger.Debug(str);
-            }, index);
+            }, index, bulkIndex, bulkCount, indexingContentType);
         }
     }
 }
