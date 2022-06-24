@@ -269,7 +269,7 @@ namespace Core.Episerver.Tests
 
             _fixture.ServiceLocationMock.CoreIndexerMock.Invocations.Clear();
 
-            var result = _indexer.BulkUpdate(batch, null, "test");
+            var result = _indexer.BulkUpdate(batch, null, "test", 1, 1, "Test");
 
             _fixture.ServiceLocationMock.CoreIndexerMock
                 .Verify(m => m.Bulk(It.IsAny<IEnumerable<BulkOperation>>(), It.IsAny<Action<string>>()), Times.Once);
@@ -301,7 +301,7 @@ namespace Core.Episerver.Tests
 
             Assert.True(result);
         }
-        
+
         [Fact]
         public void ShouldHideFromSearch_PageDeletedPropertyIsTrue_ReturnsTrue()
         {
