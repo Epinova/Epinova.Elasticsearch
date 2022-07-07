@@ -185,6 +185,12 @@ namespace Epinova.ElasticSearch.Core.EPiServer
 
         public bool SkipIndexing(IContent content)
         {
+            //Added to avoid exception when content is deleted while running job. Ref: https://github.com/Epinova/Epinova.Elasticsearch/issues/155
+            if(content == null) 
+            {
+                return true;
+            }
+
             if(content is ContentFolder)
             {
                 return true;
