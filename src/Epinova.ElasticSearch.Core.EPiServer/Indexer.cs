@@ -185,12 +185,6 @@ namespace Epinova.ElasticSearch.Core.EPiServer
 
         public bool SkipIndexing(IContent content)
         {
-            //Added to avoid exception when content is deleted while running job. Ref: https://github.com/Epinova/Epinova.Elasticsearch/issues/155
-            if(content == null) 
-            {
-                return true;
-            }
-
             if(content is ContentFolder)
             {
                 return true;
@@ -311,7 +305,17 @@ namespace Epinova.ElasticSearch.Core.EPiServer
 
         private bool IsFormUpload(IContent content)
         {
-            IContent owner = _contentAssetHelper.GetAssetOwner(content.ContentLink);
+            IContent owner;
+
+            //Added to avoid exception when content is deleted while running job. Ref: https://github.com/Epinova/Epinova.Elasticsearch/issues/155
+            try
+            {
+                owner = _contentAssetHelper.GetAssetOwner(content.ContentLink);
+            }
+            catch(Exception)
+            {
+                return false;
+            }
 
             if(owner == null)
             {
