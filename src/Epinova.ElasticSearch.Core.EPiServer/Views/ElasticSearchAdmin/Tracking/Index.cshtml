@@ -104,7 +104,7 @@
                         }
                     }, "@(lang.LanguageId)-wordsGrid")
                     .renderArray([
-                        @Html.Raw(String.Join(",", lang.Searches.Select(s => String.Format("{{ word: '{0}', count: {1} }}", s.Key, s.Value))))
+                        @Html.Raw(String.Join(",", lang.Searches.Select(s => String.Format("{{ word: \"{0}\", count: {1} }}", s.Key.FixInput(), s.Value))))
                     ]);
                 </text>
             }
@@ -120,7 +120,7 @@
                         }
                     }, "@(lang.LanguageId)-nohitsGrid")
                     .renderArray([
-                        @Html.Raw(String.Join(",", lang.SearchesWithoutHits.Select(s => String.Format("{{ word: '{0}', count: {1} }}", s.Key, s.Value))))
+                        @Html.Raw(String.Join(",", lang.SearchesWithoutHits.Select(s => String.Format("{{ word: \"{0}\", count: {1} }}", s.Key.FixInput(), s.Value))))
                     ]);
                 </text>
             }

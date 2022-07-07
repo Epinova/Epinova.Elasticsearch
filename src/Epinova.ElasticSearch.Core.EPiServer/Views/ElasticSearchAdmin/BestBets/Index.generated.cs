@@ -587,7 +587,7 @@ WriteLiteral("                                            ");
 WriteLiteral("\r\n                                            {\r\n                                " +
 "                phrase: \"");
 
-                                                    Write(Html.Raw(bb.Phrase));
+                                                    Write(Html.Raw(bb.Phrase.FixInput()));
 
 WriteLiteral("\",\r\n                                                contentId: \"");
 

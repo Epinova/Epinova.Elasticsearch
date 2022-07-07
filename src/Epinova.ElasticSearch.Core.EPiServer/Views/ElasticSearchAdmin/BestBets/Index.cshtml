@@ -225,7 +225,7 @@
                                         {
                                             <text>
                                             {
-                                                phrase: "@Html.Raw(bb.Phrase)",
+                                                phrase: "@Html.Raw(bb.Phrase.FixInput())",
                                                 contentId: "@Html.Raw(bb.Id)",
                                                 contentProvider: "@(String.IsNullOrWhiteSpace(bb.Provider) ? null : "__" + Html.Raw(bb.Provider))",
                                                 contentName: "@Html.Raw(bb.Name)",

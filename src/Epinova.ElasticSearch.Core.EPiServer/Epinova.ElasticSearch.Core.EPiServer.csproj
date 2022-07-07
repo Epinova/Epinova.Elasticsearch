@@ -191,6 +191,7 @@
     <Compile Include="Contracts\IIndexer.cs" />
     <Compile Include="Controllers\ElasticSettingsController.cs" />
     <Compile Include="Controllers\ElasticMappingController.cs" />
+    <Compile Include="Extensions\AdminStringExtensions.cs" />
     <Compile Include="Extensions\CustomResultExtensions.cs" />
     <Compile Include="EpiserverSearchLanguage.cs" />
     <Compile Include="Indexer.cs" />

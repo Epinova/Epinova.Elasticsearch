@@ -307,7 +307,7 @@ WriteLiteral("-wordsGrid\")\r\n                    .renderArray([\r\n");
 
 WriteLiteral("                        ");
 
-                   Write(Html.Raw(String.Join(",", lang.Searches.Select(s => String.Format("{{ word: '{0}', count: {1} }}", s.Key, s.Value)))));
+                   Write(Html.Raw(String.Join(",", lang.Searches.Select(s => String.Format("{{ word: \"{0}\", count: {1} }}", s.Key.FixInput(), s.Value)))));
 
 WriteLiteral("\r\n                    ]);\r\n                ");
 
@@ -341,7 +341,7 @@ WriteLiteral("-nohitsGrid\")\r\n                    .renderArray([\r\n");
 
 WriteLiteral("                        ");
 
-                   Write(Html.Raw(String.Join(",", lang.SearchesWithoutHits.Select(s => String.Format("{{ word: '{0}', count: {1} }}", s.Key, s.Value)))));
+                   Write(Html.Raw(String.Join(",", lang.SearchesWithoutHits.Select(s => String.Format("{{ word: \"{0}\", count: {1} }}", s.Key.FixInput(), s.Value)))));
 
 WriteLiteral("\r\n                    ]);\r\n                ");
 
