@@ -14,6 +14,7 @@ A search plugin for Episerver CMS and Commerce
 * File search
 * Range search (numerics and dates)
 * Fuzzy search
+* Simple querystring search
 * Facets
 * Filtering
 * Best Bets
@@ -121,7 +122,7 @@ Explanation of the different options:
 ## What will be indexed?
 
 The module tries to follow the same conventions as Episerver, meaning that all properties of type `string` and `XhtmlString` will be indexed unless explicitly decorated with `[Searchable(false)]`. 
-Additional properties can be indexed by decorating them with [Searchable] or with the conventions above.
+Additional properties can be indexed by decorating them with `[Searchable]` or with the conventions above. Decorate `ContentArea` with `[Searchable]` to index contents. 
 
 &nbsp;
 
@@ -200,6 +201,29 @@ SearchResult result = service
    .WildcardSearch<ArticlePage>("me?t")
    .GetResults();
 ```
+
+### Simple querystring search
+
+```csharp
+SearchResult result = service
+   .SimpleQuerystringSearch<ArticlePage>("(bacon | ham) melt -cheese")
+   .GetResults();
+```
+
+With limited operators:
+
+```csharp
+SearchResult result = service
+   .SimpleQuerystringSearch<ArticlePage>("\"bacon melt\" sandwi*",
+      defaultOperator: Operator.And,
+      allowedOperators:
+         SimpleQuerystringOperators.Prefix |
+         SimpleQuerystringOperators.Phrase);
+    )
+   .GetResults();
+```
+
+See https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-simple-query-string-query.html for syntax.
 
 ### Geo-point datatype
 

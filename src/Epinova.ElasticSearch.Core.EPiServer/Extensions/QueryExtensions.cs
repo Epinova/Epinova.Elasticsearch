@@ -56,7 +56,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Extensions
 
             var request = new SuggestRequest(searchText, service.SizeValue, skipDuplicates);
 
-            var elasticSuggestions = engine.GetSuggestions(request, service.SearchLanguage);
+            var elasticSuggestions = engine.GetSuggestions(request, service.SearchLanguage, service.IndexName);
 
             var editorialSuggestions = repository.GetWords(Language.GetLanguageCode(service.CurrentLanguage))
                 .Where(w => w?.StartsWith(searchText) == true);

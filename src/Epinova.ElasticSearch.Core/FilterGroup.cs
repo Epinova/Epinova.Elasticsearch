@@ -10,11 +10,11 @@ namespace Epinova.ElasticSearch.Core
     {
         private readonly FilterGroupQuery _filterGroup;
 
-        public FilterGroup(ElasticSearchService<T> service, string name)
+        public FilterGroup(ElasticSearchService<T> service, string name, Operator @operator)
         {
             if(!service.PostFilterGroups.ContainsKey(name))
             {
-                service.PostFilterGroups[name] = new FilterGroupQuery();
+                service.PostFilterGroups[name] = new FilterGroupQuery(@operator);
             }
 
             _filterGroup = service.PostFilterGroups[name];

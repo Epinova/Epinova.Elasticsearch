@@ -24,8 +24,10 @@ namespace Epinova.ElasticSearch.Core.Contracts
         int FromValue { get; }
         int SizeValue { get; }
         bool IsWildcard { get; }
+        bool IsSimpleQuerystring { get; }
         bool IsGetQuery { get; }
         bool TrackSearch { get; }
+        SimpleQuerystringOperators SimpleQuerystringOperators { get; }
 
         /// <summary>
         /// Set your index name here if you want to use a different index from what is given in configuration.
@@ -489,19 +491,19 @@ namespace Epinova.ElasticSearch.Core.Contracts
         /// Materializes the search query and returns the results, 
         /// </summary>
         /// <returns>An instance of <see cref="CustomSearchResult{T}"/></returns>
-        CustomSearchResult<T> GetCustomResults();
+        CustomSearchResult<T> GetResultsCustom();
 
         /// <summary>
         /// Materializes the search query and returns the results, 
         /// </summary>
         /// <returns>An instance of <see cref="CustomSearchResult{T}"/></returns>
-        Task<CustomSearchResult<T>> GetCustomResultsAsync();
+        Task<CustomSearchResult<T>> GetResultsCustomAsync();
 
         /// <summary>
         /// Materializes the search query and returns the results, 
         /// </summary>
         /// <returns>An instance of <see cref="CustomSearchResult{T}"/></returns>
-        Task<CustomSearchResult<T>> GetCustomResultsAsync(CancellationToken cancellationToken);
+        Task<CustomSearchResult<T>> GetResultsCustomAsync(CancellationToken cancellationToken);
 
         /// <summary>
         /// Materializes the search query and returns the results.
@@ -541,6 +543,24 @@ namespace Epinova.ElasticSearch.Core.Contracts
         IElasticSearchService<T> WildcardSearch<T>(string searchText);
 
         /// <summary>
+        /// Performs a generic simple querystring query on type <typeparamref name="T"/>
+        /// </summary>
+        /// <param name="searchText">The text to search for</param>
+        /// <param name="defaultOperator">Specifies the operator to use when searching, either <see cref="Enums.Operator.Or"/> or <see cref="Enums.Operator.And"/></param>
+        /// <param name="allowedOperators">Specifies the supported operators for the simple query string syntax.</param>
+        /// <returns>The current <see cref="IElasticSearchService"/> instance</returns>
+        IElasticSearchService<object> SimpleQuerystringSearch(string searchText, Operator defaultOperator = Operator.Or, SimpleQuerystringOperators allowedOperators = SimpleQuerystringOperators.All);
+
+        /// <summary>
+        /// Performs a generic simple querystring query on type <typeparamref name="T"/>
+        /// </summary>
+        /// <param name="searchText">The text to search for</param>
+        /// <param name="defaultOperator">Specifies the operator to use when searching, either <see cref="Enums.Operator.Or"/> or <see cref="Enums.Operator.And"/></param>
+        /// <param name="allowedOperators">Specifies the supported operators for the simple query string syntax.</param>
+        /// <returns>The current <see cref="IElasticSearchService"/> instance</returns>
+        IElasticSearchService<T> SimpleQuerystringSearch<T>(string searchText, Operator defaultOperator = Operator.Or, SimpleQuerystringOperators allowedOperators = SimpleQuerystringOperators.All);
+
+        /// <summary>
         /// <para>
         /// Performs a more-like-this search, finding documents similar in content to the one identified by <paramref name="id"/>
         /// </para>
@@ -562,8 +582,9 @@ namespace Epinova.ElasticSearch.Core.Contracts
         /// </summary>
         /// <param name="groupExpression">The expression to perform ORs or ANDs on
         /// Defaults to <see cref="Epinova.ElasticSearch.Core.Enums.Operator.And"/></param>
+        /// <param name="operator">And/or operator</param>
         /// <returns>The current <see cref="IElasticSearchService"/> instance</returns>
-        IElasticSearchService<T> FilterGroup(Expression<Func<IFilterGroup<T>, IFilterGroup<T>>> groupExpression);
+        IElasticSearchService<T> FilterGroup(Expression<Func<IFilterGroup<T>, IFilterGroup<T>>> groupExpression, Operator @operator = Operator.And);
 
         /// <summary>
         /// Use a different query-time analyzer. Overrides analyzer in mapping.

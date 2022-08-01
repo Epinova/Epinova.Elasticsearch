@@ -21,7 +21,8 @@ namespace Core.Tests
             _service = new ElasticSearchService<ComplexType>(
                 fixture.ServiceLocationMock.ServerInfoMock.Object,
                 fixture.ServiceLocationMock.SettingsMock.Object,
-                fixture.ServiceLocationMock.HttpClientMock.Object);
+                fixture.ServiceLocationMock.HttpClientMock.Object,
+                fixture.ServiceLocationMock.SearchLanguageMock.Object);
         }
 
         [Theory]
@@ -370,6 +371,14 @@ namespace Core.Tests
             var result = _service.Get<TestPage>();
 
             Assert.True(result.IsGetQuery);
+        }
+
+        [Fact]
+        public void SimpleQuerystringSearch_SetsFlag()
+        {
+            var result = _service.SimpleQuerystringSearch<TestPage>("test-query");
+
+            Assert.True(result.IsSimpleQuerystring);
         }
     }
 }

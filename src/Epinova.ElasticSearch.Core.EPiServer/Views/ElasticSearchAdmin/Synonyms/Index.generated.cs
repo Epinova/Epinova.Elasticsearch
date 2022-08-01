@@ -190,8 +190,7 @@ WriteLiteral(">\r\n");
                                 
                                  foreach (var index in lang.Indices)
                                 {
-                                    var indexName = $"{index.Key}-{lang.LanguageId}";
-                                    if (indexName != ViewBag.SelectedIndex)
+                                    if (index.Key != ViewBag.SelectedIndex)
                                     {
 
 WriteLiteral("                                        <div");
@@ -201,7 +200,7 @@ WriteLiteral(" data-dojo-type=\"dijit/MenuItem\"");
 WriteLiteral("\r\n                                             data-dojo-props=\"onClick:function(" +
 "){document.location=\'?index=");
 
-                                                                                                      Write(indexName);
+                                                                                                      Write(index.Key);
 
 WriteLiteral("&languageId=");
 
@@ -236,9 +235,9 @@ WriteLiteral(" type=\"hidden\"");
 
 WriteLiteral(" name=\"Index\"");
 
-WriteAttribute("value", Tuple.Create(" value=\"", 3307), Tuple.Create("\"", 3330)
-, Tuple.Create(Tuple.Create("", 3315), Tuple.Create<System.Object, System.Int32>(lang.IndexName
-, 3315), false)
+WriteAttribute("value", Tuple.Create(" value=\"", 3220), Tuple.Create("\"", 3243)
+, Tuple.Create(Tuple.Create("", 3228), Tuple.Create<System.Object, System.Int32>(lang.IndexName
+, 3228), false)
 );
 
 WriteLiteral(" />\r\n");
@@ -249,9 +248,9 @@ WriteLiteral(" type=\"hidden\"");
 
 WriteLiteral(" name=\"Analyzer\"");
 
-WriteAttribute("value", Tuple.Create(" value=\"", 3396), Tuple.Create("\"", 3418)
-, Tuple.Create(Tuple.Create("", 3404), Tuple.Create<System.Object, System.Int32>(lang.Analyzer
-, 3404), false)
+WriteAttribute("value", Tuple.Create(" value=\"", 3309), Tuple.Create("\"", 3331)
+, Tuple.Create(Tuple.Create("", 3317), Tuple.Create<System.Object, System.Int32>(lang.Analyzer
+, 3317), false)
 );
 
 WriteLiteral(" />\r\n");
@@ -262,9 +261,9 @@ WriteLiteral(" type=\"hidden\"");
 
 WriteLiteral(" name=\"LanguageId\"");
 
-WriteAttribute("value", Tuple.Create(" value=\"", 3486), Tuple.Create("\"", 3510)
-, Tuple.Create(Tuple.Create("", 3494), Tuple.Create<System.Object, System.Int32>(lang.LanguageId
-, 3494), false)
+WriteAttribute("value", Tuple.Create(" value=\"", 3399), Tuple.Create("\"", 3423)
+, Tuple.Create(Tuple.Create("", 3407), Tuple.Create<System.Object, System.Int32>(lang.LanguageId
+, 3407), false)
 );
 
 WriteLiteral(" />\r\n");
@@ -283,10 +282,10 @@ WriteLiteral(" data-dojo-type=\"dijit/form/ValidationTextBox\"");
 
 WriteLiteral(" name=\"from\"");
 
-WriteAttribute("id", Tuple.Create(" id=\"", 3729), Tuple.Create("\"", 3755)
-, Tuple.Create(Tuple.Create("", 3734), Tuple.Create("from_", 3734), true)
-                      , Tuple.Create(Tuple.Create("", 3739), Tuple.Create<System.Object, System.Int32>(lang.LanguageId
-, 3739), false)
+WriteAttribute("id", Tuple.Create(" id=\"", 3642), Tuple.Create("\"", 3668)
+, Tuple.Create(Tuple.Create("", 3647), Tuple.Create("from_", 3647), true)
+                      , Tuple.Create(Tuple.Create("", 3652), Tuple.Create<System.Object, System.Int32>(lang.LanguageId
+, 3652), false)
 );
 
 WriteLiteral(" data-dojo-props=\"placeholder:\'");
@@ -351,10 +350,10 @@ WriteLiteral("</h2>\r\n");
 
 WriteLiteral("                        <div");
 
-WriteAttribute("id", Tuple.Create(" id=\"", 4684), Tuple.Create("\"", 4720)
-, Tuple.Create(Tuple.Create("", 4689), Tuple.Create<System.Object, System.Int32>(lang.LanguageId
-, 4689), false)
-, Tuple.Create(Tuple.Create("", 4707), Tuple.Create("-synonymsGrid", 4707), true)
+WriteAttribute("id", Tuple.Create(" id=\"", 4597), Tuple.Create("\"", 4633)
+, Tuple.Create(Tuple.Create("", 4602), Tuple.Create<System.Object, System.Int32>(lang.LanguageId
+, 4602), false)
+, Tuple.Create(Tuple.Create("", 4620), Tuple.Create("-synonymsGrid", 4620), true)
 );
 
 WriteLiteral("></div>\r\n");
@@ -425,11 +424,11 @@ WriteLiteral("\")) {\r\n                                                    wind
 
 WriteLiteral("?index=");
 
-                                                                                                                  Write(ViewBag.SelectedIndex);
+                                                                                                                  Write(Html.Raw(ViewBag.SelectedIndex));
 
 WriteLiteral("&languageId=\" + object.lang + \"&analyzer=");
 
-                                                                                                                                                                                   Write(lang.Analyzer);
+                                                                                                                                                                                             Write(lang.Analyzer);
 
 WriteLiteral(@"&from="" + object.from + ""&to="" + object.to + ""&twoway="" + object.twoway + ""&multiword="" + object.multi;
                                                 }

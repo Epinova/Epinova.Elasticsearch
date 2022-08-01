@@ -6,10 +6,10 @@ using Epinova.ElasticSearch.Core.Contracts;
 using Epinova.ElasticSearch.Core.Enums;
 using Epinova.ElasticSearch.Core.Extensions;
 using Epinova.ElasticSearch.Core.Models;
-using Epinova.ElasticSearch.Core.Models.Admin;
 using Epinova.ElasticSearch.Core.Models.Mapping;
 using Epinova.ElasticSearch.Core.Settings;
 using Epinova.ElasticSearch.Core.Utilities;
+using EPiServer.Core;
 using EPiServer.ServiceLocation;
 
 namespace Epinova.ElasticSearch.Core.Services
@@ -30,13 +30,13 @@ namespace Epinova.ElasticSearch.Core.Services
             _mapping = new Mapping(_serverInfoService, _elasticSearchSettings, _httpClientHelper);
         }
 
-        public List<MappingValidatorType> Validate(IndexInformation index)
+        public List<MappingValidatorType> Validate(string indexName, Type type)
         {
             var errors = new List<MappingValidatorType>();
 
-            IndexMapping currentMappings = GetCurrentIndexMappings(index);
+            IndexMapping currentMappings = _mapping.GetIndexMapping(type, indexName);
 
-            List<(Type, List<IndexableProperty>)> correctMappings = GetCorrectMappings(index);
+            List<(Type, List<IndexableProperty>)> correctMappings = GetCorrectMappings(indexName, type);
 
             foreach((Type, List<IndexableProperty>) correctMapping in correctMappings)
             {
@@ -44,7 +44,7 @@ namespace Epinova.ElasticSearch.Core.Services
 
                 foreach(IndexableProperty indexableProperty in correctMapping.Item2)
                 {
-                    CoreIndexer.GetPropertyMapping(indexableProperty, "no", currentMappings, out MappingConflict mappingConflict);
+                    CoreIndexer.GetPropertyMapping(indexableProperty, _elasticSearchSettings.GetLanguageFromIndexName(indexName), currentMappings, out MappingConflict mappingConflict);
                     if(mappingConflict != MappingConflict.Found)
                     {
                         IEnumerable<string> errorDescriptions = mappingConflict.AsEnumDescriptions();
@@ -59,23 +59,31 @@ namespace Epinova.ElasticSearch.Core.Services
             return errors;
         }
 
-        private List<(Type, List<IndexableProperty>)> GetCorrectMappings(IndexInformation index)
+        private List<(Type, List<IndexableProperty>)> GetCorrectMappings(string indexName, Type type)
         {
-            Type attributeType;
+            List<Type> types;
 
-            if(index.Index.IndexOf(Constants.CommerceProviderName, StringComparison.OrdinalIgnoreCase) > 0)
-                attributeType = Type.GetType("EPiServer.Commerce.Catalog.DataAnnotations.CatalogContentTypeAttribute, EPiServer.Business.Commerce");
+            if(type == typeof(IndexItem))
+            {
+                Type attributeType = Type.GetType(indexName.IndexOf(Constants.CommerceProviderName, StringComparison.OrdinalIgnoreCase) > 0
+                        ? "EPiServer.Commerce.Catalog.DataAnnotations.CatalogContentTypeAttribute, EPiServer.Business.Commerce"
+                        : "EPiServer.DataAnnotations.ContentTypeAttribute, EPiServer");
+                
+                bool isCultureInvariant = indexName.Contains(Constants.InvariantCultureIndexNamePostfix);
+                types = GetTypesWithAttribute(attributeType, isCultureInvariant).ToList();
+            }
             else
-                attributeType = Type.GetType("EPiServer.DataAnnotations.ContentTypeAttribute, EPiServer");
-            //handle other indextypes?
+            {
+                types = new List<Type> { type };
+            }
 
-            return GetTypesWithAttribute(attributeType)
+            return types
                 .Where(t => !t.IsExcludedType())
-                .Select(type => (type, CoreIndexer.GetIndexableProperties(type, optIn: false)))
+                .Select(t => (t, CoreIndexer.GetIndexableProperties(t, optIn: false)))
                 .ToList();
         }
 
-        private IEnumerable<Type> GetTypesWithAttribute(Type attributeType)
+        private IEnumerable<Type> GetTypesWithAttribute(Type attributeType, bool isCultureInvariant)
         {
             var assemblies = AppDomain.CurrentDomain.GetAssemblies().OrderBy(a => a.FullName).ToList();
 
@@ -85,24 +93,22 @@ namespace Epinova.ElasticSearch.Core.Services
             {
                 foreach(Type type in assembly.GetTypes())
                 {
-                    if(type.CustomAttributes.Any(a => a.AttributeType == attributeType))
+                    if(type.CustomAttributes.Any(a => a.AttributeType == attributeType) && ShouldBeIncluded(type))
                         yield return type;
                 }
             }
-        }
 
-        private IndexMapping GetCurrentIndexMappings(IndexInformation indexConfig)
-        {
-            Type type = String.IsNullOrEmpty(indexConfig.Type) || indexConfig.Type == "[default]"
-                ? typeof(IndexItem)
-                : Type.GetType(indexConfig.Type);
-            return _mapping.GetIndexMapping(type, null, indexConfig.Index);
+            bool ShouldBeIncluded(Type type)
+            {
+                bool isAssignableFromMediaData = typeof(MediaData).IsAssignableFrom(type);
+                return isCultureInvariant ? isAssignableFromMediaData : !isAssignableFromMediaData;
+            }
         }
     }
 
     public interface IMappingValidatorService
     {
-        List<MappingValidatorType> Validate(IndexInformation index);
+        List<MappingValidatorType> Validate(string indexName, Type type);
     }
 }
 

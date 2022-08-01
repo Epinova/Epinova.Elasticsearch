@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Web.Hosting;
-using Epinova.ElasticSearch.Core.Attributes;
 using Epinova.ElasticSearch.Core.Contracts;
 using Epinova.ElasticSearch.Core.Conventions;
 using Epinova.ElasticSearch.Core.EPiServer.Contracts;
@@ -24,7 +23,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer
     [ServiceConfiguration(typeof(IIndexer))]
     internal class Indexer : IIndexer
     {
-        private const string FallbackLanguage = "en";
+        private readonly CultureInfo _fallbackLanguage = new CultureInfo("en");
         private static readonly ILogger Logger = LogManager.GetLogger(typeof(Indexer));
         private readonly ICoreIndexer _coreIndexer;
         private readonly ContentAssetHelper _contentAssetHelper;
@@ -54,48 +53,44 @@ namespace Epinova.ElasticSearch.Core.EPiServer
             _contentAssetHelper = contentAssetHelper;
         }
 
-        public BulkBatchResult BulkUpdate(IEnumerable<IContent> contents, Action<string> logger, string indexName = null)
+        public BulkBatchResult BulkUpdate(IEnumerable<IContent> contents, Action<string> logger, string index, int bulkIndex, double bulkCount, string indexingContentType)
         {
             var contentList = contents.ToList();
             logger = logger ?? delegate { };
             var before = contentList.Count;
+            string bulkTracker =  $"{indexingContentType} {bulkIndex}/{bulkCount}:";
 
-            logger("Filtering away content of excluded types and content with property HideFromSearch enabled...");
+            logger($"{bulkTracker} Filtering away content of excluded types");
 
             contentList.RemoveAll(SkipIndexing);
             contentList.RemoveAll(IsExcludedType);
 
-            logger($"Filtered away content of excluded types and content with property HideFromSearch enabled... {before - contentList.Count} of {before} items removed. Next will IContent be converted to indexable items and added to indexed. Depending on number of IContent items this is a time-consuming task.");
+            logger($"{bulkTracker} Excluded {before - contentList.Count} of {before} items.");
 
             var operations =
                 contentList.Select(
                         content =>
                         {
-                            var language = GetLanguage(content);
-                            var index = String.IsNullOrWhiteSpace(indexName)
-                                    ? _elasticSearchSettings.GetDefaultIndexName(language)
-                                    : _elasticSearchSettings.GetCustomIndexName(indexName, language);
+                            CultureInfo language = GetLanguage(content);
+                            string indexName = _elasticSearchSettings.GetCustomIndexName(index, language);
 
-                            return new BulkOperation(
-                                content.AsIndexItem(),
-                                Operation.Index,
-                                GetLanguage(content),
-                                typeof(IndexItem),
-                                content.ContentLink.ToReferenceWithoutVersion().ToString(),
-                                index);
+                            dynamic indexItem = content.AsIndexItem();
+                            string id = content.ContentLink.ToReferenceWithoutVersion().ToString();
+
+                            return new BulkOperation(indexName, indexItem, Operation.Index, typeof(IndexItem), id);
                         }
                     )
                     .Where(b => b.Data != null)
                     .ToList();
 
-            logger($"Initializing bulk operation... Bulk indexing {operations.Count} items");
+            logger($"{bulkTracker} {operations.Count} indexing operation ready for indexing");
 
             return _coreIndexer.Bulk(operations, logger);
         }
 
         public void Delete(ContentReference contentLink)
         {
-            var language = Utilities.Language.GetRequestLanguageCode();
+            var language = Utilities.Language.GetRequestLanguage();
 
             var indexName = GetIndexname(contentLink, null, language);
             _coreIndexer.Delete(contentLink.ToReferenceWithoutVersion().ToString(), language, typeof(IndexItem), indexName);
@@ -233,9 +228,8 @@ namespace Epinova.ElasticSearch.Core.EPiServer
             }
 
             // Common property in Epinova template
-            var hideFromSearch = GetEpiserverBoolProperty(content.Property["HideFromSearch"]);
-
-            return hideFromSearch;
+            object value = content.GetType().GetProperty("HideFromSearch")?.GetValue(content);
+            return value != null && Convert.ToBoolean(value);
         }
 
         private static bool IsPageWithInvalidLinkType(IContent content)
@@ -266,11 +260,11 @@ namespace Epinova.ElasticSearch.Core.EPiServer
             return false;
         }
 
-        private string GetFallbackLanguage()
+        private CultureInfo GetFallbackLanguage()
         {
             if(!HostingEnvironment.IsHosted)
             {
-                return FallbackLanguage;
+                return _fallbackLanguage;
             }
 
             ContentReference startPageLink = ContentReference.StartPage;
@@ -290,20 +284,19 @@ namespace Epinova.ElasticSearch.Core.EPiServer
                 var contentLoader = ServiceLocator.Current.GetInstance<IContentLoader>();
                 if(contentLoader.TryGet(startPageLink, out PageData startPage))
                 {
-                    return startPage.MasterLanguage.Name;
+                    return startPage.MasterLanguage;
                 }
             }
 
             Logger.Warning("Could not retrieve StartPage. Are you missing a wildcard mapping in CMS Admin -> Manage Websites?");
 
-            return FallbackLanguage;
+            return _fallbackLanguage;
         }
 
-        public string GetLanguage(IContent content)
+        public CultureInfo GetLanguage(IContent content)
         {
             return content is ILocale localizable
-                   && localizable.Language?.Equals(CultureInfo.InvariantCulture) == false
-                ? localizable.Language.Name
+                ? localizable.Language ?? CultureInfo.InvariantCulture
                 : GetFallbackLanguage();
         }
 
@@ -312,7 +305,17 @@ namespace Epinova.ElasticSearch.Core.EPiServer
 
         private bool IsFormUpload(IContent content)
         {
-            IContent owner = _contentAssetHelper.GetAssetOwner(content.ContentLink);
+            IContent owner;
+
+            //Added to avoid exception when content is deleted while running job. Ref: https://github.com/Epinova/Epinova.Elasticsearch/issues/155
+            try
+            {
+                owner = _contentAssetHelper.GetAssetOwner(content.ContentLink);
+            }
+            catch(Exception)
+            {
+                return false;
+            }
 
             if(owner == null)
             {
@@ -324,7 +327,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer
                 .Contains(FormsUploadNamespace);
         }
 
-        private string GetIndexname(ContentReference contentLink, string indexName, string language)
+        private string GetIndexname(ContentReference contentLink, string indexName, CultureInfo language)
         {
             if(String.IsNullOrWhiteSpace(indexName) && contentLink.ProviderName == null)
             {

@@ -37,10 +37,7 @@ namespace Epinova.ElasticSearch.Core.Engine
             nameof(MappingType.Attachment).ToLower()
         };
 
-        public QueryBuilder(
-            IServerInfoService serverInfoService,
-            IElasticSearchSettings settings,
-            IHttpClientHelper httpClientHelper)
+        public QueryBuilder(IServerInfoService serverInfoService, IElasticSearchSettings settings, IHttpClientHelper httpClientHelper)        
         {
             _settings = settings;
             _mapping = new Mapping(serverInfoService, settings, httpClientHelper);
@@ -53,7 +50,7 @@ namespace Epinova.ElasticSearch.Core.Engine
         internal void SetMappedFields(string[] fields) =>
             _mappedFields = fields;
 
-        private string[] GetMappedFields(string language, string index, Type type)
+        private string[] GetMappedFields(string index, Type type)
         {
             _logger.Debug("Get mapped fields");
 
@@ -61,7 +58,7 @@ namespace Epinova.ElasticSearch.Core.Engine
             {
                 _logger.Debug("No mapped fields found, lookup with Mapping.GetIndexMapping");
 
-                _mappedFields = _mapping.GetIndexMapping(type, language, index)
+                _mappedFields = _mapping.GetIndexMapping(type, index)
                     .Properties
                     .Where(m => _searchableFieldTypes.Contains(m.Value.Type)
                         && !m.Key.EndsWith(Models.Constants.KeywordSuffix))
@@ -95,8 +92,7 @@ namespace Epinova.ElasticSearch.Core.Engine
         /// A standard freetext search against all fields
         /// </summary>
         /// <param name="querySetup">The QuerySetup. <see cref="QuerySetup"/></param>
-        public RequestBase Search(QuerySetup querySetup)
-            => SearchInternal(querySetup);
+        public RequestBase Search(QuerySetup querySetup) => SearchInternal(querySetup);
 
         internal RequestBase MoreLikeThis(QuerySetup setup)
             => new MoreLikeThisRequest(setup);
@@ -109,7 +105,7 @@ namespace Epinova.ElasticSearch.Core.Engine
 
             if(setup.SearchFields.Count == 0)
             {
-                setup.SearchFields.AddRange(GetMappedFields(Language.GetLanguageCode(setup.Language), setup.IndexName, setup.SearchType));
+                setup.SearchFields.AddRange(GetMappedFields(setup.IndexName, setup.SearchType));
             }
 
             if(_logger.IsDebugEnabled())
@@ -142,15 +138,28 @@ namespace Epinova.ElasticSearch.Core.Engine
             }
             else
             {
-                request.Query.Bool.Must.Add(
-                    new MatchMulti(
-                        request.Query.SearchText,
-                        setup.SearchFields,
-                        setup.Operator,
-                        null,
-                        null,
-                        setup.FuzzyLength,
-                        setup.Analyzer));
+                if(setup.IsSimpleQuerystring)
+                {
+                    request.Query.Bool.Must.Add(
+                        new MatchSimpleQueryString(
+                            request.Query.SearchText,
+                            setup.SearchFields,
+                            setup.Operator,
+                            setup.SimpleQuerystringOperators,
+                            setup.Analyzer));
+                }
+                else
+                {
+                    request.Query.Bool.Must.Add(
+                        new MatchMulti(
+                            request.Query.SearchText,
+                            setup.SearchFields,
+                            setup.Operator,
+                            null,
+                            null,
+                            setup.FuzzyLength,
+                            setup.Analyzer));
+                }
 
                 // Boost phrase matches if multiple words
                 if(request.Query.SearchText?.IndexOf(" ", StringComparison.OrdinalIgnoreCase) > 0)
@@ -316,7 +325,7 @@ namespace Epinova.ElasticSearch.Core.Engine
                     .Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries)
                     .Select(t => t.Trim().Trim('*'));
 
-                var key = setup.IndexName ?? _settings.GetDefaultIndexName(Language.GetLanguageCode(setup.Language));
+                var key = setup.IndexName ?? _settings.GetDefaultIndexName(setup.Language);
 
                 if(!Conventions.Indexing.BestBets.TryGetValue(key, out List<BestBet> bestBetsForLanguage))
                 {
@@ -527,8 +536,15 @@ namespace Epinova.ElasticSearch.Core.Engine
         private static Dictionary<int, bool> GetExcludedRoots(QuerySetup setup)
         {
             Dictionary<int, bool> excludedRoots = setup.ExcludedRoots;
-            Conventions.Indexing.ExcludedRoots.ToList().ForEach(x =>
-                excludedRoots.Add(x, true));
+
+            foreach(int excludedRoot in Conventions.Indexing.ExcludedRoots)
+            {
+                if(excludedRoots.Any(r => r.Key.Equals(excludedRoot)))
+                    continue;
+
+                excludedRoots.Add(excludedRoot, true);
+            }
+            
             return excludedRoots;
         }
 

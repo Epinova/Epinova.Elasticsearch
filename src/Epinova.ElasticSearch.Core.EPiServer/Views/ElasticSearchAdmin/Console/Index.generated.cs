@@ -40,15 +40,13 @@ namespace ASP
     
     [System.CodeDom.Compiler.GeneratedCodeAttribute("RazorGenerator", "2.0.0.0")]
     [System.Web.WebPages.PageVirtualPathAttribute("~/Views/ElasticSearchAdmin/Console/Index.cshtml")]
-    public partial class _Views_ElasticSearchAdmin_Console_Index_cshtml : System.Web.Mvc.WebViewPage<dynamic>
+    public partial class _Views_ElasticSearchAdmin_Console_Index_cshtml : System.Web.Mvc.WebViewPage<Epinova.ElasticSearch.Core.EPiServer.Models.ViewModels.ConsoleViewModel>
     {
         public _Views_ElasticSearchAdmin_Console_Index_cshtml()
         {
         }
         public override void Execute()
         {
-WriteLiteral("\r\n");
-
 WriteLiteral("\r\n");
 
   
@@ -100,24 +98,24 @@ WriteLiteral(" name=\"index\"");
 WriteLiteral(">\r\n");
 
                 
-                 foreach (string index in ViewBag.Indices)
+                 foreach (string index in Model.Indices)
                 {
 
 WriteLiteral("                    <option");
 
-WriteAttribute("value", Tuple.Create(" value=\"", 980), Tuple.Create("\"", 994)
-, Tuple.Create(Tuple.Create("", 988), Tuple.Create<System.Object, System.Int32>(index
-, 988), false)
+WriteAttribute("value", Tuple.Create(" value=\"", 1058), Tuple.Create("\"", 1082)
+, Tuple.Create(Tuple.Create("", 1066), Tuple.Create<System.Object, System.Int32>(Html.Raw(index)
+, 1066), false)
 );
 
-WriteAttribute("selected", Tuple.Create(" selected=\"", 995), Tuple.Create("\"", 1059)
-, Tuple.Create(Tuple.Create("", 1006), Tuple.Create<System.Object, System.Int32>(ViewBag.SelectedIndex == index ? "selected" : null
-, 1006), false)
+WriteAttribute("selected", Tuple.Create(" selected=\"", 1083), Tuple.Create("\"", 1186)
+, Tuple.Create(Tuple.Create("", 1094), Tuple.Create<System.Object, System.Int32>(Model.SelectedIndex.Equals(index, StringComparison.OrdinalIgnoreCase) ? "selected" : null
+, 1094), false)
 );
 
 WriteLiteral(">");
 
-                                                                                                       Write(index);
+                                                                                                                                                        Write(index);
 
 WriteLiteral("</option>\r\n");
 
@@ -135,7 +133,7 @@ WriteLiteral(" data-dojo-props=\"style:\'height:100px;\'\"");
 
 WriteLiteral(">");
 
-                                                                                                             Write(ViewBag.Query);
+                                                                                                             Write(Model.Query);
 
 WriteLiteral("</textarea>\r\n");
 
@@ -158,7 +156,7 @@ WriteLiteral("</button>\r\n        </p>\r\n");
 WriteLiteral("\r\n");
 
     
-     if (ViewBag.Result != null)
+     if (!string.IsNullOrWhiteSpace(Model.Result))
     {
 
 WriteLiteral("        <h2>");
@@ -169,9 +167,9 @@ WriteLiteral("</h2>\r\n");
 
 WriteLiteral("        <pre>");
 
-        Write(ViewBag.Result);
+        Write(Model.Result);
 
-WriteLiteral("</pre>\r\n");
+WriteLiteral(")</pre>\r\n");
 
     }
 

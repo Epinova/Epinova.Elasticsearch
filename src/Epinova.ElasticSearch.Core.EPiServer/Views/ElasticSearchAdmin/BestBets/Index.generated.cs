@@ -57,6 +57,7 @@ WriteLiteral("\r\n");
     ViewBag.DojoParseOnLoad = false;
     Layout = "~/Views/ElasticSearchAdmin/_ElasticSearch.cshtml";
     string localizationPath = "/epinovaelasticsearch/bestbets/";
+    string selectedIndex = ViewBag.SelectedIndex as string;
 
 WriteLiteral("\r\n\r\n");
 
@@ -117,9 +118,9 @@ WriteLiteral(" id=\"loader\"");
 
 WriteLiteral(" alt=\"Loading...\"");
 
-WriteAttribute("src", Tuple.Create(" src=\"", 1463), Tuple.Create("\"", 1588)
-, Tuple.Create(Tuple.Create("", 1469), Tuple.Create<System.Object, System.Int32>(EPiServer.Shell.Paths.ToShellClientResource("ClientResources/epi/themes/sleek/epi/images/icons/ajaxProgress-salt.gif")
-, 1469), false)
+WriteAttribute("src", Tuple.Create(" src=\"", 1524), Tuple.Create("\"", 1649)
+, Tuple.Create(Tuple.Create("", 1530), Tuple.Create<System.Object, System.Int32>(EPiServer.Shell.Paths.ToShellClientResource("ClientResources/epi/themes/sleek/epi/images/icons/ajaxProgress-salt.gif")
+, 1530), false)
 );
 
 WriteLiteral(" />\r\n\r\n<div");
@@ -144,9 +145,9 @@ WriteLiteral("            <div");
 
 WriteLiteral(" data-dojo-type=\"dijit/layout/ContentPane\"");
 
-WriteAttribute("title", Tuple.Create(" title=\"", 1859), Tuple.Create("\"", 1883)
-, Tuple.Create(Tuple.Create("", 1867), Tuple.Create<System.Object, System.Int32>(bb.LanguageName
-, 1867), false)
+WriteAttribute("title", Tuple.Create(" title=\"", 1920), Tuple.Create("\"", 1944)
+, Tuple.Create(Tuple.Create("", 1928), Tuple.Create<System.Object, System.Int32>(bb.LanguageName
+, 1928), false)
 );
 
 WriteLiteral(" data-dojo-props=\"");
@@ -190,8 +191,7 @@ WriteLiteral(">\r\n");
                                 
                                  foreach (var index in bb.Indices)
                                 {
-                                    var indexName = $"{index.Key}-{bb.LanguageId}";
-                                    if (indexName != ViewBag.SelectedIndex)
+                                    if (index.Key != selectedIndex)
                                     {
 
 WriteLiteral("                                        <div");
@@ -201,7 +201,7 @@ WriteLiteral(" data-dojo-type=\"dijit/MenuItem\"");
 WriteLiteral("\r\n                                             data-dojo-props=\"onClick:function(" +
 "){document.location=\'?index=");
 
-                                                                                                      Write(indexName);
+                                                                                                      Write(index.Key);
 
 WriteLiteral("&languageId=");
 
@@ -240,9 +240,9 @@ WriteLiteral(" type=\"hidden\"");
 
 WriteLiteral(" name=\"LanguageId\"");
 
-WriteAttribute("value", Tuple.Create(" value=\"", 3463), Tuple.Create("\"", 3485)
-, Tuple.Create(Tuple.Create("", 3471), Tuple.Create<System.Object, System.Int32>(bb.LanguageId
-, 3471), false)
+WriteAttribute("value", Tuple.Create(" value=\"", 3431), Tuple.Create("\"", 3453)
+, Tuple.Create(Tuple.Create("", 3439), Tuple.Create<System.Object, System.Int32>(bb.LanguageId
+, 3439), false)
 );
 
 WriteLiteral(" />\r\n");
@@ -253,9 +253,9 @@ WriteLiteral(" type=\"hidden\"");
 
 WriteLiteral(" name=\"Index\"");
 
-WriteAttribute("value", Tuple.Create(" value=\"", 3548), Tuple.Create("\"", 3578)
-, Tuple.Create(Tuple.Create("", 3556), Tuple.Create<System.Object, System.Int32>(ViewBag.SelectedIndex
-, 3556), false)
+WriteAttribute("value", Tuple.Create(" value=\"", 3516), Tuple.Create("\"", 3538)
+, Tuple.Create(Tuple.Create("", 3524), Tuple.Create<System.Object, System.Int32>(selectedIndex
+, 3524), false)
 );
 
 WriteLiteral(" />\r\n");
@@ -266,9 +266,9 @@ WriteLiteral(" type=\"hidden\"");
 
 WriteLiteral(" name=\"TypeName\"");
 
-WriteAttribute("value", Tuple.Create(" value=\"", 3644), Tuple.Create("\"", 3667)
-, Tuple.Create(Tuple.Create("", 3652), Tuple.Create<System.Object, System.Int32>(Model.TypeName
-, 3652), false)
+WriteAttribute("value", Tuple.Create(" value=\"", 3604), Tuple.Create("\"", 3627)
+, Tuple.Create(Tuple.Create("", 3612), Tuple.Create<System.Object, System.Int32>(Model.TypeName
+, 3612), false)
 );
 
 WriteLiteral(" />\r\n");
@@ -282,10 +282,10 @@ WriteLiteral(" class=\"epi-form-container__section__row epi-form-container__sect
 
 WriteLiteral(">\r\n                            <label");
 
-WriteAttribute("for", Tuple.Create(" for=\"", 3821), Tuple.Create("\"", 3848)
-, Tuple.Create(Tuple.Create("", 3827), Tuple.Create("phrase_", 3827), true)
-, Tuple.Create(Tuple.Create("", 3834), Tuple.Create<System.Object, System.Int32>(bb.LanguageId
-, 3834), false)
+WriteAttribute("for", Tuple.Create(" for=\"", 3781), Tuple.Create("\"", 3808)
+, Tuple.Create(Tuple.Create("", 3787), Tuple.Create("phrase_", 3787), true)
+, Tuple.Create(Tuple.Create("", 3794), Tuple.Create<System.Object, System.Int32>(bb.LanguageId
+, 3794), false)
 );
 
 WriteLiteral(">");
@@ -294,10 +294,10 @@ WriteLiteral(">");
 
 WriteLiteral("</label>\r\n                            <input");
 
-WriteAttribute("id", Tuple.Create(" id=\"", 3948), Tuple.Create("\"", 3974)
-, Tuple.Create(Tuple.Create("", 3953), Tuple.Create("phrase_", 3953), true)
-, Tuple.Create(Tuple.Create("", 3960), Tuple.Create<System.Object, System.Int32>(bb.LanguageId
-, 3960), false)
+WriteAttribute("id", Tuple.Create(" id=\"", 3908), Tuple.Create("\"", 3934)
+, Tuple.Create(Tuple.Create("", 3913), Tuple.Create("phrase_", 3913), true)
+, Tuple.Create(Tuple.Create("", 3920), Tuple.Create<System.Object, System.Int32>(bb.LanguageId
+, 3920), false)
 );
 
 WriteLiteral(" data-dojo-type=\"dijit/form/ValidationTextBox\"");
@@ -315,10 +315,10 @@ WriteLiteral(" class=\"epi-form-container__section__row epi-form-container__sect
 
 WriteLiteral(">\r\n                            <label");
 
-WriteAttribute("for", Tuple.Create(" for=\"", 4250), Tuple.Create("\"", 4283)
-, Tuple.Create(Tuple.Create("", 4256), Tuple.Create("pageSelector_", 4256), true)
-, Tuple.Create(Tuple.Create("", 4269), Tuple.Create<System.Object, System.Int32>(bb.LanguageId
-, 4269), false)
+WriteAttribute("for", Tuple.Create(" for=\"", 4210), Tuple.Create("\"", 4243)
+, Tuple.Create(Tuple.Create("", 4216), Tuple.Create("pageSelector_", 4216), true)
+, Tuple.Create(Tuple.Create("", 4229), Tuple.Create<System.Object, System.Int32>(bb.LanguageId
+, 4229), false)
 );
 
 WriteLiteral(">");
@@ -327,10 +327,10 @@ WriteLiteral(">");
 
 WriteLiteral("</label>\r\n                            <div");
 
-WriteAttribute("id", Tuple.Create(" id=\"", 4384), Tuple.Create("\"", 4416)
-, Tuple.Create(Tuple.Create("", 4389), Tuple.Create("pageSelector_", 4389), true)
-, Tuple.Create(Tuple.Create("", 4402), Tuple.Create<System.Object, System.Int32>(bb.LanguageId
-, 4402), false)
+WriteAttribute("id", Tuple.Create(" id=\"", 4344), Tuple.Create("\"", 4376)
+, Tuple.Create(Tuple.Create("", 4349), Tuple.Create("pageSelector_", 4349), true)
+, Tuple.Create(Tuple.Create("", 4362), Tuple.Create<System.Object, System.Int32>(bb.LanguageId
+, 4362), false)
 );
 
 WriteLiteral("\r\n                                 class=\"pageSelector\"");
@@ -370,10 +370,10 @@ WriteLiteral(" type=\"hidden\"");
 
 WriteLiteral(" name=\"contentId\"");
 
-WriteAttribute("id", Tuple.Create(" id=\"", 5165), Tuple.Create("\"", 5194)
-, Tuple.Create(Tuple.Create("", 5170), Tuple.Create("contentId_", 5170), true)
-, Tuple.Create(Tuple.Create("", 5180), Tuple.Create<System.Object, System.Int32>(bb.LanguageId
-, 5180), false)
+WriteAttribute("id", Tuple.Create(" id=\"", 5125), Tuple.Create("\"", 5154)
+, Tuple.Create(Tuple.Create("", 5130), Tuple.Create("contentId_", 5130), true)
+, Tuple.Create(Tuple.Create("", 5140), Tuple.Create<System.Object, System.Int32>(bb.LanguageId
+, 5140), false)
 );
 
 WriteLiteral(" />\r\n                        </div>\r\n");
@@ -409,10 +409,10 @@ WriteLiteral("</h2>\r\n");
 
 WriteLiteral("                        <div");
 
-WriteAttribute("id", Tuple.Create(" id=\"", 5671), Tuple.Create("\"", 5705)
-, Tuple.Create(Tuple.Create("", 5676), Tuple.Create<System.Object, System.Int32>(bb.LanguageId
-, 5676), false)
-, Tuple.Create(Tuple.Create("", 5692), Tuple.Create("-bestbetsGrid", 5692), true)
+WriteAttribute("id", Tuple.Create(" id=\"", 5631), Tuple.Create("\"", 5665)
+, Tuple.Create(Tuple.Create("", 5636), Tuple.Create<System.Object, System.Int32>(bb.LanguageId
+, 5636), false)
+, Tuple.Create(Tuple.Create("", 5652), Tuple.Create("-bestbetsGrid", 5652), true)
 );
 
 WriteLiteral("></div>\r\n");
@@ -459,12 +459,12 @@ WriteLiteral(";\r\n        var bs = new Bootstrapper(settings);\r\n\r\n        /
 "wlanguage\", \"no\");\r\n                    connect.publish(\"/epi/shell/context/requ" +
 "est\", [{ uri: \"epi.cms.contentdata:///\" + ApplicationSettings.startPage }]);\r\n  " +
 "                  // All done! Everything should be set up now. Run your own cod" +
-"e here.\r\n                    \r\n                    // Should probably run this a" +
-"t some point as it\'s not done automatically - this initializes all the declarati" +
-"ve\r\n                    // widgets (elements with data-dojo-type). Use .then() i" +
-"f you want to run code after this to ensure everything has\r\n                    " +
-"// finished executing.\r\n                    parser.parse()\r\n                    " +
-"    .then(function () {\r\n");
+"e here.\r\n\r\n                    // Should probably run this at some point as it\'s" +
+" not done automatically - this initializes all the declarative\r\n                " +
+"    // widgets (elements with data-dojo-type). Use .then() if you want to run co" +
+"de after this to ensure everything has\r\n                    // finished executin" +
+"g.\r\n                    parser.parse()\r\n                        .then(function (" +
+") {\r\n");
 
                             
                              foreach (BestBetsByLanguage bestBetByLanguage in Model.BestBetsByLanguage)
@@ -492,16 +492,16 @@ WriteLiteral(" class=\"epi-visibleLink\"");
 
 WriteLiteral(" target=\"_blank\"");
 
-WriteAttribute("href", Tuple.Create(" href=\"", 9441), Tuple.Create("\"", 9528)
-                              , Tuple.Create(Tuple.Create("", 9448), Tuple.Create<System.Object, System.Int32>(Model.GetEditUrlPrefix(lang)
-, 9448), false)
-, Tuple.Create(Tuple.Create("", 9479), Tuple.Create("\'", 9479), true)
-, Tuple.Create(Tuple.Create(" ", 9480), Tuple.Create("+", 9481), true)
-, Tuple.Create(Tuple.Create(" ", 9482), Tuple.Create("object.contentId", 9483), true)
-, Tuple.Create(Tuple.Create(" ", 9499), Tuple.Create("+", 9500), true)
-, Tuple.Create(Tuple.Create(" ", 9501), Tuple.Create("object.contentProvider", 9502), true)
-, Tuple.Create(Tuple.Create(" ", 9524), Tuple.Create("+", 9525), true)
-, Tuple.Create(Tuple.Create(" ", 9526), Tuple.Create("\'", 9527), true)
+WriteAttribute("href", Tuple.Create(" href=\"", 9381), Tuple.Create("\"", 9468)
+                              , Tuple.Create(Tuple.Create("", 9388), Tuple.Create<System.Object, System.Int32>(Model.GetEditUrlPrefix(lang)
+, 9388), false)
+, Tuple.Create(Tuple.Create("", 9419), Tuple.Create("\'", 9419), true)
+, Tuple.Create(Tuple.Create(" ", 9420), Tuple.Create("+", 9421), true)
+, Tuple.Create(Tuple.Create(" ", 9422), Tuple.Create("object.contentId", 9423), true)
+, Tuple.Create(Tuple.Create(" ", 9439), Tuple.Create("+", 9440), true)
+, Tuple.Create(Tuple.Create(" ", 9441), Tuple.Create("object.contentProvider", 9442), true)
+, Tuple.Create(Tuple.Create(" ", 9464), Tuple.Create("+", 9465), true)
+, Tuple.Create(Tuple.Create(" ", 9466), Tuple.Create("\'", 9467), true)
 );
 
 WriteLiteral(@">' + object.contentName + '</a> (' + object.contentId + ')';
@@ -554,14 +554,14 @@ WriteLiteral(@""",
 
 WriteLiteral("?index=");
 
-                                                                                                                                              Write(ViewBag.SelectedIndex);
+                                                                                                                                              Write(Html.Raw(selectedIndex));
 
 WriteLiteral("&typeName=");
 
-                                                                                                                                                                                Write(ViewBag.TypeName);
+                                                                                                                                                                                  Write(Model.TypeName);
 
 WriteLiteral(@"&languageId="" + object.lang + ""&phrase="" + object.phrase + ""&contentId="" + object.contentId;
-                                                                            }
+                                                                            };
                                                                         }
                                                                     })
                                                                     .show();
@@ -587,7 +587,7 @@ WriteLiteral("                                            ");
 WriteLiteral("\r\n                                            {\r\n                                " +
 "                phrase: \"");
 
-                                                    Write(Html.Raw(bb.Phrase));
+                                                    Write(Html.Raw(bb.Phrase.FixInput()));
 
 WriteLiteral("\",\r\n                                                contentId: \"");
 

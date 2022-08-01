@@ -1,5 +1,6 @@
 ﻿using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using Epinova.ElasticSearch.Core.Contracts;
 using Epinova.ElasticSearch.Core.Settings;
@@ -12,8 +13,7 @@ namespace Epinova.ElasticSearch.Core.Conventions
 {
     public sealed partial class Indexing
     {
-        internal static readonly ConcurrentDictionary<string, List<BestBet>> BestBets
-            = new ConcurrentDictionary<string, List<BestBet>>();
+        internal static readonly ConcurrentDictionary<string, List<BestBet>> BestBets = new ConcurrentDictionary<string, List<BestBet>>();
 
         internal static void SetupBestBets()
         {
@@ -29,8 +29,8 @@ namespace Epinova.ElasticSearch.Core.Conventions
                 return;
             }
 
-            var languageIds = languageBranchRepository.ListEnabled()
-                .Select(lang => lang.LanguageID);
+            List<CultureInfo> languages = languageBranchRepository.ListEnabled()
+                .Select(lang => lang.Culture).ToList();
 
             var config = ElasticSearchSection.GetConfiguration();
 
@@ -48,11 +48,11 @@ namespace Epinova.ElasticSearch.Core.Conventions
             foreach(IndexConfiguration index in indexList)
             {
                 Logger.Information($"Setup BestBets for index '{index.Name}'");
-                foreach(var languageId in languageIds)
+                foreach(CultureInfo language in languages)
                 {
-                    Logger.Information($"Language '{languageId}'");
-                    var indexName = index.Name + "-" + languageId;
-                    var bestBets = repository.GetBestBets(languageId, indexName).ToList();
+                    Logger.Information($"Language '{language}'");
+                    var indexName = settings.GetCustomIndexName(index.Name, language);
+                    var bestBets = repository.GetBestBets(language, indexName).ToList();
                     BestBets.TryAdd(indexName, bestBets);
                     Logger.Information($"BestBets:\n{System.String.Join("\n", bestBets.Select(b => b.Phrase + " => " + b.Id))}");
                 }

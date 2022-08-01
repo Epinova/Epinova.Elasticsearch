@@ -1,4 +1,5 @@
 ﻿using System;
+using Epinova.ElasticSearch.Core;
 using EPiServer.ServiceLocation;
 
 namespace TestData
@@ -26,7 +27,7 @@ namespace TestData
                 .Setup(m => m.GetJson(new Uri("http://example.com/_cat/nodes?format=json&h=m,v,http,d,rc,rm,u,n")))
                 .Returns(Factory.GetJsonTestData("NodeInfo.json"));
             ServiceLocationMock.HttpClientMock
-                .Setup(m => m.GetString(new Uri("http://example.com/my-index-no/_settings")))
+                .Setup(m => m.GetString(new Uri($"http://example.com/my-index{Constants.IndexNameLanguageSplitChar}no/_settings")))
                 .Returns(Factory.GetJsonTestData("Settings.json"));
         }
     }

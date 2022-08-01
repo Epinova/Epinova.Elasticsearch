@@ -41,7 +41,7 @@ namespace Core.Episerver.Tests
             _indexer.Delete(contentLink);
 
             _fixture.ServiceLocationMock.CoreIndexerMock.Verify(
-                m => m.Delete(contentLink.ID.ToString(), It.IsAny<string>(), It.IsAny<Type>(), It.IsAny<string>()),
+                m => m.Delete(contentLink.ID.ToString(), It.IsAny<CultureInfo>(), It.IsAny<Type>(), It.IsAny<string>()),
                 Times.Once());
         }
 
@@ -55,7 +55,7 @@ namespace Core.Episerver.Tests
             _indexer.Delete(page, "test");
 
             _fixture.ServiceLocationMock.CoreIndexerMock.Verify(
-                m => m.Delete(page.ContentLink.ID.ToString(), It.IsAny<string>(), It.IsAny<Type>(), It.IsAny<string>()),
+                m => m.Delete(page.ContentLink.ID.ToString(), It.IsAny<CultureInfo>(), It.IsAny<Type>(), It.IsAny<string>()),
                 Times.Once());
         }
 
@@ -131,7 +131,7 @@ namespace Core.Episerver.Tests
 
             _indexer.Update(hiddenType);
 
-            _fixture.ServiceLocationMock.CoreIndexerMock.Verify(m => m.Delete(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<Type>(), null),
+            _fixture.ServiceLocationMock.CoreIndexerMock.Verify(m => m.Delete(It.IsAny<string>(), It.IsAny<CultureInfo>(), It.IsAny<Type>(), null),
                 Times.Once);
         }
 
@@ -264,12 +264,12 @@ namespace Core.Episerver.Tests
             };
 
             _fixture.ServiceLocationMock.SettingsMock
-                .Setup(m => m.GetDefaultIndexName(It.IsAny<string>()))
+                .Setup(m => m.GetDefaultIndexName(It.IsAny<CultureInfo>()))
                 .Returns("test");
 
             _fixture.ServiceLocationMock.CoreIndexerMock.Invocations.Clear();
 
-            var result = _indexer.BulkUpdate(batch, null, null);
+            var result = _indexer.BulkUpdate(batch, null, "test", 1, 1, "Test");
 
             _fixture.ServiceLocationMock.CoreIndexerMock
                 .Verify(m => m.Bulk(It.IsAny<IEnumerable<BulkOperation>>(), It.IsAny<Action<string>>()), Times.Once);
@@ -298,16 +298,6 @@ namespace Core.Episerver.Tests
         {
             var content = Factory.GetPageData(parentId: 1);
             var result = _indexer.SkipIndexing(content);
-
-            Assert.True(result);
-        }
-
-        [Fact]
-        public void ShouldHideFromSearch_HideFromSearchPropertyIsTrue_ReturnsTrue()
-        {
-            var content = Factory.GetPageData();
-            content.Property.Add(new PropertyBoolean(true) { Name = "HideFromSearch" });
-            var result = _indexer.ShouldHideFromSearch(content);
 
             Assert.True(result);
         }

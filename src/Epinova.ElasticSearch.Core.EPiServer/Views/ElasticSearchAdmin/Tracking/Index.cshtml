@@ -2,7 +2,6 @@
 @using System.Web.Mvc.Html
 @using Epinova.ElasticSearch.Core.EPiServer.Extensions
 @using Epinova.ElasticSearch.Core.EPiServer.Models.ViewModels
-@using Epinova.ElasticSearch.Core.Models.Admin
 
 @model TrackingViewModel
 
@@ -46,11 +45,10 @@
                             <div data-dojo-type="dijit/DropDownMenu">
                                 @foreach (var index in lang.Indices)
                                 {
-                                    var indexName = $"{index.Key}-{lang.LanguageId}";
-                                    if (indexName != ViewBag.SelectedIndex)
+                                    if (index.Key != Model.SelectedIndex)
                                     {
                                         <div data-dojo-type="dijit/MenuItem"
-                                             data-dojo-props="onClick:function(){document.location='?index=@indexName&languageId=@lang.LanguageId';}">
+                                             data-dojo-props="onClick:function(){document.location='?index=@index.Key&languageId=@lang.LanguageId';}">
                                             @index.Value
                                         </div>
                                     }
@@ -66,8 +64,8 @@
 
                     @using (Html.BeginForm("Clear", "ElasticTracking"))
                     {
-                        <input type="hidden" name="LanguageID" value="@lang.LanguageId" />
-                        <input type="hidden" name="index" value="@ViewBag.SelectedIndex" />
+                        <input type="hidden" name="languageID" value="@lang.LanguageId" />
+                        <input type="hidden" name="index" value="@Model.SelectedIndex" />
                         <p>&nbsp;</p>
                         <p>
                             <button data-dojo-type="dijit/form/Button"
@@ -106,7 +104,7 @@
                         }
                     }, "@(lang.LanguageId)-wordsGrid")
                     .renderArray([
-                        @Html.Raw(String.Join(",", lang.Searches.Select(s => String.Format("{{ word: '{0}', count: {1} }}", s.Key, s.Value))))
+                        @Html.Raw(String.Join(",", lang.Searches.Select(s => String.Format("{{ word: \"{0}\", count: {1} }}", s.Key.FixInput(), s.Value))))
                     ]);
                 </text>
             }
@@ -122,7 +120,7 @@
                         }
                     }, "@(lang.LanguageId)-nohitsGrid")
                     .renderArray([
-                        @Html.Raw(String.Join(",", lang.SearchesWithoutHits.Select(s => String.Format("{{ word: '{0}', count: {1} }}", s.Key, s.Value))))
+                        @Html.Raw(String.Join(",", lang.SearchesWithoutHits.Select(s => String.Format("{{ word: \"{0}\", count: {1} }}", s.Key.FixInput(), s.Value))))
                     ]);
                 </text>
             }

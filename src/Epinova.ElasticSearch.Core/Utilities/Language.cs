@@ -12,22 +12,49 @@ namespace Epinova.ElasticSearch.Core.Utilities
         /// For available language analyzers, see 
         /// https://www.elastic.co/guide/en/elasticsearch/reference/current/analysis-lang-analyzer.html
         /// </summary>
-        private static readonly Dictionary<string, string> AnalyzerMappings = new Dictionary<string, string>
+        private static readonly Dictionary<string, string> _analyzerMappings = new Dictionary<string, string>
         {
+            { "ar", "arabic" },
+            { "am", "armenian" },
+            { "eu", "basque" },
+            { "bn", "bengali" },
+            { "pt-br", "brazilian" },
+            { "bg", "bulgarian" },
+            { "ca", "catalan" },
+            //{ "", "cjk" },    Don't know the language code for this. If you do feel free to add it.
+            { "cs", "czech" },
             { "da", "danish" },
-            { "en", "english" },
-			{ "us", "english" },
-            { "fr", "french" },
-            { "de", "german" },
-            { "no", "norwegian" },
             { "nl", "dutch" },
+            { "en", "english" },
+            { "us", "english" },
+            { "fi", "finnish" },
+            { "fr", "french" },
+            { "gl", "galican" },
+            { "de", "german" },
+            { "el", "greek" },
+            { "hi", "hindi" },
+            { "hu", "hungarian" },
+            { "id", "indonesian" },
+            { "ga", "irish" },
+            { "it", "italian" },
+            { "lv", "latvian" },
+            { "lt", "lithuanian" },
+            { "no", "norwegian" },
+            { "fa", "persian" },
+            { "pt", "portuguese" },
+            { "ro", "romanian" },
+            { "ru", "russian" },
+            //{ "", "sorani" },     Don't know the language code for this. If you do feel free to add it.
             { "es", "spanish" },
-            { "sv", "swedish" }
+            { "sv", "swedish" },
+            { "tr", "turkish" },
+            { "th", "thai" }
         };
 
-        internal static string GetRequestLanguageCode()
-            => GetLanguageCode(GetRequestLanguage());
+#warning delete
+        internal static string GetRequestLanguageCode() => GetLanguageCode(GetRequestLanguage());
 
+#warning delete
         internal static string GetLanguageCode(CultureInfo cultureInfo)
         {
             //INFO: TwoLetterISOLanguageName returns "nb" for norwegian EPiServer-language
@@ -76,16 +103,22 @@ namespace Epinova.ElasticSearch.Core.Utilities
         internal static string GetLanguageAnalyzer(string language)
         {
             if(language == null)
-            {
-                return null;
-            }
+                return "fallback";
 
-            if(AnalyzerMappings.TryGetValue(language, out string analyzer))
-            {
+            if(_analyzerMappings.TryGetValue(language, out string analyzer))
                 return analyzer;
+
+            if(language.Contains("-"))
+            {
+                string[] languageCodes = language.ToLower().Split(new[] { '-' }, StringSplitOptions.RemoveEmptyEntries);
+                foreach(string languageCode in languageCodes)
+                {
+                    if(_analyzerMappings.TryGetValue(languageCode, out analyzer))
+                        return analyzer;
+                }
             }
 
-            return null;
+            return "fallback";
         }
 
         internal static CultureInfo GetRequestLanguage()
@@ -94,7 +127,7 @@ namespace Epinova.ElasticSearch.Core.Utilities
 
             if(headers?["X-EPiContentLanguage"] != null)
             {
-                return CultureInfo.CreateSpecificCulture(headers["X-EPiContentLanguage"]);
+                return new CultureInfo(headers["X-EPiContentLanguage"]);
             }
 
             return CultureInfo.InvariantCulture;

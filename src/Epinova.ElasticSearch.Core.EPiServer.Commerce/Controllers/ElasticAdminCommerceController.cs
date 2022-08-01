@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Web.Mvc;
 using Epinova.ElasticSearch.Core.Contracts;
 using Epinova.ElasticSearch.Core.EPiServer.Contracts;
@@ -18,17 +19,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Commerce.Controllers
         private readonly IElasticSearchSettings _settings;
         private readonly ReferenceConverter _referenceConverter;
 
-        public ElasticAdminCommerceController(
-            IContentIndexService contentIndexService,
-            ILanguageBranchRepository languageBranchRepository,
-            ICoreIndexer coreIndexer,
-            IElasticSearchSettings settings,
-            IHttpClientHelper httpClientHelper,
-            IServerInfoService serverInfoService,
-            IScheduledJobRepository scheduledJobRepository,
-            IScheduledJobExecutor scheduledJobExecutor,
-            ReferenceConverter referenceConverter)
-            : base(contentIndexService, languageBranchRepository, coreIndexer, settings, httpClientHelper, serverInfoService, scheduledJobRepository, scheduledJobExecutor)
+        public ElasticAdminCommerceController(IContentIndexService contentIndexService, ILanguageBranchRepository languageBranchRepository, ICoreIndexer coreIndexer, IElasticSearchSettings settings, IHttpClientHelper httpClientHelper, IServerInfoService serverInfoService, IScheduledJobRepository scheduledJobRepository, IScheduledJobExecutor scheduledJobExecutor, ReferenceConverter referenceConverter)  : base(contentIndexService, languageBranchRepository, coreIndexer, settings, httpClientHelper, serverInfoService, scheduledJobRepository, scheduledJobExecutor)
         {
             _settings = settings;
             _referenceConverter = referenceConverter;
@@ -45,7 +36,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Commerce.Controllers
 
             foreach(var lang in Languages)
             {
-                string commerceIndexName = _settings.GetCommerceIndexName(lang.Key);
+                string commerceIndexName = _settings.GetCommerceIndexName(new CultureInfo(lang.Key));
                 CreateIndex(typeof(IndexItem), commerceIndexName);
             }
 
@@ -59,7 +50,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Commerce.Controllers
 
             foreach(KeyValuePair<string, string> lang in Languages)
             {
-                var commerceIndexName = _settings.GetCommerceIndexName(lang.Key);
+                var commerceIndexName = _settings.GetCommerceIndexName(new CultureInfo(lang.Key));
                 CreateIndex(indexType, commerceIndexName);
                 
                 ContentReference commerceRoot = _referenceConverter.GetRootLink();

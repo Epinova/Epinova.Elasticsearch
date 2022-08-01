@@ -22,6 +22,7 @@ namespace TestData
         public Mock<IElasticSearchSettings> SettingsMock { get; set; }
         public Mock<IServerInfoService> ServerInfoMock { get; set; }
         public Mock<IHttpClientHelper> HttpClientMock { get; set; }
+        public Mock<ISearchLanguage> SearchLanguageMock { get; set; }
         public Mock<IElasticSearchService<IContent>> ServiceMock { get; set; }
         public Mock<ILanguageBranchRepository> LanguageBranchRepositoryMock { get; set; }
         public Mock<IPublishedStateAssessor> StateAssesorMock { get; set; }

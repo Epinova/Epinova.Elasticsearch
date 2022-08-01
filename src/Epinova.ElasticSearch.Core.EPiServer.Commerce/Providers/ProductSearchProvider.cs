@@ -1,5 +1,4 @@
 ﻿using Epinova.ElasticSearch.Core.EPiServer.Providers;
-using Epinova.ElasticSearch.Core.Utilities;
 using EPiServer.Core;
 using EPiServer.Core.Internal;
 using EPiServer.DataAbstraction;
@@ -22,11 +21,8 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Commerce.Providers
             IconClass = ProviderConstants.CommerceCatalogIconCssClass;
             AreaName = ProviderConstants.CommerceCatalogArea;
             ForceRootLookup = true;
-            IndexName = GetIndexName();
+            IndexName = _elasticSearchSettings.GetCommerceIndexName(SearchLanguage);
         }
-
-        private string GetIndexName()
-            => $"{_elasticSearchSettings.Index}-{Constants.CommerceProviderName}-{Language.GetRequestLanguageCode()}";
 
         protected override string GetSearchRoot() => ReferenceConverter.Service.GetRootLink().ID.ToString();
 
