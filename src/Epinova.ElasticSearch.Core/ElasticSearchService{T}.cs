@@ -324,10 +324,7 @@ namespace Epinova.ElasticSearch.Core
         public async Task<CustomSearchResult<T>> GetResultsCustomAsync(CancellationToken cancellationToken)
         {
             QuerySetup query = CreateQuery(true);
-            query.EnableDidYouMean = false;
-
-            // Always return all fields for custom objects
-            query.SourceFields = null;
+            query = ApplyCustomResultSettings(query);
 
             return await GetResultsCustomAsync<T>(query, cancellationToken).ConfigureAwait(false);
         }
@@ -335,13 +332,19 @@ namespace Epinova.ElasticSearch.Core
         public CustomSearchResult<T> GetResultsCustom()
         {
             QuerySetup query = CreateQuery(false);
+            query = ApplyCustomResultSettings(query);
 
+            return GetCustomResults<T>(query);
+        }
+
+        private static QuerySetup ApplyCustomResultSettings(QuerySetup query)
+        {
+            query.EnableDidYouMean = false;
             query.SearchType = typeof(T);
 
             // Always return all fields for custom objects
             query.SourceFields = null;
-
-            return GetCustomResults<T>(query);
+            return query;
         }
 
         private QuerySetup CreateQuery(bool applyDefaultFilters, params string[] fields)
