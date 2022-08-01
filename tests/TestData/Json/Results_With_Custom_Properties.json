@@ -21,10 +21,28 @@
           "Name": "Nyhet test bacon",
           "Date": "2015-03-31T23:01:04.2493062+02:00",
           "Text": "Lorem text",
-          "Int": 42,
-          "Dec": 42.1,
+          "Integer": 327,
+          "Decimal": 42.1,
+          "Double": 42.1,
+          "Long": 4221344,
           "Array1": [ 1, 2, 3 ],
-          "Array2": [ "Foo", "Bar" ]
+          "Array2": [ "Foo", "Bar" ],
+          "DictionaryString": {
+            "key1": "value1",
+            "key2": "1"
+          },
+          "DictionaryInt": {
+            "key2": 1,
+            "key3": 2
+          },
+          "DictionaryStringArray": {
+            "key1": [ "1", "2" ],
+            "key2": [ "3", "4" ]
+          },
+          "DictionaryIntArray": {
+              "key1": [ 1, 2 ],
+              "key2": [ 3, 4 ]
+          }
         }
       }
     ]

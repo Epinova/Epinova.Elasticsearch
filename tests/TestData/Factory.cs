@@ -349,6 +349,7 @@ namespace TestData
         {
             var obj1 = arr1.Select(x => x as object);
             var obj2 = arr2.Select(x => x as object);
+
             return obj1.SequenceEqual(obj2);
         }
 

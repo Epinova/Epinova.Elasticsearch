@@ -15,7 +15,6 @@ using Epinova.ElasticSearch.Core.Models.Admin;
 using Epinova.ElasticSearch.Core.Models.Query;
 using Epinova.ElasticSearch.Core.Models.Serialization;
 using Epinova.ElasticSearch.Core.Settings;
-using Epinova.ElasticSearch.Core.Utilities;
 using EPiServer.Logging;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -217,6 +216,13 @@ namespace Epinova.ElasticSearch.Core.Engine
                 return customPropertiesForType.Length > 0
                     && hit.Source?.UnmappedFields != null
                     && hit.Source.UnmappedFields.Any(u => customPropertiesForType.Any(c => c.Name == u.Key));
+            }
+
+            static CustomProperty[] GetCustomPropertiesForType(Hit hit)
+            {
+                return hit.Source?.Types != null
+                    ? Indexing.CustomProperties.Where(c => hit.Source.Types.Contains(c.OwnerType.GetTypeName())).ToArray()
+                    : Enumerable.Empty<CustomProperty>().ToArray();
             }
         }
 
@@ -422,13 +428,6 @@ namespace Epinova.ElasticSearch.Core.Engine
             {
                 _logger.Error($"Could not parse error-response: {error}");
             }
-        }
-
-        private static CustomProperty[] GetCustomPropertiesForType(Hit hit)
-        {
-            return hit.Source?.Types != null
-                ? Conventions.Indexing.CustomProperties.Where(c => hit.Source.Types.Contains(c.OwnerType.GetTypeName())).ToArray()
-                : Enumerable.Empty<CustomProperty>().ToArray();
         }
     }
 }
