@@ -121,29 +121,48 @@ namespace Core.Tests.Engine
         public void Query_ReturnsCustomProperties()
         {
             SetupEngineMock("Results_With_Custom_Properties.json");
-            var date = DateTime.Parse("2015-03-31T23:01:04.2493062+02:00");
+            DateTime date = DateTime.Parse("2015-03-31T23:01:04.2493062+02:00");
             const string text = "Lorem text";
-            const double dec1 = 42.1;
-            const long lng1 = 42;
-            var arr1 = new long[] { 1, 2, 3 };
-            var arr2 = new[] { "Foo", "Bar" };
+            const Int32 int1 = 327;
+            decimal dec1 = new decimal(42.1);
+            const double dou1 = 42.1;
+            const long lng1 = 4221344;
+            long[] arr1 = { 1, 2, 3 };
+            string[] arr2 = { "Foo", "Bar" };
 
+            Dictionary<string, string> dictString = new Dictionary<string, string> { { "key1", "value1" }, { "key2", "1" }};
+            Dictionary<string, int> dictInt = new Dictionary<string, int> { { "key2", 1 }, { "key3", 2 } };
+            Dictionary<string, string[]> dictStringArray = new Dictionary<string, string[]> {{ "key1", new[] { "1", "2" } }, { "key2", new[] { "3", "4" } }};
+            Dictionary<string, int[]> dictIntArray = new Dictionary<string, int[]> {{ "key1", new[] { 1, 2 } }, { "key2", new[] { 3, 4 } }};
+            
             Indexing.Instance
                 .ForType<TestPage>().IncludeField("Date", _ => date)
                 .ForType<TestPage>().IncludeField("Text", _ => text)
-                .ForType<TestPage>().IncludeField("Int", _ => lng1)
-                .ForType<TestPage>().IncludeField("Dec", _ => dec1)
+                .ForType<TestPage>().IncludeField("Integer", _ => int1)
+                .ForType<TestPage>().IncludeField("Decimal", _ => dec1)
+                .ForType<TestPage>().IncludeField("Double", _ => dou1)
+                .ForType<TestPage>().IncludeField("Long", _ => lng1)
                 .ForType<TestPage>().IncludeField("Array1", _ => arr1)
-                .ForType<TestPage>().IncludeField("Array2", _ => arr2);
+                .ForType<TestPage>().IncludeField("Array2", _ => arr2)
+                .ForType<TestPage>().IncludeField("DictionaryString", _ => dictString)
+                .ForType<TestPage>().IncludeField("DictionaryInt", _ => dictInt)
+                .ForType<TestPage>().IncludeField("DictionaryStringArray", _ => dictStringArray)
+                .ForType<TestPage>().IncludeField("DictionaryIntArray", _ => dictIntArray);
 
             SearchResult result = _engine.Query(_dummyQuery, CultureInfo.InvariantCulture);
 
-            Assert.Equal(date, result.Hits.First().CustomProperties["Date"]);
-            Assert.Equal(text, result.Hits.First().CustomProperties["Text"]);
-            Assert.Equal(lng1, result.Hits.First().CustomProperties["Int"]);
-            Assert.Equal(dec1, result.Hits.First().CustomProperties["Dec"]);
-            Assert.True(Factory.ArrayEquals(arr1, result.Hits.First().CustomProperties["Array1"] as IEnumerable<object>));
-            Assert.True(Factory.ArrayEquals(arr2, result.Hits.First().CustomProperties["Array2"] as IEnumerable<object>));
+            SearchHit searchHit = result.Hits.First();
+
+            Assert.Equal(date, searchHit.CustomProperties["Date"]);
+            Assert.Equal(text, searchHit.CustomProperties["Text"]);
+            Assert.Equal(int1, Convert.ToInt32(searchHit.CustomProperties["Integer"]));
+            Assert.Equal(dec1, Convert.ToDecimal(searchHit.CustomProperties["Decimal"]));
+            Assert.Equal(dou1, searchHit.CustomProperties["Double"]);
+            Assert.Equal(lng1, searchHit.CustomProperties["Long"]);
+            Assert.True(Factory.ArrayEquals(arr1, searchHit.CustomProperties["Array1"] as IEnumerable<long>));
+            Assert.True(Factory.ArrayEquals(arr2, searchHit.CustomProperties["Array2"] as IEnumerable<string>));
+            Assert.True(Factory.ArrayEquals(dictString, searchHit.CustomProperties["DictionaryString"] as Dictionary<string, string>));
+            Assert.True(Factory.ArrayEquals(dictInt, searchHit.CustomProperties["DictionaryInt"] as Dictionary<string, int>));
         }
 
         [Fact]

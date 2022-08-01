@@ -15,7 +15,6 @@ using Epinova.ElasticSearch.Core.Models.Admin;
 using Epinova.ElasticSearch.Core.Models.Query;
 using Epinova.ElasticSearch.Core.Models.Serialization;
 using Epinova.ElasticSearch.Core.Settings;
-using Epinova.ElasticSearch.Core.Utilities;
 using EPiServer.Logging;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -195,7 +194,7 @@ namespace Epinova.ElasticSearch.Core.Engine
 
             foreach(CustomProperty property in customPropertiesForType)
             {
-                if(!hit.Source.UnmappedFields.ContainsKey(property.Name))
+                if(!hit.Source.UnmappedFields.ContainsKey(property.Name) || property.Type == null)
                 {
                     continue;
                 }
@@ -207,22 +206,7 @@ namespace Epinova.ElasticSearch.Core.Engine
                     break;
                 }
 
-                if(IsArrayValue(unmappedField))
-                {
-                    searchHit.CustomProperties[property.Name] = unmappedField.Children().Cast<JValue>().Select(v => v.Value).ToArray();
-                    continue;
-                }
-
-                if(IsDictionaryValue(unmappedField))
-                {
-                    searchHit.CustomProperties[property.Name] = JObject.FromObject(unmappedField).ToObject<IDictionary<string, object>>();
-                    continue;
-                }
-
-                if(unmappedField is JValue value)
-                {
-                    searchHit.CustomProperties[property.Name] = value.Value;
-                }
+                searchHit.CustomProperties[property.Name] = unmappedField.ToObject(property.Type);
             }
 
             return searchHit;
@@ -234,16 +218,11 @@ namespace Epinova.ElasticSearch.Core.Engine
                     && hit.Source.UnmappedFields.Any(u => customPropertiesForType.Any(c => c.Name == u.Key));
             }
 
-            static bool IsArrayValue(JToken field)
+            static CustomProperty[] GetCustomPropertiesForType(Hit hit)
             {
-                return field.Type == JTokenType.Array
-                    && field.Children().Any();
-            }
-
-            bool IsDictionaryValue(JToken field)
-            {
-                return field.Type == JTokenType.Object
-                    && field.Children().OfType<JProperty>().Any();
+                return hit.Source?.Types != null
+                    ? Indexing.CustomProperties.Where(c => hit.Source.Types.Contains(c.OwnerType.GetTypeName())).ToArray()
+                    : Enumerable.Empty<CustomProperty>().ToArray();
             }
         }
 
@@ -449,13 +428,6 @@ namespace Epinova.ElasticSearch.Core.Engine
             {
                 _logger.Error($"Could not parse error-response: {error}");
             }
-        }
-
-        private static CustomProperty[] GetCustomPropertiesForType(Hit hit)
-        {
-            return hit.Source?.Types != null
-                ? Conventions.Indexing.CustomProperties.Where(c => hit.Source.Types.Contains(c.OwnerType.GetTypeName())).ToArray()
-                : Enumerable.Empty<CustomProperty>().ToArray();
         }
     }
 }
