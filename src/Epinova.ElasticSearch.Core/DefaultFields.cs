@@ -6,6 +6,8 @@
         public const string BestBets = "_bestbets";
         public const string Id = "Id";
         public const string Indexed = "Indexed";
+        public const string ParentId = "ParentId";
+        public const string ContentLink = "ContentLink";
         public const string ParentLink = "ParentLink";
         public const string Name = "Name";
         public const string Type = "Type";

@@ -408,9 +408,16 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Extensions
 
             dictionary.Add(DefaultFields.Id, content.ContentLink.ID);
             dictionary.Add(DefaultFields.Indexed, DateTime.Now);
+
+            if(content.ContentLink != null)
+            {
+                dictionary.Add(DefaultFields.ContentLink, content.ContentLink);
+            }
+
             if(content.ParentLink != null)
             {
-                dictionary.Add(DefaultFields.ParentLink, content.ParentLink.ID);
+                dictionary.Add(DefaultFields.ParentId, content.ParentLink.ID);
+                dictionary.Add(DefaultFields.ParentLink, content.ParentLink);
             }
 
             dictionary.Add(DefaultFields.Name, content.Name);
