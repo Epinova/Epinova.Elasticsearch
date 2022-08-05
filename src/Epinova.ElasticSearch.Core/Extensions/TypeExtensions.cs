@@ -136,7 +136,7 @@ namespace Epinova.ElasticSearch.Core.Extensions
 
             Logger.Debug("IsIndexable: " + contentType.Name + " -> " + p.Name);
 
-            if(Indexing.ExcludedProperties.Any(ex => ex.OwnerType == contentType && ex.Name.Equals(p.Name)))
+            if(Indexing.ExcludedProperties.Any(ex => ex.OwnerType == contentType && ex.Name.Equals(p.Name, StringComparison.OrdinalIgnoreCase)))
             {
                 Logger.Debug($"{contentType.Name}.{p.Name} is excluded");
                 return false;
@@ -148,7 +148,7 @@ namespace Epinova.ElasticSearch.Core.Extensions
                 return true;
             }
 
-            if(WellKnownProperties.Ignore.Contains(p.Name))
+            if(WellKnownProperties.Ignore.Contains(p.Name, StringComparer.OrdinalIgnoreCase))
             {
                 Logger.Debug("No: WellKnownProperties.Ignore");
                 return false;

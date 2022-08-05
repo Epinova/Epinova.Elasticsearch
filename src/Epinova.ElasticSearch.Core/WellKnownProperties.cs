@@ -18,6 +18,8 @@ namespace Epinova.ElasticSearch.Core
         {
             DefaultFields.Id,
             DefaultFields.BestBets,
+            DefaultFields.ParentId,
+            DefaultFields.ContentLink,
             DefaultFields.ParentLink,
             DefaultFields.Path,
             DefaultFields.Name,

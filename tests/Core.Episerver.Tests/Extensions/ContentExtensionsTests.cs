@@ -35,7 +35,6 @@ namespace Core.Episerver.Tests.Extensions
 
         [Theory]
         [InlineData(DefaultFields.Id, 100)]
-        [InlineData(DefaultFields.ParentLink, 200)]
         [InlineData(DefaultFields.Name, "Foo")]
         [InlineData(DefaultFields.Type, "EPiServer_Core_PageData")]
         public void AsIndexItem_SetsStandardFields(string propName, object expectedValue)
@@ -47,7 +46,16 @@ namespace Core.Episerver.Tests.Extensions
         }
 
         [Fact]
-        public void AsIndexItem_SetsStandardFields()
+        public void AsIndexItem_SetsStandardFields_ParentLink()
+        {
+            dynamic result = _content.AsIndexItem();
+            var dictionary = (IDictionary<string, object>)result;
+
+            Assert.Equal(new PageReference(200), dictionary[DefaultFields.ParentLink]);
+        }
+
+        [Fact]
+        public void AsIndexItem_SetsStandardFields_Language()
         {
             dynamic result = _content.AsIndexItem();
             var dictionary = (IDictionary<string, object>)result;
