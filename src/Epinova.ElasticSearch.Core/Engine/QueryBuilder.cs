@@ -242,7 +242,9 @@ namespace Epinova.ElasticSearch.Core.Engine
 
             fields.Add(DefaultFields.Id);
             fields.Add(DefaultFields.Indexed);
+            fields.Add(DefaultFields.ContentLink);
             fields.Add(DefaultFields.ParentLink);
+            fields.Add(DefaultFields.ParentId);
             fields.Add(DefaultFields.Name);
             fields.Add(DefaultFields.Type);
             fields.Add(DefaultFields.Types);
