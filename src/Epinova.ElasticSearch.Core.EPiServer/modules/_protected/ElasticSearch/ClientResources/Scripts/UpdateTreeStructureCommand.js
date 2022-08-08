@@ -23,7 +23,7 @@
                 url: '/ElasticSearchAdmin/ElasticIndexer/UpdateItem',
                 handleAs: 'json',
                 headers: { "Content-Type": 'application/json' },
-                timeout: 10000,
+                timeout: 600000,
                 postData: dojo.toJson({ "id": this.model.contentLink, "recursive": true }),
                 load: function (data) {
                     if (!!console && !!console.info) {
