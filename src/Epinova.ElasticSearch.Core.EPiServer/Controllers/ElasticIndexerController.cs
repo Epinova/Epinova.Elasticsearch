@@ -39,7 +39,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Controllers
                     if(Constants.CommerceProviderName.Equals(content.ContentLink.ProviderName))
                     {
                         CultureInfo language = _indexer.GetLanguage(content);
-                        indexName = _settings.GetCustomIndexName($"{_settings.Index}-{Constants.CommerceProviderName}", language);
+                        indexName = _settings.GetCommerceIndexName(language);
                     }
 
                     IndexingStatus status = recursive

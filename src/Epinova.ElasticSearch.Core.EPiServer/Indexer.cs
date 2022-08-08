@@ -330,13 +330,9 @@ namespace Epinova.ElasticSearch.Core.EPiServer
         private string GetIndexname(ContentReference contentLink, string indexName, CultureInfo language)
         {
             if(String.IsNullOrWhiteSpace(indexName) && contentLink.ProviderName == null)
-            {
                 return _elasticSearchSettings.GetDefaultIndexName(language);
-            }
-            else
-            {
-                return _elasticSearchSettings.GetCustomIndexName($"{_elasticSearchSettings.Index}-{Constants.CommerceProviderName}", language);
-            }
+
+            return _elasticSearchSettings.GetCommerceIndexName(language);
         }
     }
 }
