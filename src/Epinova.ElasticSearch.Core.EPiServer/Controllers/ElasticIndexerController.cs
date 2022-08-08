@@ -10,7 +10,7 @@ using EPiServer.Logging;
 
 namespace Epinova.ElasticSearch.Core.EPiServer.Controllers
 {
-    [Authorize(Roles = RoleNames.ElasticsearchEditors)]
+    [Authorize(Roles = RoleNames.ElasticsearchEditors + "," + RoleNames.ElasticsearchAdmins)]
     public class ElasticIndexerController : Controller
     {
         private static readonly ILogger Logger = LogManager.GetLogger(typeof(ElasticIndexerController));
