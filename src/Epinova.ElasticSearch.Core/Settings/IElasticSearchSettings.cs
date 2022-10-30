@@ -8,6 +8,7 @@ namespace Epinova.ElasticSearch.Core.Settings
         int BulkSize { get; }
         long DocumentMaxSize { get; }
         bool EnableFileIndexing { get; }
+        bool DisableContentIndexing { get; }
         string Host { get; }
         string Username { get; }
         string Password { get; }

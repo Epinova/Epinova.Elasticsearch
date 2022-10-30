@@ -68,6 +68,8 @@ namespace Epinova.ElasticSearch.Core.Settings
 
         public bool EnableFileIndexing => _configuration.Files.Enabled;
 
+        public bool DisableContentIndexing => _configuration.Files.DisableContentIndexing;
+
         public bool IgnoreXhtmlStringContentFragments => _configuration.IgnoreXhtmlStringContentFragments;
 
         /// <summary>

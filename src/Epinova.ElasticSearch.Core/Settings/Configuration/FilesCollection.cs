@@ -44,6 +44,9 @@ namespace Epinova.ElasticSearch.Core.Settings.Configuration
         [ConfigurationProperty("enabled", IsRequired = true, DefaultValue = true)]
         public bool Enabled => (bool)base["enabled"];
 
+        [ConfigurationProperty("disableContentIndexing", IsRequired = false, DefaultValue = false)]
+        public bool DisableContentIndexing => (bool)base["disableContentIndexing"];
+
         public FileConfiguration this[int index]
         {
             get => (FileConfiguration)BaseGet(index);
