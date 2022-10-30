@@ -182,6 +182,8 @@ namespace Epinova.ElasticSearch.Core.Utilities
 
             yield return "lowercase";
 
+            yield return languageName + "_synonym_filter";
+
             if (languageName != "fallback")
             {
                 yield return languageName + "_stop";
@@ -191,8 +193,6 @@ namespace Epinova.ElasticSearch.Core.Utilities
             {
                 yield return "german_normalization";
             }
-
-            yield return languageName + "_synonym_filter";
         }
 
         private static IEnumerable<string> CreateAnalyzerFilter(string languageName)
@@ -209,7 +209,9 @@ namespace Epinova.ElasticSearch.Core.Utilities
                 yield return "english_possessive_stemmer";
             }
 
-            if (languageName != "fallback")
+            yield return languageName + "_synonym_filter";
+
+            if(languageName != "fallback")
             {
                 yield return languageName + "_stop";
                 yield return languageName + "_stemmer";
@@ -219,8 +221,6 @@ namespace Epinova.ElasticSearch.Core.Utilities
             {
                 yield return "german_normalization";
             }
-
-            yield return languageName + "_synonym_filter";
         }
     }
 }
