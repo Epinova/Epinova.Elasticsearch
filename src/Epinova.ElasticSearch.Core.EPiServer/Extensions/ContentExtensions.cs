@@ -512,21 +512,20 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Extensions
 
                     char[] trimChars = { ',', '.', '/', ' ', ':', ';', '!', '?', '\"', '(', ')' };
 
-                    suggestionItems.Input = String.Join(" ",
-                            suggestProperties
-                                .Select(p =>
-                                {
-                                    var value = GetIndexValue(content, p);
-                                    return value?.ToString();
-                                })
-                                .Where(p => p != null)
-                        )
-                        .ToLowerInvariant()
-                        .Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries)
-                        .Select(v => v.Trim(trimChars))
+
+                    var newSuggestions = suggestProperties
+                        .Select(p =>
+                        {
+                            var value = GetIndexValue(content, p);
+                            return value?.ToString();
+                        })
+                        .Where(p => p != null)
+                        .Select(s=>s.ToLowerInvariant().Trim(trimChars))
                         .Where(v => !String.IsNullOrWhiteSpace(v) && (!TextUtil.IsNumeric(v) && v.Length > 1))
                         .Distinct()
                         .ToArray();
+
+                    suggestionItems.Input = newSuggestions;
                 }
 
                 indexItem.Suggest = suggestionItems;
@@ -702,6 +701,12 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Extensions
                     {
                         extensionNotAllowed = true;
                         return null;
+                    }
+
+                    if(ElasticSearchSettings.DisableContentIndexing)
+                    {
+                        Logger.Information($"Content indexing disabled for '{extension}'");
+                        return String.Empty;
                     }
 
                     if(IsBinary(extension))
