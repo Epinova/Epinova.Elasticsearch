@@ -53,8 +53,14 @@ namespace ASP
 WriteLiteral("\r\n");
 
 WriteLiteral("<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\" \"http://www.w3.org" +
-"/TR/xhtml1/DTD/xhtml1-transitional.dtd\">\r\n<html>\r\n<head>\r\n    <title>Episerver C" +
-"MS - ");
+"/TR/xhtml1/DTD/xhtml1-transitional.dtd\">\r\n<html");
+
+WriteAttribute("lang", Tuple.Create(" lang=\"", 357), Tuple.Create("\"", 422)
+, Tuple.Create(Tuple.Create("", 364), Tuple.Create<System.Object, System.Int32>(System.Threading.Thread.CurrentThread.CurrentCulture.Name
+, 364), false)
+);
+
+WriteLiteral(">\r\n<head>\r\n    <title>Episerver CMS - ");
 
                       Write(Html.TranslateWithPath("heading", "/epinovaelasticsearch/"));
 
@@ -90,18 +96,18 @@ Write(Html.Raw(ClientResources.RenderResources("DojoDashboardCompatibility", new
 
 WriteLiteral("\r\n\r\n    <!-- Sleek theme -->\r\n    <link");
 
-WriteAttribute("href", Tuple.Create(" href=\"", 981), Tuple.Create("\"", 1078)
-, Tuple.Create(Tuple.Create("", 988), Tuple.Create<System.Object, System.Int32>(EPiServer.Shell.Paths.ToShellClientResource("ClientResources/epi/themes/sleek/sleek.css")
-, 988), false)
+WriteAttribute("href", Tuple.Create(" href=\"", 1047), Tuple.Create("\"", 1144)
+, Tuple.Create(Tuple.Create("", 1054), Tuple.Create<System.Object, System.Int32>(EPiServer.Shell.Paths.ToShellClientResource("ClientResources/epi/themes/sleek/sleek.css")
+, 1054), false)
 );
 
 WriteLiteral(" rel=\"stylesheet\"");
 
 WriteLiteral(" />\r\n    <link");
 
-WriteAttribute("href", Tuple.Create(" href=\"", 1110), Tuple.Create("\"", 1210)
-, Tuple.Create(Tuple.Create("", 1117), Tuple.Create<System.Object, System.Int32>(EPiServer.Shell.Paths.ToShellClientResource("ClientResources/epi/themes/sleek/document.css")
-, 1117), false)
+WriteAttribute("href", Tuple.Create(" href=\"", 1176), Tuple.Create("\"", 1276)
+, Tuple.Create(Tuple.Create("", 1183), Tuple.Create<System.Object, System.Int32>(EPiServer.Shell.Paths.ToShellClientResource("ClientResources/epi/themes/sleek/document.css")
+, 1183), false)
 );
 
 WriteLiteral(" rel=\"stylesheet\"");
@@ -120,17 +126,17 @@ Write(Html.Raw(DojoConfigurationHelper.ConfigureDojo(null,
 
 WriteLiteral("\r\n\r\n    <script");
 
-WriteAttribute("src", Tuple.Create(" src=\"", 1478), Tuple.Create("\"", 1560)
-, Tuple.Create(Tuple.Create("", 1484), Tuple.Create<System.Object, System.Int32>(EPiServer.Shell.Paths.ToShellClientResource("ClientResources/dojo/dojo.js")
-, 1484), false)
+WriteAttribute("src", Tuple.Create(" src=\"", 1544), Tuple.Create("\"", 1626)
+, Tuple.Create(Tuple.Create("", 1550), Tuple.Create<System.Object, System.Int32>(EPiServer.Shell.Paths.ToShellClientResource("ClientResources/dojo/dojo.js")
+, 1550), false)
 );
 
 WriteLiteral("></script>\r\n\r\n    <script>\r\n        require([\"dojo/parser\"]);\r\n    </script>\r\n\r\n " +
 "   <script");
 
-WriteAttribute("src", Tuple.Create(" src=\"", 1652), Tuple.Create("\"", 1741)
-, Tuple.Create(Tuple.Create("", 1658), Tuple.Create<System.Object, System.Int32>(EPiServer.Shell.Paths.ToShellClientResource("ClientResources/dojox/grid/_Grid.js")
-, 1658), false)
+WriteAttribute("src", Tuple.Create(" src=\"", 1718), Tuple.Create("\"", 1807)
+, Tuple.Create(Tuple.Create("", 1724), Tuple.Create<System.Object, System.Int32>(EPiServer.Shell.Paths.ToShellClientResource("ClientResources/dojox/grid/_Grid.js")
+, 1724), false)
 );
 
 WriteLiteral("></script>\r\n\r\n    <style>\r\n        /* Override document.css */\r\n        html, bod" +
@@ -157,7 +163,8 @@ WriteLiteral("></script>\r\n\r\n    <style>\r\n        /* Override document.css 
 " margin-top: 10px;\r\n        }\r\n\r\n            .accordion-panel code {\r\n          " +
 "      display: block;\r\n                border: none;\r\n                font-size:" +
 " 70%;\r\n            }\r\n\r\n        .indexes {\r\n            padding: 0;\r\n        }\r\n" +
-"    </style>\r\n\r\n");
+"\r\n        #epi-globalDocument {\r\n            padding-top: 50px; /* CMS 11 paddin" +
+"g top issue */\r\n        }\r\n    </style>\r\n\r\n");
 
 WriteLiteral("    ");
 
@@ -177,9 +184,9 @@ WriteLiteral("\r\n    <div");
 
 WriteLiteral(" id=\"epi-globalDocument\"");
 
-WriteAttribute("class", Tuple.Create(" class=\"", 3808), Tuple.Create("\"", 3841)
-, Tuple.Create(Tuple.Create("", 3816), Tuple.Create<System.Object, System.Int32>(ViewBag.ContainerClass
-, 3816), false)
+WriteAttribute("class", Tuple.Create(" class=\"", 3981), Tuple.Create("\"", 4014)
+, Tuple.Create(Tuple.Create("", 3989), Tuple.Create<System.Object, System.Int32>(ViewBag.ContainerClass
+, 3989), false)
 );
 
 WriteLiteral(">\r\n        <div>\r\n");
