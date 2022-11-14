@@ -982,6 +982,10 @@ MessageHandler.Instance.SetMessageHandler(new AWSHandler());
 
 Custom objects do not require an `Id` property (or corresponding argument in the `BulkOperation` ctor), but this is recommended if you want control over versioning and updates/deletions.
 
+## Gotchas
+Filtering on `int[]` doesn't work yet.
+Workaround is to index and filter on `string[]`.
+
 &nbsp;
 
 # See also
