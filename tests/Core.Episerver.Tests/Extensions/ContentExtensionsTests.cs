@@ -46,12 +46,12 @@ namespace Core.Episerver.Tests.Extensions
         }
 
         [Fact]
-        public void AsIndexItem_SetsStandardFields_ParentLink()
+        public void AsIndexItem_SetsStandardFields_ParentId()
         {
             dynamic result = _content.AsIndexItem();
             var dictionary = (IDictionary<string, object>)result;
 
-            Assert.Equal(new PageReference(200), dictionary[DefaultFields.ParentLink]);
+            Assert.Equal(200, dictionary[DefaultFields.ParentId]);
         }
 
         [Fact]
@@ -80,7 +80,7 @@ namespace Core.Episerver.Tests.Extensions
         [InlineData(DefaultFields.Name)]
         [InlineData(DefaultFields.Type)]
         [InlineData(DefaultFields.Types)]
-        [InlineData(DefaultFields.ParentLink)]
+        [InlineData(DefaultFields.ParentId)]
         [InlineData(DefaultFields.StartPublish)]
         [InlineData(DefaultFields.StopPublish)]
         [InlineData(DefaultFields.Path)]
