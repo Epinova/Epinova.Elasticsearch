@@ -1,38 +1,48 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
-  <Import Project="..\..\lib\MSBuildCommunityTasks\MSBuild.Community.Tasks.Targets" />
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{D1DBBF34-FF70-4A32-A772-67E05C239483}</ProjectGuid>
-    <OutputType>Library</OutputType>
-    <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Epinova.ElasticSearch.Core.EPiServer.Commerce</RootNamespace>
-    <AssemblyName>Epinova.ElasticSearch.Core.EPiServer.Commerce</AssemblyName>
-    <FileAlignment>512</FileAlignment>
-    <TargetFrameworkProfile />
-    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
+    <AssemblyTitle>Epinova.ElasticSearch.Core.EPiServer.Commerce</AssemblyTitle>
+    <Company>Epinova AS</Company>
+    <Product>Epinova.ElasticSearch.Core.EPiServer.Commerce</Product>
+    <Copyright>Copyright© 2022 - Epinova AS</Copyright>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <TargetFramework>net461</TargetFramework>
+    <OutputPath>bin\</OutputPath>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
-    <Optimize>false</Optimize>
-    <OutputPath>bin\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
-    <Optimize>true</Optimize>
-    <OutputPath>bin\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
   </PropertyGroup>
+  <Import Project="..\..\lib\MSBuildCommunityTasks\MSBuild.Community.Tasks.Targets" />
+  <ItemGroup>
+    <PackageReference Include="AuthorizeNet" Version="1.9.4" />
+    <PackageReference Include="Castle.Core" Version="4.3.1" />
+    <PackageReference Include="Castle.Windsor" Version="4.1.0" />
+    <PackageReference Include="EPiServer.CMS.AspNet" Version="11.20.11" />
+    <PackageReference Include="EPiServer.CMS.Core" Version="11.20.11" />
+    <PackageReference Include="EPiServer.Commerce.Core" Version="11.5.0" />
+    <PackageReference Include="EPiServer.Framework" Version="11.20.11" />
+    <PackageReference Include="EPiServer.Framework.AspNet" Version="11.20.11" />
+    <PackageReference Include="Lucene.Net" Version="3.0.3" />
+    <PackageReference Include="Microsoft.AspNet.Mvc" Version="5.2.3" />
+    <PackageReference Include="Microsoft.AspNet.Razor" Version="3.2.3" />
+    <PackageReference Include="Microsoft.AspNet.WebPages" Version="3.2.3" />
+    <PackageReference Include="Microsoft.Tpl.Dataflow" Version="4.5.24" />
+    <PackageReference Include="Microsoft.Web.Infrastructure" Version="1.0.0.0" />
+    <PackageReference Include="Newtonsoft.Json" Version="10.0.3" />
+    <PackageReference Include="SharpZipLib" Version="1.3.3" />
+    <PackageReference Include="System.ComponentModel.Annotations" Version="4.4.0" />
+    <PackageReference Include="System.Data.SqlClient" Version="4.4.0" />
+    <PackageReference Include="System.Reflection.Emit" Version="4.3.0" />
+    <PackageReference Include="System.Security.AccessControl" Version="4.7.0" />
+    <PackageReference Include="System.Security.Cryptography.Xml" Version="4.7.1" />
+    <PackageReference Include="System.Security.Permissions" Version="4.7.0" />
+    <PackageReference Include="System.Security.Principal.Windows" Version="4.7.0" />
+    <PackageReference Include="System.Threading.AccessControl" Version="4.4.0" />
+    <PackageReference Include="System.ValueTuple" Version="4.5.0" />
+  </ItemGroup>
   <ItemGroup>
     <Reference Include="AjaxControlToolkit, Version=3.0.30930.28736, Culture=neutral, PublicKeyToken=28f01b0e84b6d53e, processorArchitecture=MSIL">
       <HintPath>..\..\packages\EPiServer.Commerce.Core.11.5.0\lib\net461\AjaxControlToolkit.dll</HintPath>
@@ -167,18 +177,15 @@
     <Reference Include="Newtonsoft.Json, Version=10.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <HintPath>..\..\packages\Newtonsoft.Json.10.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
-    <Reference Include="System" />
     <Reference Include="System.ComponentModel.Annotations, Version=4.2.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <HintPath>..\..\packages\System.ComponentModel.Annotations.4.4.0\lib\net461\System.ComponentModel.Annotations.dll</HintPath>
     </Reference>
     <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System.Configuration" />
-    <Reference Include="System.Data" />
     <Reference Include="System.Data.OracleClient" />
     <Reference Include="System.Data.SqlClient, Version=4.2.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <HintPath>..\..\packages\System.Data.SqlClient.4.4.0\lib\net461\System.Data.SqlClient.dll</HintPath>
     </Reference>
-    <Reference Include="System.Drawing" />
     <Reference Include="System.Net" />
     <Reference Include="System.Runtime.Remoting" />
     <Reference Include="System.Security" />
@@ -224,31 +231,10 @@
     <Reference Include="System.Web.WebPages.Razor, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <HintPath>..\..\packages\Microsoft.AspNet.WebPages.3.2.3\lib\net45\System.Web.WebPages.Razor.dll</HintPath>
     </Reference>
-    <Reference Include="System.Xml" />
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="CatalogSearchHit.cs" />
-    <Compile Include="CatalogSearchResult.cs" />
-    <Compile Include="Controllers\ElasticAdminCommerceController.cs" />
-    <Compile Include="Controllers\ElasticBestBetsCommerceController.cs" />
-    <Compile Include="Extensions\CatalogExtensions.cs" />
-    <Compile Include="Plugin\IndexEpiserverCommerceContent.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Providers\CampaignSearchProvider.cs" />
-    <Compile Include="Providers\ProductSearchProvider.cs" />
-    <None Include="Epinova.ElasticSearch.Core.EPiServer.Commerce.nuspec" />
-    <None Include="packages.config" />
+    <ProjectReference Include="..\Epinova.ElasticSearch.Core.EPiServer\Epinova.ElasticSearch.Core.EPiServer.csproj" />
+    <ProjectReference Include="..\Epinova.ElasticSearch.Core\Epinova.ElasticSearch.Core.csproj" />
   </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\Epinova.ElasticSearch.Core.EPiServer\Epinova.ElasticSearch.Core.EPiServer.csproj">
-      <Project>{42a72bc5-77a3-4708-8e78-f459dd1ebf2a}</Project>
-      <Name>Epinova.ElasticSearch.Core.EPiServer</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Epinova.ElasticSearch.Core\Epinova.ElasticSearch.Core.csproj">
-      <Project>{7169966d-df2c-42fb-970f-a412a92937f8}</Project>
-      <Name>Epinova.ElasticSearch.Core</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
