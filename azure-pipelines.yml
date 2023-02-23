@@ -19,5 +19,4 @@ pool:
 steps:
 - template: .azuredevops/epinova-nuget-steps.yml
   parameters:
-    dotnetVersions:
-    - 4.7.2
+    dotnetVersions: []
