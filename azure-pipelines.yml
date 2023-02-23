@@ -1,7 +1,7 @@
 variables:
   system.debug: false
   major: 11 # Align with Cms/Commerce version
-  minor: 7 # Up when breaking changes
+  minor: 8 # Up when breaking changes
 
 name: $(major).$(minor).$(rev:r) #Build.BuildNumber
 
