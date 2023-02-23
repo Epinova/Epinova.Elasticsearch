@@ -6,7 +6,7 @@
     <Product>Epinova.ElasticSearch.Core.EPiServer</Product>
     <Copyright>Copyright© 2022 - Epinova AS</Copyright>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
-    <TargetFramework>net461</TargetFramework>
+    <TargetFramework>net472</TargetFramework>
     <OutputPath>bin\</OutputPath>
     <BuildDependsOn>$(BuildDependsOn);AfterBuildMigrated</BuildDependsOn>
     <PostBuildEvent />

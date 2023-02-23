@@ -6,7 +6,7 @@
     <Product>Epinova.ElasticSearch.Core.EPiServer.Commerce</Product>
     <Copyright>Copyright© 2022 - Epinova AS</Copyright>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
-    <TargetFramework>net461</TargetFramework>
+    <TargetFramework>net472</TargetFramework>
     <OutputPath>bin\</OutputPath>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
@@ -22,7 +22,7 @@
     <PackageReference Include="Castle.Windsor" Version="4.1.0" />
     <PackageReference Include="EPiServer.CMS.AspNet" Version="11.20.11" />
     <PackageReference Include="EPiServer.CMS.Core" Version="11.20.11" />
-    <PackageReference Include="EPiServer.Commerce.Core" Version="11.5.0" />
+    <PackageReference Include="EPiServer.Commerce.Core" Version="13.33.0" />
     <PackageReference Include="EPiServer.Framework" Version="11.20.11" />
     <PackageReference Include="EPiServer.Framework.AspNet" Version="11.20.11" />
     <PackageReference Include="Lucene.Net" Version="3.0.3" />

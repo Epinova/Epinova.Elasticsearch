@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <ProjectGuid>{8C759859-CFAB-4069-990E-867E3C6BD453}</ProjectGuid>
-    <TargetFramework>net461</TargetFramework>
+    <TargetFramework>net472</TargetFramework>
     <AssemblyTitle>Core.Episerver.Tests</AssemblyTitle>
     <Product>Core.Episerver.Tests</Product>
     <Copyright>Copyright© 2022 - Epinova AS</Copyright>

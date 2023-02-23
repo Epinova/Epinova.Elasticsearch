@@ -7,7 +7,7 @@
     <Product>Epinova.ElasticSearch.Core</Product>
     <Copyright>Copyright© 2022 - Epinova AS</Copyright>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
-    <TargetFramework>net461</TargetFramework>
+    <TargetFramework>net472</TargetFramework>
     <OutputPath>bin\</OutputPath>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">

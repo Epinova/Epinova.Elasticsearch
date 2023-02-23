@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <ProjectGuid>{A753A2CE-68DE-48AC-AB1E-8635CABB181C}</ProjectGuid>
-    <TargetFramework>net461</TargetFramework>
+    <TargetFramework>net472</TargetFramework>
     <AssemblyTitle>TestData</AssemblyTitle>
     <Product>TestData</Product>
     <Copyright>Copyright© 2022 - Epinova AS</Copyright>
