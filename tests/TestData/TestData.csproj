@@ -5,9 +5,9 @@
     <Product>TestData</Product>
     <Copyright>Copyright© 2022 - Epinova AS</Copyright>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
-    <OutputPath>bin\</OutputPath>
     <DebugType>full</DebugType>
     <DebugSymbols>true</DebugSymbols>
+    <IsPackable>false</IsPackable>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Moq" Version="4.10.1" />
