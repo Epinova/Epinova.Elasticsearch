@@ -24,8 +24,8 @@ namespace Core.Tests.Utilities
         [Theory]
         [InlineData("0")]
         [InlineData("42")]
-        [InlineData(System.Int64.MaxValue)]
-        [InlineData(System.Int64.MinValue)]
+        [InlineData(System.Int64.MaxValue.ToString())]
+        [InlineData(System.Int64.MinValue.ToString())]
         public void IsNumeric_Number_ReturnsTrue(string instance)
         {
             bool result = TextUtil.IsNumeric(instance);

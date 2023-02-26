@@ -8,6 +8,7 @@
     <DebugType>full</DebugType>
     <DebugSymbols>true</DebugSymbols>
     <IsPackable>false</IsPackable>
+    <NoWarn>CS1591</NoWarn>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Moq" Version="4.10.1" />
