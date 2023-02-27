@@ -166,7 +166,7 @@ steps:
       -c ${{ parameters.buildConfiguration }}
       --no-restore
       --no-build 
-      --filter FullyQualifiedName\!~IntegrationTests
+      --filter FullyQualifiedName!~IntegrationTests
       --logger:trx
   displayName: dotnet test
   workingDirectory: ${{ parameters.workingDirectory }}
