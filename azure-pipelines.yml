@@ -20,3 +20,4 @@ steps:
 - template: .azuredevops/epinova-nuget-steps.yml
   parameters:
     dotnetVersions: []
+    dotnetTestFilter: FullyQualifiedName!~IntegrationTests
