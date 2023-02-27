@@ -18,6 +18,10 @@ parameters:
   default:
   - 6.0.x
 
+- name: dotnetTestFilter
+  type: string
+  default: FullyQualifiedName!~IntegrationTests
+
 - name: pushPrBuildToNuget
   displayName: When building successfully push a preview package to nuget feed
   type: string
@@ -166,7 +170,7 @@ steps:
       -c ${{ parameters.buildConfiguration }}
       --no-restore
       --no-build 
-      --filter FullyQualifiedName\!~IntegrationTests
+      --filter ${{ parameters.dotnetTestFilter }}
       --logger:trx
   displayName: dotnet test
   workingDirectory: ${{ parameters.workingDirectory }}

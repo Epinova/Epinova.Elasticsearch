@@ -31,7 +31,7 @@ namespace Core.Tests.Settings.Configuration
         [InlineData("42")]
         [InlineData("1024")]
         [InlineData("102400")]
-        [InlineData(Int64.MaxValue)]
+        [InlineData("9223372036854775807")] //Int64.MaxValue
         [InlineData("42KB")]
         [InlineData("42MB")]
         [InlineData("42GB")]
@@ -48,7 +48,7 @@ namespace Core.Tests.Settings.Configuration
         [InlineData(null)]
         [InlineData("0")]
         [InlineData("-42")]
-        [InlineData(Int64.MinValue)]
+        [InlineData("-9223372036854775808")] //Int64.MinValue
         [InlineData("42XB")]
         [InlineData("42XXXX")]
         [InlineData("XXXX")]
@@ -181,7 +181,7 @@ namespace Core.Tests.Settings.Configuration
             );
         }
 
-        private static IEnumerable<object[]> GetIndexNameInvalidCharacters()
+        public static IEnumerable<object[]> GetIndexNameInvalidCharacters()
         {
             foreach(char c in IndexConfiguration.NameInvalidCharacters)
             {
@@ -189,7 +189,7 @@ namespace Core.Tests.Settings.Configuration
             }
         }
 
-        private static IEnumerable<object[]> GetFileExtensionInvalidCharacters()
+        public static IEnumerable<object[]> GetFileExtensionInvalidCharacters()
         {
             foreach(char c in FileConfiguration.InvalidCharacters)
             {
