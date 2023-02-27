@@ -3,19 +3,19 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.4.33403.182
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Epinova.ElasticSearch.Core", "src\Epinova.ElasticSearch.Core\Epinova.ElasticSearch.Core.csproj", "{7169966D-DF2C-42FB-970F-A412A92937F8}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Epinova.ElasticSearch.Core", "src\Epinova.ElasticSearch.Core\Epinova.ElasticSearch.Core.csproj", "{7169966D-DF2C-42FB-970F-A412A92937F8}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Epinova.ElasticSearch.Core.EPiServer", "src\Epinova.ElasticSearch.Core.EPiServer\Epinova.ElasticSearch.Core.EPiServer.csproj", "{42A72BC5-77A3-4708-8E78-F459DD1EBF2A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Epinova.ElasticSearch.Core.EPiServer", "src\Epinova.ElasticSearch.Core.EPiServer\Epinova.ElasticSearch.Core.EPiServer.csproj", "{42A72BC5-77A3-4708-8E78-F459DD1EBF2A}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{FEF5BE48-BE12-42E1-B7B4-AA9F43692F69}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Core.Episerver.Tests", "tests\Core.Episerver.Tests\Core.Episerver.Tests.csproj", "{8C759859-CFAB-4069-990E-867E3C6BD453}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Core.Episerver.Tests", "tests\Core.Episerver.Tests\Core.Episerver.Tests.csproj", "{8C759859-CFAB-4069-990E-867E3C6BD453}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Core.Tests", "tests\Core.Tests\Core.Tests.csproj", "{E5AF7B5D-6C93-44AF-91B5-3D2E85E56203}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Core.Tests", "tests\Core.Tests\Core.Tests.csproj", "{E5AF7B5D-6C93-44AF-91B5-3D2E85E56203}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestData", "tests\TestData\TestData.csproj", "{A753A2CE-68DE-48AC-AB1E-8635CABB181C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TestData", "tests\TestData\TestData.csproj", "{A753A2CE-68DE-48AC-AB1E-8635CABB181C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Epinova.ElasticSearch.Core.EPiServer.Commerce", "src\Epinova.ElasticSearch.Core.EPiServer.Commerce\Epinova.ElasticSearch.Core.EPiServer.Commerce.csproj", "{D1DBBF34-FF70-4A32-A772-67E05C239483}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Epinova.ElasticSearch.Core.EPiServer.Commerce", "src\Epinova.ElasticSearch.Core.EPiServer.Commerce\Epinova.ElasticSearch.Core.EPiServer.Commerce.csproj", "{D1DBBF34-FF70-4A32-A772-67E05C239483}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Docs", "Docs", "{2A760EEC-FC6E-4C4C-9364-A2C686386458}"
 	ProjectSection(SolutionItems) = preProject

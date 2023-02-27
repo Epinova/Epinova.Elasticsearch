@@ -11,7 +11,7 @@
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Castle.Core" Version="4.3.1" />
-    <PackageReference Include="Epinova.Nuget.AzurePipelines" Version="1.0.23" PrivateAssets="all" />
+    <PackageReference Include="Epinova.Nuget.AzurePipelines" Version="1.0.28" PrivateAssets="all" />
     <PackageReference Include="EPiServer.CMS.AspNet" Version="[11.20.11, 12)" />
     <PackageReference Include="EPiServer.CMS.UI" Version="[11.1.0, 12)" />
     <PackageReference Include="Newtonsoft.Json" Version="10.0.3" />

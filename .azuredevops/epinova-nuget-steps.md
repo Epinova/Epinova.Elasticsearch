@@ -60,6 +60,7 @@ Projects must be of the newer sdk type.
 
       parameters:
         workingDirectory: $(System.DefaultWorkingDirectory) #default
+        dotnetTestFilter: FullyQualifiedName!~IntegrationTests #used if you want to override dotnet test --filter parameter
         nugetVersionSpec: 6.x #override what nuget version is used
         pushPrBuildToNuget: false #default publish preview release to nuget feed on pr-build.
         disablePublish: false #default disables publish to nuget feed
