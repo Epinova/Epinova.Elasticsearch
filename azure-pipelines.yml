@@ -21,3 +21,4 @@ steps:
   parameters:
     dotnetVersions: []
     dotnetTestFilter: FullyQualifiedName!~IntegrationTests
+    nugetPushServiceConnection: Nuget.org push
