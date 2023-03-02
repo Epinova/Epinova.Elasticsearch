@@ -1,6 +1,3 @@
-[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=Epinova_Epinova.Elasticsearch&metric=alert_status)](https://sonarcloud.io/dashboard?id=Epinova_Epinova.Elasticsearch)
-
-
 # Introduction
 
 A search plugin for Episerver CMS and Commerce
