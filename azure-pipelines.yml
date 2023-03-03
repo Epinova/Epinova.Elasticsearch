@@ -10,7 +10,6 @@ trigger:
   branches:
       include:
       - main
-      - master
       - release/*
 
 pool:
@@ -29,7 +28,7 @@ steps:
     gitHubConnection: github.com_otanum
     repositoryName: Epinova/Epinova.Elasticsearch           
     isDraft: true
-    tagSource: userSpecifiedTag
+    tagSource: auto
     tag: v$(Build.BuildNumber)      
     assets: $(Build.ArtifactStagingDirectory)/*.nupkg
     
