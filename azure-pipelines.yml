@@ -22,3 +22,10 @@ steps:
     dotnetVersions: []
     dotnetTestFilter: FullyQualifiedName!~IntegrationTests
     nugetPushServiceConnection: Nuget.org push
+
+- task: GithubRelease@1 
+  displayName: 'Create GitHub Release'      
+  inputs:
+    gitHubConnection: Epinova
+    repositoryName: Epinova/Epinova.Elasticsearch           
+    assets: $(Build.ArtifactStagingDirectory)/*.nupkg
