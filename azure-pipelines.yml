@@ -29,7 +29,7 @@ steps:
     gitHubConnection: github.com_otanum
     repositoryName: Epinova/Epinova.Elasticsearch           
     isDraft: true
-    tagSource: manual
+    tagSource: userSpecifiedTag
     tag: v$(Build.BuildNumber)      
     assets: $(Build.ArtifactStagingDirectory)/*.nupkg
     
