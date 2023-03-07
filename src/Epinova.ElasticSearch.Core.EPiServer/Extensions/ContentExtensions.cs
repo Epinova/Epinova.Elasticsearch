@@ -587,21 +587,19 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Extensions
                         alreadyProcessedContent = new List<IContent>();
                     }
 
-                    foreach(ContentAreaItem item in contentArea.FilteredItems)
+                    foreach(var filteredItem in GetFiltereredItems(content, contentArea))
                     {
-                        IContent areaItemContent = item.GetContent();
-
-                        if(Indexer.IsExcludedType(areaItemContent) || alreadyProcessedContent.Contains(areaItemContent))
+                        if(Indexer.IsExcludedType(filteredItem) || alreadyProcessedContent.Contains(filteredItem))
                         {
                             continue;
                         }
 
-                        Type areaItemType = GetContentType(areaItemContent);
+                        Type areaItemType = GetContentType(filteredItem);
                         List<PropertyInfo> indexableProperties = areaItemType.GetIndexableProps(false);
-                        alreadyProcessedContent.Add(areaItemContent);
+                        alreadyProcessedContent.Add(filteredItem);
                         indexableProperties.ForEach(property =>
                         {
-                            var indexValue = GetIndexValue(areaItemContent, property, alreadyProcessedContent: alreadyProcessedContent);
+                            var indexValue = GetIndexValue(filteredItem, property, alreadyProcessedContent: alreadyProcessedContent);
                             indexText.Append(indexValue);
                             indexText.Append(" ");
                         });
@@ -670,6 +668,16 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Extensions
                 Logger.Warning($"GetIndexValue failed for content with id '{(content as IContent)?.ContentLink}'", ex);
                 return null;
             }
+        }
+
+        private static IEnumerable<IContent> GetFiltereredItems(IContentData content, ContentArea contentArea)
+        {
+            string languageBranch = content.Property["PageLanguageBranch"]?.Value as string;
+            CultureInfo language = !string.IsNullOrWhiteSpace(languageBranch) ? new CultureInfo(languageBranch) : null;
+
+            return language != null
+                ? ContentLoader.GetItems(contentArea.FilteredItems.Select(i => i.ContentLink), language)
+                : contentArea.FilteredItems.Select(i => i.GetContent());
         }
 
         private static bool IsValidFragment(ContentFragment fragment, out IContent fragmentContent)
