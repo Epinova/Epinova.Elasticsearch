@@ -24,6 +24,7 @@ steps:
 
 - task: GithubRelease@1 
   displayName: 'Create GitHub Release'      
+  condition: eq(variables['Build.SourceBranch'], 'main')  
   inputs:
     gitHubConnection: github.com_otanum
     repositoryName: Epinova/Epinova.Elasticsearch           
