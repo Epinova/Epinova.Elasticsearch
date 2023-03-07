@@ -587,7 +587,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Extensions
                         alreadyProcessedContent = new List<IContent>();
                     }
 
-                    foreach(var filteredItem in GetFiltereredItems(content, contentArea))
+                    foreach(var filteredItem in GetFilteredItems(content, contentArea))
                     {
                         if(Indexer.IsExcludedType(filteredItem) || alreadyProcessedContent.Contains(filteredItem))
                         {
@@ -670,13 +670,12 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Extensions
             }
         }
 
-        private static IEnumerable<IContent> GetFiltereredItems(IContentData content, ContentArea contentArea)
+        private static IEnumerable<IContent> GetFilteredItems(IContentData content, ContentArea contentArea)
         {
             string languageBranch = content.Property["PageLanguageBranch"]?.Value as string;
-            CultureInfo language = !string.IsNullOrWhiteSpace(languageBranch) ? new CultureInfo(languageBranch) : null;
-
-            return language != null
-                ? ContentLoader.GetItems(contentArea.FilteredItems.Select(i => i.ContentLink), language)
+            
+            return !string.IsNullOrWhiteSpace(languageBranch)
+                ? ContentLoader.GetItems(contentArea.FilteredItems.Select(i => i.ContentLink), new CultureInfo(languageBranch))
                 : contentArea.FilteredItems.Select(i => i.GetContent());
         }
 
