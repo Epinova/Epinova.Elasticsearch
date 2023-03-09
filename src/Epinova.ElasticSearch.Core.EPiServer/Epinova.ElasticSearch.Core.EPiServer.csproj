@@ -32,7 +32,7 @@
     <PackageReference Include="RazorGenerator.Mvc" Version="2.4.9" PrivateAssets="all" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="bin\RazorGenerator.Mvc.dll">
+    <Content Include="$(OutputPath)\RazorGenerator.Mvc.dll">
       <Pack>true</Pack>
       <PackagePath>lib\$(TargetFramework)</PackagePath>
     </Content>
