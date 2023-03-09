@@ -42,7 +42,7 @@ A search plugin for Episerver CMS and Commerce
 
 # Requirements
 
-* .NET 4.6.1+
+* .NET 4.7.2+
 * Episerver CMS 11+
 * Episerver Commerce 11.5+
 * Elasticsearch 5.6+
