@@ -1,0 +1,197 @@
+parameters:
+- name: workingDirectory
+  displayName: Folder where sln, global.json and nuget.config is located
+  type: string
+  default: $(System.DefaultWorkingDirectory)
+
+- name: buildPlatform
+  type: string
+  default: Any CPU
+
+- name: buildConfiguration
+  type: string
+  default: Release
+
+- name: dotnetVersions
+  displayName: When multitargeting add versions to the list
+  type: object
+  default:
+  - 6.0.x
+
+- name: dotnetTestFilter
+  type: string
+  default: FullyQualifiedName!~IntegrationTests
+
+- name: pushPrBuildToNuget
+  displayName: When building successfully push a preview package to nuget feed
+  type: string
+  default: false
+
+- name: disablePublish
+  displayName: Disable publish to nuget/artifact feed
+  type: string
+  default: false
+
+- name: artifactName
+  displayName: ArtifactName
+  type: string
+  default: DeployableArtifacts
+
+- name: packageProjectUrl
+  type: string
+  default: $(Build.Repository.Uri)
+
+- name: publishRepositoryUrl
+  type: string
+  default: true
+
+- name: nugetVersionSpec
+  displayName: Set version for nuget.exe, only used by publish task, Examples; 5.x, 5.4.x, 5.3.1, >=5.0.0-0.
+  type: string
+  default: 6.x
+
+- name: nugetPushServiceConnection
+  displayName: Set Service Connection to use when pushing nuget
+  type: string
+  default: Epinova nuget feed push
+
+- name: nugetAuthenticateServiceConnections
+  type: string
+  default: Epinova nuget
+
+steps:
+- task: PowerShell@2
+  displayName: set-version.1.yml
+  inputs:
+    targetType: 'inline'
+    script: |
+      $buildname = "$(Build.BuildNumber)"
+      Write-Output "##vso[task.setvariable variable=VERSION_ASSEMBLY]$buildname"
+      $sourcebranch = "$(Build.SourceBranch)"
+      if ($buildname -match "(?<major>\d+)\.(?<minor>\d+)\.(?<build>\d+)$") 
+      {
+        $buildname = "$($Matches.major).$($Matches.minor).$($Matches.build)"
+        if ($sourcebranch -match "pull/(?<pr>\d+)/merge$") {
+            $prTargetbranch = "$(System.PullRequest.SourceBranch)".replace("refs/heads/","") -replace '[^0-9a-zA-Z-]', '-'
+            $buildname += "-pr$($Matches.pr)-$($prTargetbranch)" #suffix with pullrequest id and source branch
+        } 
+        elseif ($sourcebranch -match "^(refs\/heads\/)?(?<branchname>.*)" -and $Matches.branchname -ne "master" -and $Matches.branchname -ne "main" -and (-not $Matches.branchname.startsWith("release/"))) {
+            $buildname += "-$($Matches.branchname -replace '[^0-9a-zA-Z-]','-')"
+        }
+        Write-Output "##vso[build.updatebuildnumber]$buildname"
+      }
+
+
+- task: PowerShell@2
+  displayName: git-log.1.yml
+  inputs:
+    targetType: 'inline'
+    script: |
+      $gitlog = (git log -30 --format="%cd %s" --date=short) -replace'"', '\"'
+      $gitlog = [string]::join("%0a", $gitlog)
+      Write-Output "##vso[task.setvariable variable=gitlog;]%0a%0aChange log:%0a$gitlog"
+      $gitcontributors = (git log --pretty="%an" | % {(Get-Culture).TextInfo.ToTitleCase($_.replace("."," "))} | Group-Object | Sort-Object Count -Descending | % {$_.Name})
+      $gitcontributors = [string]::Join(", ", $gitcontributors)
+      Write-Output "##vso[task.setvariable variable=gitcontributors;]$gitcontributors"
+
+- task: PowerShell@2
+  displayName: nuget.config.1.yml
+  inputs:
+    targetType: 'inline'
+    script: |
+      $nuget_config = @'
+      <?xml version="1.0" encoding="utf-8"?>
+      <configuration>
+        <packageSources>
+            <add key="nuget.org" value="https://api.nuget.org/v3/index.json" protocolVersion="3" />
+            <add key="Episerver" value="https://nuget.episerver.com/feed/packages.svc" />
+            <add key="Epinova" value="https://nuget.epinova.no/nuget/" />
+        </packageSources>
+      </configuration>
+      '@ #'
+
+      $nugetConfigPath = "${{ parameters.workingDirectory }}/nuget.config"
+      $fileExists = Test-Path -Path $nugetConfigPath
+      if (-Not $fileExists) 
+      {
+          New-Item -Path $nugetConfigPath -ItemType "file" -Value $nuget_config
+          Write-Output "Created $nugetConfigPath"
+      } 
+      else 
+      {
+          Write-Output "File exists $nugetConfigPath"
+      }
+
+- task: NuGetToolInstaller@1
+  displayName: use nuget ${{ parameters.nugetVersionSpec }}
+  inputs:
+    versionSpec: ${{ parameters.nugetVersionSpec }}
+
+- task: NuGetAuthenticate@1
+  displayName: Authenticate Nuget Feeds
+  inputs:
+    nuGetServiceConnections: ${{ parameters.nugetAuthenticateServiceConnections }}
+    forceReinstallCredentialProvider: true
+
+- ${{ each dotnetVersion in parameters.dotnetVersions }}:
+  - task: UseDotNet@2
+    displayName: use dotnet ${{ dotnetVersion }}
+    inputs:
+      installationPath: $(Agent.ToolsDirectory)/dotnet
+      packageType: sdk
+      version: ${{ dotnetVersion }}
+      includePreviewVersions: true
+
+- script:
+    dotnet build
+      -c ${{ parameters.buildConfiguration }}
+      /p:Version="$(Build.BuildNumber)"
+      /p:PackageProjectUrl="${{ parameters.packageProjectUrl }}"
+      /p:PublishRepositoryUrl="${{ parameters.publishRepositoryUrl }}"
+      /p:PackageIconUrl="https://www.epinova.no/favicon.ico" 
+      /p:GenerateDocumentationFile="true"
+      /p:GeneratePackageOnBuild="true"
+      /p:DebugType="embedded"
+      /p:ContinuousIntegrationBuild="true"
+  displayName: dotnet build
+  workingDirectory: ${{ parameters.workingDirectory }}
+  retryCountOnTaskFailure: 2
+
+- task: CopyFiles@2
+  displayName: mv *.nupkg ArtifactStagingDirectory
+  inputs:
+    sourceFolder: ${{ parameters.workingDirectory }}
+    contents: '**/*.nupkg'
+    flattenFolders: true
+    targetFolder: $(Build.ArtifactStagingDirectory)
+
+- script:
+    dotnet test 
+      -c ${{ parameters.buildConfiguration }}
+      --no-restore
+      --no-build 
+      --filter ${{ parameters.dotnetTestFilter }}
+      --logger:trx
+  displayName: dotnet test
+  workingDirectory: ${{ parameters.workingDirectory }}
+  retryCountOnTaskFailure: 2
+
+- task: PublishTestResults@2
+  inputs:
+    testResultsFormat: VSTest
+    testResultsFiles: '**/*.trx'
+    searchFolder: ${{ parameters.workingDirectory }}
+
+- publish: $(Build.ArtifactStagingDirectory)
+  displayName: Publish ${{ parameters.artifactName }}
+  artifact: ${{ parameters.artifactName }}
+  condition: always()
+
+- task: NuGetCommand@2
+  displayName: Publish using ${{ parameters.nugetPushServiceConnection }}
+  condition: and(or(not(startsWith(variables['Build.SourceBranch'], 'refs/pull/')), eq(${{ parameters.pushPrBuildToNuget }}, 'true')), ne(${{ parameters.disablePublish }}, 'false'))
+  inputs:
+    command: push
+    packagesToPush: $(Build.ArtifactStagingDirectory)/**/*.nupkg;!$(Build.ArtifactStagingDirectory)/**/*.symbols.nupkg
+    nuGetFeedType: external
+    publishFeedCredentials: ${{ parameters.nugetPushServiceConnection }}
