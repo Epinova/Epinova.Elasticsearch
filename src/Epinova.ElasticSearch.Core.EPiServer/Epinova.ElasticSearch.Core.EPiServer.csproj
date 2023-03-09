@@ -31,10 +31,12 @@
     <PackageReference Include="Newtonsoft.Json" Version="10.0.3" />
     <PackageReference Include="RazorGenerator.Mvc" Version="2.4.9" PrivateAssets="all" />
   </ItemGroup>
-  <Content Include="bin\RazorGenerator.Mvc.dll">
-    <Pack>true</Pack>
-    <PackagePath>lib\$(TargetFramework)</PackagePath>
-  </Content>
+  <ItemGroup>
+    <Content Include="bin\RazorGenerator.Mvc.dll">
+      <Pack>true</Pack>
+      <PackagePath>lib\$(TargetFramework)</PackagePath>
+    </Content>
+  </ItemGroup>
   <Import Project="..\..\lib\MSBuildCommunityTasks\MSBuild.Community.Tasks.Targets" />
   <Target Name="AfterBuildMigrated">
     <CallTarget Targets="ZipModule" Condition=" '$(Configuration)' == 'Release' " />
