@@ -43,9 +43,9 @@ A search plugin for Episerver CMS and Commerce
 # Requirements
 
 * .NET 4.7.2+
-* Episerver CMS 11+
-* Episerver Commerce 11.5+
-* Elasticsearch 5.6+
+* Episerver CMS [11, 12>
+* Episerver Commerce [11.5,14>
+* Elasticsearch [5.6, 8>
 * Ingest Attachment Processor Plugin
 
 # Usage
