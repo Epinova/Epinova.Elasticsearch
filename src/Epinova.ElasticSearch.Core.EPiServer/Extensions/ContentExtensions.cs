@@ -603,7 +603,8 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Extensions
                 if(value is XhtmlString xhtml)
                 {
                     isString = true;
-                    var indexText = new StringBuilder(TextUtil.StripHtml(value.ToString()));
+                    string decodedHtml = System.Web.HttpUtility.HtmlDecode(TextUtil.StripHtml(value.ToString()));
+                    var indexText = new StringBuilder(decodedHtml);
 
                     IPrincipal principal = HostingEnvironment.IsHosted
                         ? PrincipalInfo.AnonymousPrincipal
