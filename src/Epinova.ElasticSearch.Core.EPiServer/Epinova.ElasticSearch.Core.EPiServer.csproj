@@ -11,11 +11,9 @@
     <BuildDependsOn>$(BuildDependsOn);AfterBuildMigrated</BuildDependsOn>
     <PostBuildEvent />
   </PropertyGroup>
-  
   <ItemGroup>
     <ProjectReference Include="..\Epinova.ElasticSearch.Core\Epinova.ElasticSearch.Core.csproj" />
   </ItemGroup>
-  
   <ItemGroup>
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Configuration" />
@@ -23,7 +21,6 @@
     <Reference Include="System.Net.Http" />
     <Reference Include="System.Web.ApplicationServices" />
   </ItemGroup>
-  
   <ItemGroup>
     <PackageReference Include="Castle.Core" Version="4.3.1" />
     <PackageReference Include="EPiServer.CMS.AspNet" Version="[11.20.11, 12)" />
@@ -31,7 +28,6 @@
     <PackageReference Include="Newtonsoft.Json" Version="10.0.3" />
     <PackageReference Include="RazorGenerator.Mvc" Version="2.4.9" PrivateAssets="all" />
   </ItemGroup>
-
   <Import Project="..\..\lib\MSBuildCommunityTasks\MSBuild.Community.Tasks.Targets" />
   <Target Name="AfterBuildMigrated">
     <CallTarget Targets="ZipModule" Condition=" '$(Configuration)' == 'Release' " />
@@ -43,7 +39,12 @@
     </ItemGroup>
     <Zip ZipLevel="9" Quiet="false" ZipFileName="modules\_protected\ElasticSearch\ElasticSearch.zip" WorkingDirectory="modules\_protected\ElasticSearch" Files="@(ZipFiles)" />
   </Target>
-  
+  <ItemGroup>
+      <Content Include="$(OutputPath)\RazorGenerator.Mvc.dll">
+          <Pack>true</Pack>
+          <PackagePath>lib\$(TargetFramework)</PackagePath>
+      </Content>
+  </ItemGroup>
   <ItemGroup>
     <Compile Update="Views\ElasticSearchAdmin\**\*.generated.cs">
       <AutoGen>True</AutoGen>
@@ -56,21 +57,17 @@
       <DependentUpon>_ElasticSearch.cshtml</DependentUpon>
     </Compile>
   </ItemGroup>
-  
   <ItemGroup>
     <Content Include="modules\_protected\ElasticSearch\ElasticSearch.zip" />
     <None Include="modules\_protected\ElasticSearch\ClientResources\Scripts\*.js" />
   </ItemGroup>
-
   <ItemGroup>
     <EmbeddedResource Include="Lang\Epinova.ElasticSearchEN.xml" />
     <EmbeddedResource Include="Lang\Epinova.ElasticSearchNO.xml" />
   </ItemGroup>
-
   <ItemGroup>
     <None Include="Install.ps1" Pack="true" PackagePath="tools" />
   </ItemGroup>
-
   <ItemGroup>
     <None Include="Views\ElasticSearchAdmin\**\Index.cshtml">
       <Generator>RazorGenerator</Generator>
