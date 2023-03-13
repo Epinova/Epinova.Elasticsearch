@@ -9,6 +9,7 @@ using System.Security.Principal;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Web;
 using System.Web.Hosting;
 using Castle.DynamicProxy;
 using Epinova.ElasticSearch.Core.Contracts;
@@ -579,21 +580,19 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Extensions
                         alreadyProcessedContent = new List<IContent>();
                     }
 
-                    foreach(ContentAreaItem item in contentArea.FilteredItems)
+                    foreach(var filteredItem in ListFilteredItems(content, contentArea))
                     {
-                        IContent areaItemContent = item.GetContent();
-
-                        if(Indexer.IsExcludedType(areaItemContent) || alreadyProcessedContent.Contains(areaItemContent))
+                        if(Indexer.IsExcludedType(filteredItem) || alreadyProcessedContent.Contains(filteredItem))
                         {
                             continue;
                         }
 
-                        Type areaItemType = GetContentType(areaItemContent);
+                        Type areaItemType = GetContentType(filteredItem);
                         List<PropertyInfo> indexableProperties = areaItemType.GetIndexableProps(false);
-                        alreadyProcessedContent.Add(areaItemContent);
+                        alreadyProcessedContent.Add(filteredItem);
                         indexableProperties.ForEach(property =>
                         {
-                            var indexValue = GetIndexValue(areaItemContent, property, alreadyProcessedContent: alreadyProcessedContent);
+                            var indexValue = GetIndexValue(filteredItem, property, alreadyProcessedContent: alreadyProcessedContent);
                             indexText.Append(indexValue);
                             indexText.Append(" ");
                         });
@@ -605,7 +604,8 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Extensions
                 if(value is XhtmlString xhtml)
                 {
                     isString = true;
-                    var indexText = new StringBuilder(TextUtil.StripHtml(value.ToString()));
+                    string decodedHtml = HttpUtility.HtmlDecode(TextUtil.StripHtml(value.ToString()));
+                    var indexText = new StringBuilder(decodedHtml);
 
                     IPrincipal principal = HostingEnvironment.IsHosted
                         ? PrincipalInfo.AnonymousPrincipal
@@ -661,6 +661,15 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Extensions
             {
                 Logger.Warning($"GetIndexValue failed for content with id '{(content as IContent)?.ContentLink}'", ex);
                 return null;
+            }
+
+            static IEnumerable<IContent> ListFilteredItems(IContentData content, ContentArea contentArea)
+            {
+                string languageBranch = content.Property["PageLanguageBranch"]?.Value as string;
+
+                return !string.IsNullOrWhiteSpace(languageBranch)
+                    ? ContentLoader.GetItems(contentArea.FilteredItems.Select(i => i.ContentLink), new CultureInfo(languageBranch))
+                    : contentArea.FilteredItems.Select(i => i.GetContent());
             }
         }
 
