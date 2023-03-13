@@ -9,6 +9,7 @@ using System.Security.Principal;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Web;
 using System.Web.Hosting;
 using Castle.DynamicProxy;
 using Epinova.ElasticSearch.Core.Contracts;
@@ -579,7 +580,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Extensions
                         alreadyProcessedContent = new List<IContent>();
                     }
 
-                    foreach(var filteredItem in GetFilteredItems(content, contentArea))
+                    foreach(var filteredItem in ListFilteredItems(content, contentArea))
                     {
                         if(Indexer.IsExcludedType(filteredItem) || alreadyProcessedContent.Contains(filteredItem))
                         {
@@ -603,7 +604,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Extensions
                 if(value is XhtmlString xhtml)
                 {
                     isString = true;
-                    string decodedHtml = System.Web.HttpUtility.HtmlDecode(TextUtil.StripHtml(value.ToString()));
+                    string decodedHtml = HttpUtility.HtmlDecode(TextUtil.StripHtml(value.ToString()));
                     var indexText = new StringBuilder(decodedHtml);
 
                     IPrincipal principal = HostingEnvironment.IsHosted
@@ -661,15 +662,15 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Extensions
                 Logger.Warning($"GetIndexValue failed for content with id '{(content as IContent)?.ContentLink}'", ex);
                 return null;
             }
-        }
 
-        private static IEnumerable<IContent> GetFilteredItems(IContentData content, ContentArea contentArea)
-        {
-            string languageBranch = content.Property["PageLanguageBranch"]?.Value as string;
-            
-            return !string.IsNullOrWhiteSpace(languageBranch)
-                ? ContentLoader.GetItems(contentArea.FilteredItems.Select(i => i.ContentLink), new CultureInfo(languageBranch))
-                : contentArea.FilteredItems.Select(i => i.GetContent());
+            static IEnumerable<IContent> ListFilteredItems(IContentData content, ContentArea contentArea)
+            {
+                string languageBranch = content.Property["PageLanguageBranch"]?.Value as string;
+
+                return !string.IsNullOrWhiteSpace(languageBranch)
+                    ? ContentLoader.GetItems(contentArea.FilteredItems.Select(i => i.ContentLink), new CultureInfo(languageBranch))
+                    : contentArea.FilteredItems.Select(i => i.GetContent());
+            }
         }
 
         private static bool IsValidFragment(ContentFragment fragment, out IContent fragmentContent)
