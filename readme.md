@@ -1,3 +1,5 @@
+[![Build Status](https://dev.azure.com/epinova/Epinova%20-%20Modules/_apis/build/status/Epinova.Elasticsearch?branchName=main)](https://dev.azure.com/epinova/Epinova%20-%20Modules/_build/latest?definitionId=286&branchName=main)
+
 # Introduction
 
 A search plugin for Episerver CMS and Commerce
