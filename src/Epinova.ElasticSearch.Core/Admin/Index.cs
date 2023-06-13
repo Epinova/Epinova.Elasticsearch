@@ -194,7 +194,7 @@ namespace Epinova.ElasticSearch.Core.Admin
 
         private void CreateStandardMappings()
         {
-            string json = Serialization.Serialize(MappingPatterns.GetStandardIndexMapping(Language.GetLanguageAnalyzer(_language)));
+            string json = Serialization.Serialize(MappingPatterns.GetStandardIndexMapping(UseSingleType(), Language.GetLanguageAnalyzer(_language)));
             var data = Encoding.UTF8.GetBytes(json);
             var extraParams = _serverInfo.Version >= Constants.IncludeTypeNameAddedVersion ? "include_type_name=true" : null;
             var uri = _indexing.GetUri(_name, "_mapping", typeof(IndexItem).GetTypeName(), extraParams);
@@ -258,5 +258,7 @@ namespace Epinova.ElasticSearch.Core.Admin
         }
 
         private bool MatchName(IndexInformation i) => _settings.Indices.Any(indexName => i.Index.StartsWith(indexName, StringComparison.OrdinalIgnoreCase) && i.Index.Contains("¤"));
+
+        private bool UseSingleType() => _serverInfo.Version >= Constants.SingleTypeMappingVersion;
     }
 }

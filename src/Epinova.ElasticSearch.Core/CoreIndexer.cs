@@ -588,8 +588,7 @@ namespace Epinova.ElasticSearch.Core
 
         private static bool HasAttachmentData(object objectToUpdate)
         {
-            return objectToUpdate is IDictionary<string, object> dict
-                   && dict.TryGetValue(DefaultFields.AttachmentData, out _);
+            return objectToUpdate is IDictionary<string, object> dict && dict.TryGetValue(DefaultFields.AttachmentData, out _);
         }
 
         private string HandleMappingError(Type type, Exception ex, string json, string oldJson, IndexMapping mapping)

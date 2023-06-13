@@ -1,11 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.Linq;
 using System.Text.RegularExpressions;
 using Epinova.ElasticSearch.Core.Contracts;
 using Epinova.ElasticSearch.Core.Enums;
 using Epinova.ElasticSearch.Core.Extensions;
+using Epinova.ElasticSearch.Core.Models.Admin;
 using Epinova.ElasticSearch.Core.Models.Mapping;
 using Epinova.ElasticSearch.Core.Models.Properties;
 using Epinova.ElasticSearch.Core.Settings;
@@ -17,7 +17,7 @@ namespace Epinova.ElasticSearch.Core.Utilities
     internal class Mapping
     {
         private static readonly ILogger _logger = LogManager.GetLogger(typeof(Mapping));
-
+     
         private static readonly Dictionary<MappingType, Type[]> TypeRegister = new Dictionary<MappingType, Type[]>
         {
             {MappingType.Boolean, new[] {typeof (bool), typeof (bool?)}},
@@ -27,16 +27,15 @@ namespace Epinova.ElasticSearch.Core.Utilities
             {MappingType.Integer, new[] { typeof(Enum), typeof(byte?), typeof(byte), typeof(int), typeof (int?), typeof (uint), typeof (uint?), typeof (short), typeof (short?)}},
             {MappingType.Long, new[] {typeof (long), typeof (long?)}}
         };
-        private readonly IServerInfoService _serverInfoService;
-        private readonly IElasticSearchSettings _settings;
+        
         private readonly IHttpClientHelper _httpClientHelper;
+        private readonly IElasticSearchSettings _settings;
+        private readonly ServerInfo _serverInfo;
 
-        public Mapping(
-            IServerInfoService serverInfoService,
-            IElasticSearchSettings settings,
-            IHttpClientHelper httpClientHelper)
+
+        public Mapping(IServerInfoService serverInfoService, IElasticSearchSettings settings, IHttpClientHelper httpClientHelper)
         {
-            _serverInfoService = serverInfoService;
+            _serverInfo = serverInfoService.GetInfo();
             _settings = settings;
             _httpClientHelper = httpClientHelper;
         }
@@ -119,14 +118,16 @@ namespace Epinova.ElasticSearch.Core.Utilities
         internal IndexMapping GetIndexMapping(Type type, string index)
         {
             string typeName = type.GetTypeName();
-            string mappingUri = GetMappingUri(index, typeName);
+            Uri mappingUri = GetMappingUri(index, typeName);
             IndexMapping mappings;
 
             _logger.Debug($"GetIndexMapping for: {typeName}. Uri: {mappingUri}");
 
             try
             {
-                mappings = BuildIndexMapping(_httpClientHelper.GetString(new Uri(mappingUri)), index, typeName);
+                string mappingJson = _httpClientHelper.GetString(mappingUri);
+                bool isSingleType = _serverInfo.Version >= Constants.SingleTypeMappingVersion;
+                mappings = BuildIndexMapping(isSingleType, mappingJson, index, typeName);
             }
             catch(Exception ex)
             {
@@ -140,7 +141,18 @@ namespace Epinova.ElasticSearch.Core.Utilities
             return mappings;
         }
 
-        private static IndexMapping BuildIndexMapping(string mappingJson, string index, string typeName)
+        private static IndexMapping BuildIndexMapping(bool isSingleType, string mappingJson, string index, string typeName)
+        {
+            if(isSingleType) //should work for Elastic 7 as well
+            {
+                mappingJson = mappingJson.Replace(index, "indexnamereplacement");
+                return JsonConvert.DeserializeObject<IndexSettings>(mappingJson)?.IndexNameReplacement?.Mappings ?? new IndexMapping();
+            }
+
+            return GetIndexMappingNonSingleType(mappingJson, index, typeName);
+        }
+
+        private static IndexMapping GetIndexMappingNonSingleType(string mappingJson, string index, string typeName)
         {
             mappingJson = mappingJson.Replace(" ", "");
             mappingJson = mappingJson.Replace("\"" + index + "\":", "");
@@ -152,18 +164,22 @@ namespace Epinova.ElasticSearch.Core.Utilities
             regex = new Regex(Regex.Escape("{{{"));
             mappingJson = regex.Replace(mappingJson, "", 1);
 
+            if(string.IsNullOrWhiteSpace(mappingJson))
+                return new IndexMapping();
+
             return JsonConvert.DeserializeObject<IndexMapping>(mappingJson);
         }
 
-        private string GetMappingUri(string index, string typeName)
+        internal Uri GetMappingUri(string indexName, string type = null)
         {
-            var url = $"{_settings.Host}/{index}/{typeName}/_mapping";
-            if(_serverInfoService.GetInfo().Version >= Constants.IncludeTypeNameAddedVersion)
-            {
-                url += "?include_type_name=true";
-            }
+            type = type != null && _serverInfo.Version < Constants.SingleTypeMappingVersion ? String.Concat("/", type) : null;
+            
+            var uri = $"{_settings.Host}/{indexName}{type}/_mapping";
 
-            return url;
+            if(_serverInfo.Version >= Constants.IncludeTypeNameAddedVersion && _serverInfo.Version < Constants.SingleTypeMappingVersion)
+                uri += "?include_type_name=true";
+
+            return new Uri(uri);
         }
     }
 }

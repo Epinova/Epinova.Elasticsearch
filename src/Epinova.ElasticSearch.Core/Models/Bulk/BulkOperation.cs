@@ -25,7 +25,7 @@ namespace Epinova.ElasticSearch.Core.Models.Bulk
         /// <summary>
         /// Creates a bulk-operation to be used in <see cref="CoreIndexer.Bulk(Epinova.ElasticSearch.Core.Models.Bulk.BulkOperation[])"/>. 
         /// </summary>
-        public BulkOperation(string index, object data, string id = null) : this(index, data, Operation.Index, id: id)
+        public BulkOperation(string index, object data, bool isSingleType, string id = null) : this(index, data, isSingleType, Operation.Index, id: id)
         {
         }
 
@@ -33,7 +33,7 @@ namespace Epinova.ElasticSearch.Core.Models.Bulk
         /// Creates a bulk-operation to be used in <see cref="CoreIndexer.Bulk(Epinova.ElasticSearch.Core.Models.Bulk.BulkOperation[])"/>. 
         /// Uses configured index if <paramref name="index"/> is empty.
         /// </summary>
-        internal BulkOperation(string index, object data, Operation operation, Type dataType = null, string id = null)
+        internal BulkOperation(string index, object data, bool isSingleType, Operation operation, Type dataType = null, string id = null)
         {
             dataType ??= data.GetType();
 
@@ -75,7 +75,7 @@ namespace Epinova.ElasticSearch.Core.Models.Bulk
             {
                 Operation = operation,
                 DataType = dataType,
-                Type = dataType.GetTypeName(),
+                Type = isSingleType ? null : dataType.GetTypeName(),
                 Id = id,
                 IndexCandidate = index?.ToLower()
             };

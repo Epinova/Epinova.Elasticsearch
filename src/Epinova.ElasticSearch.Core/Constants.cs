@@ -26,6 +26,9 @@ namespace Epinova.ElasticSearch.Core
         // Param "include_type_name" was added in v7.0
         internal static readonly Version IncludeTypeNameAddedVersion = new Version(7, 0);
 
+        // Single Type mapping required in v8.0
+        internal static readonly Version SingleTypeMappingVersion = new Version(8, 0);
+        
         // Plugin 'ingest-attachment' is included in Elastic for v8.4.
         internal static readonly Version IngestAttachmentProcessorIncludedVersion = new Version(8, 4);
 

@@ -127,13 +127,15 @@ namespace Epinova.ElasticSearch.Core.Utilities
             };
         }
 
-        internal static dynamic GetStandardIndexMapping(string languageName)
+        internal static dynamic GetStandardIndexMapping(bool useSingleType, string languageName)
         {
-            return new
-            {
-                Epinova_ElasticSearch_Core_Models_IndexItem =
-                    GetStandardIndexMappingWithoutType(languageName)
-            };
+            return useSingleType
+                ? GetStandardIndexMappingWithoutType(languageName)
+                : new
+                {
+                    Epinova_ElasticSearch_Core_Models_IndexItem =
+                        GetStandardIndexMappingWithoutType(languageName)
+                };
         }
     }
 }
