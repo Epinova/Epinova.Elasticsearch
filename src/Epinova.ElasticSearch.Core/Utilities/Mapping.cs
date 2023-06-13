@@ -135,9 +135,7 @@ namespace Epinova.ElasticSearch.Core.Utilities
             }
 
             if(mappings.Properties == null)
-            {
                 mappings.Properties = new Dictionary<string, IndexMappingProperty>();
-            }
 
             return mappings;
         }

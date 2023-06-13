@@ -61,9 +61,7 @@ namespace Epinova.ElasticSearch.Core
             var bulkBatchResult = new BulkBatchResult();
 
             if(operations == null)
-            {
                 return bulkBatchResult;
-            }
 
             var uri = $"{_settings.Host}/_bulk?pipeline={Pipelines.Attachment.Name}";
 
@@ -72,14 +70,10 @@ namespace Epinova.ElasticSearch.Core
             operationList.ForEach(operation =>
             {
                 if(operation.MetaData.Index == null)
-                {
                     operation.MetaData.Index = operation.MetaData.IndexCandidate;
-                }
 
                 if(operation.MetaData.Index == null)
-                {
                     throw new InvalidOperationException("Index missing");
-                }
             });
 
             var indexes = operationList
