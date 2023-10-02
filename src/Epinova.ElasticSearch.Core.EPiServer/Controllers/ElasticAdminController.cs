@@ -2,14 +2,13 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
-using System.Runtime.CompilerServices;
 using System.Web.Mvc;
-using System.Web.Routing;
 using Epinova.ElasticSearch.Core.Admin;
 using Epinova.ElasticSearch.Core.Contracts;
 using Epinova.ElasticSearch.Core.EPiServer.Contracts;
 using Epinova.ElasticSearch.Core.EPiServer.Controllers.Abstractions;
 using Epinova.ElasticSearch.Core.EPiServer.Models.ViewModels;
+using Epinova.ElasticSearch.Core.Extensions;
 using Epinova.ElasticSearch.Core.Models;
 using Epinova.ElasticSearch.Core.Models.Admin;
 using Epinova.ElasticSearch.Core.Settings;
@@ -24,6 +23,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Controllers
     public class ElasticAdminController : ElasticSearchControllerBase
     {
         private readonly IContentIndexService _contentIndexService;
+        private readonly IContentTypeRepository _contentTypeRepository;
         private readonly ICoreIndexer _coreIndexer;
         private readonly IElasticSearchSettings _settings;
         private readonly Health _healthHelper;
@@ -34,6 +34,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Controllers
 
         public ElasticAdminController(
             IContentIndexService contentIndexService,
+            IContentTypeRepository contentTypeRepository,
             ILanguageBranchRepository languageBranchRepository,
             ICoreIndexer coreIndexer,
             IElasticSearchSettings settings,
@@ -44,6 +45,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Controllers
             : base(serverInfoService, settings, httpClientHelper, languageBranchRepository)
         {
             _contentIndexService = contentIndexService;
+            _contentTypeRepository = contentTypeRepository;
             _coreIndexer = coreIndexer;
             _settings = settings;
             _healthHelper = new Health(settings, httpClientHelper);
@@ -130,7 +132,10 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Controllers
             if(IsCustomType(indexType))
                 _coreIndexer.UpdateMapping(indexType, indexType, indexName, lang, optIn: false);
             else
-                UpdateMappingForTypes(ContentReference.RootPage, indexType, indexName, lang);
+            {
+                List<Type> allTypes = ListAllTypes(lang);
+                UpdateMappingForTypes(indexType, indexName, lang, allTypes);
+            }
 
             index.WaitForStatus();
         }
@@ -192,15 +197,28 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Controllers
             return index;
         }
 
-
-        protected void UpdateMappingForTypes(ContentReference rootLink, Type indexType, string indexName, string languageKey)
+        private List<Type> ListCmsContentTypes()
         {
-            List<IContent> allContents = languageKey.Equals(Constants.InvariantCultureIndexNamePostfix) ?
-                _contentIndexService.ListContentFromRoot(_settings.BulkSize, rootLink, new List<LanguageBranch>())
-                : _contentIndexService.ListContentFromRoot(_settings.BulkSize, rootLink, new List<LanguageBranch> { new LanguageBranch(languageKey) });
-            Type[] types = _contentIndexService.ListContainedTypes(allContents);
+            List<Type> types = ListOptimizelyTypes();
+            types.RemoveAll(t => t.Namespace == null || t.Namespace.StartsWith("EPiServer.Commerce.", StringComparison.OrdinalIgnoreCase));
+            types.RemoveAll(t => !(t.IsSubclassOf(typeof(BlockData)) || t.IsSubclassOf(typeof(PageData)) || t.IsSubclassOf(typeof(BasicContent))));
+            return types;
+        }
 
-            foreach(Type type in types)
+        private List<Type> ListOptimizelyMediaTypes()
+        {
+            List<Type> types = ListOptimizelyTypes();
+            types.RemoveAll(t => !t.IsSubclassOf(typeof(MediaData)));
+            return types;
+        }
+
+        protected List<Type> ListOptimizelyTypes() => _contentTypeRepository.List().Select(ct => ct.ModelType).Where(t => t != null && !t.IsExcludedType()).ToList();
+
+        protected List<Type> ListAllTypes(string languageKey) => languageKey.Equals(Constants.InvariantCultureIndexNamePostfix) ? ListOptimizelyMediaTypes() : ListCmsContentTypes();
+
+        protected void UpdateMappingForTypes(Type indexType, string indexName, string languageKey, List<Type> allTypes)
+        {
+            foreach(Type type in allTypes)
             {
                 _coreIndexer.UpdateMapping(type, indexType, indexName, languageKey, optIn: false);
             }
