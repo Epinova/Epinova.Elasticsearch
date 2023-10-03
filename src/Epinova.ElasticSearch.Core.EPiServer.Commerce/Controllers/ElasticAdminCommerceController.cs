@@ -7,6 +7,7 @@ using Epinova.ElasticSearch.Core.EPiServer.Contracts;
 using Epinova.ElasticSearch.Core.EPiServer.Controllers;
 using Epinova.ElasticSearch.Core.Models;
 using Epinova.ElasticSearch.Core.Settings;
+using EPiServer.Commerce.Catalog.ContentTypes;
 using EPiServer.Core;
 using EPiServer.DataAbstraction;
 using EPiServer.Scheduler;
@@ -19,7 +20,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Commerce.Controllers
         private readonly IElasticSearchSettings _settings;
         private readonly ReferenceConverter _referenceConverter;
 
-        public ElasticAdminCommerceController(IContentIndexService contentIndexService, ILanguageBranchRepository languageBranchRepository, ICoreIndexer coreIndexer, IElasticSearchSettings settings, IHttpClientHelper httpClientHelper, IServerInfoService serverInfoService, IScheduledJobRepository scheduledJobRepository, IScheduledJobExecutor scheduledJobExecutor, ReferenceConverter referenceConverter)  : base(contentIndexService, languageBranchRepository, coreIndexer, settings, httpClientHelper, serverInfoService, scheduledJobRepository, scheduledJobExecutor)
+        public ElasticAdminCommerceController(IContentIndexService contentIndexService, IContentTypeRepository contentTypeRepository, ILanguageBranchRepository languageBranchRepository, ICoreIndexer coreIndexer, IElasticSearchSettings settings, IHttpClientHelper httpClientHelper, IServerInfoService serverInfoService, IScheduledJobRepository scheduledJobRepository, IScheduledJobExecutor scheduledJobExecutor, ReferenceConverter referenceConverter)  : base(contentIndexService, contentTypeRepository, languageBranchRepository, coreIndexer, settings, httpClientHelper, serverInfoService, scheduledJobRepository, scheduledJobExecutor)
         {
             _settings = settings;
             _referenceConverter = referenceConverter;
@@ -52,33 +53,26 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Commerce.Controllers
             {
                 var commerceIndexName = _settings.GetCommerceIndexName(new CultureInfo(lang.Key));
                 CreateIndex(indexType, commerceIndexName);
-                
-                ContentReference commerceRoot = _referenceConverter.GetRootLink();
-                UpdateMappingForTypes(commerceRoot, indexType, commerceIndexName, lang.Key);
+
+                List<Type> commerceTypes = ListCommerceContentTypes();
+                UpdateMappingForTypes(indexType, commerceIndexName, lang.Key, commerceTypes);
             }
 
             return RedirectToAction("Index");
+
+            List<Type> ListCommerceContentTypes()
+            {
+                List<Type> types = ListOptimizelyTypes();
+                types.RemoveAll(t => !t.IsSubclassOf(typeof(CatalogContentBase)));
+                return types;
+            }
         }
 
-        public override ActionResult RunIndexJob()
-        {
-            return base.RunIndexJob();
-        }
-        
-        public override ActionResult DeleteIndex(string indexName)
-        {
-            return base.DeleteIndex(indexName);
-        }
 
         [HttpPost]
         public override ActionResult DeleteAll()
         {
             return base.DeleteAll();
-        }
-
-        public override ActionResult ChangeTokenizer(string indexName, string tokenizer)
-        {
-            return base.ChangeTokenizer(indexName, tokenizer);
         }
     }
 }

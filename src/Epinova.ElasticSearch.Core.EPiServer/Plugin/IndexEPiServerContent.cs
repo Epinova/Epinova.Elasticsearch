@@ -104,7 +104,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Plugin
                     if(IsStopped)
                         return "Aborted by user";
 
-                    List<IContent> contents = GetDescendentContents(contentReferences.Take(_settings.BulkSize).ToList(), languages);
+                    List<IContent> contents = _contentIndexService.ListContent(contentReferences.Take(_settings.BulkSize).ToList(), languages.ToList()).ToList();
 
                     contents.RemoveAll(_indexer.SkipIndexing);
                     contents.RemoveAll(_indexer.IsExcludedType);
@@ -192,11 +192,6 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Plugin
         {
             OnStatusChanged("Loading all references from database...");
             return _contentLoader.GetDescendents(ContentReference.RootPage).ToList();
-        }
-
-        protected virtual List<IContent> GetDescendentContents(List<ContentReference> contentReferences, IEnumerable<LanguageBranch> languages)
-        {
-            return _contentIndexService.ListContent(contentReferences, languages.ToList()).ToList();
         }
 
         private bool IndicesExists(IEnumerable<LanguageBranch> languages)
