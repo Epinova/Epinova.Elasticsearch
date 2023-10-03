@@ -26,6 +26,7 @@ namespace Core.Episerver.Tests
             _indexer = new Indexer(
                 fixture.ServiceLocationMock.CoreIndexerMock.Object,
                 fixture.ServiceLocationMock.SettingsMock.Object,
+                fixture.ServiceLocationMock.ServerInfoMock.Object,
                 new Mock<ISiteDefinitionRepository>().Object,
                 fixture.ServiceLocationMock.ContentLoaderMock.Object,
                 new Mock<ContentAssetHelper>().Object);
@@ -244,6 +245,7 @@ namespace Core.Episerver.Tests
             _indexer = new Indexer(
                 _fixture.ServiceLocationMock.CoreIndexerMock.Object,
                 _fixture.ServiceLocationMock.SettingsMock.Object,
+                _fixture.ServiceLocationMock.ServerInfoMock.Object,
                 new Mock<ISiteDefinitionRepository>().Object,
                 _fixture.ServiceLocationMock.ContentLoaderMock.Object,
                 assetHelperMock.Object);

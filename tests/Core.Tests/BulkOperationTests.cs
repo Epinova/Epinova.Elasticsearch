@@ -30,7 +30,7 @@ namespace Core.Tests
         {
             var data = new ComplexType { Id = 42 };
             string indexName = _fixture.ServiceLocationMock.SettingsMock.Object.GetDefaultIndexName(new CultureInfo("en"));
-            var result = new BulkOperation(indexName, data, Operation.Index);
+            var result = new BulkOperation(indexName, data, isSingleType: false, Operation.Index);
 
             Assert.Equal("42", result.MetaData.Id);
         }
@@ -40,7 +40,7 @@ namespace Core.Tests
         {
             var data = new ComplexType { Id = 42 };
             string indexName = _fixture.ServiceLocationMock.SettingsMock.Object.GetDefaultIndexName(new CultureInfo("en"));
-            var result = new BulkOperation(indexName, data, Operation.Index);
+            var result = new BulkOperation(indexName, data, isSingleType: false, Operation.Index);
 
             Assert.True(result.MetaData.DataType.IsAssignableFrom(typeof(ComplexType)));
         }
@@ -64,7 +64,7 @@ namespace Core.Tests
             };
 
             string indexName = _fixture.ServiceLocationMock.SettingsMock.Object.GetDefaultIndexName(new CultureInfo("en"));
-            var result = new BulkOperation(indexName, data, Operation.Index);
+            var result = new BulkOperation(indexName, data, isSingleType: false, Operation.Index);
             dynamic resultData = result.Data;
 
             Assert.Equal(id.ToString(), resultData.Id);

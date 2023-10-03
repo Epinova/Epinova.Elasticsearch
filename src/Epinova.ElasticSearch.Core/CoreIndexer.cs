@@ -13,7 +13,6 @@ using Epinova.ElasticSearch.Core.Enums;
 using Epinova.ElasticSearch.Core.Events;
 using Epinova.ElasticSearch.Core.Extensions;
 using Epinova.ElasticSearch.Core.Models;
-using Epinova.ElasticSearch.Core.Models.Admin;
 using Epinova.ElasticSearch.Core.Models.Bulk;
 using Epinova.ElasticSearch.Core.Models.Converters;
 using Epinova.ElasticSearch.Core.Models.Mapping;
@@ -36,18 +35,15 @@ namespace Epinova.ElasticSearch.Core
         private readonly IElasticSearchSettings _settings;
         private readonly IHttpClientHelper _httpClientHelper;
         private readonly Mapping _mapping;
-        private readonly ServerInfo _serverInfo;
-
-        public CoreIndexer(
-            IServerInfoService serverInfoService,
-            IElasticSearchSettings settings,
-            IHttpClientHelper httpClientHelper)
+        private readonly Indexing _indexing;
+        
+        public CoreIndexer(IServerInfoService serverInfoService, IElasticSearchSettings settings, IHttpClientHelper httpClientHelper)
         {
             _serverInfoService = serverInfoService;
             _settings = settings;
             _httpClientHelper = httpClientHelper;
             _mapping = new Mapping(serverInfoService, settings, httpClientHelper);
-            _serverInfo = serverInfoService.GetInfo();
+            _indexing = new Indexing(_serverInfoService, _settings, _httpClientHelper);
         }
 
         public event OnBeforeUpdateItem BeforeUpdateItem;
@@ -61,9 +57,7 @@ namespace Epinova.ElasticSearch.Core
             var bulkBatchResult = new BulkBatchResult();
 
             if(operations == null)
-            {
                 return bulkBatchResult;
-            }
 
             var uri = $"{_settings.Host}/_bulk?pipeline={Pipelines.Attachment.Name}";
 
@@ -72,14 +66,10 @@ namespace Epinova.ElasticSearch.Core
             operationList.ForEach(operation =>
             {
                 if(operation.MetaData.Index == null)
-                {
                     operation.MetaData.Index = operation.MetaData.IndexCandidate;
-                }
 
                 if(operation.MetaData.Index == null)
-                {
                     throw new InvalidOperationException("Index missing");
-                }
             });
 
             var indexes = operationList
@@ -142,7 +132,6 @@ namespace Epinova.ElasticSearch.Core
                     {
                         ms.Seek(0, SeekOrigin.Begin);
                     }
-
                     var results = _httpClientHelper.Post(new Uri(uri), ms);
                     var stringReader = new StringReader(Encoding.UTF8.GetString(results));
 
@@ -265,15 +254,11 @@ namespace Epinova.ElasticSearch.Core
 
                 json = JsonConvert.SerializeObject(mapping, jsonSettings);
                 var data = Encoding.UTF8.GetBytes(json);
-                var uri = $"{_settings.Host}/{indexName}/_mapping/{typeof(IndexItem).GetTypeName()}";
-                if(_serverInfo.Version >= Constants.IncludeTypeNameAddedVersion)
-                {
-                    uri += "?include_type_name=true";
-                }
-
+                var uri = _mapping.GetMappingUri(indexName, typeof(IndexItem).GetTypeName());
+                
                 _logger.Debug("Update mapping:\n" + JToken.Parse(json).ToString(Formatting.Indented));
 
-                _httpClientHelper.Put(new Uri(uri), data);
+                _httpClientHelper.Put(uri, data);
             }
             catch(Exception ex)
             {
@@ -374,15 +359,11 @@ namespace Epinova.ElasticSearch.Core
             var jsonSettings = new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore };
             var json = JsonConvert.SerializeObject(mapping, jsonSettings);
             var data = Encoding.UTF8.GetBytes(json);
-            var uri = $"{_settings.Host}/{index}/_mapping/{indexType.GetTypeName()}";
-            if(_serverInfo.Version >= Constants.IncludeTypeNameAddedVersion)
-            {
-                uri += "?include_type_name=true";
-            }
-
+            var uri = _mapping.GetMappingUri(index, indexType.GetTypeName());
+            
             _logger.Information("Update mapping:\n" + JToken.Parse(json).ToString(Formatting.Indented));
 
-            _httpClientHelper.Put(new Uri(uri), data);
+            _httpClientHelper.Put(uri, data);
         }
 
         internal static IndexMappingProperty GetPropertyMapping(IndexableProperty prop, string language, IndexMapping existingMapping, out MappingConflict mappingConflict)
@@ -594,8 +575,7 @@ namespace Epinova.ElasticSearch.Core
 
         private static bool HasAttachmentData(object objectToUpdate)
         {
-            return objectToUpdate is IDictionary<string, object> dict
-                   && dict.TryGetValue(DefaultFields.AttachmentData, out _);
+            return objectToUpdate is IDictionary<string, object> dict && dict.TryGetValue(DefaultFields.AttachmentData, out _);
         }
 
         private string HandleMappingError(Type type, Exception ex, string json, string oldJson, IndexMapping mapping)
