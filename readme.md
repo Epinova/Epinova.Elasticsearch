@@ -4,6 +4,10 @@
 
 A search plugin for Episerver CMS and Commerce
 
+# Looking for .NET 6+ support?
+
+A version supporting .NET 6+ is available. Contact @BorgKristian for details.
+
 ## Features
 
 * Typed search
@@ -47,7 +51,7 @@ A search plugin for Episerver CMS and Commerce
 * .NET 4.7.2+
 * Episerver CMS [11, 12>
 * Episerver Commerce [11.5,14>
-* Elasticsearch [5.6, 8>
+* Elasticsearch [5.6, 9>
 * Ingest Attachment Processor Plugin
 
 # Usage
