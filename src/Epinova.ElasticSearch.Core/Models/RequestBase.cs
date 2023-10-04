@@ -15,16 +15,13 @@ namespace Epinova.ElasticSearch.Core.Models
         [JsonIgnore]
         public bool IsPartOfFilteredQuery { get; set; }
 
-        public bool ShouldSerializeFilter()
-            => IsPartOfFilteredQuery;
+        public bool ShouldSerializeFilter() => IsPartOfFilteredQuery;
 
-        public virtual bool ShouldSerializeFrom()
-            => !IsPartOfFilteredQuery;
+        public virtual bool ShouldSerializeFrom() => !IsPartOfFilteredQuery;
 
-        public virtual bool ShouldSerializeSize()
-            => !IsPartOfFilteredQuery;
+        public virtual bool ShouldSerializeSize() => !IsPartOfFilteredQuery;
 
-        public string ToString(Formatting formatting)
+        public virtual string ToString(Formatting formatting)
         {
             return JsonConvert.SerializeObject(
                 this,
@@ -36,7 +33,6 @@ namespace Epinova.ElasticSearch.Core.Models
                 });
         }
 
-        public override string ToString()
-            => ToString(Formatting.None);
+        public override string ToString() => ToString(Formatting.None);
     }
 }

@@ -122,10 +122,8 @@ namespace Epinova.ElasticSearch.Core.Models.Query
         [JsonProperty(JsonNames.PostFilter)]
         public PostFilter PostFilter { get; set; } = new PostFilter();
 
-        public bool ShouldSerializePostFilter()
-            => PostFilter?.ShouldSerializeBool() == true;
+        public bool ShouldSerializePostFilter() => PostFilter?.ShouldSerializeBool() == true;
 
-        public bool ShouldSerializeAggregation()
-            => !IsPartOfFilteredQuery;
+        public bool ShouldSerializeAggregation() => !IsPartOfFilteredQuery;
     }
 }
