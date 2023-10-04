@@ -6,7 +6,7 @@ A search plugin for Episerver CMS and Commerce
 
 # Looking for .NET 6+ support?
 
-A version supporting .NET 6+ is available. Contact [Kristian Borg](mailto://kristian.borg@epinova.no) for details.
+A version supporting .NET 6+ is available. Contact [Kristian Borg](mailto:kristian.borg@epinova.no) for details.
 
 ## Features
 
