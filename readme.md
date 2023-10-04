@@ -1,7 +1,4 @@
-[![Build status](https://ci.appveyor.com/api/projects/status/vhaehgrviq4u92ha/branch/master?svg=true)](https://ci.appveyor.com/project/Epinova_AppVeyor_Team/epinova-elasticsearch/branch/master)
-[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=Epinova_Epinova.Elasticsearch&metric=alert_status)](https://sonarcloud.io/dashboard?id=Epinova_Epinova.Elasticsearch)
-![Tests](https://img.shields.io/appveyor/tests/Epinova_AppVeyor_Team/epinova-elasticsearch/master.svg)
-
+[![Build Status](https://dev.azure.com/epinova/Epinova%20-%20Modules/_apis/build/status/Epinova.Elasticsearch?branchName=main)](https://dev.azure.com/epinova/Epinova%20-%20Modules/_build/latest?definitionId=286&branchName=main)
 
 # Introduction
 
@@ -47,10 +44,10 @@ A search plugin for Episerver CMS and Commerce
 
 # Requirements
 
-* .NET 4.6.1+
-* Episerver CMS 11+
-* Episerver Commerce 11.5+
-* Elasticsearch 5.6+
+* .NET 4.7.2+
+* Episerver CMS [11, 12>
+* Episerver Commerce [11.5,14>
+* Elasticsearch [5.6, 8>
 * Ingest Attachment Processor Plugin
 
 # Usage

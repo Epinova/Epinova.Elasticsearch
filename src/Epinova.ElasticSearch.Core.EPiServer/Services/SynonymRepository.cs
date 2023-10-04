@@ -195,9 +195,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Services
             foreach(string synonym in parsedSynonyms.Where(s => !Constants.DefaultSynonym.Equals(s)))
             {
                 if(String.IsNullOrWhiteSpace(synonym))
-                {
                     continue;
-                }
 
                 var arrowPos = synonym.IndexOf("=>");
                 var firstCommaPos = synonym.IndexOf(',');

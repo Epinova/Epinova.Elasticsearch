@@ -9,6 +9,7 @@ using Epinova.ElasticSearch.Core.Conventions;
 using Epinova.ElasticSearch.Core.EPiServer.Contracts;
 using Epinova.ElasticSearch.Core.Events;
 using Epinova.ElasticSearch.Core.Models;
+using Epinova.ElasticSearch.Core.Models.Admin;
 using Epinova.ElasticSearch.Core.Models.Bulk;
 using Epinova.ElasticSearch.Core.Settings;
 using EPiServer;
@@ -20,10 +21,7 @@ using EPiServer.Scheduler;
 
 namespace Epinova.ElasticSearch.Core.EPiServer.Plugin
 {
-    [ScheduledPlugIn(
-        SortIndex = 100000,
-        DisplayName = Constants.IndexEPiServerContentDisplayName,
-        Description = "Indexes CMS content in Elasticsearch.")]
+    [ScheduledPlugIn(SortIndex = 100000, DisplayName = Constants.IndexEPiServerContentDisplayName, Description = "Indexes CMS content in Elasticsearch.")]
     public class IndexEPiServerContent : ScheduledJobBase
     {
         public static event OnBeforeIndexContent BeforeIndexContent;
@@ -39,7 +37,8 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Plugin
         private readonly IServerInfoService _serverInfoService;
         
         private readonly Utilities.Indexing _indexing;
-        
+        private readonly ServerInfo _serverInfo;
+
         public IndexEPiServerContent(IContentIndexService contentIndexService, IContentLoader contentLoader, ICoreIndexer coreIndexer, IIndexer indexer, IBestBetsRepository bestBetsRepository, ILanguageBranchRepository languageBranchRepository, IElasticSearchSettings settings, IServerInfoService serverInfoService, IHttpClientHelper httpClientHelper)
         {
             _coreIndexer = coreIndexer;
@@ -51,6 +50,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Plugin
             _contentLoader = contentLoader;
             _serverInfoService = serverInfoService;
             _indexing = new Utilities.Indexing(serverInfoService, settings, httpClientHelper);
+            _serverInfo = _serverInfoService.GetInfo();
             CustomIndexName = settings.Index;
             IsStoppable = true;
         }
@@ -85,14 +85,10 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Plugin
                 var languages = _languageBranchRepository.ListEnabled();
 
                 if(!IndicesExists(languages))
-                {
                     throw new InvalidOperationException("One or more indices is missing, please create them.");
-                }
 
-                if(!_serverInfoService.ListPlugins().Any(p => p.Component.Equals("ingest-attachment")))
-                {
+                if(_serverInfo.Version < Constants.IngestAttachmentProcessorIncludedVersion && !_serverInfoService.ListPlugins().Any(p => p.Component.Equals("ingest-attachment")))
                     throw new InvalidOperationException("Plugin 'ingest-attachment' is missing, please install it.");
-                }
 
                 List<ContentReference> contentReferences = GetContentReferences();
 
@@ -108,7 +104,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Plugin
                     if(IsStopped)
                         return "Aborted by user";
 
-                    List<IContent> contents = GetDescendentContents(contentReferences.Take(_settings.BulkSize).ToList(), languages);
+                    List<IContent> contents = _contentIndexService.ListContent(contentReferences.Take(_settings.BulkSize).ToList(), languages.ToList()).ToList();
 
                     contents.RemoveAll(_indexer.SkipIndexing);
                     contents.RemoveAll(_indexer.IsExcludedType);
@@ -133,9 +129,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Plugin
                     contentList.RemoveRange(0, removeCount);
 
                     if(IsStopped)
-                    {
                         return "Aborted by user";
-                    }
                 }
 
                 // Index media files one by one regardless of bulk size.
@@ -200,20 +194,13 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Plugin
             return _contentLoader.GetDescendents(ContentReference.RootPage).ToList();
         }
 
-        protected virtual List<IContent> GetDescendentContents(List<ContentReference> contentReferences, IEnumerable<LanguageBranch> languages)
-        {
-            return _contentIndexService.ListContent(contentReferences, languages.ToList()).ToList();
-        }
-
         private bool IndicesExists(IEnumerable<LanguageBranch> languages)
         {
             foreach(var language in languages.Select(l => l.Culture))
             {
                 var indexName = _settings.GetDefaultIndexName(language);
                 if(!_indexing.IndexExists(indexName))
-                {
                     return false;
-                }
             }
 
             return true;
@@ -221,15 +208,15 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Plugin
         
         private void RestoreBestBets(IEnumerable<LanguageBranch> languages)
         {
-            foreach(var language in languages.Select(l => l.Culture))
+            foreach(CultureInfo language in languages.Select(l => l.Culture))
             {
                 try
                 {
                     var indexName = _settings.GetDefaultIndexName(language);
                     _logger.Debug("Index: " + indexName);
                     OnStatusChanged("Restoring best bets for index " + indexName);
-                    var bestBets = _bestBetsRepository.GetBestBets(language, indexName);
-                    foreach(var bestBet in bestBets)
+                    
+                    foreach(var bestBet in _bestBetsRepository.GetBestBets(language, indexName))
                     {
                         _coreIndexer.UpdateBestBets(indexName, typeof(IndexItem), bestBet.Id, bestBet.GetTerms());
                     }

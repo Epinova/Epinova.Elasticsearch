@@ -1,0 +1,34 @@
+variables:
+  system.debug: false
+  major: 11 # Align with Cms/Commerce version
+  minor: 8 # Up when breaking changes
+
+name: $(major).$(minor).$(rev:r) #Build.BuildNumber
+
+trigger:
+  batch: true
+  branches:
+      include:
+      - main
+      - release/*
+
+pool:
+  vmImage: windows-2019
+
+steps:
+- template: .azuredevops/epinova-nuget-steps.yml
+  parameters:
+    dotnetVersions: []
+    dotnetTestFilter: FullyQualifiedName!~IntegrationTests
+    nugetPushServiceConnection: Nuget.org push
+
+- task: GithubRelease@1 
+  displayName: 'Create GitHub Release'      
+  condition: eq(variables['Build.SourceBranch'], 'refs/heads/main')  
+  inputs:
+    gitHubConnection: github.com_otanum
+    repositoryName: Epinova/Epinova.Elasticsearch           
+    tagSource: userSpecifiedTag
+    tag: v$(Build.BuildNumber)      
+    assets: $(Build.ArtifactStagingDirectory)/*.nupkg
+    

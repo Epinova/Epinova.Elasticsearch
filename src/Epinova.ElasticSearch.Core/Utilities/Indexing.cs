@@ -15,10 +15,8 @@ namespace Epinova.ElasticSearch.Core.Utilities
         private readonly IElasticSearchSettings _settings;
         private readonly IHttpClientHelper _httpClientHelper;
 
-        public Indexing(
-            IServerInfoService serverInfoService,
-            IElasticSearchSettings settings,
-            IHttpClientHelper httpClientHelper)
+
+        public Indexing(IServerInfoService serverInfoService, IElasticSearchSettings settings, IHttpClientHelper httpClientHelper)
         {
             _serverInfoService = serverInfoService;
             _settings = settings;
@@ -80,19 +78,10 @@ namespace Epinova.ElasticSearch.Core.Utilities
             index.WaitForStatus();
         }
 
-        internal Uri GetUri(string indexName, string endpoint = null, string type = null, string extraParams = null)
+        internal Uri GetUri(string indexName, string endpoint = null)
         {
-            type = type != null ? String.Concat("/", type) : null;
             endpoint = endpoint != null ? String.Concat("/", endpoint) : null;
-
-            var uri = $"{_settings.Host}/{indexName}{type}{endpoint}";
-
-            if(extraParams != null)
-            {
-                uri += (uri.Contains("?") ? "&" : "?") + extraParams;
-            }
-
-            return new Uri(uri);
+            return new Uri($"{_settings.Host}/{indexName}{endpoint}");;
         }
     }
 }

@@ -30,8 +30,11 @@ namespace Core.Episerver.Tests.Controllers
                     new LanguageBranch(new CultureInfo("no"))
                 });
 
+            var contentTypeRepositoryMock = new Mock<IContentTypeRepository>();
+
             _controller = new ElasticAdminController(
                 fixture.ServiceLocationMock.ContentIndexServiceMock.Object,
+                contentTypeRepositoryMock.Object,
                 languageBranchRepositoryMock.Object,
                 indexerMock.Object,
                 fixture.ServiceLocationMock.SettingsMock.Object,
