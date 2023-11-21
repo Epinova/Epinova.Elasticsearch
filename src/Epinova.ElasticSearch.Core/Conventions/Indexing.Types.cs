@@ -6,16 +6,16 @@ namespace Epinova.ElasticSearch.Core.Conventions
 {
     public sealed partial class Indexing
     {
-        private static readonly List<Type> Types = new List<Type>();
+        private static readonly List<Type> _listExcludedTypes = new List<Type>();
 
-        internal static Type[] ExcludedTypes => Types.ToArray();
+        internal static Type[] ExcludedTypes => _listExcludedTypes.ToArray();
 
         internal Indexing ExcludeType(Type type)
         {
-            if(!Types.Contains(type))
+            if(!_listExcludedTypes.Contains(type))
             {
                 Logger.Information($"Excluding type: {type.FullName}");
-                Types.Add(type);
+                _listExcludedTypes.Add(type);
             }
 
             return this;
@@ -27,7 +27,6 @@ namespace Epinova.ElasticSearch.Core.Conventions
         /// </summary>
         /// <typeparam name="T">The type</typeparam>
         /// <returns>The <see cref="Indexing"/> instance</returns>
-        public Indexing ExcludeType<T>()
-            => ExcludeType(typeof(T));
+        public Indexing ExcludeType<T>() => ExcludeType(typeof(T));
     }
 }
