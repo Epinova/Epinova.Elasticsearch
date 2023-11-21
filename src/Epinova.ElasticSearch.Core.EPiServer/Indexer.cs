@@ -173,6 +173,11 @@ namespace Epinova.ElasticSearch.Core.EPiServer
         {
             return (content?.GetUnproxiedType()).IsExcludedType() || (content?.GetType()).IsExcludedType();
         }
+
+        public bool IsIncludedType(IContent content)
+        {
+            return (content?.GetUnproxiedType()).IsIncludedType() || (content?.GetType()).IsIncludedType();
+        }
         
 
         public bool SkipIndexing(IContent content)
@@ -192,6 +197,9 @@ namespace Epinova.ElasticSearch.Core.EPiServer
             var deleted = GetEpiserverBoolProperty(content.Property["PageDeleted"]);
             if(deleted)
                 return true;
+
+            if(IsIncludedType(content))
+                return false;
 
             if(IsPageWithInvalidLinkType(content))
                 return true;
