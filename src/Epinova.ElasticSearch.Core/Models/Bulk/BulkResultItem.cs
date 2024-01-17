@@ -9,7 +9,6 @@ namespace Epinova.ElasticSearch.Core.Models.Bulk
         public void Populate(BulkMetadataBase metadata, BulkResultItemStatus status)
         {
             Id = metadata.Id;
-            Type = metadata.Type;
             Index = metadata.Index;
             Status = status.Status;
             Version = status.Version;
@@ -21,8 +20,7 @@ namespace Epinova.ElasticSearch.Core.Models.Bulk
         public int Version { get; set; }
 
         public int Status { get; set; }
-
-
+        
         public override string ToString()
         {
             var result = $"Status: {Status}\nId: {Id}\nError: {Error?.Reason}";

@@ -115,19 +115,18 @@ namespace Epinova.ElasticSearch.Core.Utilities
         /// <summary>
         /// Gets all property mappings for the configured index and the supplied type
         /// </summary>
-        internal IndexMapping GetIndexMapping(Type type, string index)
+        internal IndexMapping GetIndexMapping(string index)
         {
-            string typeName = type.GetTypeName();
-            Uri mappingUri = GetMappingUri(index, typeName);
+            Uri mappingUri = GetMappingUri(index);
+
             IndexMapping mappings;
 
-            _logger.Debug($"GetIndexMapping for: {typeName}. Uri: {mappingUri}");
+            _logger.Debug($"GetIndexMapping for Uri: {mappingUri}");
 
             try
             {
                 string mappingJson = _httpClientHelper.GetString(mappingUri);
-                bool isSingleType = _serverInfo.Version >= Constants.SingleTypeMappingVersion;
-                mappings = BuildIndexMapping(isSingleType, mappingJson, index, typeName);
+                mappings = BuildIndexMapping(mappingJson, index);
             }
             catch(Exception ex)
             {
@@ -141,45 +140,16 @@ namespace Epinova.ElasticSearch.Core.Utilities
             return mappings;
         }
 
-        private static IndexMapping BuildIndexMapping(bool isSingleType, string mappingJson, string index, string typeName)
+        private static IndexMapping BuildIndexMapping(string mappingJson, string index)
         {
-            if(isSingleType) //should work for Elastic 7 as well
-            {
-                mappingJson = mappingJson.Replace(index, "indexnamereplacement");
-                return JsonConvert.DeserializeObject<IndexSettings>(mappingJson)?.IndexNameReplacement?.Mappings ?? new IndexMapping();
-            }
-
-            return GetIndexMappingNonSingleType(mappingJson, index, typeName);
+            mappingJson = mappingJson.Replace(index, "indexnamereplacement");
+            return JsonConvert.DeserializeObject<IndexSettings>(mappingJson)?.IndexNameReplacement?.Mappings ?? new IndexMapping();
         }
-
-        private static IndexMapping GetIndexMappingNonSingleType(string mappingJson, string index, string typeName)
+        
+        internal Uri GetMappingUri(string indexName)
         {
-            mappingJson = mappingJson.Replace(" ", "");
-            mappingJson = mappingJson.Replace("\"" + index + "\":", "");
-            mappingJson = mappingJson.Replace("\"" + typeName + "\":", "");
-            mappingJson = mappingJson.Replace("\"mappings\":", "");
-
-            var regex = new Regex(Regex.Escape("}}}"), RegexOptions.RightToLeft);
-            mappingJson = regex.Replace(mappingJson, "", 1);
-            regex = new Regex(Regex.Escape("{{{"));
-            mappingJson = regex.Replace(mappingJson, "", 1);
-
-            if(string.IsNullOrWhiteSpace(mappingJson))
-                return new IndexMapping();
-
-            return JsonConvert.DeserializeObject<IndexMapping>(mappingJson);
-        }
-
-        internal Uri GetMappingUri(string indexName, string type = null)
-        {
-            type = type != null && _serverInfo.Version < Constants.SingleTypeMappingVersion ? String.Concat("/", type) : null;
-            
-            var uri = $"{_settings.Host}/{indexName}{type}/_mapping";
-
-            if(_serverInfo.Version >= Constants.IncludeTypeNameAddedVersion && _serverInfo.Version < Constants.SingleTypeMappingVersion)
-                uri += "?include_type_name=true";
-
-            return new Uri(uri);
+            string uriString = $"{_settings.Host}/{indexName}/_mapping";
+            return new Uri(uriString);
         }
     }
 }

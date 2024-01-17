@@ -48,9 +48,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Controllers
             
             if(!String.IsNullOrWhiteSpace(index) && indices.Contains(index) && runQuery)
             {
-                string uri = $"{_settings.Host}/{index}/_search";
-                if(_serverInfoService.GetInfo().Version >= Constants.TotalHitsAsIntAddedVersion)
-                    uri += "?rest_total_hits_as_int=true";
+                string uri = $"{_settings.Host}/{index}/_search?rest_total_hits_as_int=true";
 
                 byte[] data = Encoding.UTF8.GetBytes(query);
                 byte[] returnData = _httpClientHelper.Post(new Uri(uri), data);

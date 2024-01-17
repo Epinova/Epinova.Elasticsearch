@@ -50,7 +50,7 @@ namespace Epinova.ElasticSearch.Core.Engine
         internal void SetMappedFields(string[] fields) =>
             _mappedFields = fields;
 
-        private string[] GetMappedFields(string index, Type type)
+        private string[] GetMappedFields(string index)
         {
             _logger.Debug("Get mapped fields");
 
@@ -58,7 +58,7 @@ namespace Epinova.ElasticSearch.Core.Engine
             {
                 _logger.Debug("No mapped fields found, lookup with Mapping.GetIndexMapping");
 
-                _mappedFields = _mapping.GetIndexMapping(type, index)
+                _mappedFields = _mapping.GetIndexMapping( index)
                     .Properties
                     .Where(m => _searchableFieldTypes.Contains(m.Value.Type)
                         && !m.Key.EndsWith(Models.Constants.KeywordSuffix))
@@ -105,7 +105,7 @@ namespace Epinova.ElasticSearch.Core.Engine
 
             if(setup.SearchFields.Count == 0)
             {
-                setup.SearchFields.AddRange(GetMappedFields(setup.IndexName, setup.SearchType));
+                setup.SearchFields.AddRange(GetMappedFields(setup.IndexName));
             }
 
             if(_logger.IsDebugEnabled())

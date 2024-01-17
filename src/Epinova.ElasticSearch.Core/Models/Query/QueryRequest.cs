@@ -18,9 +18,7 @@ namespace Epinova.ElasticSearch.Core.Models.Query
             Query.SearchText = querySetup.SearchText.ToLower();
 
             _sortFields = querySetup.SortFields;
-            _scriptField = querySetup.ServerVersion >= Core.Constants.InlineVsSourceVersion
-                ? JsonNames.ScriptSource
-                : JsonNames.Inline;
+            _scriptField = JsonNames.ScriptSource;
 
             From = querySetup.From;
             Size = querySetup.Size;

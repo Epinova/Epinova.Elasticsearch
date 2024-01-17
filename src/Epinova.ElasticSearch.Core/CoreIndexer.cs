@@ -219,7 +219,7 @@ namespace Epinova.ElasticSearch.Core
                 }
 
                 // Get mappings from server
-                mapping = _mapping.GetIndexMapping(typeof(IndexItem), indexName);
+                mapping = _mapping.GetIndexMapping(indexName);
 
                 // Ignore special mappings
                 mapping.Properties.Remove(DefaultFields.AttachmentData);
@@ -254,7 +254,7 @@ namespace Epinova.ElasticSearch.Core
 
                 json = JsonConvert.SerializeObject(mapping, jsonSettings);
                 var data = Encoding.UTF8.GetBytes(json);
-                var uri = _mapping.GetMappingUri(indexName, typeof(IndexItem).GetTypeName());
+                var uri = _mapping.GetMappingUri(indexName);
                 
                 _logger.Debug("Update mapping:\n" + JToken.Parse(json).ToString(Formatting.Indented));
 
@@ -323,7 +323,7 @@ namespace Epinova.ElasticSearch.Core
             _logger.Information("IndexableProperties for " + typeName + ": " + String.Join(", ", indexableProperties.Select(p => p.Name)));
 
             // Get existing mapping
-            IndexMapping mapping = _mapping.GetIndexMapping(indexType, index);
+            IndexMapping mapping = _mapping.GetIndexMapping(index);
 
             // Ignore special mappings
             mapping.Properties.Remove(DefaultFields.AttachmentData);
@@ -359,7 +359,7 @@ namespace Epinova.ElasticSearch.Core
             var jsonSettings = new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore };
             var json = JsonConvert.SerializeObject(mapping, jsonSettings);
             var data = Encoding.UTF8.GetBytes(json);
-            var uri = _mapping.GetMappingUri(index, indexType.GetTypeName());
+            var uri = _mapping.GetMappingUri(index);
             
             _logger.Information("Update mapping:\n" + JToken.Parse(json).ToString(Formatting.Indented));
 

@@ -52,9 +52,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Extensions
             var serverInfo = ServiceLocator.Current.GetInstance<IServerInfoService>();
             var repository = ServiceLocator.Current.GetInstance<IAutoSuggestRepository>();
 
-            var skipDuplicates = serverInfo.GetInfo().Version >= Constants.SkipDuplicatesFieldVersion;
-
-            var request = new SuggestRequest(searchText, service.SizeValue, skipDuplicates);
+            var request = new SuggestRequest(searchText, service.SizeValue);
 
             var elasticSuggestions = engine.GetSuggestions(request, service.SearchLanguage, service.IndexName);
 

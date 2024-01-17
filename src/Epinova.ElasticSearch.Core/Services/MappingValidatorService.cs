@@ -34,7 +34,7 @@ namespace Epinova.ElasticSearch.Core.Services
         {
             var errors = new List<MappingValidatorType>();
 
-            IndexMapping currentMappings = _mapping.GetIndexMapping(type, indexName);
+            IndexMapping currentMappings = _mapping.GetIndexMapping(indexName);
 
             List<(Type, List<IndexableProperty>)> correctMappings = GetCorrectMappings(indexName, type);
 

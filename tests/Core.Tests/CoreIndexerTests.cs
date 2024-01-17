@@ -60,9 +60,9 @@ namespace Core.Tests
         [Fact]
         public void Bulk_CallsClientPost()
         {
-            var id = Factory.GetInteger().ToString();
+            var id = Factory.GetInteger();
             string indexName = new ElasticSearchSettings().GetCustomIndexName("my-index", new CultureInfo("en"));
-            _coreIndexer.Bulk(new BulkOperation(indexName, new { Foo = "bar" }, isSingleType: false, Operation.Index, null, id));
+            _coreIndexer.Bulk(new BulkOperation(indexName, new { Foo = "bar" }, Operation.Index, null, id));
 
             _fixture.ServiceLocationMock.HttpClientMock
                 .Verify(m => m.Post(new Uri($"http://example.com/_bulk?pipeline={Epinova.ElasticSearch.Core.Pipelines.Attachment.Name}"), It.IsAny<Stream>()), Times.AtLeastOnce);
@@ -72,7 +72,7 @@ namespace Core.Tests
         public void Bulk_ReturnsBatchResults()
         {
             string indexName = new ElasticSearchSettings().GetCustomIndexName("my-index", new CultureInfo("en"));
-            var result = _coreIndexer.Bulk(new BulkOperation(indexName,  new { Foo = 42 }, isSingleType: false, Operation.Index, null, "123"));
+            var result = _coreIndexer.Bulk(new BulkOperation(indexName,  new { Foo = 42 }, Operation.Index, null, 123));
             Assert.NotEmpty(result.Batches);
         }
 

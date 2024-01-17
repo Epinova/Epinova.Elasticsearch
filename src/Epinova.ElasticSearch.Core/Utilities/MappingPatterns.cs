@@ -46,15 +46,6 @@ namespace Epinova.ElasticSearch.Core.Utilities
 
         private static readonly dynamic Fields = new { keyword = new { ignore_above = 256, type = JsonNames.Keyword } };
 
-        internal static string GetDisableDynamicMapping(string typeName)
-        {
-            return "{ " +
-                   "    \"" + typeName + "\": { " +
-                   "        \"dynamic\": false" +
-                   "    }" +
-                   "}";
-        }
-
         internal static dynamic GetStandardIndexMappingWithoutType(string languageName)
         {
             return new
@@ -69,7 +60,7 @@ namespace Epinova.ElasticSearch.Core.Utilities
                     Indexed = new { type = "date" },
                     Name = new { type = _textType, fields = Fields },
                     _bestbets = new { type = _textType, fields = Fields },
-                    ParentLink = new { type = _longType },
+                    ParentId = new { type = _longType },
                     Path = new { type = _longType },
                     Lang = new { type = _textType },
                     DidYouMean = new { type = _textType, analyzer = languageName + "_suggest", fields = new { keyword = new { ignore_above = 8191, type = JsonNames.Keyword } } },
@@ -127,15 +118,9 @@ namespace Epinova.ElasticSearch.Core.Utilities
             };
         }
 
-        internal static dynamic GetStandardIndexMapping(bool useSingleType, string languageName)
+        internal static dynamic GetStandardIndexMapping(string languageName)
         {
-            return useSingleType
-                ? GetStandardIndexMappingWithoutType(languageName)
-                : new
-                {
-                    Epinova_ElasticSearch_Core_Models_IndexItem =
-                        GetStandardIndexMappingWithoutType(languageName)
-                };
+            return GetStandardIndexMappingWithoutType(languageName);
         }
     }
 }

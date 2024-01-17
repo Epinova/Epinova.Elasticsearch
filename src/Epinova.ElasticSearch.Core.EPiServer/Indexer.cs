@@ -80,10 +80,9 @@ namespace Epinova.ElasticSearch.Core.EPiServer
                             string indexName = _elasticSearchSettings.GetCustomIndexName(index, language);
 
                             dynamic indexItem = content.AsIndexItem();
-                            string id = content.ContentLink.ToReferenceWithoutVersion().ToString();
-                            bool isSingleType = _serverInfo.Version >= Constants.SingleTypeMappingVersion;
+                            int id = content.ContentLink.ToReferenceWithoutVersion().ID;
 
-                            return new BulkOperation(indexName, indexItem, isSingleType, Operation.Index, typeof(IndexItem), id);
+                            return new BulkOperation(indexName, indexItem, Operation.Index, typeof(IndexItem), id);
                         }
                     )
                     .Where(b => b.Data != null)

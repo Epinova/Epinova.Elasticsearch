@@ -405,25 +405,15 @@ namespace Epinova.ElasticSearch.Core
                 return null;
             }
 
-            var scriptScore = new ScriptScore
+            return new ScriptScore
             {
                 Script = new ScriptScore.ScriptScoreInner
                 {
                     Language = _customScriptScoreLanguage,
-                    Parameters = _customScriptScoreParams
+                    Parameters = _customScriptScoreParams,
+                    Source = _customScriptScoreSource
                 }
             };
-
-            if(version >= Constants.InlineVsSourceVersion)
-            {
-                scriptScore.Script.Source = _customScriptScoreSource;
-            }
-            else
-            {
-                scriptScore.Script.Inline = _customScriptScoreSource;
-            }
-
-            return scriptScore;
         }
 
         public IElasticSearchService<T> MoreLikeThis<T>(string id, int minimumTermFrequency = 1, int maxQueryTerms = 25, int minimumDocFrequency = 3, int minimumWordLength = 3)
