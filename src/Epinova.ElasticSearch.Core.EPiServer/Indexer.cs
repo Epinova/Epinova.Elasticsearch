@@ -179,7 +179,6 @@ namespace Epinova.ElasticSearch.Core.EPiServer
             return (content?.GetUnproxiedType()).IsIncludedType() || (content?.GetType()).IsIncludedType();
         }
         
-
         public bool SkipIndexing(IContent content)
         {
             if(content is ContentFolder)
