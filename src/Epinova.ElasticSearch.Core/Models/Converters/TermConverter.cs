@@ -35,10 +35,12 @@ namespace Epinova.ElasticSearch.Core.Models.Converters
             if(ArrayHelper.IsArrayCandidate(term.Value.GetType()))
             {
                 writer.WriteStartArray();
-                foreach(object item in ArrayHelper.ToArray(term.Value) as object[] ?? new object[0])
-                {
-                    writer.WriteValue(item);
-                }
+
+                Array array = ArrayHelper.ToArray(term.Value) as Array ?? Array.Empty<object>();
+
+                for(int i = 0; i < array.Length; i++)
+                    writer.WriteValue(array.GetValue(i));
+
                 writer.WriteEndArray();
             }
             else

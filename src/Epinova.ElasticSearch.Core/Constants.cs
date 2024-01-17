@@ -12,19 +12,25 @@ namespace Epinova.ElasticSearch.Core
         public const string IndexEPiServerContentDisplayName = "Elasticsearch: Index CMS content";
         public const string DefaultSynonym = "example_from,example_to";
 
-        internal static readonly Version MinimumSupportedVersion = new Version(5, 0);
+        public static readonly Version MinimumSupportedVersion = new Version(5, 0);
 
         // There was a breaking change in v5.6 renaming the "inline" field to "source" in scripts
-        internal static readonly Version InlineVsSourceVersion = new Version(5, 6);
+        public static readonly Version InlineVsSourceVersion = new Version(5, 6);
 
         // Flag "skip_duplicates" was added in v6.1 for suggestions
-        internal static readonly Version SkipDuplicatesFieldVersion = new Version(6, 1);
+        public static readonly Version SkipDuplicatesFieldVersion = new Version(6, 1);
 
         // Param "rest_total_hits_as_int" was added in v7.0
-        internal static readonly Version TotalHitsAsIntAddedVersion = new Version(7, 0);
+        public static readonly Version TotalHitsAsIntAddedVersion = new Version(7, 0);
 
         // Param "include_type_name" was added in v7.0
-        internal static readonly Version IncludeTypeNameAddedVersion = new Version(7, 0);
+        public static readonly Version IncludeTypeNameAddedVersion = new Version(7, 0);
+
+        // Single Type mapping required in v8.0
+        public static readonly Version SingleTypeMappingVersion = new Version(8, 0);
+
+        // Plugin 'ingest-attachment' is included in Elastic for v8.4.
+        public static readonly Version IngestAttachmentProcessorIncludedVersion = new Version(8, 4);
 
         internal static class Tracking
         {

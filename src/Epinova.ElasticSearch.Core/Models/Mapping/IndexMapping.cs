@@ -7,6 +7,18 @@ using Newtonsoft.Json;
 
 namespace Epinova.ElasticSearch.Core.Models.Mapping
 {
+    internal class IndexSettings
+    {
+        [JsonProperty("indexnamereplacement")]
+        internal IndexNameReplacement IndexNameReplacement { get; set; }
+    }
+
+    internal class IndexNameReplacement
+    {
+        [JsonProperty(JsonNames.Mappings)]
+        internal IndexMapping Mappings { get; set; }
+    }
+
     internal class IndexMapping
     {
         private static readonly ILogger Logger = LogManager.GetLogger(typeof(IndexMapping));

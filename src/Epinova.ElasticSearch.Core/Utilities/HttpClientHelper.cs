@@ -27,9 +27,7 @@ namespace Epinova.ElasticSearch.Core.Utilities
             data ??= Array.Empty<byte>();
             Logger.Debug($"Uri: {uri}, Data:\n{data}");
 
-            HttpResponseMessage response = AsyncUtil.RunSync(() =>
-                Client.PutAsync(uri, JsonContent(data))
-            );
+            HttpResponseMessage response = AsyncUtil.RunSync(() => Client.PutAsync(uri, JsonContent(data)));
 
             LogAndThrowIfNotSuccess(response);
         }
@@ -59,15 +57,11 @@ namespace Epinova.ElasticSearch.Core.Utilities
                 };
                 request.Headers.ConnectionClose = false;
 
-                HttpResponseMessage response = AsyncUtil.RunSync(() =>
-                    Client.SendAsync(request, HttpCompletionOption.ResponseHeadersRead)
-                );
+                HttpResponseMessage response = AsyncUtil.RunSync(() => Client.SendAsync(request, HttpCompletionOption.ResponseHeadersRead));
 
                 LogAndThrowIfNotSuccess(response);
 
-                return AsyncUtil.RunSync(() =>
-                      response.Content.ReadAsByteArrayAsync()
-                );
+                return AsyncUtil.RunSync(() => response.Content.ReadAsByteArrayAsync());
             }
         }
 
@@ -76,15 +70,11 @@ namespace Epinova.ElasticSearch.Core.Utilities
             data ??= Array.Empty<byte>();
             Logger.Debug($"Uri: {uri}, Data:\n{data}");
 
-            HttpResponseMessage response = AsyncUtil.RunSync(() =>
-                  Client.PostAsync(uri, JsonContent(data))
-            );
+            HttpResponseMessage response = AsyncUtil.RunSync(() => Client.PostAsync(uri, JsonContent(data)));
 
             LogAndThrowIfNotSuccess(response);
 
-            return AsyncUtil.RunSync(() =>
-                  response.Content.ReadAsByteArrayAsync()
-            );
+            return AsyncUtil.RunSync(() => response.Content.ReadAsByteArrayAsync());
         }
 
         public async Task<byte[]> PostAsync(Uri uri, byte[] data, CancellationToken cancellationToken)
@@ -108,18 +98,14 @@ namespace Epinova.ElasticSearch.Core.Utilities
 
             LogAndThrowIfNotSuccess(response);
 
-            return AsyncUtil.RunSync(() =>
-                response.Content.ReadAsStringAsync()
-            );
+            return AsyncUtil.RunSync(() => response.Content.ReadAsStringAsync());
         }
 
         public string GetString(Uri uri)
         {
             Logger.Debug($"Uri: {uri}");
 
-            return AsyncUtil.RunSync(() =>
-                Client.GetStringAsync(uri)
-            );
+            return AsyncUtil.RunSync(() => Client.GetStringAsync(uri));
         }
 
         public async Task<string> GetStringAsync(Uri uri)
@@ -135,9 +121,7 @@ namespace Epinova.ElasticSearch.Core.Utilities
 
             try
             {
-                HttpResponseMessage response = AsyncUtil.RunSync(() =>
-                    Client.SendAsync(new HttpRequestMessage(HttpMethod.Head, uri))
-                );
+                HttpResponseMessage response = AsyncUtil.RunSync(() => Client.SendAsync(new HttpRequestMessage(HttpMethod.Head, uri)));
 
                 HttpStatusCode statusCode = response.StatusCode;
                 Logger.Debug($"Status: {statusCode}");
@@ -174,9 +158,7 @@ namespace Epinova.ElasticSearch.Core.Utilities
         {
             Logger.Debug($"Uri: {uri}");
 
-            HttpResponseMessage response = AsyncUtil.RunSync(() =>
-                Client.DeleteAsync(uri)
-            );
+            HttpResponseMessage response = AsyncUtil.RunSync(() => Client.DeleteAsync(uri));
 
             HttpStatusCode statusCode = response.StatusCode;
             Logger.Debug($"Status: {statusCode}");
@@ -198,9 +180,7 @@ namespace Epinova.ElasticSearch.Core.Utilities
             {
                 Logger.Error($"Got status: {response.StatusCode}");
 
-                string error = AsyncUtil.RunSync(() =>
-                     response.Content.ReadAsStringAsync()
-                );
+                string error = AsyncUtil.RunSync(() => response.Content.ReadAsStringAsync());
 
                 var errorMessage = "HTTP request failed";
 
@@ -234,22 +214,16 @@ namespace Epinova.ElasticSearch.Core.Utilities
             IElasticSearchSettings settings = ServiceLocator.Current.GetInstance<IElasticSearchSettings>();
 
             if(settings.UseTls12)
-            {
-                ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
-            }
+                ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;  
 
             var client = MessageHandler.Instance.Handler != null
                 ? new HttpClient(MessageHandler.Instance.Handler)
                 : new HttpClient();
 
-            if(!String.IsNullOrEmpty(settings.Username)
-                && !String.IsNullOrEmpty(settings.Password))
+            if(!String.IsNullOrEmpty(settings.Username) && !String.IsNullOrEmpty(settings.Password))
             {
-                var credentials = Encoding.ASCII.GetBytes(
-                    String.Concat(settings.Username, ":", settings.Password));
-
-                client.DefaultRequestHeaders.Authorization =
-                    new AuthenticationHeaderValue("Basic", Convert.ToBase64String(credentials));
+                var credentials = Encoding.ASCII.GetBytes(String.Concat(settings.Username, ":", settings.Password));
+                client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", Convert.ToBase64String(credentials));
             }
             else
             {
@@ -257,9 +231,7 @@ namespace Epinova.ElasticSearch.Core.Utilities
             }
 
             if(settings.ClientTimeoutSeconds > 0)
-            {
                 client.Timeout = TimeSpan.FromSeconds(settings.ClientTimeoutSeconds);
-            }
 
             return client;
         }

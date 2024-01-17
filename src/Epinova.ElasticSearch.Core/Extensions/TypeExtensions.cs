@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Deployment.Internal;
 using System.Linq;
 using System.Reflection;
+using Epinova.ElasticSearch.Core.Admin;
 using Epinova.ElasticSearch.Core.Attributes;
 using Epinova.ElasticSearch.Core.Contracts;
 using Epinova.ElasticSearch.Core.Conventions;
@@ -68,9 +70,17 @@ namespace Epinova.ElasticSearch.Core.Extensions
                 return true;
             }
 
+            if(IsIncludedType(type))
+                return false;
+
             return Indexing.ExcludedTypes.Contains(type)
                    || type.GetCustomAttributes(typeof(ExcludeFromSearchAttribute), true).Length > 0
                    || DerivesFromExcludedType(type);
+        }
+
+        internal static bool IsIncludedType(this Type type)
+        {
+            return Indexing.IncludedTypes.Contains(type);
         }
 
         private static bool DerivesFromExcludedType(Type typeToCheck)

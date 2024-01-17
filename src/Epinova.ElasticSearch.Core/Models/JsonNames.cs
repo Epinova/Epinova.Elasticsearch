@@ -55,6 +55,7 @@
         public const string Lon = "lon";
         public const string LuceneVersion = "lucene_version";
         public const string MappingIndex = "index";
+        public const string Mappings = "mappings";
         public const string Match = "match";
         public const string MatchAll = "match_all";
         public const string MaxQueryTerms = "max_query_terms";

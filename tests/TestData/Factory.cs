@@ -340,7 +340,7 @@ namespace TestData
         private static string GetFilePath(string folder, string filename)
         {
             var appDir = new DirectoryInfo(AppDomain.CurrentDomain.BaseDirectory);
-            var jsonDir = Path.Combine(appDir.Parent?.Parent?.Parent?.FullName ?? String.Empty, "Tests", "TestData", folder);
+            var jsonDir = Path.Combine(appDir.Parent?.Parent?.Parent?.Parent?.Parent?.FullName ?? String.Empty, "Tests", "TestData", folder);
 
             return Path.Combine(jsonDir, filename);
         }
