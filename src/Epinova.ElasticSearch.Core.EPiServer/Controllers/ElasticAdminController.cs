@@ -130,11 +130,11 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Controllers
             Index index = CreateIndex(indexType, indexName);
 
             if(IsCustomType(indexType))
-                _coreIndexer.UpdateMapping(indexType, indexType, indexName, lang, optIn: false);
+                _coreIndexer.UpdateMapping(indexType, indexName, lang, optIn: false);
             else
             {
                 List<Type> allTypes = ListAllTypes(lang);
-                UpdateMappingForTypes(indexType, indexName, lang, allTypes);
+                UpdateMappingForTypes(indexName, lang, allTypes);
             }
 
             index.WaitForStatus();
@@ -216,11 +216,11 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Controllers
 
         protected List<Type> ListAllTypes(string languageKey) => languageKey.Equals(Constants.InvariantCultureIndexNamePostfix) ? ListOptimizelyMediaTypes() : ListCmsContentTypes();
 
-        protected void UpdateMappingForTypes(Type indexType, string indexName, string languageKey, List<Type> allTypes)
+        protected void UpdateMappingForTypes(string indexName, string languageKey, List<Type> allTypes)
         {
             foreach(Type type in allTypes)
             {
-                _coreIndexer.UpdateMapping(type, indexType, indexName, languageKey, optIn: false);
+                _coreIndexer.UpdateMapping(type, indexName, languageKey, optIn: false);
             }
         }
 

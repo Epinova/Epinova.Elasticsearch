@@ -12,8 +12,8 @@ namespace Epinova.ElasticSearch.Core
         public const string IndexEPiServerContentDisplayName = "Elasticsearch: Index CMS content";
         public const string DefaultSynonym = "example_from,example_to";
 
-        public static readonly Version MinimumSupportedVersion = new Version(7, 0);
-
+        internal static readonly Version MinimumSupportedVersion = new Version(7, 3);
+        
         // Plugin 'ingest-attachment' is included in Elastic for v8.4.
         public static readonly Version IngestAttachmentProcessorIncludedVersion = new Version(8, 4);
 

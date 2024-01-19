@@ -79,8 +79,8 @@ namespace Core.Tests
         [Fact]
         public void Delete_CallsClientHeadAndDelete()
         {
-            var id = Factory.GetInteger().ToString();
-            _coreIndexer.Delete(id, new CultureInfo("sv"), typeof(TestPage));
+            var id = Factory.GetInteger();
+            _coreIndexer.Delete(id, new CultureInfo("sv"));
             var uri = new Uri($"http://example.com/delete-me/{typeof(TestPage).GetTypeName()}/{id}");
 
             _fixture.ServiceLocationMock.HttpClientMock
@@ -92,7 +92,7 @@ namespace Core.Tests
         [Fact]
         public void Update_CallsClientPut()
         {
-            var id = Factory.GetInteger().ToString();
+            var id = Factory.GetInteger();
             _coreIndexer.Update(id, new { Foo = 42 }, "my-index");
 
             _fixture.ServiceLocationMock.HttpClientMock
@@ -102,7 +102,7 @@ namespace Core.Tests
         [Fact]
         public void Update_WithTypes_CallsClientPut()
         {
-            var id = Factory.GetInteger().ToString();
+            var id = Factory.GetInteger();
             _coreIndexer.Update(id, new { Foo = 42, Types = new[] { "foo", "bar" } }, "my-index");
 
             _fixture.ServiceLocationMock.HttpClientMock
@@ -112,7 +112,7 @@ namespace Core.Tests
         [Fact]
         public void Update_RefreshesIndex()
         {
-            var id = Factory.GetInteger().ToString();
+            var id = Factory.GetInteger();
             _coreIndexer.Update(id, new { Foo = 42 }, "my-index");
 
             _fixture.ServiceLocationMock.HttpClientMock
@@ -122,7 +122,7 @@ namespace Core.Tests
         [Fact]
         public void Update_CallsBeforeUpdateItemEvent()
         {
-            var id = Factory.GetInteger().ToString();
+            var id = Factory.GetInteger();
             bool eventCalled = false;
             _coreIndexer.BeforeUpdateItem += _ => eventCalled = true;
             _coreIndexer.Update(id, new { Foo = 42 }, "my-index");
@@ -132,18 +132,18 @@ namespace Core.Tests
         [Fact]
         public void ClearBestBets_FiresAfterUpdateBestBetEvent()
         {
-            var id = Factory.GetInteger().ToString();
+            var id = Factory.GetInteger();
             bool eventCalled = false;
             _coreIndexer.AfterUpdateBestBet += _ => eventCalled = true;
-            _coreIndexer.ClearBestBets("my-index", typeof(TestPage), id);
+            _coreIndexer.ClearBestBets("my-index", id);
             Assert.True(eventCalled);
         }
 
         [Fact]
         public void ClearBestBets_CallsClientPost()
         {
-            var id = Factory.GetInteger().ToString();
-            _coreIndexer.ClearBestBets("my-index", typeof(TestPage), id);
+            var id = Factory.GetInteger();
+            _coreIndexer.ClearBestBets("my-index", id);
 
             _fixture.ServiceLocationMock.HttpClientMock
                 .Verify(m => m.Post(new Uri($"http://example.com/my-index/{typeof(TestPage).GetTypeName()}/{id}/_update"), It.IsAny<byte[]>()), Times.Once);
@@ -152,18 +152,18 @@ namespace Core.Tests
         [Fact]
         public void UpdateBestBets_FiresAfterUpdateBestBetEvent()
         {
-            var id = Factory.GetInteger().ToString();
+            var id = Factory.GetInteger();
             bool eventCalled = false;
             _coreIndexer.AfterUpdateBestBet += _ => eventCalled = true;
-            _coreIndexer.UpdateBestBets("my-index", typeof(TestPage), id, new[] { "foo", "bar" });
+            _coreIndexer.UpdateBestBets("my-index", id, new[] { "foo", "bar" });
             Assert.True(eventCalled);
         }
 
         [Fact]
         public void UpdateBestBets_CallsClientPost()
         {
-            var id = Factory.GetInteger().ToString();
-            _coreIndexer.ClearBestBets("my-index", typeof(TestPage), id);
+            var id = Factory.GetInteger();
+            _coreIndexer.ClearBestBets("my-index", id);
 
             _fixture.ServiceLocationMock.HttpClientMock
                 .Verify(m => m.Post(new Uri($"http://example.com/my-index/{typeof(TestPage).GetTypeName()}/{id}/_update"), It.IsAny<byte[]>()), Times.Once);
@@ -172,8 +172,8 @@ namespace Core.Tests
         [Fact]
         public void UpdateBestBets_RefreshesIndex()
         {
-            var id = Factory.GetInteger().ToString();
-            _coreIndexer.UpdateBestBets("my-index", typeof(TestPage), id, new[] { "foo", "bar" });
+            var id = Factory.GetInteger();
+            _coreIndexer.UpdateBestBets("my-index", id, new[] { "foo", "bar" });
 
             _fixture.ServiceLocationMock.HttpClientMock
                 .Verify(m => m.GetString(new Uri("http://example.com/my-index/_refresh")), Times.AtLeastOnce);

@@ -1,33 +1,29 @@
 ﻿using System;
 using System.Linq;
-using EPiServer.Core;
 
 namespace Epinova.ElasticSearch.Core.Conventions
 {
     public sealed class BestBet
     {
-        public BestBet(string phrase, ContentReference contentLink, string url = null)
+        public BestBet(string phrase, long id)
         {
-            Id = contentLink.ToString();
+            Id = id;
             Phrase = phrase;
-            Url = url;
-            Provider = contentLink.ProviderName;
         }
 
-        public string Id { get; }
+        public long Id { get; }
 
-        public string Provider { get; }
+        public string Provider => "";
+        public string Url => "";
 
         public string Name { get; set; }
-
-        public string Url { get; }
 
         public string Phrase { get; }
 
         internal string[] GetTerms()
         {
             return String.IsNullOrWhiteSpace(Phrase)
-                ? new string[0]
+                ? Array.Empty<string>()
                 : Phrase.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries)
                     .Select(t => t.Trim())
                     .ToArray();

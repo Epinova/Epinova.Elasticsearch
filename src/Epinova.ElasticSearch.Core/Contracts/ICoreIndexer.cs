@@ -20,28 +20,27 @@ namespace Epinova.ElasticSearch.Core.Contracts
         /// </summary>
         /// <param name="id">The id of item to remove</param>
         /// <param name="language">Language</param>
-        /// <param name="type">Type</param>
         /// <param name="indexName">Index name</param>
-        void Delete(string id, CultureInfo language, Type type, string indexName = null);
+        void Delete(long id, CultureInfo language, string indexName = null);
 
         /// <summary>
         /// Adds or updates an item in the index
         /// </summary>
-        void Update(string id, object objectToUpdate, string indexName, Type type = null);
+        void Update(long id, object objectToUpdate, string indexName, Type type = null);
 
         /// <summary>
-        /// Updates best bets for document of type <paramref name="indexType"/>, with id <paramref name="id"/>
+        /// Updates best bets for document with id <paramref name="id"/>
         /// </summary>
-        void UpdateBestBets(string indexName, Type indexType, string id, string[] terms);
+        void UpdateBestBets(string indexName, long id, string[] terms);
 
         void CreateAnalyzedMappingsIfNeeded(Type type, string language, string indexName = null);
 
         /// <summary>
-        /// Removes best bets for document of type <paramref name="indexType"/>, with id <paramref name="id"/>
+        /// Removes best bets for document with id <paramref name="id"/>
         /// </summary>
-        void ClearBestBets(string indexName, Type indexType, string id);
+        void ClearBestBets(string indexName, long id);
 
-        void UpdateMapping(Type type, Type indexType, string index, string language, bool optIn);
+        void UpdateMapping(Type indexType, string index, string language, bool optIn);
 
         /// <summary>
         /// Performs a bulk operation

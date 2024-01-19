@@ -218,7 +218,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Plugin
                     
                     foreach(var bestBet in _bestBetsRepository.GetBestBets(language, indexName))
                     {
-                        _coreIndexer.UpdateBestBets(indexName, typeof(IndexItem), bestBet.Id, bestBet.GetTerms());
+                        _coreIndexer.UpdateBestBets(indexName, bestBet.Id, bestBet.GetTerms());
                     }
                 }
                 catch(Exception ex)

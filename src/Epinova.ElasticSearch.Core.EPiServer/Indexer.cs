@@ -98,14 +98,14 @@ namespace Epinova.ElasticSearch.Core.EPiServer
             var language = Utilities.Language.GetRequestLanguage();
 
             var indexName = GetIndexname(contentLink, null, language);
-            _coreIndexer.Delete(contentLink.ToReferenceWithoutVersion().ToString(), language, typeof(IndexItem), indexName);
+            _coreIndexer.Delete(contentLink.ID, language, indexName);
         }
 
         public void Delete(IContent content, string indexName = null)
         {
             indexName = GetIndexname(content.ContentLink, indexName, GetLanguage(content));
 
-            _coreIndexer.Delete(content.ContentLink.ToReferenceWithoutVersion().ToString(), GetLanguage(content), typeof(IndexItem), indexName);
+            _coreIndexer.Delete(content.ContentLink.ID, GetLanguage(content), indexName);
         }
 
         public IndexingStatus UpdateStructure(IContent root, string indexName = null)
@@ -146,7 +146,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer
             if(IsExcludedByRoot(content))
                 return IndexingStatus.ExcludedByConvention;
 
-            _coreIndexer.Update(content.ContentLink.ToReferenceWithoutVersion().ToString(), content.AsIndexItem(), indexName, typeof(IndexItem));
+            _coreIndexer.Update(content.ContentLink.ID, content.AsIndexItem(), indexName, typeof(IndexItem));
 
             return IndexingStatus.Ok;
         }

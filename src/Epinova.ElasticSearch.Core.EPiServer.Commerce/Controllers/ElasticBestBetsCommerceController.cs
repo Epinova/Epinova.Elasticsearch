@@ -18,7 +18,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Commerce.Controllers
         private readonly IElasticSearchSettings _settings;
         private readonly ReferenceConverter _referenceConverter;
 
-        public ElasticBestBetsCommerceController(IContentLoader contentLoader, IBestBetsRepository bestBetsRepository, ILanguageBranchRepository languageBranchRepository, IElasticSearchSettings settings, IServerInfoService serverInfoService, IHttpClientHelper httpClientHelper, ReferenceConverter referenceConverter) : base(contentLoader, bestBetsRepository, languageBranchRepository, settings, serverInfoService, httpClientHelper)
+        public ElasticBestBetsCommerceController(IContentLoader contentLoader, IBestBetsRepository bestBetsRepository, IElasticSearchService elasticSearchService, ILanguageBranchRepository languageBranchRepository, IElasticSearchSettings settings, IServerInfoService serverInfoService, IHttpClientHelper httpClientHelper, ReferenceConverter referenceConverter) : base(contentLoader, bestBetsRepository, languageBranchRepository, elasticSearchService, settings, serverInfoService, httpClientHelper)
         {
             _settings = settings;
             _referenceConverter = referenceConverter;
