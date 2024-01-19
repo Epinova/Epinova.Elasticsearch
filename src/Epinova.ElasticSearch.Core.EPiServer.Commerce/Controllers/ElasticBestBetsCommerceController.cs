@@ -5,7 +5,6 @@ using Epinova.ElasticSearch.Core.Contracts;
 using Epinova.ElasticSearch.Core.EPiServer.Controllers;
 using Epinova.ElasticSearch.Core.EPiServer.Models.ViewModels;
 using Epinova.ElasticSearch.Core.Settings;
-using EPiServer;
 using EPiServer.Commerce.Catalog.ContentTypes;
 using EPiServer.Core;
 using EPiServer.DataAbstraction;
@@ -18,7 +17,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Commerce.Controllers
         private readonly IElasticSearchSettings _settings;
         private readonly ReferenceConverter _referenceConverter;
 
-        public ElasticBestBetsCommerceController(IContentLoader contentLoader, IBestBetsRepository bestBetsRepository, IElasticSearchService elasticSearchService, ILanguageBranchRepository languageBranchRepository, IElasticSearchSettings settings, IServerInfoService serverInfoService, IHttpClientHelper httpClientHelper, ReferenceConverter referenceConverter) : base(contentLoader, bestBetsRepository, languageBranchRepository, elasticSearchService, settings, serverInfoService, httpClientHelper)
+        public ElasticBestBetsCommerceController(IBestBetsRepository bestBetsRepository, IElasticSearchService elasticSearchService, ILanguageBranchRepository languageBranchRepository, IElasticSearchSettings settings, IServerInfoService serverInfoService, IHttpClientHelper httpClientHelper, ReferenceConverter referenceConverter) : base(bestBetsRepository, languageBranchRepository, elasticSearchService, settings, serverInfoService, httpClientHelper)
         {
             _settings = settings;
             _referenceConverter = referenceConverter;

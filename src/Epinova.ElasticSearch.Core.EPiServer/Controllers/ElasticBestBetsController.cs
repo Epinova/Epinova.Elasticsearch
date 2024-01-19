@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
-using System.Threading.Tasks;
 using System.Web.Mvc;
 using Epinova.ElasticSearch.Core.Contracts;
 using Epinova.ElasticSearch.Core.Conventions;
@@ -11,21 +10,18 @@ using Epinova.ElasticSearch.Core.EPiServer.Models.ViewModels;
 using Epinova.ElasticSearch.Core.Models;
 using Epinova.ElasticSearch.Core.Settings;
 using Epinova.ElasticSearch.Core.Settings.Configuration;
-using EPiServer;
 using EPiServer.DataAbstraction;
 
 namespace Epinova.ElasticSearch.Core.EPiServer.Controllers
 {
     public class ElasticBestBetsController : ElasticSearchControllerBase
     {
-        private readonly IContentLoader _contentLoader;
         private readonly IBestBetsRepository _bestBetsRepository;
         private readonly IElasticSearchService _searchService;
         private readonly IElasticSearchSettings _settings;
 
-        public ElasticBestBetsController(IContentLoader contentLoader, IBestBetsRepository bestBetsRepository, ILanguageBranchRepository languageBranchRepository, IElasticSearchService searchService, IElasticSearchSettings settings, IServerInfoService serverInfoService, IHttpClientHelper httpClientHelper) : base(serverInfoService, settings, httpClientHelper, languageBranchRepository)
+        public ElasticBestBetsController(IBestBetsRepository bestBetsRepository, ILanguageBranchRepository languageBranchRepository, IElasticSearchService searchService, IElasticSearchSettings settings, IServerInfoService serverInfoService, IHttpClientHelper httpClientHelper) : base(serverInfoService, settings, httpClientHelper, languageBranchRepository)
         {
-            _contentLoader = contentLoader;
             _bestBetsRepository = bestBetsRepository;
             _searchService = searchService;
             _settings = settings;
@@ -60,26 +56,6 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Controllers
             }
 
             return RedirectToAction("Index", new { index, languageId });
-        }
-
-        [HttpGet]
-        public async Task<ActionResult> Search(string query, string language, string indexName = null)
-        {
-            CultureInfo cultureInfo = new CultureInfo(language);
-
-            string index = !string.IsNullOrWhiteSpace(indexName)
-                ? _settings.GetCustomIndexName(indexName, cultureInfo)
-                : _settings.GetDefaultIndexName(cultureInfo);
-
-            SearchResult searchResult = await _searchService.Search(searchText: query)
-                .UseIndex(index)
-                .Take(20)
-                .GetResultsAsync();
-
-            IEnumerable<SimpleSearchHit> hits = searchResult?.Hits?.Select(h => new SimpleSearchHit(h.Id, h.Name)) ?? Enumerable.Empty<SimpleSearchHit>();
-
-            //var jsonSerializerSettings = new JsonSerializerSettings();
-            return Json(hits);
         }
 
         public ActionResult Delete(string languageId, string phrase, int contentId, string index, string typeName)

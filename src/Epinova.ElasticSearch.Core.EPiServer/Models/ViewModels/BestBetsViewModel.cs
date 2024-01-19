@@ -59,16 +59,4 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Models.ViewModels
             return moduleList;
         }
     }
-
-    public class SimpleSearchHit
-    {
-        public SimpleSearchHit(long id, string name)
-        {
-            Id = id;
-            Name = name;
-        }
-
-        public long Id { get; set; }
-        public string Name { get; set; }
-    }
 }
