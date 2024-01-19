@@ -3,9 +3,7 @@ using System.Globalization;
 using System.IO;
 using System.Net;
 using Epinova.ElasticSearch.Core;
-using Epinova.ElasticSearch.Core.Extensions;
 using Epinova.ElasticSearch.Core.Models.Bulk;
-using Epinova.ElasticSearch.Core.Settings;
 using Moq;
 using TestData;
 using Xunit;
@@ -61,7 +59,7 @@ namespace Core.Tests
         public void Bulk_CallsClientPost()
         {
             var id = Factory.GetInteger();
-            string indexName = new ElasticSearchSettings().GetCustomIndexName("my-index", new CultureInfo("en"));
+            string indexName = _fixture.ServiceLocationMock.SettingsMock.Object.GetCustomIndexName("my-index", new CultureInfo("en"));
             _coreIndexer.Bulk(new BulkOperation(indexName, new { Foo = "bar" }, Operation.Index, null, id));
 
             _fixture.ServiceLocationMock.HttpClientMock
@@ -71,8 +69,8 @@ namespace Core.Tests
         [Fact]
         public void Bulk_ReturnsBatchResults()
         {
-            string indexName = new ElasticSearchSettings().GetCustomIndexName("my-index", new CultureInfo("en"));
-            var result = _coreIndexer.Bulk(new BulkOperation(indexName,  new { Foo = 42 }, Operation.Index, null, 123));
+            string indexName = _fixture.ServiceLocationMock.SettingsMock.Object.GetCustomIndexName("my-index", new CultureInfo("en"));
+            var result = _coreIndexer.Bulk(new BulkOperation(indexName, new { Foo = 42 }, Operation.Index, null, 123));
             Assert.NotEmpty(result.Batches);
         }
 
@@ -81,7 +79,7 @@ namespace Core.Tests
         {
             var id = Factory.GetInteger();
             _coreIndexer.Delete(id, new CultureInfo("sv"));
-            var uri = new Uri($"http://example.com/delete-me/{typeof(TestPage).GetTypeName()}/{id}");
+            var uri = new Uri($"http://example.com/delete-me/_doc/{id}");
 
             _fixture.ServiceLocationMock.HttpClientMock
                 .Verify(m => m.Head(uri), Times.Once);
@@ -96,7 +94,7 @@ namespace Core.Tests
             _coreIndexer.Update(id, new { Foo = 42 }, "my-index");
 
             _fixture.ServiceLocationMock.HttpClientMock
-                .Verify(m => m.Put(new Uri($"http://example.com/my-index/AnonymousType/{id}"), It.IsAny<byte[]>()), Times.Once);
+                .Verify(m => m.Put(new Uri($"http://example.com/my-index/_doc/{id}"), It.IsAny<byte[]>()), Times.Once);
         }
 
         [Fact]
@@ -106,7 +104,7 @@ namespace Core.Tests
             _coreIndexer.Update(id, new { Foo = 42, Types = new[] { "foo", "bar" } }, "my-index");
 
             _fixture.ServiceLocationMock.HttpClientMock
-                .Verify(m => m.Put(new Uri($"http://example.com/my-index/AnonymousType/{id}"), It.IsAny<byte[]>()), Times.Once);
+                .Verify(m => m.Put(new Uri($"http://example.com/my-index/_doc/{id}"), It.IsAny<byte[]>()), Times.Once);
         }
 
         [Fact]
@@ -146,7 +144,7 @@ namespace Core.Tests
             _coreIndexer.ClearBestBets("my-index", id);
 
             _fixture.ServiceLocationMock.HttpClientMock
-                .Verify(m => m.Post(new Uri($"http://example.com/my-index/{typeof(TestPage).GetTypeName()}/{id}/_update"), It.IsAny<byte[]>()), Times.Once);
+                .Verify(m => m.Post(new Uri($"http://example.com/my-index/_update/{id}/"), It.IsAny<byte[]>()), Times.Once);
         }
 
         [Fact]
@@ -166,7 +164,7 @@ namespace Core.Tests
             _coreIndexer.ClearBestBets("my-index", id);
 
             _fixture.ServiceLocationMock.HttpClientMock
-                .Verify(m => m.Post(new Uri($"http://example.com/my-index/{typeof(TestPage).GetTypeName()}/{id}/_update"), It.IsAny<byte[]>()), Times.Once);
+                .Verify(m => m.Post(new Uri($"http://example.com/my-index/_update/{id}/"), It.IsAny<byte[]>()), Times.Once);
         }
 
         [Fact]
