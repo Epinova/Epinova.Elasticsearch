@@ -14,13 +14,10 @@ namespace Epinova.ElasticSearch.Core.Models.Bulk
         [JsonProperty(JsonNames.Error)]
         public Error Error { get; set; }
 
-        [JsonProperty(JsonNames.HitType)]
-        public string Type { get; set; }
-
         [JsonIgnore]
         public Type DataType { get; set; }
 
         [JsonProperty(JsonNames.Id)]
-        public string Id { get; set; }
+        public long Id { get; set; }
     }
 }

@@ -395,12 +395,8 @@ namespace Epinova.ElasticSearch.Core.Engine
             {
                 url += extraParam;
             }
-
-            if(_serverInfo.Version >= Constants.TotalHitsAsIntAddedVersion)
-            {
-                url += (url.Contains("?") ? "&" : "?") + "rest_total_hits_as_int=true";
-            }
-
+            
+            url += (url.Contains("?") ? "&" : "?") + "rest_total_hits_as_int=true";
             return url;
         }
 

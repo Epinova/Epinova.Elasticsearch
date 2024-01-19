@@ -55,7 +55,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Commerce.Controllers
                 CreateIndex(indexType, commerceIndexName);
 
                 List<Type> commerceTypes = ListCommerceContentTypes();
-                UpdateMappingForTypes(indexType, commerceIndexName, lang.Key, commerceTypes);
+                UpdateMappingForTypes(commerceIndexName, lang.Key, commerceTypes);
             }
 
             return RedirectToAction("Index");

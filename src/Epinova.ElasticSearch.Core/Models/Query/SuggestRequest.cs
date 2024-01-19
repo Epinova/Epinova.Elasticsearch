@@ -4,7 +4,7 @@ namespace Epinova.ElasticSearch.Core.Models.Query
 {
     internal sealed class SuggestRequest : RequestBase
     {
-        public SuggestRequest(string query, int size, bool includeSkipDuplicates)
+        public SuggestRequest(string query, int size)
         {
             Suggestions = new SuggestionsWrapper
             {
@@ -14,7 +14,7 @@ namespace Epinova.ElasticSearch.Core.Models.Query
                     Completion = new Completion
                     {
                         Field = DefaultFields.Suggest,
-                        SkipDuplicates = includeSkipDuplicates ? (bool?)true : null,
+                        SkipDuplicates = (bool?)true,
                         Size = size > 0 ? size : 5
                     }
                 }

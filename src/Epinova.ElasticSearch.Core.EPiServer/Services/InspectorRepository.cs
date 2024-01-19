@@ -78,11 +78,7 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Services
             else
             {
                 string query = CreateSearchQuery(searchText, type);
-                uri += $"?q={query}&size={size}";
-                if(_serverInfo.Version >= Constants.TotalHitsAsIntAddedVersion)
-                {
-                    uri += "&rest_total_hits_as_int=true";
-                }
+                uri += $"?q={query}&size={size}&rest_total_hits_as_int=true";
 
                 response = _httpClientHelper.GetString(new Uri(uri));
             }
@@ -95,22 +91,14 @@ namespace Epinova.ElasticSearch.Core.EPiServer.Services
 
         private string[] GetMappedFields(string indexName)
         {
-            ElasticSearchSection config = ElasticSearchSection.GetConfiguration();
-            string nameWithoutLanguage = _elasticSearchSettings.GetIndexNameWithoutLanguage(indexName);
-            IndexConfiguration index = config.IndicesParsed.Single(i => i.Name == nameWithoutLanguage);
-            Type mappingType = String.IsNullOrEmpty(index.Type) ? typeof(IndexItem) : Type.GetType(index.Type);
-            IndexMapping mapping = _mapping.GetIndexMapping(mappingType, indexName);
+            IndexMapping mapping = _mapping.GetIndexMapping(indexName);
             return mapping.Properties.Select(p => p.Key).ToArray();
         }
 
         public Dictionary<string, List<TypeCount>> GetTypes(string searchText, string indexName)
         {
-            string uri = $"{_elasticSearchSettings.Host}/{indexName}/_search";
-            if(_serverInfo.Version >= Constants.TotalHitsAsIntAddedVersion)
-            {
-                uri += "?rest_total_hits_as_int=true";
-            }
-
+            string uri = $"{_elasticSearchSettings.Host}/{indexName}/_search?rest_total_hits_as_int=true";
+            
             object query = CreateTypeQuery(searchText);
             string json = JsonConvert.SerializeObject(query, new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore });
             byte[] data = Encoding.UTF8.GetBytes(json);

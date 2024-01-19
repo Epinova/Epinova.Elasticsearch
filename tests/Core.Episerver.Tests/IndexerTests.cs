@@ -42,7 +42,7 @@ namespace Core.Episerver.Tests
             _indexer.Delete(contentLink);
 
             _fixture.ServiceLocationMock.CoreIndexerMock.Verify(
-                m => m.Delete(contentLink.ID.ToString(), It.IsAny<CultureInfo>(), It.IsAny<Type>(), It.IsAny<string>()),
+                m => m.Delete(contentLink.ID, It.IsAny<CultureInfo>(), It.IsAny<string>()),
                 Times.Once());
         }
 
@@ -56,7 +56,7 @@ namespace Core.Episerver.Tests
             _indexer.Delete(page, "test");
 
             _fixture.ServiceLocationMock.CoreIndexerMock.Verify(
-                m => m.Delete(page.ContentLink.ID.ToString(), It.IsAny<CultureInfo>(), It.IsAny<Type>(), It.IsAny<string>()),
+                m => m.Delete(page.ContentLink.ID, It.IsAny<CultureInfo>(), It.IsAny<string>()),
                 Times.Once());
         }
 
@@ -70,7 +70,7 @@ namespace Core.Episerver.Tests
             IndexingStatus result = _indexer.Update(excludedType);
 
             _fixture.ServiceLocationMock.CoreIndexerMock.Verify(
-                m => m.Update(It.IsAny<string>(), It.IsAny<object>(), It.IsAny<string>(), null),
+                m => m.Update(It.IsAny<long>(), It.IsAny<object>(), It.IsAny<string>(), null),
                 Times.Never());
 
             Assert.Equal(IndexingStatus.ExcludedByConvention, result);
@@ -114,7 +114,7 @@ namespace Core.Episerver.Tests
             IndexingStatus result = _indexer.Update(hiddenType);
 
             _fixture.ServiceLocationMock.CoreIndexerMock.Verify(
-                m => m.Update(It.IsAny<string>(), It.IsAny<object>(), It.IsAny<string>(), null),
+                m => m.Update(It.IsAny<long>(), It.IsAny<object>(), It.IsAny<string>(), null),
                 Times.Never());
 
             Assert.Equal(IndexingStatus.HideFromSearchProperty, result);
@@ -132,7 +132,7 @@ namespace Core.Episerver.Tests
 
             _indexer.Update(hiddenType);
 
-            _fixture.ServiceLocationMock.CoreIndexerMock.Verify(m => m.Delete(It.IsAny<string>(), It.IsAny<CultureInfo>(), It.IsAny<Type>(), null),
+            _fixture.ServiceLocationMock.CoreIndexerMock.Verify(m => m.Delete(It.IsAny<long>(), It.IsAny<CultureInfo>(), null),
                 Times.Once);
         }
 
@@ -151,7 +151,7 @@ namespace Core.Episerver.Tests
 
             Assert.Equal(IndexingStatus.HideFromSearchProperty, result);
 
-            _fixture.ServiceLocationMock.CoreIndexerMock.Verify(m => m.Update(It.IsAny<string>(), It.IsAny<object>(), It.IsAny<string>(), It.IsAny<Type>()),
+            _fixture.ServiceLocationMock.CoreIndexerMock.Verify(m => m.Update(It.IsAny<long>(), It.IsAny<object>(), It.IsAny<string>(), It.IsAny<Type>()),
                 Times.Never);
         }
 
@@ -166,7 +166,7 @@ namespace Core.Episerver.Tests
 
             Assert.Equal(IndexingStatus.Ok, result);
 
-            _fixture.ServiceLocationMock.CoreIndexerMock.Verify(m => m.Update(It.IsAny<string>(), It.IsAny<object>(), It.IsAny<string>(), It.IsAny<Type>()),
+            _fixture.ServiceLocationMock.CoreIndexerMock.Verify(m => m.Update(It.IsAny<long>(), It.IsAny<object>(), It.IsAny<string>(), It.IsAny<Type>()),
                 Times.Once);
         }
 
@@ -182,7 +182,7 @@ namespace Core.Episerver.Tests
 
             Assert.Equal(IndexingStatus.HideFromSearchProperty, result);
 
-            _fixture.ServiceLocationMock.CoreIndexerMock.Verify(m => m.Update(It.IsAny<string>(), It.IsAny<object>(), It.IsAny<string>(), It.IsAny<Type>()), Times.Never);
+            _fixture.ServiceLocationMock.CoreIndexerMock.Verify(m => m.Update(It.IsAny<long>(), It.IsAny<object>(), It.IsAny<string>(), It.IsAny<Type>()), Times.Never);
         }
 
         [Fact]
@@ -197,7 +197,7 @@ namespace Core.Episerver.Tests
 
             Assert.Equal(IndexingStatus.HideFromSearchProperty, result);
 
-            _fixture.ServiceLocationMock.CoreIndexerMock.Verify(m => m.Update(It.IsAny<string>(), It.IsAny<object>(), It.IsAny<string>(), It.IsAny<Type>()),
+            _fixture.ServiceLocationMock.CoreIndexerMock.Verify(m => m.Update(It.IsAny<long>(), It.IsAny<object>(), It.IsAny<string>(), It.IsAny<Type>()),
                 Times.Never);
         }
 
@@ -225,10 +225,10 @@ namespace Core.Episerver.Tests
 
             IndexingStatus result = _indexer.UpdateStructure(page);
 
-            _fixture.ServiceLocationMock.CoreIndexerMock.Verify(m => m.Update(page.ContentLink.ID.ToString(), It.IsAny<object>(), It.IsAny<string>(), It.IsAny<Type>()), Times.Once);
-            _fixture.ServiceLocationMock.CoreIndexerMock.Verify(m => m.Update(childrenLinks[0].ID.ToString(), It.IsAny<object>(), It.IsAny<string>(), It.IsAny<Type>()), Times.Once);
-            _fixture.ServiceLocationMock.CoreIndexerMock.Verify(m => m.Update(childrenLinks[1].ID.ToString(), It.IsAny<object>(), It.IsAny<string>(), It.IsAny<Type>()), Times.Once);
-            _fixture.ServiceLocationMock.CoreIndexerMock.Verify(m => m.Update(childrenLinks[2].ID.ToString(), It.IsAny<object>(), It.IsAny<string>(), It.IsAny<Type>()), Times.Once);
+            _fixture.ServiceLocationMock.CoreIndexerMock.Verify(m => m.Update(page.ContentLink.ID, It.IsAny<object>(), It.IsAny<string>(), It.IsAny<Type>()), Times.Once);
+            _fixture.ServiceLocationMock.CoreIndexerMock.Verify(m => m.Update(childrenLinks[0].ID, It.IsAny<object>(), It.IsAny<string>(), It.IsAny<Type>()), Times.Once);
+            _fixture.ServiceLocationMock.CoreIndexerMock.Verify(m => m.Update(childrenLinks[1].ID, It.IsAny<object>(), It.IsAny<string>(), It.IsAny<Type>()), Times.Once);
+            _fixture.ServiceLocationMock.CoreIndexerMock.Verify(m => m.Update(childrenLinks[2].ID, It.IsAny<object>(), It.IsAny<string>(), It.IsAny<Type>()), Times.Once);
         }
 
         [Fact]
