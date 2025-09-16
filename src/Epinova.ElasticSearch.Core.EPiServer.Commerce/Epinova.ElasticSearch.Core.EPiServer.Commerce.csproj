@@ -10,7 +10,7 @@
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="EPiServer.Commerce.Core" Version="11.5.0" />
+    <PackageReference Include="EPiServer.Commerce.Core" Version="[13.32.1,14.0.0)" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Epinova.ElasticSearch.Core.EPiServer\Epinova.ElasticSearch.Core.EPiServer.csproj" />

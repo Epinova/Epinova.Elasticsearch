@@ -25,7 +25,7 @@
     <PackageReference Include="Castle.Core" Version="4.3.1" />
     <PackageReference Include="EPiServer.CMS.AspNet" Version="[11.20.11, 12)" />
     <PackageReference Include="EPiServer.CMS.UI" Version="[11.1.0, 12)" />
-    <PackageReference Include="Newtonsoft.Json" Version="10.0.3" />
+    <PackageReference Include="Newtonsoft.Json" Version="[13.0.1,14.0.0)" />
     <PackageReference Include="RazorGenerator.Mvc" Version="2.4.9" PrivateAssets="all" />
   </ItemGroup>
   <Import Project="..\..\lib\MSBuildCommunityTasks\MSBuild.Community.Tasks.Targets" />
