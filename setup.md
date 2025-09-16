@@ -70,6 +70,7 @@ Add the following configurations:
         closeIndexDelay="500"
         ignoreXhtmlStringContentFragments="false"
         clientTimeoutSeconds="100"
+        apikey=""
         username=""
         password=""
         shards="5"
@@ -96,6 +97,7 @@ Attribute details:
 * `closeIndexDelay` the delay in milliseconds between open/close operations. An increase might be necessary on slower servers.
 * `ignoreXhtmlStringContentFragments` should content fragments in XhtmlStrings be ignored?
 * `clientTimeoutSeconds` the timeout in seconds used by the underlying HttpClient.
+* `apikey` apikey used for authentication. Base64 encoded string generated in Elastic cloud. Preferred.
 * `username` username for basic authentication.
 * `password` password for basic authentication.
 * `shards` the number of shards for new indices.

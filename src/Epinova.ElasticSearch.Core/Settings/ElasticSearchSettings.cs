@@ -52,6 +52,8 @@ namespace Epinova.ElasticSearch.Core.Settings
 
         public string Host => _configuration.Host?.TrimEnd('/');
 
+        public string ApiKey => _configuration.ApiKey;
+
         public string Username => _configuration.Username;
 
         public string Password => _configuration.Password;
