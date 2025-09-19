@@ -220,7 +220,11 @@ namespace Epinova.ElasticSearch.Core.Utilities
                 ? new HttpClient(MessageHandler.Instance.Handler)
                 : new HttpClient();
 
-            if(!String.IsNullOrEmpty(settings.Username) && !String.IsNullOrEmpty(settings.Password))
+            if(!String.IsNullOrWhiteSpace(settings.ApiKey))
+            {
+                client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("ApiKey", settings.ApiKey);
+            }
+            else if(!String.IsNullOrEmpty(settings.Username) && !String.IsNullOrEmpty(settings.Password))
             {
                 var credentials = Encoding.ASCII.GetBytes(String.Concat(settings.Username, ":", settings.Password));
                 client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", Convert.ToBase64String(credentials));

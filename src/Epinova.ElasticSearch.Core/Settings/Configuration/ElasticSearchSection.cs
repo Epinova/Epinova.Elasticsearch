@@ -48,6 +48,13 @@ namespace Epinova.ElasticSearch.Core.Settings.Configuration
             set => this["host"] = value;
         }
 
+        [ConfigurationProperty("apikey", IsRequired = false)]
+        public string ApiKey
+        {
+            get => (string)this["apikey"];
+            set => this["apikey"] = value;
+        }
+
         [ConfigurationProperty("username", IsRequired = false)]
         public string Username
         {
